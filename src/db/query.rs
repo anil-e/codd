@@ -1,0 +1,378 @@
+use crate::models::query_result::{QueryExecutionResult, QueryResult};
+use futures_util::TryStreamExt;
+use sqlx::postgres::{PgRow, PgValueFormat, PgValueRef};
+use sqlx::{Column, Either, PgPool, Row, TypeInfo, ValueRef, raw_sql};
+use sqlx_core::type_checking::TypeChecking;
+use std::fmt::Write;
+
+pub async fn execute(pool: &PgPool, sql: &str) -> Result<QueryExecutionResult, sqlx::Error> {
+    let mut stream = raw_sql(sql).fetch_many(pool);
+    let mut affected_rows = 0;
+    let mut rows = Vec::new();
+
+    while let Some(item) = stream.try_next().await? {
+        match item {
+            Either::Left(result) => {
+                affected_rows += result.rows_affected();
+            }
+            Either::Right(row) => {
+                rows.push(row);
+            }
+        }
+    }
+
+    if !rows.is_empty() {
+        Ok(QueryExecutionResult::Rows(rows_to_result(&rows)))
+    } else if expects_rows_when_empty(sql) {
+        Ok(QueryExecutionResult::Rows(QueryResult::default()))
+    } else {
+        Ok(QueryExecutionResult::AffectedRows(affected_rows))
+    }
+}
+
+fn expects_rows_when_empty(sql: &str) -> bool {
+    let normalized = strip_leading_sql_comments(sql)
+        .trim_start()
+        .to_ascii_lowercase();
+
+    normalized.starts_with("select")
+        || normalized.starts_with("with")
+        || normalized.starts_with("show")
+        || normalized.starts_with("explain")
+        || normalized.starts_with("values")
+        || contains_keyword_outside_literals(&normalized, "returning")
+}
+
+fn strip_leading_sql_comments(mut sql: &str) -> &str {
+    loop {
+        sql = sql.trim_start();
+
+        if let Some(rest) = sql.strip_prefix("--") {
+            sql = rest.split_once('\n').map_or("", |(_, rest)| rest);
+            continue;
+        }
+
+        if let Some(rest) = sql.strip_prefix("/*") {
+            let Some((_, after_comment)) = rest.split_once("*/") else {
+                return "";
+            };
+            sql = after_comment;
+            continue;
+        }
+
+        return sql;
+    }
+}
+
+fn contains_keyword_outside_literals(sql: &str, keyword: &str) -> bool {
+    let bytes = sql.as_bytes();
+    let mut index = 0;
+
+    while index < bytes.len() {
+        match bytes[index] {
+            b'\'' => index = skip_single_quoted_string(bytes, index + 1),
+            b'"' => index = skip_double_quoted_identifier(bytes, index + 1),
+            b'-' if bytes.get(index + 1) == Some(&b'-') => {
+                index = skip_line_comment(bytes, index + 2);
+            }
+            b'/' if bytes.get(index + 1) == Some(&b'*') => {
+                index = skip_block_comment(bytes, index + 2);
+            }
+            byte if is_identifier_start(byte) => {
+                let start = index;
+                index += 1;
+                while bytes
+                    .get(index)
+                    .is_some_and(|byte| is_identifier_continue(*byte))
+                {
+                    index += 1;
+                }
+
+                if &sql[start..index] == keyword {
+                    return true;
+                }
+            }
+            _ => index += 1,
+        }
+    }
+
+    false
+}
+
+fn skip_single_quoted_string(bytes: &[u8], mut index: usize) -> usize {
+    while index < bytes.len() {
+        if bytes[index] == b'\'' {
+            index += 1;
+            if bytes.get(index) == Some(&b'\'') {
+                index += 1;
+            } else {
+                return index;
+            }
+        } else {
+            index += 1;
+        }
+    }
+
+    index
+}
+
+fn skip_double_quoted_identifier(bytes: &[u8], mut index: usize) -> usize {
+    while index < bytes.len() {
+        if bytes[index] == b'"' {
+            index += 1;
+            if bytes.get(index) == Some(&b'"') {
+                index += 1;
+            } else {
+                return index;
+            }
+        } else {
+            index += 1;
+        }
+    }
+
+    index
+}
+
+fn skip_line_comment(bytes: &[u8], mut index: usize) -> usize {
+    while index < bytes.len() && bytes[index] != b'\n' {
+        index += 1;
+    }
+
+    index
+}
+
+fn skip_block_comment(bytes: &[u8], mut index: usize) -> usize {
+    while index + 1 < bytes.len() {
+        if bytes[index] == b'*' && bytes[index + 1] == b'/' {
+            return index + 2;
+        }
+
+        index += 1;
+    }
+
+    bytes.len()
+}
+
+fn is_identifier_start(byte: u8) -> bool {
+    byte.is_ascii_alphabetic() || byte == b'_'
+}
+
+fn is_identifier_continue(byte: u8) -> bool {
+    byte.is_ascii_alphanumeric() || byte == b'_'
+}
+
+fn rows_to_result(rows: &[PgRow]) -> QueryResult {
+    let Some(first_row) = rows.first() else {
+        return QueryResult::default();
+    };
+
+    let columns = first_row
+        .columns()
+        .iter()
+        .map(|column| column.name().to_string())
+        .collect();
+
+    let rows = rows
+        .iter()
+        .map(|row| {
+            row.columns()
+                .iter()
+                .enumerate()
+                .map(|(index, column)| value_to_string(row, index, column.type_info().name()))
+                .collect()
+        })
+        .collect();
+
+    QueryResult { columns, rows }
+}
+
+fn value_to_string(row: &PgRow, index: usize, type_name: &str) -> String {
+    if row
+        .try_get_raw(index)
+        .map(|value| value.is_null())
+        .unwrap_or(false)
+    {
+        return "NULL".to_string();
+    }
+
+    match type_name {
+        "BOOL" => decode::<bool>(row, index),
+        "INT2" => decode::<i16>(row, index),
+        "INT4" => decode::<i32>(row, index),
+        "INT8" => decode::<i64>(row, index),
+        "FLOAT4" => decode::<f32>(row, index),
+        "FLOAT8" => decode::<f64>(row, index),
+        "JSON" | "JSONB" => decode_json(row, index),
+        "DATE" => decode::<chrono::NaiveDate>(row, index),
+        "TIME" => decode::<chrono::NaiveTime>(row, index),
+        "TIMESTAMP" => decode::<chrono::NaiveDateTime>(row, index),
+        "TIMESTAMPTZ" => decode::<chrono::DateTime<chrono::Utc>>(row, index),
+        _ => decode::<String>(row, index),
+    }
+}
+
+fn decode<T>(row: &PgRow, index: usize) -> String
+where
+    for<'r> T: sqlx::Decode<'r, sqlx::Postgres> + sqlx::Type<sqlx::Postgres> + ToString,
+{
+    row.try_get::<T, _>(index).map_or_else(
+        |_| fallback_value_to_string(row, index),
+        |value| value.to_string(),
+    )
+}
+
+fn decode_json(row: &PgRow, index: usize) -> String {
+    row.try_get::<serde_json::Value, _>(index).map_or_else(
+        |_| fallback_value_to_string(row, index),
+        |value| serde_json::to_string_pretty(&value).unwrap_or_else(|_| value.to_string()),
+    )
+}
+
+fn fallback_value_to_string(row: &PgRow, index: usize) -> String {
+    row.try_get_raw(index).map_or_else(
+        |_| "<unavailable>".to_string(),
+        |value| {
+            let owned = <PgValueRef<'_> as ValueRef>::to_owned(&value);
+            let debug = format!("{:?}", sqlx::Postgres::fmt_value_debug(&owned));
+
+            if debug.starts_with("(unknown SQL type ")
+                || debug.starts_with("(error decoding SQL type ")
+            {
+                raw_value_to_string(&value)
+            } else {
+                debug
+            }
+        },
+    )
+}
+
+fn raw_value_to_string(value: &PgValueRef<'_>) -> String {
+    match value.format() {
+        PgValueFormat::Text => value
+            .as_str()
+            .map_or_else(|_| raw_bytes_to_hex(value), str::to_owned),
+        PgValueFormat::Binary => raw_bytes_to_hex(value),
+    }
+}
+
+fn raw_bytes_to_hex(value: &PgValueRef<'_>) -> String {
+    value.as_bytes().map_or_else(
+        |_| "<unavailable>".to_string(),
+        |bytes| {
+            let mut output = String::with_capacity(bytes.len() * 2 + 2);
+            output.push_str("\\x");
+
+            for byte in bytes {
+                let _ = write!(&mut output, "{byte:02x}");
+            }
+
+            output
+        },
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{contains_keyword_outside_literals, expects_rows_when_empty, rows_to_result};
+
+    #[test]
+    fn detects_row_returning_statements() {
+        assert!(expects_rows_when_empty(
+            "insert into users(name) values ('a') returning id"
+        ));
+        assert!(expects_rows_when_empty(
+            "update users set name = 'a' returning id"
+        ));
+        assert!(expects_rows_when_empty("delete from users returning id"));
+        assert!(expects_rows_when_empty(
+            "with updated as (update users set name = 'a' returning id) select * from updated"
+        ));
+    }
+
+    #[test]
+    fn ignores_leading_comments_when_detecting_row_statements() {
+        assert!(expects_rows_when_empty("-- comment\nselect 1"));
+        assert!(expects_rows_when_empty("/* comment */ values (1)"));
+        assert!(expects_rows_when_empty(
+            "/* first */ -- second\n insert into users(name) values ('a') returning id"
+        ));
+    }
+
+    #[test]
+    fn treats_plain_dml_as_affected_rows() {
+        assert!(!expects_rows_when_empty(
+            "insert into users(name) values ('a')"
+        ));
+        assert!(!expects_rows_when_empty("update users set name = 'a'"));
+        assert!(!expects_rows_when_empty("delete from users"));
+    }
+
+    #[test]
+    fn detects_common_empty_row_statements() {
+        assert!(expects_rows_when_empty("select * from users where false"));
+        assert!(expects_rows_when_empty(
+            "with users as (select 1) select * from users where false"
+        ));
+        assert!(expects_rows_when_empty("show search_path"));
+        assert!(expects_rows_when_empty("explain select 1"));
+        assert!(expects_rows_when_empty("values (1), (2)"));
+    }
+
+    #[test]
+    fn returning_detection_requires_a_standalone_keyword() {
+        assert!(!expects_rows_when_empty(
+            "insert into returning_log(message) values ('done')"
+        ));
+        assert!(!expects_rows_when_empty(
+            "insert into users(name) values ('returning')"
+        ));
+        assert!(!expects_rows_when_empty(
+            "insert into users(returning_value) values ('a')"
+        ));
+    }
+
+    #[test]
+    fn returning_detection_ignores_literals_identifiers_and_comments() {
+        assert!(!contains_keyword_outside_literals(
+            "'returning'",
+            "returning"
+        ));
+        assert!(!contains_keyword_outside_literals(
+            "\"returning\"",
+            "returning"
+        ));
+        assert!(!contains_keyword_outside_literals(
+            "-- returning\ninsert into users(name) values ('a')",
+            "returning"
+        ));
+        assert!(!contains_keyword_outside_literals(
+            "/* returning */ insert into users(name) values ('a')",
+            "returning"
+        ));
+        assert!(!contains_keyword_outside_literals(
+            "returning_value",
+            "returning"
+        ));
+        assert!(contains_keyword_outside_literals(
+            "returning id",
+            "returning"
+        ));
+    }
+
+    #[test]
+    fn handles_empty_or_comment_only_sql() {
+        assert!(!expects_rows_when_empty(""));
+        assert!(!expects_rows_when_empty("   "));
+        assert!(!expects_rows_when_empty("-- comment without newline"));
+        assert!(!expects_rows_when_empty("/* unterminated comment"));
+        assert!(!expects_rows_when_empty("/* complete */"));
+    }
+
+    #[test]
+    fn empty_results_are_supported() {
+        let result = rows_to_result(&[]);
+
+        assert!(result.columns.is_empty());
+        assert!(result.rows.is_empty());
+    }
+}

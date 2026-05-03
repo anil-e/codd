@@ -1,0 +1,11 @@
+src/main.rs
+src/window.rs
+src/window_content.rs
+src/models/connection.rs
+src/ui/components/connection_dialog.rs
+src/ui/components/start_screen.rs
+src/ui/components/sidebar.rs
+src/ui/components/editor.rs
+src/ui/components/results.rs
+data/io.github.anil_e.Codd.desktop.in
+data/io.github.anil_e.Codd.metainfo.xml.in

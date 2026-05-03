@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.anil_e.Codd</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-or-later</project_license>
+  <name>Codd</name>
+  <summary>Lightweight native PostgreSQL query app</summary>
+  <description>
+    <p>
+      Codd is a lightweight PostgreSQL query app for GNOME built with Rust,
+      GTK4, and libadwaita.
+    </p>
+    <p>
+      It focuses on saved connections, schema browsing, SQL execution, and
+      native result previews without trying to become a multi-database suite.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.anil_e.Codd.desktop</launchable>
+  <url type="homepage">https://github.com/anil-e/codd</url>
+  <url type="bugtracker">https://github.com/anil-e/codd/issues</url>
+  <developer id="io.github.anil_e">
+    <name>Anil Erdogan</name>
+  </developer>
+  <provides>
+    <binary>codd</binary>
+  </provides>
+  <content_rating type="oars-1.1"/>
+</component>

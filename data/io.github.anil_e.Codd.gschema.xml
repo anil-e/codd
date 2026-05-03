@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.github.anil_e.Codd" path="/io/github/anil_e/codd/">
+    <key name="window-width" type="i">
+      <default>1180</default>
+      <summary>Window width</summary>
+      <description>Default width of the main application window.</description>
+    </key>
+    <key name="window-height" type="i">
+      <default>760</default>
+      <summary>Window height</summary>
+      <description>Default height of the main application window.</description>
+    </key>
+  </schema>
+
+  <schema id="io.github.anil_e.Codd.connection-state">
+    <key name="sidebar-hidden" type="b">
+      <default>false</default>
+      <summary>Sidebar hidden</summary>
+      <description>Whether the object sidebar is hidden for this connection.</description>
+    </key>
+  </schema>
+</schemalist>

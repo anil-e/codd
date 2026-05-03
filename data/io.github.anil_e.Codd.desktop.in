@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Codd
+Comment=Lightweight native PostgreSQL query app
+Exec=codd
+Icon=io.github.anil_e.Codd
+StartupNotify=true
+Terminal=false
+Categories=Development;Database;GTK;
+Keywords=PostgreSQL;SQL;Database;Query;GNOME;
