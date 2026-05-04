@@ -15,6 +15,7 @@ pub enum AppWindowMsg {
     OpenConnectionDialog,
     RunQuery,
     FocusEditor,
+    Quit,
 }
 
 #[relm4::component(pub)]
@@ -75,11 +76,16 @@ impl Component for AppWindow {
             AppWindowMsg::FocusEditor => {
                 self.content.emit(WindowContentMsg::FocusEditor);
             }
+            AppWindowMsg::Quit => {
+                relm4::main_adw_application().quit();
+            }
         }
     }
 }
 
 fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<AppWindow>) {
+    let app = relm4::main_adw_application();
+
     let action = gtk::gio::SimpleAction::new("new-connection", None);
     let s = sender.clone();
     action.connect_activate(move |_, _| {
@@ -101,8 +107,15 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     });
     root.add_action(&action);
 
-    let app = relm4::main_adw_application();
+    let action = gtk::gio::SimpleAction::new("quit", None);
+    let s = sender.clone();
+    action.connect_activate(move |_, _| {
+        s.input(AppWindowMsg::Quit);
+    });
+    app.add_action(&action);
+
     app.set_accels_for_action("win.new-connection", &["<Control>n"]);
     app.set_accels_for_action("win.run-query", &["<Control>Return"]);
     app.set_accels_for_action("win.focus-editor", &["<Control>e"]);
+    app.set_accels_for_action("app.quit", &["<Control>q"]);
 }
