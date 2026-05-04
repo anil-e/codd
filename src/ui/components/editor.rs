@@ -184,8 +184,8 @@ impl Component for SqlEditor {
                                         set_monospace: true,
                                         set_show_line_numbers: false,
                                         set_highlight_current_line: false,
-                                        set_top_margin: 10,
-                                        set_bottom_margin: 10,
+                                        set_top_margin: 0,
+                                        set_bottom_margin: 8,
                                         set_left_margin: 12,
                                         set_right_margin: 12,
                                         add_css_class: "monospace",
@@ -400,9 +400,9 @@ impl SqlEditor {
 fn history_list_row_content(entry: &QueryHistoryEntry) -> gtk::Box {
     let content = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
-        .spacing(2)
-        .margin_top(6)
-        .margin_bottom(6)
+        .spacing(1)
+        .margin_top(4)
+        .margin_bottom(4)
         .margin_start(10)
         .margin_end(10)
         .build();
@@ -422,11 +422,9 @@ fn history_list_row_content(entry: &QueryHistoryEntry) -> gtk::Box {
             .halign(gtk::Align::Start)
             .hexpand(true)
             .xalign(0.0)
-            .lines(2)
-            .max_width_chars(30)
+            .single_line_mode(true)
+            .max_width_chars(24)
             .ellipsize(gtk::pango::EllipsizeMode::End)
-            .wrap(true)
-            .wrap_mode(gtk::pango::WrapMode::WordChar)
             .css_classes(["monospace", "caption"])
             .build(),
     );
@@ -445,11 +443,10 @@ fn history_list_preview(sql: &str) -> String {
         .lines()
         .map(str::trim)
         .filter(|line| !line.is_empty())
-        .take(2)
         .collect::<Vec<_>>()
-        .join("\n");
+        .join(" ");
 
-    truncate_for_display(&preview, 120)
+    truncate_for_display(&preview, 80)
 }
 
 fn history_subtitle(timestamp: i64) -> String {
