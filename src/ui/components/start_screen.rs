@@ -48,6 +48,8 @@ impl Component for StartScreen {
                     #[wrap(Some)]
                     set_child = &gtk::Button {
                         set_label: &gettext("Add Connection..."),
+                        set_halign: gtk::Align::Center,
+                        set_hexpand: false,
                         add_css_class: "pill",
                         add_css_class: "suggested-action",
                         connect_clicked => StartScreenMsg::NewConnection,
