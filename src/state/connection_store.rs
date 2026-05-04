@@ -70,7 +70,7 @@ fn connections_path() -> PathBuf {
     config_dir().join("connections.json")
 }
 
-fn config_dir() -> PathBuf {
+pub(super) fn config_dir() -> PathBuf {
     if let Some(value) = std::env::var_os("XDG_CONFIG_HOME") {
         return PathBuf::from(value).join("codd");
     }

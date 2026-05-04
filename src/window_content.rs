@@ -9,8 +9,9 @@ use sqlx::PgPool;
 use crate::db;
 use crate::models::connection::SavedConnection;
 use crate::models::database_object::DatabaseObject;
+use crate::models::query_result::QueryExecutionResult;
 use crate::settings;
-use crate::state::{app_state::AppState, connection_store};
+use crate::state::{app_state::AppState, connection_store, query_history_store};
 use crate::ui::components::{
     connection_dialog::{ConnectionDialog, ConnectionDialogInit, ConnectionDialogOutput},
     editor::{SqlEditor, SqlEditorMsg, SqlEditorOutput},
@@ -50,6 +51,12 @@ enum QueryState {
     Running,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum QueryHistoryMode {
+    Save,
+    Skip,
+}
+
 #[derive(Debug)]
 struct RunningQuery {
     id: u64,
@@ -83,7 +90,7 @@ pub enum WindowContentCommandOutput {
     },
     QueryExecuted {
         id: u64,
-        result: Result<crate::models::query_result::QueryExecutionResult, String>,
+        result: Result<QueryExecutionResult, String>,
     },
     QueryCancelled {
         id: u64,
@@ -246,10 +253,17 @@ impl Component for WindowContent {
             }
             WindowContentMsg::RunQuery
             | WindowContentMsg::EditorOutput(SqlEditorOutput::RunRequested) => {
-                self.run_query(widgets, &sender);
+                self.run_query(widgets, &sender, QueryHistoryMode::Save);
             }
             WindowContentMsg::EditorOutput(SqlEditorOutput::CancelRequested) => {
                 self.cancel_query();
+            }
+            WindowContentMsg::EditorOutput(SqlEditorOutput::HistorySelected(sql)) => {
+                self.editor_buffer.set_text(&sql);
+                self.editor.emit(SqlEditorMsg::Focus);
+            }
+            WindowContentMsg::EditorOutput(SqlEditorOutput::ClearHistoryRequested) => {
+                self.clear_query_history(widgets);
             }
             WindowContentMsg::FocusEditor => {
                 self.editor.emit(SqlEditorMsg::Focus);
@@ -271,7 +285,7 @@ impl Component for WindowContent {
                 } else {
                     WorkspaceNavigation::Wide
                 };
-                self.run_query(widgets, &sender);
+                self.run_query(widgets, &sender, QueryHistoryMode::Skip);
             }
         }
 
@@ -349,6 +363,7 @@ impl WindowContent {
         self.state.objects.clear();
         self.state.query_result = None;
         self.editor_buffer.set_text("");
+        self.editor.emit(SqlEditorMsg::SetHistory(Vec::new()));
         self.results.emit(QueryResultsMsg::Clear);
         self.sidebar
             .emit(ObjectSidebarMsg::SetError(gettext("No connection")));
@@ -381,6 +396,7 @@ impl WindowContent {
         self.connection_dialog = None;
         self.visible_page = VisiblePage::Workspace;
         self.editor_buffer.set_text("");
+        self.load_query_history(connection);
         self.results.emit(QueryResultsMsg::Clear);
         self.sidebar.emit(ObjectSidebarMsg::Loading);
 
@@ -452,11 +468,7 @@ impl WindowContent {
         }
     }
 
-    fn handle_query_executed(
-        &mut self,
-        id: u64,
-        result: Result<crate::models::query_result::QueryExecutionResult, String>,
-    ) {
+    fn handle_query_executed(&mut self, id: u64, result: Result<QueryExecutionResult, String>) {
         if !self.is_active_query(id) {
             return;
         }
@@ -468,10 +480,8 @@ impl WindowContent {
         match result {
             Ok(result) => {
                 self.state.query_result = match &result {
-                    crate::models::query_result::QueryExecutionResult::Rows(rows) => {
-                        Some(rows.clone())
-                    }
-                    crate::models::query_result::QueryExecutionResult::AffectedRows(_) => None,
+                    QueryExecutionResult::Rows(rows) => Some(rows.clone()),
+                    QueryExecutionResult::AffectedRows(_) => None,
                 };
                 self.results.emit(QueryResultsMsg::ShowResult(result));
             }
@@ -525,7 +535,12 @@ impl WindowContent {
         );
     }
 
-    fn run_query(&mut self, widgets: &mut WindowContentWidgets, sender: &ComponentSender<Self>) {
+    fn run_query(
+        &mut self,
+        widgets: &mut WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+        history_mode: QueryHistoryMode,
+    ) {
         if self.query_state == QueryState::Running {
             widgets
                 .toast_overlay
@@ -546,6 +561,9 @@ impl WindowContent {
                 "Enter SQL before running a query.",
             )));
             return;
+        }
+        if history_mode == QueryHistoryMode::Save {
+            self.record_query_history(widgets, &sql);
         }
 
         self.query_state = QueryState::Running;
@@ -607,5 +625,47 @@ impl WindowContent {
                 false,
             )
             .to_string()
+    }
+
+    fn load_query_history(&self, connection: &SavedConnection) {
+        self.editor.emit(SqlEditorMsg::SetHistory(
+            query_history_store::load_for_connection(&connection.id),
+        ));
+    }
+
+    fn record_query_history(&self, widgets: &WindowContentWidgets, sql: &str) {
+        let Some(connection) = self.state.active_connection.as_ref() else {
+            return;
+        };
+
+        match query_history_store::record_query(&connection.id, sql) {
+            Ok(history) => {
+                self.editor.emit(SqlEditorMsg::SetHistory(history));
+            }
+            Err(error) => {
+                widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                    "{}: {error}",
+                    gettext("Saving query history failed")
+                )));
+            }
+        }
+    }
+
+    fn clear_query_history(&self, widgets: &WindowContentWidgets) {
+        let Some(connection) = self.state.active_connection.as_ref() else {
+            return;
+        };
+
+        match query_history_store::clear_connection(&connection.id) {
+            Ok(history) => {
+                self.editor.emit(SqlEditorMsg::SetHistory(history));
+            }
+            Err(error) => {
+                widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                    "{}: {error}",
+                    gettext("Clearing query history failed")
+                )));
+            }
+        }
     }
 }

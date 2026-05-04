@@ -76,6 +76,14 @@ msgstr ""
 msgid "Enter SQL before running a query."
 msgstr ""
 
+#: src/window_content.rs:640
+msgid "Saving query history failed"
+msgstr ""
+
+#: src/window_content.rs:658
+msgid "Clearing query history failed"
+msgstr ""
+
 #: src/models/connection.rs:67
 msgid "Connection name is required."
 msgstr ""
@@ -245,7 +253,31 @@ msgstr ""
 msgid "The selected database does not currently expose tables or views."
 msgstr ""
 
-#: src/ui/components/editor.rs:87 src/ui/components/editor.rs:91
+#: src/ui/components/editor.rs:98 src/ui/components/editor.rs:121
+msgid "Query History"
+msgstr ""
+
+#: src/ui/components/editor.rs:102
+msgid "History"
+msgstr ""
+
+#: src/ui/components/editor.rs:128
+msgid "Clear"
+msgstr ""
+
+#: src/ui/components/editor.rs:205
+msgid "Insert"
+msgstr ""
+
+#: src/ui/components/editor.rs:270
+msgid "No query history yet."
+msgstr ""
+
+#: src/ui/components/editor.rs:327
+msgid "Unknown time"
+msgstr ""
+
+#: src/ui/components/editor.rs:152 src/ui/components/editor.rs:156
 msgid "Execute Statement"
 msgstr ""
 

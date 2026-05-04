@@ -22,6 +22,12 @@
   padding-top: 10px;
 }
 
+.history-preview {
+  font-size: 0.88em;
+  line-height: 1.35;
+  padding: 10px 12px;
+}
+
 .results-pane {
   background-color: @view_bg_color;
   border-top: 1px solid @borders;
