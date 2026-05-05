@@ -413,7 +413,7 @@ fn history_list_row_content(entry: &QueryHistoryEntry) -> gtk::Box {
             .single_line_mode(true)
             .max_width_chars(24)
             .ellipsize(gtk::pango::EllipsizeMode::End)
-            .css_classes(["monospace", "caption"])
+            .css_classes(["caption"])
             .build(),
     );
 

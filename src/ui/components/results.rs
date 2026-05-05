@@ -373,7 +373,6 @@ fn show_cell_dialog(anchor: &gtk::Label, value: &str) {
     let text = gtk::TextView::builder()
         .buffer(&buffer)
         .editable(false)
-        .monospace(true)
         .wrap_mode(gtk::WrapMode::WordChar)
         .top_margin(16)
         .bottom_margin(16)
