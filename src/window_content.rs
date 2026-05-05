@@ -3,12 +3,14 @@ use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk;
+use relm4::gtk::glib;
 use relm4::prelude::*;
 use sqlx::PgPool;
 
 use crate::db;
 use crate::models::connection::SavedConnection;
 use crate::models::database_object::DatabaseObject;
+use crate::models::query_history::QueryHistoryEntry;
 use crate::models::query_result::QueryExecutionResult;
 use crate::settings;
 use crate::state::{app_state::AppState, connection_store, query_history_store};
@@ -28,15 +30,24 @@ pub struct WindowContent {
     visible_page: VisiblePage,
     start_screen: Controller<StartScreen>,
     sidebar: Controller<ObjectSidebar>,
+    query_tabs: Vec<QueryTab>,
+    query_history: Vec<QueryHistoryEntry>,
+    active_query_tab_id: u64,
+    next_query_tab_id: u64,
+    active_schema_request_id: Option<u64>,
+    next_schema_request_id: u64,
+    next_query_id: u64,
+    workspace_navigation: WorkspaceNavigation,
+}
+
+struct QueryTab {
+    id: u64,
+    page: adw::TabPage,
     editor: Controller<SqlEditor>,
     results: Controller<QueryResults>,
     editor_buffer: sourceview5::Buffer,
     query_state: QueryState,
-    active_schema_request_id: Option<u64>,
-    next_schema_request_id: u64,
     active_query: Option<RunningQuery>,
-    next_query_id: u64,
-    workspace_navigation: WorkspaceNavigation,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -73,13 +84,20 @@ enum WorkspaceNavigation {
 pub enum WindowContentMsg {
     OpenConnectionDialog,
     ShowStartScreen,
+    NewQueryTab,
+    SelectQueryTab(u64),
+    CloseQueryTab(u64),
+    QueryTabTitleChanged(u64),
     RunQuery,
     FocusEditor,
     ToggleSidebar,
     ConnectionDialogOutput(ConnectionDialogOutput),
     StartScreenOutput(StartScreenOutput),
     SidebarOutput(ObjectSidebarOutput),
-    EditorOutput(SqlEditorOutput),
+    EditorOutput {
+        tab_id: u64,
+        output: SqlEditorOutput,
+    },
 }
 
 #[derive(Debug)]
@@ -89,10 +107,12 @@ pub enum WindowContentCommandOutput {
         result: Result<Vec<DatabaseObject>, String>,
     },
     QueryExecuted {
+        tab_id: u64,
         id: u64,
         result: Result<QueryExecutionResult, String>,
     },
     QueryCancelled {
+        tab_id: u64,
         id: u64,
     },
 }
@@ -126,23 +146,20 @@ impl Component for WindowContent {
                         connect_clicked => WindowContentMsg::ToggleSidebar,
                     },
 
+                    pack_end = &gtk::Button {
+                        set_tooltip_text: Some(&gettext("New Query Tab")),
+                        add_css_class: "flat",
+                        #[watch]
+                        set_visible: model.shows_workspace(),
+                        set_child: Some(&icon_label_widget("document-edit-regular-symbolic", &gettext("New"))),
+                        connect_clicked => WindowContentMsg::NewQueryTab,
+                    },
+
                     #[wrap(Some)]
-                    set_title_widget = &gtk::Box {
-                        set_orientation: gtk::Orientation::Vertical,
-
-                        gtk::Label {
-                            set_label: &gettext("Codd"),
-                            add_css_class: "title-4",
-                        },
-
-                        gtk::Label {
-                            add_css_class: "caption",
-                            add_css_class: "dim-label",
-                            #[watch]
-                            set_label: &model.window_subtitle,
-                            #[watch]
-                            set_visible: !model.window_subtitle.is_empty(),
-                        },
+                    set_title_widget = &adw::WindowTitle {
+                        set_title: &gettext("Codd"),
+                        #[watch]
+                        set_subtitle: &model.window_subtitle,
                     },
             },
 
@@ -165,17 +182,32 @@ impl Component for WindowContent {
                             .build(),
 
                         #[wrap(Some)]
-                        set_content = &adw::NavigationPage::builder()
-                            .title(gettext("Workspace"))
-                            .child(&gtk::Paned::builder()
-                                .orientation(gtk::Orientation::Vertical)
-                                .start_child(model.editor.widget())
-                                .end_child(model.results.widget())
-                                .resize_start_child(true)
-                                .shrink_start_child(false)
-                                .position(460)
-                                .build())
-                            .build(),
+                        set_content = &adw::NavigationPage {
+                            set_title: &gettext("Workspace"),
+
+                            #[wrap(Some)]
+                            set_child = &gtk::Box {
+                                set_orientation: gtk::Orientation::Vertical,
+                                set_spacing: 0,
+
+                                gtk::Box {
+                                    set_orientation: gtk::Orientation::Horizontal,
+                                    #[watch]
+                                    set_visible: model.shows_workspace() && model.has_multiple_query_tabs(),
+
+                                    adw::TabBar {
+                                        set_hexpand: true,
+                                        set_autohide: false,
+                                        set_view: Some(&query_tab_view),
+                                    },
+                                },
+
+                                #[name = "query_tab_view"]
+                                adw::TabView {
+                                    set_vexpand: true,
+                                },
+                            },
+                        },
                     },
                 },
             },
@@ -194,13 +226,8 @@ impl Component for WindowContent {
         let sidebar = ObjectSidebar::builder()
             .launch(())
             .forward(sender.input_sender(), WindowContentMsg::SidebarOutput);
-        let editor_buffer = sourceview5::Buffer::new(None);
-        let editor = SqlEditor::builder()
-            .launch(editor_buffer.clone())
-            .forward(sender.input_sender(), WindowContentMsg::EditorOutput);
-        let results = QueryResults::builder().launch(()).detach();
 
-        let model = WindowContent {
+        let mut model = WindowContent {
             state: AppState {
                 connections,
                 ..AppState::default()
@@ -211,21 +238,42 @@ impl Component for WindowContent {
             visible_page: VisiblePage::Start,
             start_screen,
             sidebar,
-            editor,
-            results,
-            editor_buffer,
-            query_state: QueryState::Idle,
+            query_tabs: Vec::new(),
+            query_history: Vec::new(),
+            active_query_tab_id: 0,
+            next_query_tab_id: 0,
             active_schema_request_id: None,
             next_schema_request_id: 0,
-            active_query: None,
             next_query_id: 0,
             workspace_navigation: WorkspaceNavigation::Wide,
         };
         let widgets = view_output!();
 
+        model.add_query_tab(&widgets, &sender);
         widgets.content_stack.set_visible_child_name("start");
         let workspace_split_view = workspace_split_view(&widgets);
         workspace_split_view.set_show_content(true);
+
+        let s = sender.clone();
+        widgets
+            .query_tab_view
+            .connect_selected_page_notify(move |tab_view| {
+                let Some(page) = tab_view.selected_page() else {
+                    return;
+                };
+
+                if let Some(tab_id) = query_tab_id_from_widget(&page.child()) {
+                    s.input(WindowContentMsg::SelectQueryTab(tab_id));
+                }
+            });
+
+        let s = sender.clone();
+        widgets.query_tab_view.connect_close_page(move |_, page| {
+            if let Some(tab_id) = query_tab_id_from_widget(&page.child()) {
+                s.input(WindowContentMsg::CloseQueryTab(tab_id));
+            }
+            glib::Propagation::Stop
+        });
 
         ComponentParts { model, widgets }
     }
@@ -239,6 +287,20 @@ impl Component for WindowContent {
     ) {
         match msg {
             WindowContentMsg::ShowStartScreen => self.show_start_screen(widgets),
+            WindowContentMsg::NewQueryTab => {
+                self.add_query_tab_if_workspace_visible(widgets, &sender);
+            }
+            WindowContentMsg::SelectQueryTab(tab_id) => {
+                if self.query_tabs.iter().any(|tab| tab.id == tab_id) {
+                    self.active_query_tab_id = tab_id;
+                }
+            }
+            WindowContentMsg::CloseQueryTab(tab_id) => {
+                self.close_query_tab(tab_id, widgets);
+            }
+            WindowContentMsg::QueryTabTitleChanged(tab_id) => {
+                self.update_query_tab_title(tab_id);
+            }
             WindowContentMsg::OpenConnectionDialog
             | WindowContentMsg::StartScreenOutput(StartScreenOutput::NewConnection) => {
                 self.open_connection_dialog(root, &sender, None);
@@ -251,22 +313,40 @@ impl Component for WindowContent {
             WindowContentMsg::StartScreenOutput(StartScreenOutput::OpenConnection(connection)) => {
                 self.open_connection_dialog(root, &sender, Some(connection));
             }
-            WindowContentMsg::RunQuery
-            | WindowContentMsg::EditorOutput(SqlEditorOutput::RunRequested) => {
+            WindowContentMsg::RunQuery => {
                 self.run_query(widgets, &sender, QueryHistoryMode::Save);
             }
-            WindowContentMsg::EditorOutput(SqlEditorOutput::CancelRequested) => {
-                self.cancel_query();
+            WindowContentMsg::EditorOutput {
+                tab_id,
+                output: SqlEditorOutput::RunRequested,
+            } => {
+                self.run_query_for_tab(tab_id, widgets, &sender, QueryHistoryMode::Save);
             }
-            WindowContentMsg::EditorOutput(SqlEditorOutput::HistorySelected(sql)) => {
-                self.editor_buffer.set_text(&sql);
-                self.editor.emit(SqlEditorMsg::Focus);
+            WindowContentMsg::EditorOutput {
+                tab_id,
+                output: SqlEditorOutput::CancelRequested,
+            } => {
+                self.cancel_query(tab_id);
             }
-            WindowContentMsg::EditorOutput(SqlEditorOutput::ClearHistoryRequested) => {
+            WindowContentMsg::EditorOutput {
+                tab_id,
+                output: SqlEditorOutput::HistorySelected(sql),
+            } => {
+                if let Some(tab) = self.query_tab_mut(tab_id) {
+                    tab.editor_buffer.set_text(&sql);
+                    tab.editor.emit(SqlEditorMsg::Focus);
+                }
+            }
+            WindowContentMsg::EditorOutput {
+                output: SqlEditorOutput::ClearHistoryRequested,
+                ..
+            } => {
                 self.clear_query_history(widgets);
             }
             WindowContentMsg::FocusEditor => {
-                self.editor.emit(SqlEditorMsg::Focus);
+                if let Some(tab) = self.active_query_tab_mut() {
+                    tab.editor.emit(SqlEditorMsg::Focus);
+                }
             }
             WindowContentMsg::ToggleSidebar => self.toggle_sidebar(widgets, root),
             WindowContentMsg::ConnectionDialogOutput(ConnectionDialogOutput::Connected {
@@ -277,8 +357,10 @@ impl Component for WindowContent {
                 self.connection_dialog = None;
             }
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::PrepareQuery(query)) => {
-                self.editor_buffer.set_text(&query);
-                self.editor.emit(SqlEditorMsg::Focus);
+                if let Some(tab) = self.active_query_tab_mut() {
+                    tab.editor_buffer.set_text(&query);
+                    tab.editor.emit(SqlEditorMsg::Focus);
+                }
                 workspace_split_view(widgets).set_show_content(true);
                 self.workspace_navigation = if workspace_split_view(widgets).is_collapsed() {
                     WorkspaceNavigation::Content
@@ -302,10 +384,12 @@ impl Component for WindowContent {
             WindowContentCommandOutput::SchemaLoaded { id, result } => {
                 self.handle_schema_loaded(id, result);
             }
-            WindowContentCommandOutput::QueryExecuted { id, result } => {
-                self.handle_query_executed(id, result);
+            WindowContentCommandOutput::QueryExecuted { tab_id, id, result } => {
+                self.handle_query_executed(tab_id, id, result);
             }
-            WindowContentCommandOutput::QueryCancelled { id } => self.handle_query_cancelled(id),
+            WindowContentCommandOutput::QueryCancelled { tab_id, id } => {
+                self.handle_query_cancelled(tab_id, id);
+            }
         }
     }
 }
@@ -316,6 +400,51 @@ fn workspace_split_view(widgets: &WindowContentWidgets) -> adw::NavigationSplitV
         .child_by_name("workspace")
         .and_downcast::<adw::NavigationSplitView>()
         .expect("workspace split view to exist")
+}
+
+fn query_tab_id_from_widget(widget: &gtk::Widget) -> Option<u64> {
+    widget
+        .widget_name()
+        .strip_prefix("query-tab-")
+        .and_then(|id| id.parse().ok())
+}
+
+fn query_tab_title(sql: &str) -> String {
+    let preview = sql
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .flat_map(|line| line.split_whitespace())
+        .take(4)
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    if preview.is_empty() {
+        gettext("Query")
+    } else {
+        truncate_for_tab_title(&preview)
+    }
+}
+
+fn truncate_for_tab_title(value: &str) -> String {
+    let mut chars = value.chars();
+    let truncated: String = chars.by_ref().take(28).collect();
+
+    if chars.next().is_some() {
+        format!("{truncated}...")
+    } else {
+        truncated
+    }
+}
+
+fn icon_label_widget(icon_name: &str, label: &str) -> gtk::Box {
+    let container = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+    let image = gtk::Image::from_icon_name(icon_name);
+    container.append(&image);
+
+    let label = gtk::Label::new(Some(label));
+    container.append(&label);
+    container
 }
 
 impl WorkspaceNavigation {
@@ -336,6 +465,128 @@ impl WorkspaceNavigation {
 }
 
 impl WindowContent {
+    fn add_query_tab(&mut self, widgets: &WindowContentWidgets, sender: &ComponentSender<Self>) {
+        let id = self.next_query_tab_id;
+        self.next_query_tab_id = self.next_query_tab_id.wrapping_add(1);
+
+        let editor_buffer = sourceview5::Buffer::new(None);
+        let s = sender.clone();
+        editor_buffer.connect_changed(move |_| {
+            s.input(WindowContentMsg::QueryTabTitleChanged(id));
+        });
+
+        let editor = SqlEditor::builder()
+            .launch(editor_buffer.clone())
+            .forward(sender.input_sender(), move |output| {
+                WindowContentMsg::EditorOutput { tab_id: id, output }
+            });
+
+        let results = QueryResults::builder().launch(()).detach();
+
+        let widget = gtk::Paned::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .start_child(editor.widget())
+            .end_child(results.widget())
+            .resize_start_child(true)
+            .shrink_start_child(false)
+            .position(460)
+            .build();
+
+        widget.set_widget_name(&format!("query-tab-{id}"));
+
+        let title = query_tab_title("");
+        let page = widgets.query_tab_view.append(&widget);
+        page.set_title(&title);
+        page.set_tooltip(&title);
+        widgets.query_tab_view.set_selected_page(&page);
+
+        self.active_query_tab_id = id;
+        self.query_tabs.push(QueryTab {
+            id,
+            page,
+            editor,
+            results,
+            editor_buffer,
+            query_state: QueryState::Idle,
+            active_query: None,
+        });
+
+        if let Some(tab) = self.query_tabs.last() {
+            tab.editor
+                .emit(SqlEditorMsg::SetHistory(self.query_history.clone()));
+        }
+    }
+
+    fn add_query_tab_if_workspace_visible(
+        &mut self,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        if !self.shows_workspace() {
+            return;
+        }
+
+        self.add_query_tab(widgets, sender);
+    }
+
+    fn close_query_tab(&mut self, tab_id: u64, widgets: &WindowContentWidgets) {
+        if self.query_tabs.len() <= 1 {
+            return;
+        }
+
+        let Some(index) = self.query_tabs.iter().position(|tab| tab.id == tab_id) else {
+            return;
+        };
+
+        if let Some(active_query) = self.query_tabs[index].active_query.take() {
+            active_query.abort_handle.abort();
+        }
+
+        let removed_was_active = self.active_query_tab_id == tab_id;
+        let removed = self.query_tabs.remove(index);
+        widgets
+            .query_tab_view
+            .close_page_finish(&removed.page, true);
+
+        if removed_was_active {
+            let next_index = index.min(self.query_tabs.len() - 1);
+            let next_tab = &self.query_tabs[next_index];
+            self.active_query_tab_id = next_tab.id;
+            widgets.query_tab_view.set_selected_page(&next_tab.page);
+        }
+    }
+
+    fn active_query_tab(&self) -> Option<&QueryTab> {
+        self.query_tabs
+            .iter()
+            .find(|tab| tab.id == self.active_query_tab_id)
+    }
+
+    fn active_query_tab_mut(&mut self) -> Option<&mut QueryTab> {
+        let active_query_tab_id = self.active_query_tab_id;
+        self.query_tabs
+            .iter_mut()
+            .find(|tab| tab.id == active_query_tab_id)
+    }
+
+    fn query_tab_mut(&mut self, tab_id: u64) -> Option<&mut QueryTab> {
+        self.query_tabs.iter_mut().find(|tab| tab.id == tab_id)
+    }
+
+    fn update_query_tab_title(&mut self, tab_id: u64) {
+        let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id) else {
+            return;
+        };
+
+        let title = query_tab_title(&self.query_tab_sql(tab_id).unwrap_or_default());
+        tab.page.set_title(&title);
+        tab.page.set_tooltip(&title);
+    }
+
+    fn has_multiple_query_tabs(&self) -> bool {
+        self.query_tabs.len() > 1
+    }
+
     fn shows_workspace(&self) -> bool {
         self.visible_page == VisiblePage::Workspace
     }
@@ -357,14 +608,18 @@ impl WindowContent {
         self.visible_page = VisiblePage::Start;
         self.window_subtitle.clear();
         self.active_pool = None;
-        self.cancel_query();
+        self.cancel_all_queries();
         self.active_schema_request_id = None;
         self.state.active_connection = None;
         self.state.objects.clear();
-        self.state.query_result = None;
-        self.editor_buffer.set_text("");
-        self.editor.emit(SqlEditorMsg::SetHistory(Vec::new()));
-        self.results.emit(QueryResultsMsg::Clear);
+        self.query_history.clear();
+
+        for tab in &self.query_tabs {
+            tab.editor_buffer.set_text("");
+            tab.editor.emit(SqlEditorMsg::SetHistory(Vec::new()));
+            tab.results.emit(QueryResultsMsg::Clear);
+        }
+
         self.sidebar
             .emit(ObjectSidebarMsg::SetError(gettext("No connection")));
         widgets.content_stack.set_visible_child_name("start");
@@ -387,6 +642,8 @@ impl WindowContent {
         sender: &ComponentSender<Self>,
         root: &adw::ToolbarView,
     ) {
+        self.cancel_all_queries();
+
         self.state.active_connection = Some(connection.clone());
         self.window_subtitle = format!(
             "{}@{}:{} / {}",
@@ -395,9 +652,12 @@ impl WindowContent {
         self.active_pool = Some(pool.clone());
         self.connection_dialog = None;
         self.visible_page = VisiblePage::Workspace;
-        self.editor_buffer.set_text("");
+
+        for tab in &self.query_tabs {
+            tab.editor_buffer.set_text("");
+            tab.results.emit(QueryResultsMsg::Clear);
+        }
         self.load_query_history(connection);
-        self.results.emit(QueryResultsMsg::Clear);
         self.sidebar.emit(ObjectSidebarMsg::Loading);
 
         self.show_workspace(widgets, root, connection);
@@ -468,26 +728,30 @@ impl WindowContent {
         }
     }
 
-    fn handle_query_executed(&mut self, id: u64, result: Result<QueryExecutionResult, String>) {
-        if !self.is_active_query(id) {
+    fn handle_query_executed(
+        &mut self,
+        tab_id: u64,
+        id: u64,
+        result: Result<QueryExecutionResult, String>,
+    ) {
+        if !self.is_active_query(tab_id, id) {
             return;
         }
 
-        self.active_query = None;
-        self.query_state = QueryState::Idle;
-        self.editor.emit(SqlEditorMsg::SetRunning(false));
+        let Some(tab) = self.query_tab_mut(tab_id) else {
+            return;
+        };
+
+        tab.active_query = None;
+        tab.query_state = QueryState::Idle;
+        tab.editor.emit(SqlEditorMsg::SetRunning(false));
 
         match result {
             Ok(result) => {
-                self.state.query_result = match &result {
-                    QueryExecutionResult::Rows(rows) => Some(rows.clone()),
-                    QueryExecutionResult::AffectedRows(_) => None,
-                };
-                self.results.emit(QueryResultsMsg::ShowResult(result));
+                tab.results.emit(QueryResultsMsg::ShowResult(result));
             }
             Err(error) => {
-                self.state.query_result = None;
-                self.results.emit(QueryResultsMsg::ShowError(format!(
+                tab.results.emit(QueryResultsMsg::ShowError(format!(
                     "{}: {error}",
                     gettext("Query failed")
                 )));
@@ -495,15 +759,17 @@ impl WindowContent {
         }
     }
 
-    fn handle_query_cancelled(&mut self, id: u64) {
-        if !self.is_active_query(id) {
+    fn handle_query_cancelled(&mut self, tab_id: u64, id: u64) {
+        if !self.is_active_query(tab_id, id) {
             return;
         }
 
-        self.active_query = None;
-        self.query_state = QueryState::Idle;
-        self.editor.emit(SqlEditorMsg::SetRunning(false));
-        self.results.emit(QueryResultsMsg::Cancelled);
+        if let Some(tab) = self.query_tab_mut(tab_id) {
+            tab.active_query = None;
+            tab.query_state = QueryState::Idle;
+            tab.editor.emit(SqlEditorMsg::SetRunning(false));
+            tab.results.emit(QueryResultsMsg::Cancelled);
+        }
     }
 
     fn open_connection_dialog(
@@ -541,7 +807,29 @@ impl WindowContent {
         sender: &ComponentSender<Self>,
         history_mode: QueryHistoryMode,
     ) {
-        if self.query_state == QueryState::Running {
+        let Some(tab_id) = self.active_query_tab().map(|tab| tab.id) else {
+            self.add_query_tab(widgets, sender);
+            return;
+        };
+
+        self.run_query_for_tab(tab_id, widgets, sender, history_mode);
+    }
+
+    fn run_query_for_tab(
+        &mut self,
+        tab_id: u64,
+        widgets: &mut WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+        history_mode: QueryHistoryMode,
+    ) {
+        if self.query_tabs.iter().all(|tab| tab.id != tab_id) {
+            return;
+        }
+
+        if self
+            .query_tab_mut(tab_id)
+            .is_some_and(|tab| tab.query_state == QueryState::Running)
+        {
             widgets
                 .toast_overlay
                 .add_toast(adw::Toast::new(&gettext("A query is already running.")));
@@ -555,7 +843,7 @@ impl WindowContent {
             return;
         };
 
-        let sql = self.editor_sql();
+        let sql = self.query_tab_sql(tab_id).unwrap_or_default();
         if sql.trim().is_empty() {
             widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
                 "Enter SQL before running a query.",
@@ -566,13 +854,14 @@ impl WindowContent {
             self.record_query_history(widgets, &sql);
         }
 
-        self.query_state = QueryState::Running;
-        self.editor.emit(SqlEditorMsg::SetRunning(true));
-        self.results.emit(QueryResultsMsg::Loading);
-
         let id = self.allocate_query_id();
         let (abort_handle, abort_registration) = AbortHandle::new_pair();
-        self.active_query = Some(RunningQuery { id, abort_handle });
+        if let Some(tab) = self.query_tab_mut(tab_id) {
+            tab.query_state = QueryState::Running;
+            tab.editor.emit(SqlEditorMsg::SetRunning(true));
+            tab.results.emit(QueryResultsMsg::Loading);
+            tab.active_query = Some(RunningQuery { id, abort_handle });
+        }
 
         sender.oneshot_command(async move {
             let query = async move {
@@ -582,21 +871,36 @@ impl WindowContent {
             };
 
             match Abortable::new(query, abort_registration).await {
-                Ok(result) => WindowContentCommandOutput::QueryExecuted { id, result },
-                Err(_) => WindowContentCommandOutput::QueryCancelled { id },
+                Ok(result) => WindowContentCommandOutput::QueryExecuted { tab_id, id, result },
+                Err(_) => WindowContentCommandOutput::QueryCancelled { tab_id, id },
             }
         });
     }
 
-    fn cancel_query(&mut self) {
-        let Some(active_query) = self.active_query.take() else {
+    fn cancel_query(&mut self, tab_id: u64) {
+        let Some(tab) = self.query_tab_mut(tab_id) else {
+            return;
+        };
+
+        let Some(active_query) = tab.active_query.take() else {
             return;
         };
 
         active_query.abort_handle.abort();
-        self.query_state = QueryState::Idle;
-        self.editor.emit(SqlEditorMsg::SetRunning(false));
-        self.results.emit(QueryResultsMsg::Cancelled);
+        tab.query_state = QueryState::Idle;
+        tab.editor.emit(SqlEditorMsg::SetRunning(false));
+        tab.results.emit(QueryResultsMsg::Cancelled);
+    }
+
+    fn cancel_all_queries(&mut self) {
+        for tab in &mut self.query_tabs {
+            if let Some(active_query) = tab.active_query.take() {
+                active_query.abort_handle.abort();
+                tab.query_state = QueryState::Idle;
+                tab.editor.emit(SqlEditorMsg::SetRunning(false));
+                tab.results.emit(QueryResultsMsg::Cancelled);
+            }
+        }
     }
 
     fn allocate_query_id(&mut self) -> u64 {
@@ -611,36 +915,41 @@ impl WindowContent {
         id
     }
 
-    fn is_active_query(&self, id: u64) -> bool {
-        self.active_query
+    fn is_active_query(&self, tab_id: u64, id: u64) -> bool {
+        self.query_tabs
+            .iter()
+            .find(|tab| tab.id == tab_id)
+            .and_then(|tab| tab.active_query.as_ref())
             .as_ref()
             .is_some_and(|query| query.id == id)
     }
 
-    fn editor_sql(&self) -> String {
-        self.editor_buffer
-            .text(
-                &self.editor_buffer.start_iter(),
-                &self.editor_buffer.end_iter(),
-                false,
-            )
-            .to_string()
+    fn query_tab_sql(&self, tab_id: u64) -> Option<String> {
+        let buffer = &self
+            .query_tabs
+            .iter()
+            .find(|tab| tab.id == tab_id)?
+            .editor_buffer;
+
+        Some(
+            buffer
+                .text(&buffer.start_iter(), &buffer.end_iter(), false)
+                .to_string(),
+        )
     }
 
-    fn load_query_history(&self, connection: &SavedConnection) {
-        self.editor.emit(SqlEditorMsg::SetHistory(
-            query_history_store::load_for_connection(&connection.id),
-        ));
+    fn load_query_history(&mut self, connection: &SavedConnection) {
+        self.set_query_history(query_history_store::load_for_connection(&connection.id));
     }
 
-    fn record_query_history(&self, widgets: &WindowContentWidgets, sql: &str) {
+    fn record_query_history(&mut self, widgets: &WindowContentWidgets, sql: &str) {
         let Some(connection) = self.state.active_connection.as_ref() else {
             return;
         };
 
         match query_history_store::record_query(&connection.id, sql) {
             Ok(history) => {
-                self.editor.emit(SqlEditorMsg::SetHistory(history));
+                self.set_query_history(history);
             }
             Err(error) => {
                 widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
@@ -651,14 +960,14 @@ impl WindowContent {
         }
     }
 
-    fn clear_query_history(&self, widgets: &WindowContentWidgets) {
+    fn clear_query_history(&mut self, widgets: &WindowContentWidgets) {
         let Some(connection) = self.state.active_connection.as_ref() else {
             return;
         };
 
         match query_history_store::clear_connection(&connection.id) {
             Ok(history) => {
-                self.editor.emit(SqlEditorMsg::SetHistory(history));
+                self.set_query_history(history);
             }
             Err(error) => {
                 widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
@@ -666,6 +975,15 @@ impl WindowContent {
                     gettext("Clearing query history failed")
                 )));
             }
+        }
+    }
+
+    fn set_query_history(&mut self, history: Vec<QueryHistoryEntry>) {
+        self.query_history = history;
+
+        for tab in &self.query_tabs {
+            tab.editor
+                .emit(SqlEditorMsg::SetHistory(self.query_history.clone()));
         }
     }
 }

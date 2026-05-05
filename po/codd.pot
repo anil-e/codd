@@ -35,6 +35,18 @@ msgstr ""
 msgid "Workspace"
 msgstr ""
 
+#: src/window_content.rs:191
+msgid "New Query Tab"
+msgstr ""
+
+#: src/window_content.rs:194
+msgid "New"
+msgstr ""
+
+#: src/window_content.rs:422
+msgid "Query"
+msgstr ""
+
 #: src/window_content.rs:308
 msgid "Hide Objects"
 msgstr ""

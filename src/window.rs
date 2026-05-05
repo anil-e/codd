@@ -13,6 +13,7 @@ pub struct AppWindow {
 #[derive(Debug)]
 pub enum AppWindowMsg {
     OpenConnectionDialog,
+    NewQueryTab,
     RunQuery,
     FocusEditor,
     Quit,
@@ -70,6 +71,9 @@ impl Component for AppWindow {
             AppWindowMsg::OpenConnectionDialog => {
                 self.content.emit(WindowContentMsg::OpenConnectionDialog);
             }
+            AppWindowMsg::NewQueryTab => {
+                self.content.emit(WindowContentMsg::NewQueryTab);
+            }
             AppWindowMsg::RunQuery => {
                 self.content.emit(WindowContentMsg::RunQuery);
             }
@@ -90,6 +94,13 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     let s = sender.clone();
     action.connect_activate(move |_, _| {
         s.input(AppWindowMsg::OpenConnectionDialog);
+    });
+    root.add_action(&action);
+
+    let action = gtk::gio::SimpleAction::new("new-query-tab", None);
+    let s = sender.clone();
+    action.connect_activate(move |_, _| {
+        s.input(AppWindowMsg::NewQueryTab);
     });
     root.add_action(&action);
 
@@ -114,7 +125,8 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     });
     app.add_action(&action);
 
-    app.set_accels_for_action("win.new-connection", &["<Control>n"]);
+    app.set_accels_for_action("win.new-query-tab", &["<Control>n"]);
+    app.set_accels_for_action("win.new-connection", &["<Control><Shift>n"]);
     app.set_accels_for_action("win.run-query", &["<Control>Return"]);
     app.set_accels_for_action("win.focus-editor", &["<Control>e"]);
     app.set_accels_for_action("app.quit", &["<Control>q"]);

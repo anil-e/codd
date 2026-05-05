@@ -110,36 +110,12 @@ impl Component for SqlEditor {
                     set_popover = &gtk::Popover {
                         gtk::Box {
                             set_orientation: gtk::Orientation::Vertical,
-                            set_size_request: (720, -1),
-
-                            gtk::Box {
-                                set_orientation: gtk::Orientation::Horizontal,
-                                set_spacing: 8,
-                                set_margin_top: 8,
-                                set_margin_bottom: 4,
-                                set_margin_start: 10,
-                                set_margin_end: 10,
-
-                                gtk::Label {
-                                    set_label: &gettext("Query History"),
-                                    add_css_class: "heading",
-                                    set_halign: gtk::Align::Start,
-                                    set_hexpand: true,
-                                },
-
-                                gtk::Button {
-                                    set_label: &gettext("Clear"),
-                                    add_css_class: "flat",
-                                    #[watch]
-                                    set_sensitive: !model.history.is_empty(),
-                                    connect_clicked => SqlEditorMsg::ClearHistoryRequested,
-                                },
-                            },
+                            set_size_request: (720, 460),
 
                             gtk::Box {
                                 set_orientation: gtk::Orientation::Horizontal,
                                 set_spacing: 0,
-                                set_margin_top: 4,
+                                set_margin_top: 10,
                                 set_margin_bottom: 0,
                                 set_margin_start: 10,
                                 set_margin_end: 10,
@@ -147,8 +123,9 @@ impl Component for SqlEditor {
 
                                 gtk::ScrolledWindow {
                                     set_width_request: 240,
-                                    set_min_content_height: 240,
-                                    set_max_content_height: 420,
+                                    set_vexpand: true,
+                                    set_min_content_height: 340,
+                                    set_max_content_height: 340,
                                     set_policy: (gtk::PolicyType::Never, gtk::PolicyType::Automatic),
 
                                     #[name = "history_list"]
@@ -171,10 +148,11 @@ impl Component for SqlEditor {
 
                                 gtk::ScrolledWindow {
                                     set_hexpand: true,
+                                    set_vexpand: true,
                                     set_min_content_width: 360,
-                                    set_min_content_height: 240,
-                                    set_max_content_height: 420,
-                                    set_policy: (gtk::PolicyType::Automatic, gtk::PolicyType::Automatic),
+                                    set_min_content_height: 340,
+                                    set_max_content_height: 340,
+                                    set_policy: (gtk::PolicyType::Never, gtk::PolicyType::Automatic),
 
                                     #[name = "history_preview"]
                                     sourceview5::View {
@@ -182,6 +160,7 @@ impl Component for SqlEditor {
                                         set_editable: false,
                                         set_cursor_visible: false,
                                         set_monospace: true,
+                                        set_wrap_mode: gtk::WrapMode::WordChar,
                                         set_show_line_numbers: false,
                                         set_highlight_current_line: false,
                                         set_top_margin: 0,
@@ -201,6 +180,15 @@ impl Component for SqlEditor {
                                 set_margin_bottom: 8,
                                 set_margin_start: 10,
                                 set_margin_end: 10,
+
+                                gtk::Button {
+                                    set_label: &gettext("Clear"),
+                                    add_css_class: "flat",
+                                    add_css_class: "destructive-action",
+                                    #[watch]
+                                    set_sensitive: !model.history.is_empty(),
+                                    connect_clicked => SqlEditorMsg::ClearHistoryRequested,
+                                },
 
                                 gtk::Box {
                                     set_hexpand: true,

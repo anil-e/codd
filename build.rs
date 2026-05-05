@@ -18,6 +18,7 @@ fn main() {
             "database",
             "database-regular",
             "delete-regular",
+            "document-edit-regular",
             "edit-regular",
             "error",
             "go-previous",
