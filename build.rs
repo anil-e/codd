@@ -25,6 +25,7 @@ fn main() {
             "go-next",
             "media-playback-start",
             "network-server",
+            "open-menu",
             "preview",
             "running",
             "sidebar-left",

@@ -43,6 +43,38 @@ msgstr ""
 msgid "New"
 msgstr ""
 
+#: src/window_content.rs:152
+msgid "Main Menu"
+msgstr ""
+
+#: src/menus.rs:9
+msgid "_New Connection"
+msgstr ""
+
+#: src/menus.rs:15
+msgid "_Keyboard Shortcuts"
+msgstr ""
+
+#: src/menus.rs:14
+msgid "_Quit"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:6
+msgid "General"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:9
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:26
+msgid "New Connection"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:49
+msgid "Focus SQL Editor"
+msgstr ""
+
 #: src/window_content.rs:422
 msgid "Query"
 msgstr ""

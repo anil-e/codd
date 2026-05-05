@@ -8,6 +8,7 @@ use relm4::prelude::*;
 use sqlx::PgPool;
 
 use crate::db;
+use crate::menus;
 use crate::models::connection::SavedConnection;
 use crate::models::database_object::DatabaseObject;
 use crate::models::query_history::QueryHistoryEntry;
@@ -34,6 +35,7 @@ pub struct WindowContent {
     query_history: Vec<QueryHistoryEntry>,
     active_query_tab_id: u64,
     next_query_tab_id: u64,
+    menu_button: gtk::MenuButton,
     active_schema_request_id: Option<u64>,
     next_schema_request_id: u64,
     next_query_id: u64,
@@ -146,6 +148,13 @@ impl Component for WindowContent {
                         connect_clicked => WindowContentMsg::ToggleSidebar,
                     },
 
+                    pack_end = &model.menu_button.clone() {
+                        set_icon_name: "open-menu-symbolic",
+                        set_tooltip_text: Some(&gettext("Main Menu")),
+                        set_primary: true,
+                        set_menu_model: Some(&menus::main_menu()),
+                    },
+
                     pack_end = &gtk::Button {
                         set_tooltip_text: Some(&gettext("New Query Tab")),
                         add_css_class: "flat",
@@ -242,6 +251,7 @@ impl Component for WindowContent {
             query_history: Vec::new(),
             active_query_tab_id: 0,
             next_query_tab_id: 0,
+            menu_button: gtk::MenuButton::new(),
             active_schema_request_id: None,
             next_schema_request_id: 0,
             next_query_id: 0,

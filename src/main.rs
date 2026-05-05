@@ -1,5 +1,6 @@
 mod config;
 mod db;
+mod menus;
 mod models;
 mod settings;
 mod state;

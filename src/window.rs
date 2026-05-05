@@ -3,6 +3,7 @@ use libadwaita::prelude::*;
 use relm4::gtk::glib;
 use relm4::prelude::*;
 
+use crate::config::RESOURCE_PREFIX;
 use crate::settings;
 use crate::window_content::{WindowContent, WindowContentMsg};
 
@@ -16,6 +17,7 @@ pub enum AppWindowMsg {
     NewQueryTab,
     RunQuery,
     FocusEditor,
+    Shortcuts,
     Quit,
 }
 
@@ -66,7 +68,7 @@ impl Component for AppWindow {
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, msg: Self::Input, _sender: ComponentSender<Self>, _root: &Self::Root) {
+    fn update(&mut self, msg: Self::Input, _sender: ComponentSender<Self>, root: &Self::Root) {
         match msg {
             AppWindowMsg::OpenConnectionDialog => {
                 self.content.emit(WindowContentMsg::OpenConnectionDialog);
@@ -79,6 +81,9 @@ impl Component for AppWindow {
             }
             AppWindowMsg::FocusEditor => {
                 self.content.emit(WindowContentMsg::FocusEditor);
+            }
+            AppWindowMsg::Shortcuts => {
+                show_shortcuts_dialog(root);
             }
             AppWindowMsg::Quit => {
                 relm4::main_adw_application().quit();
@@ -118,6 +123,13 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     });
     root.add_action(&action);
 
+    let action = gtk::gio::SimpleAction::new("shortcuts", None);
+    let s = sender.clone();
+    action.connect_activate(move |_, _| {
+        s.input(AppWindowMsg::Shortcuts);
+    });
+    app.add_action(&action);
+
     let action = gtk::gio::SimpleAction::new("quit", None);
     let s = sender.clone();
     action.connect_activate(move |_, _| {
@@ -129,5 +141,24 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     app.set_accels_for_action("win.new-connection", &["<Control><Shift>n"]);
     app.set_accels_for_action("win.run-query", &["<Control>Return"]);
     app.set_accels_for_action("win.focus-editor", &["<Control>e"]);
+    app.set_accels_for_action("app.shortcuts", &["<Control>question"]);
     app.set_accels_for_action("app.quit", &["<Control>q"]);
+}
+
+fn show_shortcuts_dialog(root: &adw::ApplicationWindow) {
+    let resource_path = format!("{RESOURCE_PREFIX}/ui/shortcuts-dialog.ui");
+    let builder =
+        if gtk::gio::resources_lookup_data(&resource_path, gtk::gio::ResourceLookupFlags::NONE)
+            .is_ok()
+        {
+            gtk::Builder::from_resource(&resource_path)
+        } else {
+            gtk::Builder::from_string(include_str!("../data/ui/shortcuts-dialog.ui"))
+        };
+
+    let dialog: adw::ShortcutsDialog = builder
+        .object("shortcuts_dialog")
+        .expect("shortcuts dialog to exist");
+
+    dialog.present(Some(root));
 }

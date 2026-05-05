@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/io/github/anil_e/codd">
+    <file preprocess="xml-stripblanks">ui/shortcuts-dialog.ui</file>
     <file>style.css</file>
   </gresource>
 </gresources>

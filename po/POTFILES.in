@@ -9,3 +9,4 @@ src/ui/components/editor.rs
 src/ui/components/results.rs
 data/io.github.anil_e.Codd.desktop.in
 data/io.github.anil_e.Codd.metainfo.xml.in
+data/ui/shortcuts-dialog.ui
