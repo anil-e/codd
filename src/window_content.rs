@@ -58,6 +58,7 @@ struct QueryTab {
 struct BrowseTab {
     id: u64,
     page: adw::TabPage,
+    object: DatabaseObject,
     _browser: Controller<TableBrowser>,
 }
 
@@ -1038,6 +1039,14 @@ impl WindowContent {
     }
 
     fn open_table_browser(&mut self, object: DatabaseObject, widgets: &WindowContentWidgets) {
+        if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.object == object) {
+            widgets.query_tab_view.set_selected_page(&tab.page);
+            workspace_split_view(widgets).set_show_content(true);
+            self.workspace_navigation =
+                WorkspaceNavigation::from_split_view(workspace_split_view(widgets).is_collapsed());
+            return;
+        }
+
         let Some(pool) = self.active_pool.clone() else {
             return;
         };
@@ -1067,11 +1076,15 @@ impl WindowContent {
         page.set_tooltip(&format!("{}.{}", object.schema, object.name));
         widgets.query_tab_view.set_selected_page(&page);
 
-        browser.emit(TableBrowserMsg::Open { pool, object });
+        browser.emit(TableBrowserMsg::Open {
+            pool,
+            object: object.clone(),
+        });
 
         self.browse_tabs.push(BrowseTab {
             id,
             page,
+            object,
             _browser: browser,
         });
     }
