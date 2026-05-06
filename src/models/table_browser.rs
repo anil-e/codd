@@ -35,17 +35,46 @@ pub struct TableColumn {
     pub name: String,
     pub display_type: String,
     pub type_name: String,
+    pub enum_values: Vec<String>,
     pub type_group: ColumnTypeGroup,
     pub is_nullable: bool,
     pub is_primary_key: bool,
     pub ordinal_position: i32,
 }
 
+impl TableColumn {
+    pub fn is_editable_value_type(&self) -> bool {
+        self.type_group != ColumnTypeGroup::Binary
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableCell {
+    pub value: String,
+    pub is_null: bool,
+}
+
+impl TableCell {
+    pub fn null() -> Self {
+        Self {
+            value: "NULL".to_string(),
+            is_null: true,
+        }
+    }
+
+    pub fn new(value: String) -> Self {
+        Self {
+            value,
+            is_null: false,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TablePage {
     pub object: DatabaseObject,
     pub columns: Vec<TableColumn>,
-    pub rows: Vec<Vec<String>>,
+    pub rows: Vec<Vec<TableCell>>,
     pub offset: u32,
     pub page_size: u32,
     pub has_next_page: bool,

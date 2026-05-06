@@ -1,4 +1,5 @@
 use crate::models::query_result::{QueryExecutionResult, QueryResult};
+use crate::models::table_browser::TableCell;
 use futures_util::TryStreamExt;
 use sqlx::postgres::{PgRow, PgValueFormat, PgValueRef};
 use sqlx::{Column, Either, PgPool, Row, TypeInfo, ValueRef, raw_sql};
@@ -187,15 +188,19 @@ fn rows_to_result(rows: &[PgRow]) -> QueryResult {
 }
 
 pub(crate) fn value_to_string(row: &PgRow, index: usize, type_name: &str) -> String {
+    value_to_cell(row, index, type_name).value
+}
+
+pub(crate) fn value_to_cell(row: &PgRow, index: usize, type_name: &str) -> TableCell {
     if row
         .try_get_raw(index)
         .map(|value| value.is_null())
         .unwrap_or(false)
     {
-        return "NULL".to_string();
+        return TableCell::null();
     }
 
-    match type_name {
+    let value = match type_name {
         "BOOL" => decode::<bool>(row, index),
         "INT2" => decode::<i16>(row, index),
         "INT4" => decode::<i32>(row, index),
@@ -208,7 +213,9 @@ pub(crate) fn value_to_string(row: &PgRow, index: usize, type_name: &str) -> Str
         "TIMESTAMP" => decode::<chrono::NaiveDateTime>(row, index),
         "TIMESTAMPTZ" => decode::<chrono::DateTime<chrono::Utc>>(row, index),
         _ => decode::<String>(row, index),
-    }
+    };
+
+    TableCell::new(value)
 }
 
 fn decode<T>(row: &PgRow, index: usize) -> String

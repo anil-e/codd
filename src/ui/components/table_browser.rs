@@ -10,9 +10,13 @@ use sqlx::PgPool;
 use crate::db;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::table_browser::{
-    ColumnTypeGroup, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableColumn, TablePage,
+    DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TablePage,
 };
-use crate::ui::components::cell_dialog::show_cell_value_dialog;
+use cell_editor::show_edit_cell_popover;
+use grid::{TableBrowserRow, cell_factory, clear_columns};
+
+mod cell_editor;
+mod grid;
 
 pub struct TableBrowser {
     pool: Option<PgPool>,
@@ -24,11 +28,13 @@ pub struct TableBrowser {
     status_description: Option<String>,
     offset: u32,
     page_size: u32,
+    page_generation: u64,
     request_id: u64,
     active_request_id: Option<u64>,
     active_abort_handle: Option<AbortHandle>,
     table_rows: gio::ListStore,
     table_view: gtk::ColumnView,
+    edit_popover: Option<gtk::Popover>,
     rendered_columns: Vec<String>,
     style_manager: adw::StyleManager,
     dark_notify_handler: Option<glib::SignalHandlerId>,
@@ -48,7 +54,38 @@ pub enum TableBrowserMsg {
         id: u64,
         result: Result<TablePage, String>,
     },
+    EditCellRequested {
+        anchor: gtk::Label,
+        row_index: usize,
+        column_index: usize,
+    },
+    CellEditSubmitted {
+        page_generation: u64,
+        row_index: usize,
+        column_index: usize,
+        value: Option<String>,
+    },
+    CellUpdated {
+        page_generation: u64,
+        row_index: usize,
+        column_index: usize,
+        result: Result<TableCell, String>,
+    },
     AppearanceChanged,
+}
+
+#[derive(Debug)]
+pub enum TableBrowserCommandOutput {
+    PageLoaded {
+        id: u64,
+        result: Result<TablePage, String>,
+    },
+    CellUpdated {
+        page_generation: u64,
+        row_index: usize,
+        column_index: usize,
+        result: Result<TableCell, String>,
+    },
 }
 
 #[relm4::component(pub)]
@@ -56,7 +93,7 @@ impl Component for TableBrowser {
     type Init = ();
     type Input = TableBrowserMsg;
     type Output = ();
-    type CommandOutput = TableBrowserMsg;
+    type CommandOutput = TableBrowserCommandOutput;
 
     view! {
         gtk::Box {
@@ -245,11 +282,13 @@ impl Component for TableBrowser {
             )),
             offset: 0,
             page_size: DEFAULT_PAGE_SIZE,
+            page_generation: 0,
             request_id: 0,
             active_request_id: None,
             active_abort_handle: None,
             table_rows,
             table_view,
+            edit_popover: None,
             rendered_columns: Vec::new(),
             style_manager,
             dark_notify_handler: Some(dark_notify_handler),
@@ -267,7 +306,7 @@ impl Component for TableBrowser {
         widgets: &mut Self::Widgets,
         msg: Self::Input,
         sender: ComponentSender<Self>,
-        _root: &Self::Root,
+        root: &Self::Root,
     ) {
         match msg {
             TableBrowserMsg::Open { pool, object } => {
@@ -318,6 +357,7 @@ impl Component for TableBrowser {
                         self.status_title.clear();
                         self.status_description = None;
                         self.page = Some(page);
+                        self.page_generation = self.page_generation.wrapping_add(1);
                     }
 
                     Err(error) => {
@@ -328,13 +368,46 @@ impl Component for TableBrowser {
                     }
                 }
 
-                self.render_table();
+                self.render_table(&sender);
                 set_stack_child(widgets, self.page.is_some());
             }
 
+            TableBrowserMsg::EditCellRequested {
+                anchor,
+                row_index,
+                column_index,
+            } => {
+                self.show_edit_popover(&anchor, row_index, column_index, &sender, root);
+            }
+
+            TableBrowserMsg::CellEditSubmitted {
+                page_generation,
+                row_index,
+                column_index,
+                value,
+            } => {
+                self.update_cell(page_generation, row_index, column_index, value, &sender);
+            }
+
+            TableBrowserMsg::CellUpdated {
+                page_generation,
+                row_index,
+                column_index,
+                result,
+            } => {
+                if let Err(error) =
+                    self.handle_cell_updated(page_generation, row_index, column_index, result)
+                {
+                    self.show_warning(root, &gettext("Saving cell failed"), &error);
+                }
+
+                self.render_table(&sender);
+            }
+
             TableBrowserMsg::AppearanceChanged => {
+                close_popover(&mut self.edit_popover);
                 self.rendered_columns.clear();
-                self.render_table();
+                self.render_table(&sender);
             }
         }
 
@@ -347,7 +420,22 @@ impl Component for TableBrowser {
         sender: ComponentSender<Self>,
         _root: &Self::Root,
     ) {
-        sender.input(msg);
+        sender.input(match msg {
+            TableBrowserCommandOutput::PageLoaded { id, result } => {
+                TableBrowserMsg::PageLoaded { id, result }
+            }
+            TableBrowserCommandOutput::CellUpdated {
+                page_generation,
+                row_index,
+                column_index,
+                result,
+            } => TableBrowserMsg::CellUpdated {
+                page_generation,
+                row_index,
+                column_index,
+                result,
+            },
+        });
     }
 
     fn shutdown(&mut self, _widgets: &mut Self::Widgets, _output: relm4::Sender<Self::Output>) {
@@ -358,6 +446,8 @@ impl Component for TableBrowser {
         if let Some(abort_handle) = self.active_abort_handle.take() {
             abort_handle.abort();
         }
+
+        close_popover(&mut self.edit_popover);
     }
 }
 
@@ -371,12 +461,14 @@ impl TableBrowser {
             abort_handle.abort();
         }
 
+        close_popover(&mut self.edit_popover);
+
         self.is_loading = true;
         self.is_error = false;
         self.status_title = gettext("Loading rows");
         self.status_description = Some(gettext("Fetching the selected page from PostgreSQL."));
         self.page = None;
-        self.render_table();
+        self.render_table(sender);
         set_stack_child(widgets, false);
 
         let id = self.allocate_request_id();
@@ -398,7 +490,7 @@ impl TableBrowser {
                 Err(_) => Err(gettext("Loading cancelled")),
             };
 
-            TableBrowserMsg::PageLoaded { id, result }
+            TableBrowserCommandOutput::PageLoaded { id, result }
         });
     }
 
@@ -408,24 +500,25 @@ impl TableBrowser {
         id
     }
 
-    fn render_table(&mut self) {
+    fn render_table(&mut self, sender: &ComponentSender<Self>) {
         let Some(page) = self.page.clone() else {
             self.table_rows.remove_all();
-            clear_columns(&self.table_view);
-            self.rendered_columns.clear();
             return;
         };
 
-        self.sync_columns(&page.columns);
+        self.sync_columns(&page.columns, sender);
         self.table_rows.remove_all();
 
-        for row in &page.rows {
+        for (index, row) in page.rows.iter().enumerate() {
             self.table_rows
-                .append(&glib::BoxedAnyObject::new(row.clone()));
+                .append(&glib::BoxedAnyObject::new(TableBrowserRow {
+                    index,
+                    cells: row.clone(),
+                }));
         }
     }
 
-    fn sync_columns(&mut self, columns: &[TableColumn]) {
+    fn sync_columns(&mut self, columns: &[TableColumn], sender: &ComponentSender<Self>) {
         let column_keys = columns
             .iter()
             .map(|column| format!("{}\u{1f}{}", column.name, column.display_type))
@@ -441,7 +534,7 @@ impl TableBrowser {
         let is_dark = self.style_manager.is_dark();
 
         for (index, column) in columns.iter().enumerate() {
-            let factory = cell_factory(index, column.type_group, is_dark);
+            let factory = cell_factory(index, column.type_group, is_dark, sender);
             let title = column.name.clone();
             let view_column = gtk::ColumnViewColumn::new(Some(&title), Some(factory));
             view_column.set_resizable(true);
@@ -514,117 +607,173 @@ impl TableBrowser {
             "table"
         }
     }
+
+    fn show_edit_popover(
+        &mut self,
+        anchor: &gtk::Label,
+        row_index: usize,
+        column_index: usize,
+        sender: &ComponentSender<Self>,
+        root: &gtk::Box,
+    ) {
+        let Some(page) = self.page.as_ref() else {
+            return;
+        };
+        let Some(column) = page.columns.get(column_index) else {
+            return;
+        };
+        let Some(cell) = page
+            .rows
+            .get(row_index)
+            .and_then(|row| row.get(column_index))
+        else {
+            return;
+        };
+
+        if let Err(error) = validate_editable_cell(&page.object, &page.columns, column_index) {
+            self.show_warning(root, &gettext("Cell cannot be edited"), &error);
+            return;
+        }
+
+        close_popover(&mut self.edit_popover);
+
+        self.edit_popover = Some(show_edit_cell_popover(
+            anchor,
+            column,
+            cell,
+            sender.clone(),
+            self.page_generation,
+            row_index,
+            column_index,
+        ));
+    }
+
+    fn update_cell(
+        &mut self,
+        page_generation: u64,
+        row_index: usize,
+        column_index: usize,
+        value: Option<String>,
+        sender: &ComponentSender<Self>,
+    ) {
+        if page_generation != self.page_generation {
+            return;
+        }
+
+        close_popover(&mut self.edit_popover);
+
+        let (Some(pool), Some(page)) = (self.pool.clone(), self.page.clone()) else {
+            return;
+        };
+        let Some(row) = page.rows.get(row_index).cloned() else {
+            return;
+        };
+
+        sender.oneshot_command(async move {
+            let result = db::browser::update_table_cell(
+                &pool,
+                &page.object,
+                &page.columns,
+                &row,
+                column_index,
+                value,
+            )
+            .await
+            .map_err(|error| error.to_string());
+
+            TableBrowserCommandOutput::CellUpdated {
+                page_generation,
+                row_index,
+                column_index,
+                result,
+            }
+        });
+    }
+
+    fn handle_cell_updated(
+        &mut self,
+        page_generation: u64,
+        row_index: usize,
+        column_index: usize,
+        result: Result<TableCell, String>,
+    ) -> Result<(), String> {
+        if page_generation != self.page_generation {
+            return Ok(());
+        }
+
+        let Some(page) = self.page.as_mut() else {
+            return Ok(());
+        };
+
+        match result {
+            Ok(cell) => {
+                if let Some(row) = page.rows.get_mut(row_index)
+                    && let Some(value) = row.get_mut(column_index)
+                {
+                    *value = cell;
+                }
+
+                Ok(())
+            }
+
+            Err(error) => Err(error),
+        }
+    }
+
+    fn show_warning(&self, root: &gtk::Box, heading: &str, body: &str) {
+        let dialog = adw::AlertDialog::builder()
+            .heading(heading)
+            .body(body)
+            .close_response("close")
+            .build();
+
+        dialog.add_response("close", &gettext("Close"));
+        dialog.present(root.root().and_downcast::<gtk::Window>().as_ref());
+    }
+}
+
+fn validate_editable_cell(
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    column_index: usize,
+) -> Result<(), String> {
+    if object.kind != DatabaseObjectKind::Table {
+        return Err(gettext("Only tables can be edited."));
+    }
+
+    let Some(column) = columns.get(column_index) else {
+        return Err(gettext("The selected cell is no longer available."));
+    };
+
+    if column.is_primary_key {
+        return Err(gettext("Primary key columns are read-only for now."));
+    }
+
+    if !column.is_editable_value_type() {
+        return Err(gettext("This column type is not editable yet."));
+    }
+
+    if !columns.iter().any(|column| column.is_primary_key) {
+        return Err(gettext("Editing requires a primary key."));
+    }
+
+    Ok(())
+}
+
+fn close_popover(popover: &mut Option<gtk::Popover>) {
+    if let Some(popover) = popover.take() {
+        popover.popdown();
+
+        if popover.parent().is_some() {
+            popover.unparent();
+        }
+    }
 }
 
 fn set_stack_child(widgets: &TableBrowserWidgets, has_page: bool) {
     widgets
         .stack
         .set_visible_child_name(if has_page { "grid" } else { "status" });
-}
-
-fn clear_columns(view: &gtk::ColumnView) {
-    while let Some(column) = view.columns().item(0) {
-        if let Ok(column) = column.downcast::<gtk::ColumnViewColumn>() {
-            view.remove_column(&column);
-        } else {
-            break;
-        }
-    }
-}
-
-fn cell_factory(
-    column_index: usize,
-    type_group: ColumnTypeGroup,
-    is_dark: bool,
-) -> gtk::SignalListItemFactory {
-    let factory = gtk::SignalListItemFactory::new();
-    let color = type_group_color(type_group, is_dark);
-
-    factory.connect_setup(move |_, list_item| {
-        let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
-            return;
-        };
-
-        let label = gtk::Label::builder()
-            .xalign(0.0)
-            .selectable(true)
-            .ellipsize(gtk::pango::EllipsizeMode::End)
-            .single_line_mode(true)
-            .lines(1)
-            .width_chars(12)
-            .max_width_chars(28)
-            .margin_top(4)
-            .margin_bottom(4)
-            .margin_start(8)
-            .margin_end(8)
-            .build();
-
-        label.add_css_class("query-cell");
-        label.set_use_markup(color.is_some());
-
-        label.add_controller({
-            let gesture = gtk::GestureClick::new();
-            gesture.connect_pressed(move |gesture, press_count, _, _| {
-                if press_count == 2
-                    && let Some(widget) = gesture.widget()
-                    && let Ok(label) = widget.downcast::<gtk::Label>()
-                    && let Some(full_value) = label.tooltip_text()
-                {
-                    show_cell_value_dialog(&label, &full_value);
-                }
-            });
-            gesture
-        });
-
-        list_item.set_child(Some(&label));
-    });
-
-    factory.connect_bind(move |_, list_item| {
-        let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
-            return;
-        };
-        let Some(item) = list_item.item() else {
-            return;
-        };
-        let Some(label) = list_item.child().and_downcast::<gtk::Label>() else {
-            return;
-        };
-        let Ok(row) = item.downcast::<glib::BoxedAnyObject>() else {
-            return;
-        };
-
-        let row = row.borrow::<Vec<String>>();
-        let value = row.get(column_index).map_or("", String::as_str);
-        if let Some(color) = color {
-            let escaped_value = glib::markup_escape_text(value);
-            label.set_markup(&format!(
-                "<span foreground=\"{color}\">{escaped_value}</span>"
-            ));
-        } else {
-            label.set_label(value);
-        }
-        label.set_tooltip_text(Some(value));
-    });
-
-    factory
-}
-
-fn type_group_color(type_group: ColumnTypeGroup, is_dark: bool) -> Option<&'static str> {
-    match (type_group, is_dark) {
-        (ColumnTypeGroup::Boolean, false) => Some("#1f9d55"),
-        (ColumnTypeGroup::Boolean, true) => Some("#4fd785"),
-        (ColumnTypeGroup::Binary, false) => Some("#8b5cf6"),
-        (ColumnTypeGroup::Binary, true) => Some("#b89cff"),
-        (ColumnTypeGroup::DateTime, false) => Some("#0f7abf"),
-        (ColumnTypeGroup::DateTime, true) => Some("#66c2ff"),
-        (ColumnTypeGroup::Json, false) => Some("#d97706"),
-        (ColumnTypeGroup::Json, true) => Some("#ffb15f"),
-        (ColumnTypeGroup::Numeric, false) => Some("#6d28d9"),
-        (ColumnTypeGroup::Numeric, true) => Some("#c69cff"),
-        (ColumnTypeGroup::Text, false) => Some("#0057b7"),
-        (ColumnTypeGroup::Text, true) => Some("#79b8ff"),
-        (ColumnTypeGroup::Other, _) => None,
-    }
 }
 
 fn page_size_model() -> gtk::StringList {
