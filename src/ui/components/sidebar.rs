@@ -18,6 +18,7 @@ pub enum ObjectSidebarMsg {
     Loading,
     SetObjects(Vec<DatabaseObject>),
     SetError(String),
+    SetSelectedObject(Option<DatabaseObject>),
     ObjectSelected(DatabaseObject),
 }
 
@@ -125,6 +126,11 @@ impl Component for ObjectSidebar {
                 self.status_text = error;
                 self.selected_object = None;
                 clear_list(&widgets.schema_list);
+            }
+
+            ObjectSidebarMsg::SetSelectedObject(object) => {
+                self.selected_object = object.as_ref().map(object_key);
+                self.render_lists(widgets, &sender);
             }
 
             ObjectSidebarMsg::ObjectSelected(object) => {

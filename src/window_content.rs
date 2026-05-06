@@ -92,6 +92,7 @@ pub enum WindowContentMsg {
     ShowStartScreen,
     NewQueryTab,
     SelectQueryTab(u64),
+    SelectBrowseTab(u64),
     CloseQueryTab(u64),
     CloseBrowseTab(u64),
     QueryTabTitleChanged(u64),
@@ -281,6 +282,8 @@ impl Component for WindowContent {
 
                 if let Some(tab_id) = query_tab_id_from_widget(&page.child()) {
                     s.input(WindowContentMsg::SelectQueryTab(tab_id));
+                } else if let Some(tab_id) = browse_tab_id_from_widget(&page.child()) {
+                    s.input(WindowContentMsg::SelectBrowseTab(tab_id));
                 }
             });
 
@@ -312,6 +315,14 @@ impl Component for WindowContent {
             WindowContentMsg::SelectQueryTab(tab_id) => {
                 if self.query_tabs.iter().any(|tab| tab.id == tab_id) {
                     self.active_query_tab_id = tab_id;
+                    self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(None));
+                }
+            }
+            WindowContentMsg::SelectBrowseTab(tab_id) => {
+                if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id) {
+                    self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
+                        tab.object.clone(),
+                    )));
                 }
             }
             WindowContentMsg::CloseQueryTab(tab_id) => {
@@ -1041,6 +1052,9 @@ impl WindowContent {
     fn open_table_browser(&mut self, object: DatabaseObject, widgets: &WindowContentWidgets) {
         if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.object == object) {
             widgets.query_tab_view.set_selected_page(&tab.page);
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
+                tab.object.clone(),
+            )));
             workspace_split_view(widgets).set_show_content(true);
             self.workspace_navigation =
                 WorkspaceNavigation::from_split_view(workspace_split_view(widgets).is_collapsed());
@@ -1087,6 +1101,12 @@ impl WindowContent {
             object,
             _browser: browser,
         });
+
+        if let Some(tab) = self.browse_tabs.last() {
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
+                tab.object.clone(),
+            )));
+        }
     }
 
     fn select_active_query_tab(
