@@ -47,7 +47,7 @@ pub async fn connect(details: &ConnectionDetails) -> Result<PgPool, PostgresErro
 
 pub async fn test_connection(details: &ConnectionDetails) -> Result<(), PostgresError> {
     let pool = connect(details).await?;
-    sqlx::query("select 1").execute(&pool).await?;
+    sqlx::query("SELECT 1").execute(&pool).await?;
     pool.close().await;
 
     Ok(())

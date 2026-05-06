@@ -6,6 +6,8 @@ use relm4::gtk;
 use relm4::gtk::{gio, glib};
 use relm4::prelude::*;
 
+use crate::ui::components::cell_dialog::show_cell_value_dialog;
+
 pub struct QueryResults {
     status_text: String,
     is_error: bool,
@@ -312,6 +314,7 @@ fn cell_factory(column_index: usize) -> gtk::SignalListItemFactory {
             .margin_start(8)
             .margin_end(8)
             .build();
+
         label.add_css_class("query-cell");
 
         label.add_controller({
@@ -322,7 +325,7 @@ fn cell_factory(column_index: usize) -> gtk::SignalListItemFactory {
                     && let Ok(label) = widget.downcast::<gtk::Label>()
                     && let Some(full_value) = label.tooltip_text()
                 {
-                    show_cell_dialog(&label, &full_value);
+                    show_cell_value_dialog(&label, &full_value);
                 }
             });
             gesture
@@ -362,47 +365,4 @@ fn display_cell_value(value: &str, is_header: bool) -> String {
     let mut shortened = value.chars().take(80).collect::<String>();
     shortened.push_str("...");
     shortened
-}
-
-fn show_cell_dialog(anchor: &gtk::Label, value: &str) {
-    let parent = anchor.root().and_downcast::<gtk::Window>();
-
-    let buffer = gtk::TextBuffer::new(None);
-    buffer.set_text(value);
-
-    let text = gtk::TextView::builder()
-        .buffer(&buffer)
-        .editable(false)
-        .wrap_mode(gtk::WrapMode::WordChar)
-        .top_margin(16)
-        .bottom_margin(16)
-        .left_margin(16)
-        .right_margin(16)
-        .build();
-
-    let scrolled = gtk::ScrolledWindow::builder()
-        .hexpand(true)
-        .vexpand(true)
-        .child(&text)
-        .build();
-
-    let dialog = adw::Window::builder()
-        .title(gettext("Cell value"))
-        .default_width(720)
-        .default_height(520)
-        .modal(true)
-        .build();
-
-    if let Some(parent) = parent.as_ref() {
-        dialog.set_transient_for(Some(parent));
-    }
-
-    let toolbar = adw::ToolbarView::new();
-    let header = adw::HeaderBar::new();
-    header.set_title_widget(Some(&gtk::Label::new(Some(&gettext("Cell value")))));
-    toolbar.add_top_bar(&header);
-    toolbar.set_content(Some(&scrolled));
-    dialog.set_content(Some(&toolbar));
-
-    dialog.present();
 }

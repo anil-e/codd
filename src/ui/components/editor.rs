@@ -195,7 +195,7 @@ impl Component for SqlEditor {
                                 },
 
                                 gtk::Button {
-                                    set_label: &gettext("Insert"),
+                                    set_label: &gettext("Apply"),
                                     add_css_class: "suggested-action",
                                     #[watch]
                                     set_sensitive: model.selected_history_index.is_some(),

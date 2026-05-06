@@ -23,7 +23,7 @@ pub enum ObjectSidebarMsg {
 
 #[derive(Debug)]
 pub enum ObjectSidebarOutput {
-    PrepareQuery(String),
+    OpenObject(DatabaseObject),
 }
 
 #[relm4::component(pub)]
@@ -130,9 +130,7 @@ impl Component for ObjectSidebar {
             ObjectSidebarMsg::ObjectSelected(object) => {
                 self.selected_object = Some(object_key(&object));
                 self.render_lists(widgets, &sender);
-                let _ = sender.output(ObjectSidebarOutput::PrepareQuery(
-                    object.select_limit_query(),
-                ));
+                let _ = sender.output(ObjectSidebarOutput::OpenObject(object));
             }
         }
 

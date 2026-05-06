@@ -4,11 +4,11 @@ use sqlx::PgPool;
 pub async fn load_schema(pool: &PgPool) -> Result<Vec<DatabaseObject>, sqlx::Error> {
     let rows = sqlx::query_as::<_, (String, String, String)>(
         r"
-        select table_schema, table_name, table_type
-        from information_schema.tables
-        where table_schema not in ('pg_catalog', 'information_schema')
-          and table_type in ('BASE TABLE', 'VIEW')
-        order by table_schema, table_type, table_name
+        SELECT table_schema, table_name, table_type
+        FROM information_schema.tables
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+          AND table_type IN ('BASE TABLE', 'VIEW')
+        ORDER BY table_schema, table_type, table_name
         ",
     )
     .fetch_all(pool)

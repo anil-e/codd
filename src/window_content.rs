@@ -21,6 +21,7 @@ use crate::ui::components::{
     results::{QueryResults, QueryResultsMsg},
     sidebar::{ObjectSidebar, ObjectSidebarMsg, ObjectSidebarOutput},
     start_screen::{StartScreen, StartScreenMsg, StartScreenOutput},
+    table_browser::{TableBrowser, TableBrowserMsg},
 };
 
 pub struct WindowContent {
@@ -32,9 +33,11 @@ pub struct WindowContent {
     start_screen: Controller<StartScreen>,
     sidebar: Controller<ObjectSidebar>,
     query_tabs: Vec<QueryTab>,
+    browse_tabs: Vec<BrowseTab>,
     query_history: Vec<QueryHistoryEntry>,
     active_query_tab_id: u64,
     next_query_tab_id: u64,
+    next_browse_tab_id: u64,
     menu_button: gtk::MenuButton,
     active_schema_request_id: Option<u64>,
     next_schema_request_id: u64,
@@ -52,6 +55,12 @@ struct QueryTab {
     active_query: Option<RunningQuery>,
 }
 
+struct BrowseTab {
+    id: u64,
+    page: adw::TabPage,
+    _browser: Controller<TableBrowser>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum VisiblePage {
     Start,
@@ -62,12 +71,6 @@ enum VisiblePage {
 enum QueryState {
     Idle,
     Running,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum QueryHistoryMode {
-    Save,
-    Skip,
 }
 
 #[derive(Debug)]
@@ -89,6 +92,7 @@ pub enum WindowContentMsg {
     NewQueryTab,
     SelectQueryTab(u64),
     CloseQueryTab(u64),
+    CloseBrowseTab(u64),
     QueryTabTitleChanged(u64),
     RunQuery,
     FocusEditor,
@@ -202,7 +206,7 @@ impl Component for WindowContent {
                                 gtk::Box {
                                     set_orientation: gtk::Orientation::Horizontal,
                                     #[watch]
-                                    set_visible: model.shows_workspace() && model.has_multiple_query_tabs(),
+                                    set_visible: model.shows_workspace() && model.has_multiple_tabs(),
 
                                     adw::TabBar {
                                         set_hexpand: true,
@@ -248,9 +252,11 @@ impl Component for WindowContent {
             start_screen,
             sidebar,
             query_tabs: Vec::new(),
+            browse_tabs: Vec::new(),
             query_history: Vec::new(),
             active_query_tab_id: 0,
             next_query_tab_id: 0,
+            next_browse_tab_id: 0,
             menu_button: gtk::MenuButton::new(),
             active_schema_request_id: None,
             next_schema_request_id: 0,
@@ -281,6 +287,8 @@ impl Component for WindowContent {
         widgets.query_tab_view.connect_close_page(move |_, page| {
             if let Some(tab_id) = query_tab_id_from_widget(&page.child()) {
                 s.input(WindowContentMsg::CloseQueryTab(tab_id));
+            } else if let Some(tab_id) = browse_tab_id_from_widget(&page.child()) {
+                s.input(WindowContentMsg::CloseBrowseTab(tab_id));
             }
             glib::Propagation::Stop
         });
@@ -308,6 +316,9 @@ impl Component for WindowContent {
             WindowContentMsg::CloseQueryTab(tab_id) => {
                 self.close_query_tab(tab_id, widgets);
             }
+            WindowContentMsg::CloseBrowseTab(tab_id) => {
+                self.close_browse_tab(tab_id, widgets);
+            }
             WindowContentMsg::QueryTabTitleChanged(tab_id) => {
                 self.update_query_tab_title(tab_id);
             }
@@ -324,13 +335,13 @@ impl Component for WindowContent {
                 self.open_connection_dialog(root, &sender, Some(connection));
             }
             WindowContentMsg::RunQuery => {
-                self.run_query(widgets, &sender, QueryHistoryMode::Save);
+                self.run_selected_query_tab(widgets, &sender);
             }
             WindowContentMsg::EditorOutput {
                 tab_id,
                 output: SqlEditorOutput::RunRequested,
             } => {
-                self.run_query_for_tab(tab_id, widgets, &sender, QueryHistoryMode::Save);
+                self.run_query_for_tab(tab_id, widgets, &sender);
             }
             WindowContentMsg::EditorOutput {
                 tab_id,
@@ -354,6 +365,8 @@ impl Component for WindowContent {
                 self.clear_query_history(widgets);
             }
             WindowContentMsg::FocusEditor => {
+                self.select_active_query_tab(widgets, &sender);
+
                 if let Some(tab) = self.active_query_tab_mut() {
                     tab.editor.emit(SqlEditorMsg::Focus);
                 }
@@ -366,18 +379,8 @@ impl Component for WindowContent {
             WindowContentMsg::ConnectionDialogOutput(ConnectionDialogOutput::Dismissed) => {
                 self.connection_dialog = None;
             }
-            WindowContentMsg::SidebarOutput(ObjectSidebarOutput::PrepareQuery(query)) => {
-                if let Some(tab) = self.active_query_tab_mut() {
-                    tab.editor_buffer.set_text(&query);
-                    tab.editor.emit(SqlEditorMsg::Focus);
-                }
-                workspace_split_view(widgets).set_show_content(true);
-                self.workspace_navigation = if workspace_split_view(widgets).is_collapsed() {
-                    WorkspaceNavigation::Content
-                } else {
-                    WorkspaceNavigation::Wide
-                };
-                self.run_query(widgets, &sender, QueryHistoryMode::Skip);
+            WindowContentMsg::SidebarOutput(ObjectSidebarOutput::OpenObject(object)) => {
+                self.open_table_browser(object, widgets);
             }
         }
 
@@ -417,6 +420,20 @@ fn query_tab_id_from_widget(widget: &gtk::Widget) -> Option<u64> {
         .widget_name()
         .strip_prefix("query-tab-")
         .and_then(|id| id.parse().ok())
+}
+
+fn browse_tab_id_from_widget(widget: &gtk::Widget) -> Option<u64> {
+    widget
+        .widget_name()
+        .strip_prefix("browse-tab-")
+        .and_then(|id| id.parse().ok())
+}
+
+fn selected_query_tab_id(widgets: &WindowContentWidgets) -> Option<u64> {
+    widgets
+        .query_tab_view
+        .selected_page()
+        .and_then(|page| query_tab_id_from_widget(&page.child()))
 }
 
 fn query_tab_title(sql: &str) -> String {
@@ -540,7 +557,7 @@ impl WindowContent {
     }
 
     fn close_query_tab(&mut self, tab_id: u64, widgets: &WindowContentWidgets) {
-        if self.query_tabs.len() <= 1 {
+        if self.tab_count() <= 1 {
             return;
         }
 
@@ -559,11 +576,30 @@ impl WindowContent {
             .close_page_finish(&removed.page, true);
 
         if removed_was_active {
-            let next_index = index.min(self.query_tabs.len() - 1);
-            let next_tab = &self.query_tabs[next_index];
-            self.active_query_tab_id = next_tab.id;
-            widgets.query_tab_view.set_selected_page(&next_tab.page);
+            if self.query_tabs.is_empty() {
+                self.active_query_tab_id = 0;
+            } else {
+                let next_index = index.min(self.query_tabs.len() - 1);
+                let next_tab = &self.query_tabs[next_index];
+                self.active_query_tab_id = next_tab.id;
+                widgets.query_tab_view.set_selected_page(&next_tab.page);
+            }
         }
+    }
+
+    fn close_browse_tab(&mut self, tab_id: u64, widgets: &WindowContentWidgets) {
+        if self.tab_count() <= 1 {
+            return;
+        }
+
+        let Some(index) = self.browse_tabs.iter().position(|tab| tab.id == tab_id) else {
+            return;
+        };
+
+        let removed = self.browse_tabs.remove(index);
+        widgets
+            .query_tab_view
+            .close_page_finish(&removed.page, true);
     }
 
     fn active_query_tab(&self) -> Option<&QueryTab> {
@@ -593,8 +629,12 @@ impl WindowContent {
         tab.page.set_tooltip(&title);
     }
 
-    fn has_multiple_query_tabs(&self) -> bool {
-        self.query_tabs.len() > 1
+    fn has_multiple_tabs(&self) -> bool {
+        self.tab_count() > 1
+    }
+
+    fn tab_count(&self) -> usize {
+        self.query_tabs.len() + self.browse_tabs.len()
     }
 
     fn shows_workspace(&self) -> bool {
@@ -623,6 +663,7 @@ impl WindowContent {
         self.state.active_connection = None;
         self.state.objects.clear();
         self.query_history.clear();
+        self.clear_browse_tabs(widgets);
 
         for tab in &self.query_tabs {
             tab.editor_buffer.set_text("");
@@ -662,6 +703,7 @@ impl WindowContent {
         self.active_pool = Some(pool.clone());
         self.connection_dialog = None;
         self.visible_page = VisiblePage::Workspace;
+        self.clear_browse_tabs(widgets);
 
         for tab in &self.query_tabs {
             tab.editor_buffer.set_text("");
@@ -811,18 +853,19 @@ impl WindowContent {
         );
     }
 
-    fn run_query(
+    fn run_selected_query_tab(
         &mut self,
         widgets: &mut WindowContentWidgets,
         sender: &ComponentSender<Self>,
-        history_mode: QueryHistoryMode,
     ) {
-        let Some(tab_id) = self.active_query_tab().map(|tab| tab.id) else {
-            self.add_query_tab(widgets, sender);
+        let Some(tab_id) = selected_query_tab_id(widgets) else {
+            self.select_active_query_tab(widgets, sender);
             return;
         };
 
-        self.run_query_for_tab(tab_id, widgets, sender, history_mode);
+        self.active_query_tab_id = tab_id;
+
+        self.run_query_for_tab(tab_id, widgets, sender);
     }
 
     fn run_query_for_tab(
@@ -830,7 +873,6 @@ impl WindowContent {
         tab_id: u64,
         widgets: &mut WindowContentWidgets,
         sender: &ComponentSender<Self>,
-        history_mode: QueryHistoryMode,
     ) {
         if self.query_tabs.iter().all(|tab| tab.id != tab_id) {
             return;
@@ -860,9 +902,7 @@ impl WindowContent {
             )));
             return;
         }
-        if history_mode == QueryHistoryMode::Save {
-            self.record_query_history(widgets, &sql);
-        }
+        self.record_query_history(widgets, &sql);
 
         let id = self.allocate_query_id();
         let (abort_handle, abort_registration) = AbortHandle::new_pair();
@@ -994,6 +1034,67 @@ impl WindowContent {
         for tab in &self.query_tabs {
             tab.editor
                 .emit(SqlEditorMsg::SetHistory(self.query_history.clone()));
+        }
+    }
+
+    fn open_table_browser(&mut self, object: DatabaseObject, widgets: &WindowContentWidgets) {
+        let Some(pool) = self.active_pool.clone() else {
+            return;
+        };
+
+        self.add_browse_tab(pool, object, widgets);
+        workspace_split_view(widgets).set_show_content(true);
+        self.workspace_navigation =
+            WorkspaceNavigation::from_split_view(workspace_split_view(widgets).is_collapsed());
+    }
+
+    fn add_browse_tab(
+        &mut self,
+        pool: PgPool,
+        object: DatabaseObject,
+        widgets: &WindowContentWidgets,
+    ) {
+        let id = self.next_browse_tab_id;
+        self.next_browse_tab_id = self.next_browse_tab_id.wrapping_add(1);
+
+        let browser = TableBrowser::builder().launch(()).detach();
+        let widget = browser.widget();
+        widget.set_widget_name(&format!("browse-tab-{id}"));
+
+        let title = object.name.clone();
+        let page = widgets.query_tab_view.append(widget);
+        page.set_title(&title);
+        page.set_tooltip(&format!("{}.{}", object.schema, object.name));
+        widgets.query_tab_view.set_selected_page(&page);
+
+        browser.emit(TableBrowserMsg::Open { pool, object });
+
+        self.browse_tabs.push(BrowseTab {
+            id,
+            page,
+            _browser: browser,
+        });
+    }
+
+    fn select_active_query_tab(
+        &mut self,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        if self.active_query_tab().is_none() {
+            self.add_query_tab(widgets, sender);
+            return;
+        }
+
+        if let Some(tab) = self.active_query_tab() {
+            widgets.query_tab_view.set_selected_page(&tab.page);
+        }
+    }
+
+    fn clear_browse_tabs(&mut self, widgets: &WindowContentWidgets) {
+        for tab in self.browse_tabs.drain(..) {
+            widgets.query_tab_view.close_page(&tab.page);
+            widgets.query_tab_view.close_page_finish(&tab.page, true);
         }
     }
 }

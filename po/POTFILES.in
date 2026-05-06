@@ -3,10 +3,12 @@ src/window.rs
 src/window_content.rs
 src/models/connection.rs
 src/ui/components/connection_dialog.rs
+src/ui/components/cell_dialog.rs
 src/ui/components/start_screen.rs
 src/ui/components/sidebar.rs
 src/ui/components/editor.rs
 src/ui/components/results.rs
+src/ui/components/table_browser.rs
 data/io.github.anil_e.Codd.desktop.in
 data/io.github.anil_e.Codd.metainfo.xml.in
 data/ui/shortcuts-dialog.ui

@@ -4,12 +4,12 @@ use relm4::gtk::{self, gio};
 pub fn load() {
     let resource_path = format!("{RESOURCE_PREFIX}/style.css");
     if gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE).is_err() {
-        relm4::set_global_css(include_str!("style.css"));
+        relm4::set_global_css(include_str!("../../data/style.css"));
         return;
     }
 
     let Some(display) = gtk::gdk::Display::default() else {
-        relm4::set_global_css(include_str!("style.css"));
+        relm4::set_global_css(include_str!("../../data/style.css"));
         return;
     };
 

@@ -12,11 +12,7 @@ pub struct DatabaseObject {
 }
 
 impl DatabaseObject {
-    pub fn select_limit_query(&self) -> String {
-        format!("SELECT * FROM {} LIMIT 100;", self.qualified_name())
-    }
-
-    fn qualified_name(&self) -> String {
+    pub fn qualified_name(&self) -> String {
         format!(
             "{}.{}",
             quote_identifier(&self.schema),
@@ -25,6 +21,29 @@ impl DatabaseObject {
     }
 }
 
-fn quote_identifier(value: &str) -> String {
+pub fn quote_identifier(value: &str) -> String {
     format!("\"{}\"", value.replace('"', "\"\""))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{DatabaseObject, DatabaseObjectKind, quote_identifier};
+
+    #[test]
+    fn quotes_postgres_identifiers() {
+        assert_eq!(quote_identifier("public"), "\"public\"");
+        assert_eq!(quote_identifier("user data"), "\"user data\"");
+        assert_eq!(quote_identifier("weird\"name"), "\"weird\"\"name\"");
+    }
+
+    #[test]
+    fn builds_qualified_names() {
+        let object = DatabaseObject {
+            schema: "analytics".to_string(),
+            name: "page views".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+
+        assert_eq!(object.qualified_name(), "\"analytics\".\"page views\"");
+    }
 }

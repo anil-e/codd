@@ -186,7 +186,7 @@ fn rows_to_result(rows: &[PgRow]) -> QueryResult {
     QueryResult { columns, rows }
 }
 
-fn value_to_string(row: &PgRow, index: usize, type_name: &str) -> String {
+pub(crate) fn value_to_string(row: &PgRow, index: usize, type_name: &str) -> String {
     if row
         .try_get_raw(index)
         .map(|value| value.is_null())
