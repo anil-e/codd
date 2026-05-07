@@ -42,6 +42,17 @@
     </child>
     <child>
       <object class="AdwShortcutsSection">
+        <property name="title" translatable="yes" context="shortcut window">Table Browser</property>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Refresh Table or View</property>
+            <property name="accelerator">&lt;Control&gt;r</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwShortcutsSection">
         <property name="title" translatable="yes" context="shortcut window">Query</property>
         <child>
           <object class="AdwShortcutsItem">

@@ -16,6 +16,7 @@ pub enum AppWindowMsg {
     OpenConnectionDialog,
     NewQueryTab,
     RunQuery,
+    RefreshTableBrowser,
     FocusEditor,
     FocusObjectSearch,
     Shortcuts,
@@ -82,6 +83,9 @@ impl Component for AppWindow {
             AppWindowMsg::RunQuery => {
                 self.content.emit(WindowContentMsg::RunQuery);
             }
+            AppWindowMsg::RefreshTableBrowser => {
+                self.content.emit(WindowContentMsg::RefreshActiveBrowseTab);
+            }
             AppWindowMsg::FocusEditor => {
                 self.content.emit(WindowContentMsg::FocusEditor);
             }
@@ -122,6 +126,13 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     });
     root.add_action(&action);
 
+    let action = gtk::gio::SimpleAction::new("refresh-table-browser", None);
+    let s = sender.clone();
+    action.connect_activate(move |_, _| {
+        s.input(AppWindowMsg::RefreshTableBrowser);
+    });
+    root.add_action(&action);
+
     let action = gtk::gio::SimpleAction::new("focus-editor", None);
     let s = sender.clone();
     action.connect_activate(move |_, _| {
@@ -153,6 +164,7 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     app.set_accels_for_action("win.new-query-tab", &["<Control>n"]);
     app.set_accels_for_action("win.new-connection", &["<Control><Shift>n"]);
     app.set_accels_for_action("win.run-query", &["<Control>Return"]);
+    app.set_accels_for_action("win.refresh-table-browser", &["<Control>r"]);
     app.set_accels_for_action("win.focus-editor", &["<Control>e"]);
     app.set_accels_for_action("win.search", &["<Control>f"]);
     app.set_accels_for_action("app.shortcuts", &["<Control>question"]);

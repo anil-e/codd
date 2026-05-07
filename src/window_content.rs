@@ -59,7 +59,7 @@ struct BrowseTab {
     id: u64,
     page: adw::TabPage,
     object: DatabaseObject,
-    _browser: Controller<TableBrowser>,
+    browser: Controller<TableBrowser>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -97,6 +97,7 @@ pub enum WindowContentMsg {
     CloseBrowseTab(u64),
     QueryTabTitleChanged(u64),
     RunQuery,
+    RefreshActiveBrowseTab,
     FocusEditor,
     FocusObjectSearch,
     ToggleSidebar,
@@ -350,6 +351,9 @@ impl Component for WindowContent {
             WindowContentMsg::RunQuery => {
                 self.run_selected_query_tab(widgets, &sender);
             }
+            WindowContentMsg::RefreshActiveBrowseTab => {
+                self.refresh_active_browse_tab(widgets);
+            }
             WindowContentMsg::EditorOutput {
                 tab_id,
                 output: SqlEditorOutput::RunRequested,
@@ -450,6 +454,13 @@ fn selected_query_tab_id(widgets: &WindowContentWidgets) -> Option<u64> {
         .query_tab_view
         .selected_page()
         .and_then(|page| query_tab_id_from_widget(&page.child()))
+}
+
+fn selected_browse_tab_id(widgets: &WindowContentWidgets) -> Option<u64> {
+    widgets
+        .query_tab_view
+        .selected_page()
+        .and_then(|page| browse_tab_id_from_widget(&page.child()))
 }
 
 fn query_tab_title(sql: &str) -> String {
@@ -896,6 +907,16 @@ impl WindowContent {
         self.run_query_for_tab(tab_id, widgets, sender);
     }
 
+    fn refresh_active_browse_tab(&self, widgets: &WindowContentWidgets) {
+        let Some(tab_id) = selected_browse_tab_id(widgets) else {
+            return;
+        };
+
+        if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id) {
+            tab.browser.emit(TableBrowserMsg::Refresh);
+        }
+    }
+
     fn run_query_for_tab(
         &mut self,
         tab_id: u64,
@@ -1115,7 +1136,7 @@ impl WindowContent {
             id,
             page,
             object,
-            _browser: browser,
+            browser,
         });
 
         if let Some(tab) = self.browse_tabs.last() {
