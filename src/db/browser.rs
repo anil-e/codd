@@ -204,10 +204,11 @@ fn table_page_sql(
     page_size: u32,
 ) -> String {
     let fetch_limit = page_size.saturating_add(1);
+    let select_columns = select_columns_clause(columns);
     let order_by = order_by_clause(object, columns);
 
     format!(
-        "SELECT * FROM {}{order_by} LIMIT {fetch_limit} OFFSET {offset}",
+        "SELECT {select_columns} FROM {}{order_by} LIMIT {fetch_limit} OFFSET {offset}",
         object.qualified_name()
     )
 }
@@ -247,7 +248,7 @@ fn update_cell_sql(
     Ok(format!(
         "UPDATE {} SET {assignments} WHERE {where_clause} RETURNING {}",
         object.qualified_name(),
-        quote_identifier(&target_column.name)
+        returning_column_expression(target_column)
     ))
 }
 
@@ -298,6 +299,38 @@ fn primary_key_columns(columns: &[TableColumn]) -> Vec<(usize, &TableColumn)> {
         .enumerate()
         .filter(|(_, column)| column.is_primary_key)
         .collect()
+}
+
+fn select_columns_clause(columns: &[TableColumn]) -> String {
+    if columns.is_empty() {
+        return "*".to_string();
+    }
+
+    columns
+        .iter()
+        .map(select_column_expression)
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
+fn select_column_expression(column: &TableColumn) -> String {
+    let name = quote_identifier(&column.name);
+
+    if column.uses_text_display() {
+        return format!("{name}::text AS {name}");
+    }
+
+    name
+}
+
+fn returning_column_expression(column: &TableColumn) -> String {
+    let name = quote_identifier(&column.name);
+
+    if column.uses_text_display() {
+        return format!("{name}::text");
+    }
+
+    name
 }
 
 fn order_by_clause(object: &DatabaseObject, columns: &[TableColumn]) -> String {
@@ -370,7 +403,7 @@ mod tests {
 
         assert_eq!(
             table_page_sql(&object, &columns, 0, 100),
-            "SELECT * FROM \"public\".\"users\" ORDER BY \"tenant id\", \"id\" LIMIT 101 OFFSET 0"
+            "SELECT \"tenant id\", \"id\", \"name\" FROM \"public\".\"users\" ORDER BY \"tenant id\", \"id\" LIMIT 101 OFFSET 0"
         );
     }
 
@@ -384,7 +417,22 @@ mod tests {
 
         assert_eq!(
             table_page_sql(&object, &[column("name", false)], 0, 100),
-            "SELECT * FROM \"public\".\"events\" ORDER BY ctid LIMIT 101 OFFSET 0"
+            "SELECT \"name\" FROM \"public\".\"events\" ORDER BY ctid LIMIT 101 OFFSET 0"
+        );
+    }
+
+    #[test]
+    fn page_query_casts_uuid_and_enum_columns_to_text_for_display() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "orders".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![uuid_column("public_id", true), enum_column("status", false)];
+
+        assert_eq!(
+            table_page_sql(&object, &columns, 0, 100),
+            "SELECT \"public_id\"::text AS \"public_id\", \"status\"::text AS \"status\" FROM \"public\".\"orders\" ORDER BY \"public_id\" LIMIT 101 OFFSET 0"
         );
     }
 
@@ -430,6 +478,35 @@ mod tests {
         assert_eq!(
             update_cell_sql(&object, &columns, 2).unwrap(),
             "UPDATE \"tenant data\".\"settings\" SET \"value\" = $1::text WHERE \"tenant id\" IS NOT DISTINCT FROM $2::text AND \"key\" IS NOT DISTINCT FROM $3::text RETURNING \"value\""
+        );
+    }
+
+    #[test]
+    fn update_cell_query_returns_uuid_and_enum_values_as_text() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "orders".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+
+        assert_eq!(
+            update_cell_sql(
+                &object,
+                &[column("id", true), uuid_column("public_id", false)],
+                1
+            )
+            .unwrap(),
+            "UPDATE \"public\".\"orders\" SET \"public_id\" = $1::uuid WHERE \"id\" IS NOT DISTINCT FROM $2::text RETURNING \"public_id\"::text"
+        );
+
+        assert_eq!(
+            update_cell_sql(
+                &object,
+                &[column("id", true), enum_column("status", false)],
+                1
+            )
+            .unwrap(),
+            "UPDATE \"public\".\"orders\" SET \"status\" = $1::public.order_status WHERE \"id\" IS NOT DISTINCT FROM $2::text RETURNING \"status\"::text"
         );
     }
 
@@ -494,6 +571,25 @@ mod tests {
             is_nullable: false,
             is_primary_key,
             ordinal_position: 1,
+        }
+    }
+
+    fn uuid_column(name: &str, is_primary_key: bool) -> TableColumn {
+        TableColumn {
+            display_type: "uuid".to_string(),
+            type_name: "uuid".to_string(),
+            type_group: ColumnTypeGroup::Other,
+            ..column(name, is_primary_key)
+        }
+    }
+
+    fn enum_column(name: &str, is_primary_key: bool) -> TableColumn {
+        TableColumn {
+            display_type: "public.order_status".to_string(),
+            type_name: "order_status".to_string(),
+            enum_values: vec!["draft".to_string(), "paid".to_string()],
+            type_group: ColumnTypeGroup::Other,
+            ..column(name, is_primary_key)
         }
     }
 }

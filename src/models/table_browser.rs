@@ -46,6 +46,10 @@ impl TableColumn {
     pub fn is_editable_value_type(&self) -> bool {
         self.type_group != ColumnTypeGroup::Binary
     }
+
+    pub fn uses_text_display(&self) -> bool {
+        self.type_name.eq_ignore_ascii_case("uuid") || !self.enum_values.is_empty()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
