@@ -17,6 +17,7 @@ pub enum AppWindowMsg {
     NewQueryTab,
     RunQuery,
     FocusEditor,
+    FocusObjectSearch,
     Shortcuts,
     Quit,
 }
@@ -63,6 +64,8 @@ impl Component for AppWindow {
             glib::Propagation::Proceed
         });
 
+        relm4::main_adw_application().set_resource_base_path(Some(RESOURCE_PREFIX));
+
         setup_window_actions(&root, &sender);
 
         ComponentParts { model, widgets }
@@ -81,6 +84,9 @@ impl Component for AppWindow {
             }
             AppWindowMsg::FocusEditor => {
                 self.content.emit(WindowContentMsg::FocusEditor);
+            }
+            AppWindowMsg::FocusObjectSearch => {
+                self.content.emit(WindowContentMsg::FocusObjectSearch);
             }
             AppWindowMsg::Shortcuts => {
                 show_shortcuts_dialog(root);
@@ -123,6 +129,13 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     });
     root.add_action(&action);
 
+    let action = gtk::gio::SimpleAction::new("search", None);
+    let s = sender.clone();
+    action.connect_activate(move |_, _| {
+        s.input(AppWindowMsg::FocusObjectSearch);
+    });
+    root.add_action(&action);
+
     let action = gtk::gio::SimpleAction::new("shortcuts", None);
     let s = sender.clone();
     action.connect_activate(move |_, _| {
@@ -141,21 +154,14 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     app.set_accels_for_action("win.new-connection", &["<Control><Shift>n"]);
     app.set_accels_for_action("win.run-query", &["<Control>Return"]);
     app.set_accels_for_action("win.focus-editor", &["<Control>e"]);
+    app.set_accels_for_action("win.search", &["<Control>f"]);
     app.set_accels_for_action("app.shortcuts", &["<Control>question"]);
     app.set_accels_for_action("app.quit", &["<Control>q"]);
 }
 
 fn show_shortcuts_dialog(root: &adw::ApplicationWindow) {
     let resource_path = format!("{RESOURCE_PREFIX}/ui/shortcuts-dialog.ui");
-    let builder =
-        if gtk::gio::resources_lookup_data(&resource_path, gtk::gio::ResourceLookupFlags::NONE)
-            .is_ok()
-        {
-            gtk::Builder::from_resource(&resource_path)
-        } else {
-            gtk::Builder::from_string(include_str!("../data/ui/shortcuts-dialog.ui"))
-        };
-
+    let builder = gtk::Builder::from_resource(&resource_path);
     let dialog: adw::ShortcutsDialog = builder
         .object("shortcuts_dialog")
         .expect("shortcuts dialog to exist");

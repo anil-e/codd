@@ -31,6 +31,17 @@
     </child>
     <child>
       <object class="AdwShortcutsSection">
+        <property name="title" translatable="yes" context="shortcut window">Navigation</property>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Search Database Objects</property>
+            <property name="accelerator">&lt;Control&gt;f</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwShortcutsSection">
         <property name="title" translatable="yes" context="shortcut window">Query</property>
         <child>
           <object class="AdwShortcutsItem">

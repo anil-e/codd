@@ -98,6 +98,7 @@ pub enum WindowContentMsg {
     QueryTabTitleChanged(u64),
     RunQuery,
     FocusEditor,
+    FocusObjectSearch,
     ToggleSidebar,
     ConnectionDialogOutput(ConnectionDialogOutput),
     StartScreenOutput(StartScreenOutput),
@@ -382,6 +383,9 @@ impl Component for WindowContent {
                 if let Some(tab) = self.active_query_tab_mut() {
                     tab.editor.emit(SqlEditorMsg::Focus);
                 }
+            }
+            WindowContentMsg::FocusObjectSearch => {
+                self.focus_object_search(widgets);
             }
             WindowContentMsg::ToggleSidebar => self.toggle_sidebar(widgets, root),
             WindowContentMsg::ConnectionDialogOutput(ConnectionDialogOutput::Connected {
@@ -695,6 +699,18 @@ impl WindowContent {
         split_view.set_show_content(true);
         self.persist_sidebar_hidden(hide_sidebar);
         self.workspace_navigation = WorkspaceNavigation::from_split_view(hide_sidebar);
+    }
+
+    fn focus_object_search(&mut self, widgets: &WindowContentWidgets) {
+        if !self.shows_workspace() {
+            return;
+        }
+
+        let split_view = workspace_split_view(widgets);
+        split_view.set_collapsed(false);
+        split_view.set_show_content(true);
+        self.workspace_navigation = WorkspaceNavigation::from_split_view(false);
+        self.sidebar.emit(ObjectSidebarMsg::FocusSearch);
     }
 
     fn handle_connected(

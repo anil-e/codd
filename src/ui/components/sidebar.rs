@@ -8,6 +8,7 @@ use std::collections::BTreeMap;
 
 pub struct ObjectSidebar {
     objects: Vec<DatabaseObject>,
+    search_text: String,
     is_loading: bool,
     status_text: String,
     selected_object: Option<String>,
@@ -19,6 +20,8 @@ pub enum ObjectSidebarMsg {
     SetObjects(Vec<DatabaseObject>),
     SetError(String),
     SetSelectedObject(Option<DatabaseObject>),
+    SearchChanged(String),
+    FocusSearch,
     ObjectSelected(DatabaseObject),
 }
 
@@ -55,21 +58,58 @@ impl Component for ObjectSidebar {
                 },
             },
 
-            add_named[Some("list")] = &gtk::ScrolledWindow {
-                set_vexpand: true,
-                set_policy: (gtk::PolicyType::Never, gtk::PolicyType::Automatic),
+            add_named[Some("list")] = &gtk::Box {
+                set_orientation: gtk::Orientation::Vertical,
+                set_spacing: 0,
 
                 adw::Clamp {
                     set_maximum_size: 520,
-                    set_margin_top: 16,
-                    set_margin_bottom: 16,
+                    set_margin_top: 12,
                     set_margin_start: 12,
                     set_margin_end: 12,
 
-                    #[name = "schema_list"]
-                    gtk::ListBox {
-                        set_selection_mode: gtk::SelectionMode::None,
-                        add_css_class: "boxed-list",
+                    #[name = "search_entry"]
+                    gtk::SearchEntry {
+                        set_placeholder_text: Some(&gettext("Search objects")),
+                        connect_search_changed[sender] => move |entry| {
+                            sender.input(ObjectSidebarMsg::SearchChanged(entry.text().to_string()));
+                        },
+                    },
+                },
+
+                gtk::ScrolledWindow {
+                    set_vexpand: true,
+                    set_policy: (gtk::PolicyType::Never, gtk::PolicyType::Automatic),
+
+                    adw::Clamp {
+                        set_maximum_size: 520,
+                        set_margin_top: 12,
+                        set_margin_bottom: 16,
+                        set_margin_start: 12,
+                        set_margin_end: 12,
+
+                        gtk::Box {
+                            set_orientation: gtk::Orientation::Vertical,
+                            set_spacing: 12,
+
+                            #[name = "empty_filter_label"]
+                            gtk::Label {
+                                set_label: &gettext("No objects match your search."),
+                                add_css_class: "dim-label",
+                                set_halign: gtk::Align::Center,
+                                set_margin_top: 12,
+                                #[watch]
+                                set_visible: model.has_active_search() && !model.has_search_results(),
+                            },
+
+                            #[name = "schema_list"]
+                            gtk::ListBox {
+                                set_selection_mode: gtk::SelectionMode::None,
+                                add_css_class: "boxed-list",
+                                #[watch]
+                                set_visible: model.has_search_results(),
+                            },
+                        },
                     },
                 },
             },
@@ -79,10 +119,11 @@ impl Component for ObjectSidebar {
     fn init(
         _init: Self::Init,
         root: Self::Root,
-        _sender: ComponentSender<Self>,
+        sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         let model = ObjectSidebar {
             objects: Vec::new(),
+            search_text: String::new(),
             is_loading: false,
             status_text: gettext("No connection"),
             selected_object: None,
@@ -105,6 +146,8 @@ impl Component for ObjectSidebar {
                 self.is_loading = true;
                 self.status_text = gettext("Loading schema...");
                 self.objects.clear();
+                self.search_text.clear();
+                widgets.search_entry.set_text("");
                 self.selected_object = None;
                 clear_list(&widgets.schema_list);
             }
@@ -124,6 +167,8 @@ impl Component for ObjectSidebar {
                 self.is_loading = false;
                 self.objects.clear();
                 self.status_text = error;
+                self.search_text.clear();
+                widgets.search_entry.set_text("");
                 self.selected_object = None;
                 clear_list(&widgets.schema_list);
             }
@@ -131,6 +176,16 @@ impl Component for ObjectSidebar {
             ObjectSidebarMsg::SetSelectedObject(object) => {
                 self.selected_object = object.as_ref().map(object_key);
                 self.render_lists(widgets, &sender);
+            }
+
+            ObjectSidebarMsg::SearchChanged(text) => {
+                self.search_text = text;
+                self.render_lists(widgets, &sender);
+            }
+
+            ObjectSidebarMsg::FocusSearch => {
+                widgets.search_entry.grab_focus();
+                widgets.search_entry.select_region(0, -1);
             }
 
             ObjectSidebarMsg::ObjectSelected(object) => {
@@ -149,21 +204,54 @@ impl ObjectSidebar {
     fn render_lists(&self, widgets: &ObjectSidebarWidgets, sender: &ComponentSender<Self>) {
         clear_list(&widgets.schema_list);
 
-        for (schema, objects) in objects_by_schema(&self.objects) {
-            let row = build_schema_row(&schema, &objects, self.selected_object.as_deref(), sender);
+        for (schema, objects) in objects_by_schema(self.filtered_objects()) {
+            let row = build_schema_row(
+                &schema,
+                &objects,
+                self.selected_object.as_deref(),
+                self.has_active_search(),
+                sender,
+            );
             widgets.schema_list.append(&row);
         }
     }
+
+    fn filtered_objects(&self) -> Vec<&DatabaseObject> {
+        let search = self.search_text.trim().to_lowercase();
+        if search.is_empty() {
+            return self.objects.iter().collect();
+        }
+
+        self.objects
+            .iter()
+            .filter(|object| object.name.to_lowercase().contains(&search))
+            .collect()
+    }
+
+    fn has_active_search(&self) -> bool {
+        !self.search_text.trim().is_empty()
+    }
+
+    fn has_search_results(&self) -> bool {
+        let search = self.search_text.trim().to_lowercase();
+        if search.is_empty() {
+            return !self.objects.is_empty();
+        }
+
+        self.objects
+            .iter()
+            .any(|object| object.name.to_lowercase().contains(&search))
+    }
 }
 
-fn objects_by_schema(objects: &[DatabaseObject]) -> BTreeMap<String, Vec<DatabaseObject>> {
-    let mut schemas = BTreeMap::<String, Vec<DatabaseObject>>::new();
+fn objects_by_schema(objects: Vec<&DatabaseObject>) -> BTreeMap<String, Vec<&DatabaseObject>> {
+    let mut schemas = BTreeMap::<String, Vec<&DatabaseObject>>::new();
 
     for object in objects {
         schemas
             .entry(object.schema.clone())
             .or_default()
-            .push(object.clone());
+            .push(object);
     }
 
     for objects in schemas.values_mut() {
@@ -178,8 +266,9 @@ fn objects_by_schema(objects: &[DatabaseObject]) -> BTreeMap<String, Vec<Databas
 
 fn build_schema_row(
     schema: &str,
-    objects: &[DatabaseObject],
+    objects: &[&DatabaseObject],
     selected_key: Option<&str>,
+    has_active_search: bool,
     sender: &ComponentSender<ObjectSidebar>,
 ) -> adw::ExpanderRow {
     let object_count = u32::try_from(objects.len()).unwrap_or(u32::MAX);
@@ -190,7 +279,11 @@ fn build_schema_row(
             objects.len(),
             ngettext("object", "objects", object_count)
         ))
-        .expanded(schema == "public" || schema_has_selected_object(objects, selected_key))
+        .expanded(
+            has_active_search
+                || schema == "public"
+                || schema_has_selected_object(objects, selected_key),
+        )
         .build();
 
     row.add_prefix(
@@ -207,7 +300,7 @@ fn build_schema_row(
     row
 }
 
-fn schema_has_selected_object(objects: &[DatabaseObject], selected_key: Option<&str>) -> bool {
+fn schema_has_selected_object(objects: &[&DatabaseObject], selected_key: Option<&str>) -> bool {
     let Some(selected_key) = selected_key else {
         return false;
     };
