@@ -10,12 +10,14 @@ use sqlx::PgPool;
 use crate::db;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::table_browser::{
-    DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TablePage,
+    DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TableFilter, TablePage,
 };
 use cell_editor::show_edit_cell_popover;
+use filters::{FilterEvent, FilterPanel, initial_filter, validate_filter_values};
 use grid::{TableBrowserRow, cell_factory, clear_columns};
 
 mod cell_editor;
+mod filters;
 mod grid;
 
 pub struct TableBrowser {
@@ -28,12 +30,17 @@ pub struct TableBrowser {
     status_description: Option<String>,
     offset: u32,
     page_size: u32,
+    available_columns: Vec<TableColumn>,
+    draft_filters: Vec<TableFilter>,
+    active_filters: Vec<TableFilter>,
+    filters_expanded: bool,
     page_generation: u64,
     request_id: u64,
     active_request_id: Option<u64>,
     active_abort_handle: Option<AbortHandle>,
     table_rows: gio::ListStore,
     table_view: gtk::ColumnView,
+    filter_panel: gtk::Box,
     edit_popover: Option<gtk::Popover>,
     rendered_columns: Vec<String>,
     style_manager: adw::StyleManager,
@@ -50,6 +57,8 @@ pub enum TableBrowserMsg {
     PreviousPage,
     NextPage,
     PageSizeChanged(u32),
+    ToggleFilters,
+    FilterEvent(FilterEvent),
     PageLoaded {
         id: u64,
         result: Result<TablePage, String>,
@@ -134,6 +143,16 @@ impl Component for TableBrowser {
                 },
 
                 gtk::Button {
+                    #[watch]
+                    set_child: Some(&icon_label_widget("filter-symbolic", &model.filter_button_label())),
+                    set_tooltip_text: Some(&gettext("Show or edit filters")),
+                    add_css_class: "flat",
+                    #[watch]
+                    set_visible: model.object.is_some(),
+                    connect_clicked => TableBrowserMsg::ToggleFilters,
+                },
+
+                gtk::Button {
                     set_icon_name: "view-refresh-symbolic",
                     set_tooltip_text: Some(&gettext("Refresh")),
                     add_css_class: "flat",
@@ -141,6 +160,15 @@ impl Component for TableBrowser {
                     set_sensitive: model.object.is_some() && !model.is_loading,
                     connect_clicked => TableBrowserMsg::Refresh,
                 },
+            },
+
+            gtk::Revealer {
+                set_transition_type: gtk::RevealerTransitionType::SlideDown,
+                #[watch]
+                set_reveal_child: model.filters_expanded && model.object.is_some(),
+
+                #[wrap(Some)]
+                set_child = &model.filter_panel.clone(),
             },
 
             #[name = "stack"]
@@ -254,6 +282,7 @@ impl Component for TableBrowser {
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         let table_rows = gio::ListStore::new::<glib::BoxedAnyObject>();
+        let filter_panel = gtk::Box::new(gtk::Orientation::Vertical, 8);
         let table_view = gtk::ColumnView::new(Some(gtk::NoSelection::new(Some(
             table_rows.clone().upcast::<gio::ListModel>(),
         ))));
@@ -282,19 +311,32 @@ impl Component for TableBrowser {
             )),
             offset: 0,
             page_size: DEFAULT_PAGE_SIZE,
+            available_columns: Vec::new(),
+            draft_filters: Vec::new(),
+            active_filters: Vec::new(),
+            filters_expanded: false,
             page_generation: 0,
             request_id: 0,
             active_request_id: None,
             active_abort_handle: None,
             table_rows,
             table_view,
+            filter_panel,
             edit_popover: None,
             rendered_columns: Vec::new(),
             style_manager,
             dark_notify_handler: Some(dark_notify_handler),
         };
+
         let widgets = view_output!();
         widgets.grid.set_child(Some(&model.table_view));
+        FilterPanel::rebuild(
+            &model.filter_panel,
+            model.filter_columns(),
+            &model.draft_filters,
+            !model.active_filters.is_empty(),
+            &sender,
+        );
         set_stack_child(&widgets, false);
         root.set_spacing(0);
 
@@ -313,6 +355,10 @@ impl Component for TableBrowser {
                 self.pool = Some(pool);
                 self.object = Some(object);
                 self.offset = 0;
+                self.available_columns.clear();
+                self.draft_filters.clear();
+                self.active_filters.clear();
+                self.filters_expanded = false;
                 self.load_page(widgets, &sender);
             }
 
@@ -342,6 +388,23 @@ impl Component for TableBrowser {
                 self.load_page(widgets, &sender);
             }
 
+            TableBrowserMsg::ToggleFilters => {
+                self.filters_expanded = !self.filters_expanded;
+
+                if self.filters_expanded
+                    && self.draft_filters.is_empty()
+                    && self.active_filters.is_empty()
+                    && let Some(filter) = initial_filter(&self.available_columns)
+                {
+                    self.draft_filters.push(filter);
+                    self.rebuild_filters(widgets, &sender);
+                }
+            }
+
+            TableBrowserMsg::FilterEvent(event) => {
+                self.handle_filter_event(event, widgets, &sender, root);
+            }
+
             TableBrowserMsg::PageLoaded { id, result } => {
                 if self.active_request_id != Some(id) {
                     return;
@@ -356,6 +419,7 @@ impl Component for TableBrowser {
                         self.is_error = false;
                         self.status_title.clear();
                         self.status_description = None;
+                        self.available_columns.clone_from(&page.columns);
                         self.page = Some(page);
                         self.page_generation = self.page_generation.wrapping_add(1);
                     }
@@ -369,6 +433,7 @@ impl Component for TableBrowser {
                 }
 
                 self.render_table(&sender);
+                self.rebuild_filters(widgets, &sender);
                 set_stack_child(widgets, self.page.is_some());
             }
 
@@ -474,13 +539,14 @@ impl TableBrowser {
         let id = self.allocate_request_id();
         let offset = self.offset;
         let page_size = self.page_size;
+        let filters = self.active_filters.clone();
         self.active_request_id = Some(id);
         let (abort_handle, abort_registration) = AbortHandle::new_pair();
         self.active_abort_handle = Some(abort_handle);
 
         sender.oneshot_command(async move {
             let load = async move {
-                db::browser::load_table_page(&pool, &object, offset, page_size)
+                db::browser::load_table_page(&pool, &object, offset, page_size, &filters)
                     .await
                     .map_err(|error| error.to_string())
             };
@@ -516,6 +582,71 @@ impl TableBrowser {
                     cells: row.clone(),
                 }));
         }
+    }
+
+    fn rebuild_filters(&self, _widgets: &TableBrowserWidgets, sender: &ComponentSender<Self>) {
+        FilterPanel::rebuild(
+            &self.filter_panel,
+            self.filter_columns(),
+            &self.draft_filters,
+            !self.active_filters.is_empty(),
+            sender,
+        );
+    }
+
+    fn filter_columns(&self) -> Option<&[TableColumn]> {
+        if self.available_columns.is_empty() {
+            None
+        } else {
+            Some(&self.available_columns)
+        }
+    }
+
+    fn handle_filter_event(
+        &mut self,
+        event: FilterEvent,
+        widgets: &TableBrowserWidgets,
+        sender: &ComponentSender<Self>,
+        root: &gtk::Box,
+    ) {
+        match event {
+            FilterEvent::DraftChanged(filters) => {
+                self.draft_filters = filters;
+                self.rebuild_filters(widgets, sender);
+            }
+            FilterEvent::DraftValuesChanged(filters) => {
+                self.draft_filters = filters;
+            }
+            FilterEvent::Apply(filters) => {
+                self.apply_filters(filters, widgets, sender, root);
+            }
+            FilterEvent::Clear => {
+                self.draft_filters.clear();
+                self.active_filters.clear();
+                self.rebuild_filters(widgets, sender);
+                self.offset = 0;
+                self.load_page(widgets, sender);
+            }
+        }
+    }
+
+    fn apply_filters(
+        &mut self,
+        filters: Vec<TableFilter>,
+        widgets: &TableBrowserWidgets,
+        sender: &ComponentSender<Self>,
+        root: &gtk::Box,
+    ) {
+        if let Err(error) = validate_filter_values(&filters) {
+            self.show_warning(root, &gettext("Filter cannot be applied"), &error);
+            return;
+        }
+
+        self.draft_filters.clone_from(&filters);
+        self.active_filters = filters;
+        self.filters_expanded = !self.active_filters.is_empty();
+        self.offset = 0;
+        self.load_page(widgets, sender);
     }
 
     fn sync_columns(&mut self, columns: &[TableColumn], sender: &ComponentSender<Self>) {
@@ -561,6 +692,14 @@ impl TableBrowser {
         };
 
         format!("{} · {}", object.schema, kind)
+    }
+
+    fn filter_button_label(&self) -> String {
+        if self.active_filters.is_empty() {
+            gettext("Filters")
+        } else {
+            format!("{} ({})", gettext("Filters"), self.active_filters.len())
+        }
     }
 
     fn footer_text(&self) -> String {
@@ -768,6 +907,16 @@ fn close_popover(popover: &mut Option<gtk::Popover>) {
             popover.unparent();
         }
     }
+}
+
+fn icon_label_widget(icon_name: &str, label: &str) -> gtk::Box {
+    let container = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+    let image = gtk::Image::from_icon_name(icon_name);
+    container.append(&image);
+
+    let label = gtk::Label::new(Some(label));
+    container.append(&label);
+    container
 }
 
 fn set_stack_child(widgets: &TableBrowserWidgets, has_page: bool) {

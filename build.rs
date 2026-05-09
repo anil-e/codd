@@ -21,6 +21,7 @@ fn main() {
             "document-edit-regular",
             "edit-regular",
             "error",
+            "filter",
             "go-previous",
             "go-next",
             "media-playback-start",

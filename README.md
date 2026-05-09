@@ -14,7 +14,7 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 - Execute statements and cancel running queries
 - Reuse automatically saved query history per connection
 - Inspect result sets in a native GTK table
-- Browse table rows with pagination and edit cell values
+- Browse table rows with pagination, filters, and editable cell values
 - Keep basic window and sidebar state between sessions
 
 ## Requirements

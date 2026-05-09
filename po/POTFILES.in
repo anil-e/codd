@@ -9,6 +9,7 @@ src/ui/components/sidebar.rs
 src/ui/components/editor.rs
 src/ui/components/results.rs
 src/ui/components/table_browser.rs
+src/ui/components/table_browser/filters.rs
 data/io.github.anil_e.Codd.desktop.in
 data/io.github.anil_e.Codd.metainfo.xml.in
 data/ui/shortcuts-dialog.ui

@@ -84,6 +84,88 @@ pub struct TablePage {
     pub has_next_page: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableFilter {
+    pub column_name: String,
+    pub operator: FilterOperator,
+    pub value: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FilterOperator {
+    Equal,
+    NotEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+    LessThan,
+    LessThanOrEqual,
+    Like,
+    ILike,
+    IsNull,
+    IsNotNull,
+}
+
+impl FilterOperator {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Equal => "=",
+            Self::NotEqual => "!=",
+            Self::GreaterThan => ">",
+            Self::GreaterThanOrEqual => ">=",
+            Self::LessThan => "<",
+            Self::LessThanOrEqual => "<=",
+            Self::Like => "LIKE",
+            Self::ILike => "ILIKE",
+            Self::IsNull => "IS NULL",
+            Self::IsNotNull => "IS NOT NULL",
+        }
+    }
+
+    pub fn needs_value(self) -> bool {
+        !matches!(self, Self::IsNull | Self::IsNotNull)
+    }
+
+    pub fn for_column(column: &TableColumn) -> &'static [Self] {
+        match column.type_group {
+            ColumnTypeGroup::Boolean => {
+                &[Self::Equal, Self::NotEqual, Self::IsNull, Self::IsNotNull]
+            }
+            ColumnTypeGroup::DateTime | ColumnTypeGroup::Numeric => &[
+                Self::Equal,
+                Self::NotEqual,
+                Self::GreaterThan,
+                Self::GreaterThanOrEqual,
+                Self::LessThan,
+                Self::LessThanOrEqual,
+                Self::IsNull,
+                Self::IsNotNull,
+            ],
+            ColumnTypeGroup::Text => &[
+                Self::Equal,
+                Self::NotEqual,
+                Self::Like,
+                Self::ILike,
+                Self::IsNull,
+                Self::IsNotNull,
+            ],
+            ColumnTypeGroup::Binary | ColumnTypeGroup::Json => &[Self::IsNull, Self::IsNotNull],
+            ColumnTypeGroup::Other if column.uses_text_display() => &[
+                Self::Equal,
+                Self::NotEqual,
+                Self::Like,
+                Self::ILike,
+                Self::IsNull,
+                Self::IsNotNull,
+            ],
+            ColumnTypeGroup::Other => &[Self::Equal, Self::NotEqual, Self::IsNull, Self::IsNotNull],
+        }
+    }
+
+    pub fn is_supported_for(self, column: &TableColumn) -> bool {
+        Self::for_column(column).contains(&self)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::ColumnTypeGroup;

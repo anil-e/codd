@@ -1,6 +1,8 @@
 use crate::db::query;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind, quote_identifier};
-use crate::models::table_browser::{ColumnTypeGroup, TableCell, TableColumn, TablePage};
+use crate::models::table_browser::{
+    ColumnTypeGroup, FilterOperator, TableCell, TableColumn, TableFilter, TablePage,
+};
 use sqlx::{Column, PgPool, Row, TypeInfo};
 
 pub async fn load_table_page(
@@ -8,9 +10,10 @@ pub async fn load_table_page(
     object: &DatabaseObject,
     offset: u32,
     page_size: u32,
+    filters: &[TableFilter],
 ) -> Result<TablePage, sqlx::Error> {
     let columns = load_table_columns(pool, object).await?;
-    let mut rows = load_page_rows(pool, object, &columns, offset, page_size).await?;
+    let mut rows = load_page_rows(pool, object, &columns, offset, page_size, filters).await?;
     let has_next_page = rows.len() > page_size as usize;
 
     if has_next_page {
@@ -107,9 +110,17 @@ async fn load_page_rows(
     columns: &[TableColumn],
     offset: u32,
     page_size: u32,
+    filters: &[TableFilter],
 ) -> Result<Vec<Vec<TableCell>>, sqlx::Error> {
-    let sql = table_page_sql(object, columns, offset, page_size);
-    let rows = sqlx::query(&sql).fetch_all(pool).await?;
+    let query = table_page_sql_with_filters(object, columns, offset, page_size, filters)
+        .map_err(|error| sqlx::Error::Protocol(error.to_string()))?;
+    let mut sqlx_query = sqlx::query(&query.sql);
+
+    for value in query.filter_values {
+        sqlx_query = sqlx_query.bind(value);
+    }
+
+    let rows = sqlx_query.fetch_all(pool).await?;
 
     Ok(rows
         .iter()
@@ -173,6 +184,45 @@ pub enum TableCellUpdateError {
     Sqlx(sqlx::Error),
 }
 
+#[derive(Debug)]
+pub enum TableFilterError {
+    UnknownColumn(String),
+    UnsupportedOperator {
+        column_name: String,
+        operator: FilterOperator,
+    },
+    MissingValue(String),
+}
+
+impl std::fmt::Display for TableFilterError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::UnknownColumn(column) => write!(formatter, "Unknown filter column: {column}"),
+            Self::UnsupportedOperator {
+                column_name,
+                operator,
+            } => {
+                write!(
+                    formatter,
+                    "Operator {} is not supported for column {column_name}",
+                    operator.label()
+                )
+            }
+            Self::MissingValue(column) => write!(formatter, "Missing filter value for {column}"),
+        }
+    }
+}
+
+struct TablePageSql {
+    sql: String,
+    filter_values: Vec<String>,
+}
+
+struct TableFilterClause {
+    sql: String,
+    values: Vec<String>,
+}
+
 impl std::fmt::Display for TableCellUpdateError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -197,20 +247,123 @@ impl std::fmt::Display for TableCellUpdateError {
     }
 }
 
+#[cfg(test)]
 fn table_page_sql(
     object: &DatabaseObject,
     columns: &[TableColumn],
     offset: u32,
     page_size: u32,
-) -> String {
+) -> Result<String, TableFilterError> {
+    table_page_sql_with_filters(object, columns, offset, page_size, &[]).map(|query| query.sql)
+}
+
+fn where_clause(
+    columns: &[TableColumn],
+    filters: &[TableFilter],
+) -> Result<TableFilterClause, TableFilterError> {
+    if filters.is_empty() {
+        return Ok(TableFilterClause {
+            sql: String::new(),
+            values: Vec::new(),
+        });
+    }
+
+    let mut bind_index = 1;
+    let mut clauses = Vec::with_capacity(filters.len());
+    let mut values = Vec::new();
+
+    for filter in filters {
+        let column = columns
+            .iter()
+            .find(|column| column.name == filter.column_name)
+            .ok_or_else(|| TableFilterError::UnknownColumn(filter.column_name.clone()))?;
+
+        if !filter.operator.is_supported_for(column) {
+            return Err(TableFilterError::UnsupportedOperator {
+                column_name: column.name.clone(),
+                operator: filter.operator,
+            });
+        }
+
+        clauses.push(filter_clause(column, filter, &mut bind_index)?);
+        if filter.operator.needs_value() {
+            let value = filter
+                .value
+                .clone()
+                .ok_or_else(|| TableFilterError::MissingValue(column.name.clone()))?;
+
+            values.push(value);
+        }
+    }
+
+    Ok(TableFilterClause {
+        sql: format!(" WHERE {}", clauses.join(" AND ")),
+        values,
+    })
+}
+
+fn filter_clause(
+    column: &TableColumn,
+    filter: &TableFilter,
+    bind_index: &mut usize,
+) -> Result<String, TableFilterError> {
+    let quoted_column = quote_identifier(&column.name);
+
+    match filter.operator {
+        FilterOperator::IsNull => Ok(format!("{quoted_column} IS NULL")),
+        FilterOperator::IsNotNull => Ok(format!("{quoted_column} IS NOT NULL")),
+        operator => {
+            let value = filter
+                .value
+                .as_ref()
+                .ok_or_else(|| TableFilterError::MissingValue(column.name.clone()))?;
+
+            if value.is_empty() {
+                return Err(TableFilterError::MissingValue(column.name.clone()));
+            }
+
+            let (column_expression, value_type) = filter_value_expression(column, operator);
+            let clause = format!(
+                "{column_expression} {} ${}::{value_type}",
+                operator.label(),
+                *bind_index,
+            );
+            *bind_index += 1;
+            Ok(clause)
+        }
+    }
+}
+
+fn filter_value_expression(column: &TableColumn, operator: FilterOperator) -> (String, String) {
+    let column_name = quote_identifier(&column.name);
+
+    if matches!(operator, FilterOperator::Like | FilterOperator::ILike) {
+        return (format!("{column_name}::text"), "text".to_string());
+    }
+
+    (column_name, column.display_type.clone())
+}
+
+fn table_page_sql_with_filters(
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    offset: u32,
+    page_size: u32,
+    filters: &[TableFilter],
+) -> Result<TablePageSql, TableFilterError> {
     let fetch_limit = page_size.saturating_add(1);
     let select_columns = select_columns_clause(columns);
+    let where_clause = where_clause(columns, filters)?;
     let order_by = order_by_clause(object, columns);
 
-    format!(
-        "SELECT {select_columns} FROM {}{order_by} LIMIT {fetch_limit} OFFSET {offset}",
-        object.qualified_name()
-    )
+    Ok(TablePageSql {
+        sql: format!(
+            "SELECT {select_columns} FROM {}{}{order_by} LIMIT {fetch_limit} OFFSET {offset}",
+            object.qualified_name(),
+            where_clause.sql,
+        ),
+        filter_values: where_clause.values,
+    })
 }
 
 fn update_cell_sql(
@@ -354,11 +507,13 @@ fn order_by_clause(object: &DatabaseObject, columns: &[TableColumn]) -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        TableCellUpdateError, order_by_clause, table_page_sql, update_cell_sql,
-        validate_update_input,
+        TableCellUpdateError, TableFilterError, order_by_clause, table_page_sql,
+        table_page_sql_with_filters, update_cell_sql, validate_update_input,
     };
     use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
-    use crate::models::table_browser::{ColumnTypeGroup, TableCell, TableColumn};
+    use crate::models::table_browser::{
+        ColumnTypeGroup, FilterOperator, TableCell, TableColumn, TableFilter,
+    };
 
     #[test]
     fn builds_quoted_page_query() {
@@ -369,7 +524,7 @@ mod tests {
         };
 
         assert_eq!(
-            table_page_sql(&object, &[], 100, 50),
+            table_page_sql(&object, &[], 100, 50).unwrap(),
             "SELECT * FROM \"analytics\".\"page views\" ORDER BY ctid LIMIT 51 OFFSET 100"
         );
     }
@@ -383,7 +538,7 @@ mod tests {
         };
 
         assert_eq!(
-            table_page_sql(&object, &[], 0, 100),
+            table_page_sql(&object, &[], 0, 100).unwrap(),
             "SELECT * FROM \"public\".\"users\" ORDER BY ctid LIMIT 101 OFFSET 0"
         );
     }
@@ -402,7 +557,7 @@ mod tests {
         ];
 
         assert_eq!(
-            table_page_sql(&object, &columns, 0, 100),
+            table_page_sql(&object, &columns, 0, 100).unwrap(),
             "SELECT \"tenant id\", \"id\", \"name\" FROM \"public\".\"users\" ORDER BY \"tenant id\", \"id\" LIMIT 101 OFFSET 0"
         );
     }
@@ -416,7 +571,7 @@ mod tests {
         };
 
         assert_eq!(
-            table_page_sql(&object, &[column("name", false)], 0, 100),
+            table_page_sql(&object, &[column("name", false)], 0, 100).unwrap(),
             "SELECT \"name\" FROM \"public\".\"events\" ORDER BY ctid LIMIT 101 OFFSET 0"
         );
     }
@@ -431,9 +586,152 @@ mod tests {
         let columns = vec![uuid_column("public_id", true), enum_column("status", false)];
 
         assert_eq!(
-            table_page_sql(&object, &columns, 0, 100),
+            table_page_sql(&object, &columns, 0, 100).unwrap(),
             "SELECT \"public_id\"::text AS \"public_id\", \"status\"::text AS \"status\" FROM \"public\".\"orders\" ORDER BY \"public_id\" LIMIT 101 OFFSET 0"
         );
+    }
+
+    #[test]
+    fn page_query_adds_and_filters_before_ordering() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "customers".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let mut signup_date = column("signup_date", false);
+        signup_date.type_group = ColumnTypeGroup::DateTime;
+        signup_date.display_type = "date".to_string();
+        signup_date.type_name = "date".to_string();
+        let columns = vec![column("id", true), column("name", false), signup_date];
+
+        let query = table_page_sql_with_filters(
+            &object,
+            &columns,
+            0,
+            100,
+            &[
+                filter("name", FilterOperator::ILike, Some("%ada%")),
+                filter(
+                    "signup_date",
+                    FilterOperator::GreaterThanOrEqual,
+                    Some("2025-01-01"),
+                ),
+            ],
+        )
+        .unwrap();
+
+        assert_eq!(
+            query.sql,
+            "SELECT \"id\", \"name\", \"signup_date\" FROM \"public\".\"customers\" WHERE \"name\"::text ILIKE $1::text AND \"signup_date\" >= $2::date ORDER BY \"id\" LIMIT 101 OFFSET 0"
+        );
+        assert_eq!(
+            query.filter_values,
+            vec!["%ada%".to_string(), "2025-01-01".to_string()]
+        );
+    }
+
+    #[test]
+    fn page_query_uses_null_filter_without_bind_value() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "customers".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![column("id", true), column("preferred_contact_time", false)];
+
+        let query = table_page_sql_with_filters(
+            &object,
+            &columns,
+            50,
+            50,
+            &[filter(
+                "preferred_contact_time",
+                FilterOperator::IsNull,
+                None,
+            )],
+        )
+        .unwrap();
+
+        assert_eq!(
+            query.sql,
+            "SELECT \"id\", \"preferred_contact_time\" FROM \"public\".\"customers\" WHERE \"preferred_contact_time\" IS NULL ORDER BY \"id\" LIMIT 51 OFFSET 50"
+        );
+        assert!(query.filter_values.is_empty());
+    }
+
+    #[test]
+    fn page_query_casts_uuid_and_enum_like_filters_to_text() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "orders".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![
+            column("id", true),
+            uuid_column("public_id", false),
+            enum_column("status", false),
+        ];
+
+        let query = table_page_sql_with_filters(
+            &object,
+            &columns,
+            0,
+            100,
+            &[
+                filter("public_id", FilterOperator::Like, Some("8e4%")),
+                filter("status", FilterOperator::ILike, Some("%paid%")),
+            ],
+        )
+        .unwrap();
+
+        assert_eq!(
+            query.sql,
+            "SELECT \"id\", \"public_id\"::text AS \"public_id\", \"status\"::text AS \"status\" FROM \"public\".\"orders\" WHERE \"public_id\"::text LIKE $1::text AND \"status\"::text ILIKE $2::text ORDER BY \"id\" LIMIT 101 OFFSET 0"
+        );
+    }
+
+    #[test]
+    fn page_query_rejects_invalid_filter_column() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "customers".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+
+        assert!(matches!(
+            table_page_sql_with_filters(
+                &object,
+                &[column("id", true)],
+                0,
+                100,
+                &[filter("missing", FilterOperator::Equal, Some("1"))]
+            ),
+            Err(TableFilterError::UnknownColumn(column)) if column == "missing"
+        ));
+    }
+
+    #[test]
+    fn page_query_rejects_unsupported_filter_operator() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "events".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let mut payload = column("payload", false);
+        payload.type_group = ColumnTypeGroup::Json;
+        payload.display_type = "jsonb".to_string();
+        payload.type_name = "jsonb".to_string();
+
+        assert!(matches!(
+            table_page_sql_with_filters(
+                &object,
+                &[column("id", true), payload],
+                0,
+                100,
+                &[filter("payload", FilterOperator::Equal, Some("{}"))]
+            ),
+            Err(TableFilterError::UnsupportedOperator { .. })
+        ));
     }
 
     #[test]
@@ -590,6 +888,14 @@ mod tests {
             enum_values: vec!["draft".to_string(), "paid".to_string()],
             type_group: ColumnTypeGroup::Other,
             ..column(name, is_primary_key)
+        }
+    }
+
+    fn filter(column_name: &str, operator: FilterOperator, value: Option<&str>) -> TableFilter {
+        TableFilter {
+            column_name: column_name.to_string(),
+            operator,
+            value: value.map(str::to_string),
         }
     }
 }
