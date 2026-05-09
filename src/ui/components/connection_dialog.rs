@@ -270,12 +270,7 @@ impl Component for ConnectionDialog {
             }
 
             ConnectionDialogCommandOutput::TestFinished(Err(error)) => {
-                if let Some(toast_overlay) = root.toast_overlay() {
-                    toast_overlay.add_toast(adw::Toast::new(&format!(
-                        "{}: {error}",
-                        gettext("Connection test failed")
-                    )));
-                }
+                show_error_dialog(root, &gettext("Connection test failed"), &error);
             }
 
             ConnectionDialogCommandOutput::ConnectFinished {
@@ -289,12 +284,7 @@ impl Component for ConnectionDialog {
             ConnectionDialogCommandOutput::ConnectFinished {
                 result: Err(error), ..
             } => {
-                if let Some(toast_overlay) = root.toast_overlay() {
-                    toast_overlay.add_toast(adw::Toast::new(&format!(
-                        "{}: {error}",
-                        gettext("Connection failed")
-                    )));
-                }
+                show_error_dialog(root, &gettext("Connection failed"), &error);
             }
         }
     }
@@ -336,4 +326,31 @@ async fn test_connection(details: ConnectionDetails) -> Result<(), db::postgres:
 
 async fn connect(details: ConnectionDetails) -> Result<PgPool, db::postgres::PostgresError> {
     db::postgres::connect(&details).await
+}
+
+fn show_error_dialog(parent: &adw::Window, heading: &str, error: &str) {
+    let label = gtk::Label::builder()
+        .label(error)
+        .wrap(true)
+        .wrap_mode(gtk::pango::WrapMode::WordChar)
+        .selectable(true)
+        .xalign(0.0)
+        .build();
+
+    let scrolled = gtk::ScrolledWindow::builder()
+        .min_content_height(96)
+        .max_content_height(240)
+        .propagate_natural_height(true)
+        .child(&label)
+        .build();
+
+    let dialog = adw::AlertDialog::builder()
+        .heading(heading)
+        .body(gettext("PostgreSQL returned the following error:"))
+        .extra_child(&scrolled)
+        .close_response("close")
+        .build();
+
+    dialog.add_response("close", &gettext("Close"));
+    dialog.present(Some(parent));
 }
