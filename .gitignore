@@ -1,4 +1,8 @@
 target
 .env
+.flatpak-builder
 _build
+_build-flatpak-check
+build-dir
 /icons
+scripts/flatpak-cargo-generator.py

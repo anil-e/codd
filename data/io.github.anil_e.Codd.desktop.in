@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=Codd
-Comment=Lightweight native PostgreSQL query app
+Comment=Lightweight PostgreSQL client
 Exec=codd
 Icon=io.github.anil_e.Codd
 StartupNotify=true

@@ -61,6 +61,7 @@ pub(super) fn cell_factory(
         label.add_controller({
             let gesture = gtk::GestureClick::new();
             let list_item = list_item.clone();
+            gesture.set_propagation_phase(gtk::PropagationPhase::Capture);
 
             gesture.connect_pressed(move |gesture, press_count, _, _| {
                 if press_count == 2
@@ -71,7 +72,7 @@ pub(super) fn cell_factory(
                 {
                     let row = row.borrow::<TableBrowserRow>();
 
-                    if gesture.current_button() == 1 {
+                    if gesture.current_button() == gtk::gdk::BUTTON_PRIMARY {
                         sender.input(TableBrowserMsg::EditCellRequested {
                             anchor: label.clone(),
                             row_index: row.index,

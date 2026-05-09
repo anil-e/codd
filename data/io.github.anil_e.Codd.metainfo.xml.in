@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Anil Erdogan -->
 <component type="desktop-application">
   <id>io.github.anil_e.Codd</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>AGPL-3.0-or-later</project_license>
   <name>Codd</name>
-  <summary>Lightweight native PostgreSQL query app</summary>
+  <summary>Lightweight PostgreSQL client</summary>
   <description>
     <p>
       Codd is a lightweight PostgreSQL query app for GNOME built with Rust,
@@ -17,6 +18,7 @@
   </description>
   <launchable type="desktop-id">io.github.anil_e.Codd.desktop</launchable>
   <url type="homepage">https://github.com/anil-e/codd</url>
+  <url type="vcs-browser">https://github.com/anil-e/codd</url>
   <url type="bugtracker">https://github.com/anil-e/codd/issues</url>
   <developer id="io.github.anil_e">
     <name>Anil Erdogan</name>
@@ -24,5 +26,35 @@
   <provides>
     <binary>codd</binary>
   </provides>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.0/images/screenshot-query.png</image>
+      <caption>Run SQL queries with syntax highlighting and result previews</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.0/images/screenshot-table-browser.png</image>
+      <caption>Browse and edit PostgreSQL table data</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.0/images/screenshot-start.png</image>
+      <caption>Manage saved PostgreSQL connections</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.0/images/screenshot-history.png</image>
+      <caption>Reuse queries from the local query history</caption>
+    </screenshot>
+  </screenshots>
+  <translation type="gettext">codd</translation>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
   <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-05-09">
+      <description translate="no">
+        <p>Initial release with saved PostgreSQL connections, SQL execution, query history, schema browsing, table browsing, filtering, and editable table cells.</p>
+      </description>
+    </release>
+  </releases>
 </component>

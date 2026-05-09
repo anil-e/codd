@@ -1,0 +1,1 @@
+option('cargo-home', type: 'string', value: '', description: 'Optional path to CARGO_HOME, used by Flatpak offline builds')

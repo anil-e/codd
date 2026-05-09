@@ -2,9 +2,15 @@ cargo = find_program('cargo', required: true)
 sh = find_program('sh', required: true)
 
 cargo_target_dir = meson.current_build_dir() / 'cargo-target'
+cargo_home = get_option('cargo-home')
 
 env = environment()
 env.set('CARGO_TARGET_DIR', cargo_target_dir)
+
+if cargo_home != ''
+  env.set('CARGO_HOME', cargo_home)
+endif
+
 env.set('CODD_APP_ID', app_id)
 env.set('CODD_APP_SETTINGS_PATH', '/io/github/anil_e/codd/')
 env.set('CODD_CONNECTION_STATE_SCHEMA_ID', 'io.github.anil_e.Codd.connection-state')
