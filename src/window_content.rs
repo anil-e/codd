@@ -2,8 +2,11 @@ use futures_util::future::{AbortHandle, Abortable};
 use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use relm4::gtk;
-use relm4::gtk::glib;
+use relm4::gtk::{gio, glib};
 use relm4::prelude::*;
 use sqlx::PgPool;
 
@@ -95,6 +98,9 @@ pub enum WindowContentMsg {
     SelectBrowseTab(u64),
     CloseQueryTab(u64),
     CloseBrowseTab(u64),
+    CloseTabFromMenu(Option<String>),
+    CloseOtherTabsFromMenu(Option<String>),
+    CloseAllTabs,
     QueryTabTitleChanged(u64),
     RunQuery,
     RefreshActiveBrowseTab,
@@ -270,6 +276,7 @@ impl Component for WindowContent {
         let widgets = view_output!();
 
         model.add_query_tab(&widgets, &sender);
+        setup_tab_context_menu(&widgets.query_tab_view, &sender);
         widgets.content_stack.set_visible_child_name("start");
         let workspace_split_view = workspace_split_view(&widgets);
         workspace_split_view.set_show_content(true);
@@ -332,6 +339,15 @@ impl Component for WindowContent {
             }
             WindowContentMsg::CloseBrowseTab(tab_id) => {
                 self.close_browse_tab(tab_id, widgets);
+            }
+            WindowContentMsg::CloseTabFromMenu(widget_name) => {
+                self.close_tab_from_widget_name(widget_name.as_deref(), widgets);
+            }
+            WindowContentMsg::CloseOtherTabsFromMenu(widget_name) => {
+                self.close_other_tabs_from_widget_name(widget_name.as_deref(), widgets);
+            }
+            WindowContentMsg::CloseAllTabs => {
+                self.close_all_tabs(widgets, &sender);
             }
             WindowContentMsg::QueryTabTitleChanged(tab_id) => {
                 self.update_query_tab_title(tab_id);
@@ -461,6 +477,92 @@ fn selected_browse_tab_id(widgets: &WindowContentWidgets) -> Option<u64> {
         .query_tab_view
         .selected_page()
         .and_then(|page| browse_tab_id_from_widget(&page.child()))
+}
+
+fn tab_id_from_widget_name(widget_name: Option<&str>, prefix: &str) -> Option<u64> {
+    widget_name
+        .and_then(|name| name.strip_prefix(prefix))
+        .and_then(|id| id.parse().ok())
+}
+
+fn setup_tab_context_menu(tab_view: &adw::TabView, sender: &ComponentSender<WindowContent>) {
+    let menu = gio::Menu::new();
+    menu.append(Some(&gettext("Close")), Some("tab.close"));
+    menu.append(
+        Some(&gettext("Close Other Tabs")),
+        Some("tab.close-other-tabs"),
+    );
+
+    menu.append(Some(&gettext("Close All")), Some("tab.close-all"));
+    tab_view.set_menu_model(Some(&menu));
+
+    let current_tab = Rc::new(RefCell::new(None::<String>));
+    let action_group = gio::SimpleActionGroup::new();
+
+    let close_action = gio::SimpleAction::new("close", None);
+
+    close_action.connect_activate({
+        let sender = sender.clone();
+        let current_tab = current_tab.clone();
+
+        move |_, _| {
+            sender.input(WindowContentMsg::CloseTabFromMenu(
+                current_tab.borrow().clone(),
+            ));
+        }
+    });
+
+    action_group.add_action(&close_action);
+
+    let close_other_tabs_action = gio::SimpleAction::new("close-other-tabs", None);
+
+    close_other_tabs_action.connect_activate({
+        let sender = sender.clone();
+        let current_tab = current_tab.clone();
+
+        move |_, _| {
+            sender.input(WindowContentMsg::CloseOtherTabsFromMenu(
+                current_tab.borrow().clone(),
+            ));
+        }
+    });
+
+    action_group.add_action(&close_other_tabs_action);
+
+    let close_all_action = gio::SimpleAction::new("close-all", None);
+    close_all_action.connect_activate({
+        let sender = sender.clone();
+
+        move |_, _| {
+            sender.input(WindowContentMsg::CloseAllTabs);
+        }
+    });
+
+    action_group.add_action(&close_all_action);
+
+    tab_view.connect_setup_menu({
+        let close_action = close_action.clone();
+        let close_all_action = close_all_action.clone();
+        let close_other_tabs_action = close_other_tabs_action.clone();
+        let current_tab = current_tab.clone();
+
+        move |tab_view, page| {
+            let widget_name = page.map(|page| page.child().widget_name().to_string());
+            let has_target_tab = widget_name.is_some();
+            let can_close_multiple = tab_view.n_pages() > 1;
+
+            *current_tab.borrow_mut() = widget_name;
+            close_action.set_enabled(has_target_tab && can_close_multiple);
+            close_other_tabs_action.set_enabled(has_target_tab && can_close_multiple);
+            close_all_action.set_enabled(can_close_multiple);
+        }
+    });
+
+    tab_view.connect_realize(move |tab_view| {
+        if let Some(window) = tab_view.root().and_downcast::<gtk::Window>() {
+            window.insert_action_group("tab", Some(&action_group));
+        }
+    });
 }
 
 fn query_tab_title(sql: &str) -> String {
@@ -627,6 +729,103 @@ impl WindowContent {
         widgets
             .query_tab_view
             .close_page_finish(&removed.page, true);
+    }
+
+    fn close_tab_from_widget_name(
+        &mut self,
+        widget_name: Option<&str>,
+        widgets: &WindowContentWidgets,
+    ) {
+        if self.tab_count() <= 1 {
+            return;
+        }
+
+        if let Some(tab_id) = tab_id_from_widget_name(widget_name, "query-tab-")
+            && let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            widgets.query_tab_view.close_page(&tab.page);
+            return;
+        }
+
+        if let Some(tab_id) = tab_id_from_widget_name(widget_name, "browse-tab-")
+            && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            widgets.query_tab_view.close_page(&tab.page);
+        }
+    }
+
+    fn close_other_tabs_from_widget_name(
+        &mut self,
+        widget_name: Option<&str>,
+        widgets: &WindowContentWidgets,
+    ) {
+        let keep_query_tab_id = tab_id_from_widget_name(widget_name, "query-tab-");
+        let keep_browse_tab_id = tab_id_from_widget_name(widget_name, "browse-tab-");
+
+        if keep_query_tab_id.is_none() && keep_browse_tab_id.is_none() {
+            return;
+        }
+
+        let query_tab_pages = self
+            .query_tabs
+            .iter()
+            .filter(|tab| Some(tab.id) != keep_query_tab_id)
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        let browse_tab_pages = self
+            .browse_tabs
+            .iter()
+            .filter(|tab| Some(tab.id) != keep_browse_tab_id)
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        for page in query_tab_pages {
+            widgets.query_tab_view.close_page(&page);
+        }
+
+        for page in browse_tab_pages {
+            widgets.query_tab_view.close_page(&page);
+        }
+
+        if let Some(tab_id) = keep_query_tab_id
+            && let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            self.active_query_tab_id = tab_id;
+            widgets.query_tab_view.set_selected_page(&tab.page);
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(None));
+        } else if let Some(tab_id) = keep_browse_tab_id
+            && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            widgets.query_tab_view.set_selected_page(&tab.page);
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
+                tab.object.clone(),
+            )));
+        }
+    }
+
+    fn close_all_tabs(&mut self, widgets: &WindowContentWidgets, sender: &ComponentSender<Self>) {
+        let query_tab_pages = self
+            .query_tabs
+            .iter()
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        let browse_tab_pages = self
+            .browse_tabs
+            .iter()
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        self.add_query_tab(widgets, sender);
+
+        for page in query_tab_pages {
+            widgets.query_tab_view.close_page(&page);
+        }
+
+        for page in browse_tab_pages {
+            widgets.query_tab_view.close_page(&page);
+        }
     }
 
     fn active_query_tab(&self) -> Option<&QueryTab> {
