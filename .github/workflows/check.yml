@@ -1,0 +1,64 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  GETTEXT_SYSTEM: "1"
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-24.04
+    container: fedora:44
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          dnf install -y \
+            appstream \
+            gcc \
+            desktop-file-utils \
+            gettext \
+            gettext-devel \
+            glib2-devel \
+            gtk4-devel \
+            gtksourceview5-devel \
+            libadwaita-devel \
+            meson \
+            ninja-build \
+            pkgconf-pkg-config
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy,rustfmt
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Build
+        run: cargo build --all-targets --all-features --locked
+
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features --locked -- -D warnings
+
+      - name: Run tests
+        run: cargo test --all-targets --all-features --locked
+
+      - name: Validate packaging metadata
+        run: |
+          meson setup _build-ci
+          meson test -C _build-ci
