@@ -28,19 +28,19 @@
   </provides>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.0/images/screenshot-query.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.1/images/screenshot-query.png</image>
       <caption>Run SQL queries with syntax highlighting and result previews</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.0/images/screenshot-table-browser.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.1/images/screenshot-table-browser.png</image>
       <caption>Browse and edit PostgreSQL table data</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.0/images/screenshot-start.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.1/images/screenshot-start.png</image>
       <caption>Manage saved PostgreSQL connections</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.0/images/screenshot-history.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.1/images/screenshot-history.png</image>
       <caption>Reuse queries from the local query history</caption>
     </screenshot>
   </screenshots>
@@ -51,6 +51,11 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.1.1" date="2026-05-10">
+      <description translate="no">
+        <p>Maintenance release with CI, packaging metadata improvements, and stable Rust check fixes.</p>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-05-09">
       <description translate="no">
         <p>Initial release with saved PostgreSQL connections, SQL execution, query history, schema browsing, table browsing, filtering, and editable table cells.</p>
