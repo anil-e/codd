@@ -2,7 +2,7 @@
 name = "codd"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.92"
+rust-version = "1.93"
 
 [dependencies]
 chrono = { version = "0.4", default-features = false, features = ["clock"] }

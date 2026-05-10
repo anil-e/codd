@@ -1,5 +1,6 @@
 use crate::models::query_history::QueryHistoryEntry;
 use chrono::Utc;
+use std::cmp::Reverse;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
@@ -81,7 +82,7 @@ fn read_history() -> io::Result<Vec<QueryHistoryEntry>> {
 fn parse_history(content: &str) -> io::Result<Vec<QueryHistoryEntry>> {
     let mut history: Vec<QueryHistoryEntry> = serde_json::from_str(content)?;
     history.retain(|entry| !entry.connection_id.is_empty() && !entry.sql.trim().is_empty());
-    history.sort_by(|a, b| b.executed_at.cmp(&a.executed_at));
+    history.sort_by_key(|entry| Reverse(entry.executed_at));
     prune_history(&mut history);
     Ok(history)
 }
