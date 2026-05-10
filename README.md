@@ -4,6 +4,8 @@ Codd is a lightweight native PostgreSQL client for GNOME, built with Rust, Relm4
 
 ![Codd query editor](images/screenshot-query.png)
 
+[![Get it on Flathub](https://flathub.org/api/badge?locale=en)](https://flathub.org/apps/io.github.anil_e.Codd)
+
 The app started as a personal-use SQL editor: lightweight, native, focused, and built around clean PostgreSQL query workflows without Electron. It can save multiple PostgreSQL connections, but it is not trying to be a multi-engine database suite. It is still early and many extensions are planned, including richer result handling, editor actions, and more production-quality database tooling.
 
 ## Features
