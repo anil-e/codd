@@ -13,7 +13,7 @@ use sqlx::PgPool;
 use crate::db;
 use crate::menus;
 use crate::models::connection::SavedConnection;
-use crate::models::database_object::DatabaseObject;
+use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::query_history::QueryHistoryEntry;
 use crate::models::query_result::QueryExecutionResult;
 use crate::settings;
@@ -22,7 +22,7 @@ use crate::ui::components::{
     connection_dialog::{ConnectionDialog, ConnectionDialogInit, ConnectionDialogOutput},
     editor::{SqlEditor, SqlEditorMsg, SqlEditorOutput},
     results::{QueryResults, QueryResultsMsg},
-    sidebar::{ObjectSidebar, ObjectSidebarMsg, ObjectSidebarOutput},
+    sidebar::{ObjectAction, ObjectSidebar, ObjectSidebarMsg, ObjectSidebarOutput},
     start_screen::{StartScreen, StartScreenMsg, StartScreenOutput},
     table_browser::{TableBrowser, TableBrowserMsg},
 };
@@ -90,6 +90,13 @@ enum WorkspaceNavigation {
 }
 
 #[derive(Debug)]
+pub(crate) struct ObjectActionRequest {
+    action: ObjectAction,
+    object: DatabaseObject,
+    new_name: Option<String>,
+}
+
+#[derive(Debug)]
 pub enum WindowContentMsg {
     OpenConnectionDialog,
     ShowStartScreen,
@@ -110,6 +117,8 @@ pub enum WindowContentMsg {
     ConnectionDialogOutput(ConnectionDialogOutput),
     StartScreenOutput(StartScreenOutput),
     SidebarOutput(ObjectSidebarOutput),
+    ObjectActionConfirmed(ObjectActionRequest),
+    ObjectActionCompleted(ObjectActionRequest, Result<(), String>),
     EditorOutput {
         tab_id: u64,
         output: SqlEditorOutput,
@@ -131,6 +140,7 @@ pub enum WindowContentCommandOutput {
         tab_id: u64,
         id: u64,
     },
+    ObjectActionFinished(ObjectActionRequest, Result<(), String>),
 }
 
 #[relm4::component(pub)]
@@ -418,6 +428,18 @@ impl Component for WindowContent {
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::OpenObject(object)) => {
                 self.open_table_browser(object, widgets);
             }
+            WindowContentMsg::SidebarOutput(ObjectSidebarOutput::ObjectAction {
+                object,
+                action,
+            }) => {
+                self.handle_object_action(object, action, widgets, &sender);
+            }
+            WindowContentMsg::ObjectActionConfirmed(request) => {
+                self.run_object_action(request, widgets, &sender);
+            }
+            WindowContentMsg::ObjectActionCompleted(request, result) => {
+                self.handle_object_action_completed(request, result, widgets, &sender);
+            }
         }
 
         self.update_view(widgets, sender);
@@ -426,7 +448,7 @@ impl Component for WindowContent {
     fn update_cmd(
         &mut self,
         msg: Self::CommandOutput,
-        _sender: ComponentSender<Self>,
+        sender: ComponentSender<Self>,
         _root: &Self::Root,
     ) {
         match msg {
@@ -438,6 +460,9 @@ impl Component for WindowContent {
             }
             WindowContentCommandOutput::QueryCancelled { tab_id, id } => {
                 self.handle_query_cancelled(tab_id, id);
+            }
+            WindowContentCommandOutput::ObjectActionFinished(request, result) => {
+                sender.input(WindowContentMsg::ObjectActionCompleted(request, result));
             }
         }
     }
@@ -601,6 +626,212 @@ fn icon_label_widget(icon_name: &str, label: &str) -> gtk::Box {
     let label = gtk::Label::new(Some(label));
     container.append(&label);
     container
+}
+
+fn show_rename_object_dialog(
+    root: &adw::ToastOverlay,
+    sender: &ComponentSender<WindowContent>,
+    object: DatabaseObject,
+) {
+    let entry = gtk::Entry::builder()
+        .text(&object.name)
+        .activates_default(true)
+        .hexpand(true)
+        .build();
+
+    let dialog = adw::AlertDialog::builder()
+        .heading(object_action_heading(ObjectAction::Rename, &object))
+        .body(gettext("Choose a new name for this database object."))
+        .extra_child(&entry)
+        .build();
+
+    dialog.add_responses(&[
+        ("cancel", &gettext("Cancel")),
+        ("rename", &gettext("Rename")),
+    ]);
+
+    dialog.set_default_response(Some("rename"));
+    dialog.set_response_appearance("rename", adw::ResponseAppearance::Suggested);
+    dialog.set_response_enabled(
+        "rename",
+        db::object_actions::normalize_new_object_name(&object.name)
+            .is_some_and(|name| name != object.name),
+    );
+
+    entry.connect_changed({
+        let dialog = dialog.clone();
+        let current_name = object.name.clone();
+
+        move |entry| {
+            dialog.set_response_enabled(
+                "rename",
+                db::object_actions::normalize_new_object_name(&entry.text())
+                    .is_some_and(|name| name != current_name),
+            );
+        }
+    });
+
+    let sender = sender.clone();
+    dialog.choose(
+        root.root().as_ref(),
+        None::<&gtk::gio::Cancellable>,
+        move |response| {
+            if response == "rename" {
+                sender.input(WindowContentMsg::ObjectActionConfirmed(
+                    ObjectActionRequest {
+                        action: ObjectAction::Rename,
+                        object,
+                        new_name: Some(entry.text().to_string()),
+                    },
+                ));
+            }
+        },
+    );
+}
+
+fn show_confirm_object_dialog(
+    root: &adw::ToastOverlay,
+    sender: &ComponentSender<WindowContent>,
+    object: DatabaseObject,
+    action: ObjectAction,
+) {
+    let dialog = adw::AlertDialog::builder()
+        .heading(object_action_heading(action, &object))
+        .body(object_action_body(action, &object))
+        .build();
+
+    dialog.add_responses(&[
+        ("cancel", &gettext("Cancel")),
+        ("confirm", &object_action_confirm_label(action)),
+    ]);
+
+    dialog.set_response_appearance("confirm", adw::ResponseAppearance::Destructive);
+
+    let sender = sender.clone();
+
+    dialog.choose(
+        root.root().as_ref(),
+        None::<&gtk::gio::Cancellable>,
+        move |response| {
+            if response != "confirm" {
+                return;
+            }
+
+            match action {
+                ObjectAction::Rename => {}
+                ObjectAction::Truncate => {
+                    sender.input(WindowContentMsg::ObjectActionConfirmed(
+                        ObjectActionRequest {
+                            action,
+                            object,
+                            new_name: None,
+                        },
+                    ));
+                }
+                ObjectAction::Delete => {
+                    sender.input(WindowContentMsg::ObjectActionConfirmed(
+                        ObjectActionRequest {
+                            action,
+                            object,
+                            new_name: None,
+                        },
+                    ));
+                }
+            }
+        },
+    );
+}
+
+fn object_action_heading(action: ObjectAction, object: &DatabaseObject) -> String {
+    match action {
+        ObjectAction::Rename => match object.kind {
+            DatabaseObjectKind::Table => gettext("Rename Table"),
+            DatabaseObjectKind::View => gettext("Rename View"),
+        },
+        ObjectAction::Truncate => gettext("Truncate Table"),
+        ObjectAction::Delete => match object.kind {
+            DatabaseObjectKind::Table => gettext("Delete Table"),
+            DatabaseObjectKind::View => gettext("Delete View"),
+        },
+    }
+}
+
+fn object_action_body(action: ObjectAction, object: &DatabaseObject) -> String {
+    match action {
+        ObjectAction::Rename => String::new(),
+        ObjectAction::Truncate => format!(
+            "{} {}?\n{}",
+            gettext("Remove all rows from"),
+            object.qualified_name(),
+            gettext("This cannot be undone.")
+        ),
+        ObjectAction::Delete => format!(
+            "{} {}?\n{}",
+            gettext("Delete"),
+            object.qualified_name(),
+            gettext("This cannot be undone.")
+        ),
+    }
+}
+
+fn object_action_confirm_label(action: ObjectAction) -> String {
+    match action {
+        ObjectAction::Rename => gettext("Rename"),
+        ObjectAction::Truncate => gettext("Truncate"),
+        ObjectAction::Delete => gettext("Delete"),
+    }
+}
+
+fn object_action_success_message(action: ObjectAction, object: &DatabaseObject) -> String {
+    match action {
+        ObjectAction::Rename => gettext("Database object renamed."),
+        ObjectAction::Truncate => format!(
+            "{} {}",
+            gettext("Table truncated:"),
+            object.qualified_name()
+        ),
+        ObjectAction::Delete => gettext("Database object deleted."),
+    }
+}
+
+fn object_action_failure_message(action: ObjectAction) -> String {
+    match action {
+        ObjectAction::Rename => gettext("Renaming failed"),
+        ObjectAction::Truncate => gettext("Truncating failed"),
+        ObjectAction::Delete => gettext("Deleting failed"),
+    }
+}
+
+fn normalize_object_action_request(
+    mut request: ObjectActionRequest,
+    widgets: &WindowContentWidgets,
+) -> Option<ObjectActionRequest> {
+    match request.action {
+        ObjectAction::Rename => {
+            let new_name = match db::object_actions::normalize_new_object_name(
+                request.new_name.as_deref().unwrap_or_default(),
+            ) {
+                Some(name) => name,
+                None => {
+                    widgets
+                        .toast_overlay
+                        .add_toast(adw::Toast::new(&gettext("Enter a valid object name.")));
+                    return None;
+                }
+            };
+
+            if new_name == request.object.name {
+                return None;
+            }
+
+            request.new_name = Some(new_name);
+        }
+        ObjectAction::Truncate | ObjectAction::Delete => {
+            request.new_name = None;
+        }
+    }
+
+    Some(request)
 }
 
 impl WorkspaceNavigation {
@@ -1018,6 +1249,24 @@ impl WindowContent {
         }
     }
 
+    fn reload_schema(&mut self, sender: &ComponentSender<Self>) {
+        let Some(pool) = self.active_pool.clone() else {
+            return;
+        };
+
+        let schema_request_id = self.allocate_schema_request_id();
+        self.active_schema_request_id = Some(schema_request_id);
+
+        sender.oneshot_command(async move {
+            WindowContentCommandOutput::SchemaLoaded {
+                id: schema_request_id,
+                result: db::schema::load_schema(&pool)
+                    .await
+                    .map_err(|error| error.to_string()),
+            }
+        });
+    }
+
     fn handle_query_executed(
         &mut self,
         tab_id: u64,
@@ -1059,6 +1308,46 @@ impl WindowContent {
             tab.query_state = QueryState::Idle;
             tab.editor.emit(SqlEditorMsg::SetRunning(false));
             tab.results.emit(QueryResultsMsg::Cancelled);
+        }
+    }
+
+    fn handle_object_action_completed(
+        &mut self,
+        request: ObjectActionRequest,
+        result: Result<(), String>,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        match result {
+            Ok(()) => {
+                match request.action {
+                    ObjectAction::Rename => {
+                        if let Some(new_name) = request.new_name {
+                            self.apply_renamed_object(&request.object, &new_name, widgets);
+                        }
+                    }
+                    ObjectAction::Truncate => {
+                        self.reload_browse_tab(&request.object);
+                    }
+                    ObjectAction::Delete => {
+                        self.remove_deleted_object(&request.object, widgets);
+                    }
+                }
+
+                self.reload_schema(sender);
+                widgets
+                    .toast_overlay
+                    .add_toast(adw::Toast::new(&object_action_success_message(
+                        request.action,
+                        &request.object,
+                    )));
+            }
+            Err(error) => {
+                widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                    "{}: {error}",
+                    object_action_failure_message(request.action)
+                )));
+            }
         }
     }
 
@@ -1114,6 +1403,66 @@ impl WindowContent {
         if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id) {
             tab.browser.emit(TableBrowserMsg::Refresh);
         }
+    }
+
+    fn handle_object_action(
+        &self,
+        object: DatabaseObject,
+        action: ObjectAction,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        match action {
+            ObjectAction::Rename => {
+                show_rename_object_dialog(&widgets.toast_overlay, sender, object)
+            }
+            ObjectAction::Truncate => {
+                show_confirm_object_dialog(&widgets.toast_overlay, sender, object, action);
+            }
+            ObjectAction::Delete => {
+                show_confirm_object_dialog(&widgets.toast_overlay, sender, object, action);
+            }
+        }
+    }
+
+    fn run_object_action(
+        &self,
+        request: ObjectActionRequest,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        let Some(pool) = self.active_pool.clone() else {
+            return;
+        };
+
+        let request = match normalize_object_action_request(request, widgets) {
+            Some(request) => request,
+            None => return,
+        };
+
+        sender.oneshot_command(async move {
+            let result = match request.action {
+                ObjectAction::Rename => {
+                    if let Some(new_name) = request.new_name.as_deref() {
+                        db::object_actions::rename_object(&pool, &request.object, new_name)
+                            .await
+                            .map_err(|error| error.to_string())
+                    } else {
+                        Err(gettext("Missing new object name."))
+                    }
+                }
+                ObjectAction::Truncate => {
+                    db::object_actions::truncate_table(&pool, &request.object)
+                        .await
+                        .map_err(|error| error.to_string())
+                }
+                ObjectAction::Delete => db::object_actions::drop_object(&pool, &request.object)
+                    .await
+                    .map_err(|error| error.to_string()),
+            };
+
+            WindowContentCommandOutput::ObjectActionFinished(request, result)
+        });
     }
 
     fn run_query_for_tab(
@@ -1342,6 +1691,67 @@ impl WindowContent {
             self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
                 tab.object.clone(),
             )));
+        }
+    }
+
+    fn apply_renamed_object(
+        &mut self,
+        object: &DatabaseObject,
+        new_name: &str,
+        widgets: &WindowContentWidgets,
+    ) {
+        let mut renamed = object.clone();
+        renamed.name = new_name.to_string();
+
+        for tab in &mut self.browse_tabs {
+            if tab.object == *object {
+                tab.object = renamed.clone();
+                tab.browser
+                    .emit(TableBrowserMsg::ObjectRenamed(renamed.clone()));
+                tab.page.set_title(new_name);
+                tab.page
+                    .set_tooltip(&format!("{}.{}", renamed.schema, renamed.name));
+            }
+        }
+
+        self.sync_sidebar_selection(widgets);
+    }
+
+    fn reload_browse_tab(&self, object: &DatabaseObject) {
+        for tab in &self.browse_tabs {
+            if tab.object == *object {
+                tab.browser.emit(TableBrowserMsg::Refresh);
+            }
+        }
+    }
+
+    fn remove_deleted_object(&mut self, object: &DatabaseObject, widgets: &WindowContentWidgets) {
+        let pages = self
+            .browse_tabs
+            .iter()
+            .filter(|tab| tab.object == *object)
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        self.browse_tabs.retain(|tab| tab.object != *object);
+
+        for page in pages {
+            widgets.query_tab_view.close_page(&page);
+            widgets.query_tab_view.close_page_finish(&page, true);
+        }
+
+        self.sync_sidebar_selection(widgets);
+    }
+
+    fn sync_sidebar_selection(&self, widgets: &WindowContentWidgets) {
+        if let Some(tab_id) = selected_browse_tab_id(widgets)
+            && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
+                tab.object.clone(),
+            )));
+        } else {
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(None));
         }
     }
 

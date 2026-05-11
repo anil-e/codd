@@ -4,6 +4,7 @@ use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk;
 use relm4::prelude::*;
+use std::cell::RefCell;
 use std::collections::BTreeMap;
 
 pub struct ObjectSidebar {
@@ -12,6 +13,7 @@ pub struct ObjectSidebar {
     is_loading: bool,
     status_text: String,
     selected_object: Option<String>,
+    context_menu_popovers: RefCell<Vec<gtk::PopoverMenu>>,
 }
 
 #[derive(Debug)]
@@ -25,9 +27,20 @@ pub enum ObjectSidebarMsg {
     ObjectSelected(DatabaseObject),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ObjectAction {
+    Rename,
+    Truncate,
+    Delete,
+}
+
 #[derive(Debug)]
 pub enum ObjectSidebarOutput {
     OpenObject(DatabaseObject),
+    ObjectAction {
+        object: DatabaseObject,
+        action: ObjectAction,
+    },
 }
 
 #[relm4::component(pub)]
@@ -127,6 +140,7 @@ impl Component for ObjectSidebar {
             is_loading: false,
             status_text: gettext("No connection"),
             selected_object: None,
+            context_menu_popovers: RefCell::new(Vec::new()),
         };
         let widgets = view_output!();
         root.set_visible_child_name(model.visible_child_name());
@@ -143,6 +157,7 @@ impl Component for ObjectSidebar {
     ) {
         match msg {
             ObjectSidebarMsg::Loading => {
+                self.clear_context_menu();
                 self.is_loading = true;
                 self.status_text = gettext("Loading schema...");
                 self.objects.clear();
@@ -164,6 +179,7 @@ impl Component for ObjectSidebar {
             }
 
             ObjectSidebarMsg::SetError(error) => {
+                self.clear_context_menu();
                 self.is_loading = false;
                 self.objects.clear();
                 self.status_text = error;
@@ -191,17 +207,22 @@ impl Component for ObjectSidebar {
             ObjectSidebarMsg::ObjectSelected(object) => {
                 self.selected_object = Some(object_key(&object));
                 self.render_lists(widgets, &sender);
-                let _ = sender.output(ObjectSidebarOutput::OpenObject(object));
+                sender.output(ObjectSidebarOutput::OpenObject(object)).ok();
             }
         }
 
         root.set_visible_child_name(self.visible_child_name());
         self.update_view(widgets, sender);
     }
+
+    fn shutdown(&mut self, _widgets: &mut Self::Widgets, _output: relm4::Sender<Self::Output>) {
+        self.clear_context_menu();
+    }
 }
 
 impl ObjectSidebar {
     fn render_lists(&self, widgets: &ObjectSidebarWidgets, sender: &ComponentSender<Self>) {
+        self.clear_context_menu();
         clear_list(&widgets.schema_list);
 
         for (schema, objects) in objects_by_schema(self.filtered_objects()) {
@@ -211,8 +232,16 @@ impl ObjectSidebar {
                 self.selected_object.as_deref(),
                 self.has_active_search(),
                 sender,
+                &self.context_menu_popovers,
             );
             widgets.schema_list.append(&row);
+        }
+    }
+
+    fn clear_context_menu(&self) {
+        for popover in self.context_menu_popovers.borrow_mut().drain(..) {
+            popover.popdown();
+            popover.unparent();
         }
     }
 
@@ -270,6 +299,7 @@ fn build_schema_row(
     selected_key: Option<&str>,
     has_active_search: bool,
     sender: &ComponentSender<ObjectSidebar>,
+    context_menu_popovers: &RefCell<Vec<gtk::PopoverMenu>>,
 ) -> adw::ExpanderRow {
     let object_count = u32::try_from(objects.len()).unwrap_or(u32::MAX);
     let row = adw::ExpanderRow::builder()
@@ -294,7 +324,12 @@ fn build_schema_row(
     );
 
     for object in objects {
-        row.add_row(&build_object_row(object, selected_key, sender));
+        row.add_row(&build_object_row(
+            object,
+            selected_key,
+            sender,
+            context_menu_popovers,
+        ));
     }
 
     row
@@ -368,6 +403,7 @@ fn build_object_row(
     object: &DatabaseObject,
     selected_key: Option<&str>,
     sender: &ComponentSender<ObjectSidebar>,
+    context_menu_popovers: &RefCell<Vec<gtk::PopoverMenu>>,
 ) -> adw::ActionRow {
     let row = adw::ActionRow::builder()
         .title(&object.name)
@@ -390,6 +426,29 @@ fn build_object_row(
         row.add_css_class("accent");
     }
 
+    let popover = gtk::PopoverMenu::from_model(Some(&object_menu(&object.kind)));
+    popover.set_has_arrow(false);
+    popover.set_parent(&row);
+    context_menu_popovers.borrow_mut().push(popover.clone());
+
+    row.insert_action_group(
+        "object",
+        Some(&object_action_group(object.clone(), sender.clone())),
+    );
+
+    let context_click = gtk::GestureClick::new();
+    context_click.set_button(gtk::gdk::BUTTON_SECONDARY);
+    context_click.connect_pressed({
+        let popover = popover.clone();
+
+        move |gesture, _, _, _| {
+            gesture.set_state(gtk::EventSequenceState::Claimed);
+            popover.popup();
+        }
+    });
+
+    row.add_controller(context_click);
+
     let selected = object.clone();
     let sender = sender.clone();
     row.connect_activated(move |_| {
@@ -399,9 +458,56 @@ fn build_object_row(
     row
 }
 
+fn object_action_group(
+    object: DatabaseObject,
+    sender: ComponentSender<ObjectSidebar>,
+) -> gtk::gio::SimpleActionGroup {
+    let action_group = gtk::gio::SimpleActionGroup::new();
+
+    for (name, action) in [
+        ("rename", ObjectAction::Rename),
+        ("truncate", ObjectAction::Truncate),
+        ("delete", ObjectAction::Delete),
+    ] {
+        let simple_action = gtk::gio::SimpleAction::new(name, None);
+        let sender = sender.clone();
+        let object = object.clone();
+
+        simple_action.connect_activate(move |_, _| {
+            sender
+                .output(ObjectSidebarOutput::ObjectAction {
+                    object: object.clone(),
+                    action,
+                })
+                .ok();
+        });
+
+        action_group.add_action(&simple_action);
+    }
+
+    action_group
+}
+
+fn object_menu(kind: &DatabaseObjectKind) -> gtk::gio::Menu {
+    let menu = gtk::gio::Menu::new();
+    let edit_section = gtk::gio::Menu::new();
+    edit_section.append(Some(&gettext("Rename...")), Some("object.rename"));
+    menu.append_section(None, &edit_section);
+
+    let destructive_section = gtk::gio::Menu::new();
+    if *kind == DatabaseObjectKind::Table {
+        destructive_section.append(Some(&gettext("Truncate...")), Some("object.truncate"));
+    }
+
+    destructive_section.append(Some(&gettext("Delete...")), Some("object.delete"));
+    menu.append_section(None, &destructive_section);
+
+    menu
+}
+
 fn clear_list(list: &gtk::ListBox) {
-    while let Some(child) = list.first_child() {
-        list.remove(&child);
+    while let Some(row) = list.row_at_index(0) {
+        list.remove(&row);
     }
 }
 

@@ -53,6 +53,7 @@ pub enum TableBrowserMsg {
         pool: PgPool,
         object: DatabaseObject,
     },
+    ObjectRenamed(DatabaseObject),
     Refresh,
     PreviousPage,
     NextPage,
@@ -359,6 +360,12 @@ impl Component for TableBrowser {
                 self.draft_filters.clear();
                 self.active_filters.clear();
                 self.filters_expanded = false;
+                self.load_page(widgets, &sender);
+            }
+
+            TableBrowserMsg::ObjectRenamed(object) => {
+                self.object = Some(object);
+                self.offset = 0;
                 self.load_page(widgets, &sender);
             }
 
