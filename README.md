@@ -11,13 +11,10 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 ## Features
 
 - Save and reopen PostgreSQL connections
-- Browse schemas, tables, and views
+- Browse tables and views
 - Write SQL with syntax highlighting and line numbers
-- Execute statements and cancel running queries
 - Reuse automatically saved query history per connection
-- Inspect result sets in a native GTK table
 - Browse table rows with pagination, filters, and editable cell values
-- Keep basic window and sidebar state between sessions
 
 ## Requirements
 
