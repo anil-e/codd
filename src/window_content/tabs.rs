@@ -1,0 +1,610 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use gettextrs::gettext;
+use libadwaita as adw;
+use libadwaita::prelude::*;
+use relm4::gtk;
+use relm4::gtk::gio;
+use relm4::prelude::*;
+use sqlx::PgPool;
+
+use crate::models::database_object::DatabaseObject;
+use crate::ui::components::{
+    editor::{SqlEditor, SqlEditorMsg},
+    results::QueryResults,
+    sidebar::ObjectSidebarMsg,
+    table_browser::{TableBrowser, TableBrowserMsg},
+};
+
+use super::{
+    BrowseTab, QueryState, QueryTab, WindowContent, WindowContentMsg, WindowContentWidgets,
+    WorkspaceNavigation, workspace_split_view,
+};
+
+pub(super) fn selected_query_tab_id(widgets: &WindowContentWidgets) -> Option<u64> {
+    widgets
+        .query_tab_view
+        .selected_page()
+        .and_then(|page| query_tab_id_from_widget(&page.child()))
+}
+
+pub(super) fn selected_browse_tab_id(widgets: &WindowContentWidgets) -> Option<u64> {
+    widgets
+        .query_tab_view
+        .selected_page()
+        .and_then(|page| browse_tab_id_from_widget(&page.child()))
+}
+
+pub(super) fn setup_tab_context_menu(
+    tab_view: &adw::TabView,
+    sender: &ComponentSender<WindowContent>,
+) {
+    let menu = gio::Menu::new();
+    menu.append(Some(&gettext("Close")), Some("tab.close"));
+    menu.append(
+        Some(&gettext("Close Other Tabs")),
+        Some("tab.close-other-tabs"),
+    );
+
+    menu.append(Some(&gettext("Close All")), Some("tab.close-all"));
+    tab_view.set_menu_model(Some(&menu));
+
+    let current_tab = Rc::new(RefCell::new(None::<String>));
+    let action_group = gio::SimpleActionGroup::new();
+
+    let close_action = gio::SimpleAction::new("close", None);
+
+    close_action.connect_activate({
+        let sender = sender.clone();
+        let current_tab = current_tab.clone();
+
+        move |_, _| {
+            sender.input(WindowContentMsg::CloseTabFromMenu(
+                current_tab.borrow().clone(),
+            ));
+        }
+    });
+
+    action_group.add_action(&close_action);
+
+    let close_other_tabs_action = gio::SimpleAction::new("close-other-tabs", None);
+
+    close_other_tabs_action.connect_activate({
+        let sender = sender.clone();
+        let current_tab = current_tab.clone();
+
+        move |_, _| {
+            sender.input(WindowContentMsg::CloseOtherTabsFromMenu(
+                current_tab.borrow().clone(),
+            ));
+        }
+    });
+
+    action_group.add_action(&close_other_tabs_action);
+
+    let close_all_action = gio::SimpleAction::new("close-all", None);
+    close_all_action.connect_activate({
+        let sender = sender.clone();
+
+        move |_, _| {
+            sender.input(WindowContentMsg::CloseAllTabs);
+        }
+    });
+
+    action_group.add_action(&close_all_action);
+
+    tab_view.connect_setup_menu({
+        let close_action = close_action.clone();
+        let close_all_action = close_all_action.clone();
+        let close_other_tabs_action = close_other_tabs_action.clone();
+        let current_tab = current_tab.clone();
+
+        move |tab_view, page| {
+            let widget_name = page.map(|page| page.child().widget_name().to_string());
+            let has_target_tab = widget_name.is_some();
+            let can_close_multiple = tab_view.n_pages() > 1;
+
+            *current_tab.borrow_mut() = widget_name;
+            close_action.set_enabled(has_target_tab && can_close_multiple);
+            close_other_tabs_action.set_enabled(has_target_tab && can_close_multiple);
+            close_all_action.set_enabled(can_close_multiple);
+        }
+    });
+
+    tab_view.connect_realize(move |tab_view| {
+        if let Some(window) = tab_view.root().and_downcast::<gtk::Window>() {
+            window.insert_action_group("tab", Some(&action_group));
+        }
+    });
+}
+
+impl WindowContent {
+    pub(super) fn add_query_tab(
+        &mut self,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        let id = self.next_query_tab_id;
+        self.next_query_tab_id = self.next_query_tab_id.wrapping_add(1);
+
+        let editor_buffer = sourceview5::Buffer::new(None);
+        let s = sender.clone();
+        editor_buffer.connect_changed(move |_| {
+            s.input(WindowContentMsg::QueryTabTitleChanged(id));
+        });
+
+        let editor = SqlEditor::builder()
+            .launch(editor_buffer.clone())
+            .forward(sender.input_sender(), move |output| {
+                WindowContentMsg::EditorOutput { tab_id: id, output }
+            });
+
+        let results = QueryResults::builder().launch(()).detach();
+
+        let widget = gtk::Paned::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .start_child(editor.widget())
+            .end_child(results.widget())
+            .resize_start_child(true)
+            .shrink_start_child(false)
+            .position(460)
+            .build();
+
+        widget.set_widget_name(&format!("query-tab-{id}"));
+
+        let title = query_tab_title("");
+        let page = widgets.query_tab_view.append(&widget);
+        page.set_title(&title);
+        page.set_tooltip(&title);
+        widgets.query_tab_view.set_selected_page(&page);
+
+        self.active_query_tab_id = id;
+        self.query_tabs.push(QueryTab {
+            id,
+            page,
+            editor,
+            results,
+            editor_buffer,
+            query_state: QueryState::Idle,
+            active_query: None,
+        });
+
+        if let Some(tab) = self.query_tabs.last() {
+            tab.editor
+                .emit(SqlEditorMsg::SetHistory(self.query_history.clone()));
+        }
+    }
+
+    pub(super) fn add_query_tab_if_workspace_visible(
+        &mut self,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        if !self.shows_workspace() {
+            return;
+        }
+
+        self.add_query_tab(widgets, sender);
+    }
+
+    pub(super) fn close_query_tab(&mut self, tab_id: u64, widgets: &WindowContentWidgets) {
+        if self.tab_count() <= 1 {
+            return;
+        }
+
+        let Some(index) = self.query_tabs.iter().position(|tab| tab.id == tab_id) else {
+            return;
+        };
+
+        if let Some(active_query) = self.query_tabs[index].active_query.take() {
+            active_query.abort_handle.abort();
+        }
+
+        let removed_was_active = self.active_query_tab_id == tab_id;
+        let removed = self.query_tabs.remove(index);
+        widgets
+            .query_tab_view
+            .close_page_finish(&removed.page, true);
+
+        if removed_was_active {
+            if self.query_tabs.is_empty() {
+                self.active_query_tab_id = 0;
+            } else {
+                let next_index = index.min(self.query_tabs.len() - 1);
+                let next_tab = &self.query_tabs[next_index];
+                self.active_query_tab_id = next_tab.id;
+                widgets.query_tab_view.set_selected_page(&next_tab.page);
+            }
+        }
+    }
+
+    pub(super) fn close_browse_tab(&mut self, tab_id: u64, widgets: &WindowContentWidgets) {
+        if self.tab_count() <= 1 {
+            return;
+        }
+
+        let Some(index) = self.browse_tabs.iter().position(|tab| tab.id == tab_id) else {
+            return;
+        };
+
+        let removed = self.browse_tabs.remove(index);
+        widgets
+            .query_tab_view
+            .close_page_finish(&removed.page, true);
+    }
+
+    pub(super) fn close_tab_from_widget_name(
+        &mut self,
+        widget_name: Option<&str>,
+        widgets: &WindowContentWidgets,
+    ) {
+        if self.tab_count() <= 1 {
+            return;
+        }
+
+        if let Some(tab_id) = tab_id_from_widget_name(widget_name, "query-tab-")
+            && let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            widgets.query_tab_view.close_page(&tab.page);
+            return;
+        }
+
+        if let Some(tab_id) = tab_id_from_widget_name(widget_name, "browse-tab-")
+            && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            widgets.query_tab_view.close_page(&tab.page);
+        }
+    }
+
+    pub(super) fn close_other_tabs_from_widget_name(
+        &mut self,
+        widget_name: Option<&str>,
+        widgets: &WindowContentWidgets,
+    ) {
+        let keep_query_tab_id = tab_id_from_widget_name(widget_name, "query-tab-");
+        let keep_browse_tab_id = tab_id_from_widget_name(widget_name, "browse-tab-");
+
+        if keep_query_tab_id.is_none() && keep_browse_tab_id.is_none() {
+            return;
+        }
+
+        let query_tab_pages = self
+            .query_tabs
+            .iter()
+            .filter(|tab| Some(tab.id) != keep_query_tab_id)
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        let browse_tab_pages = self
+            .browse_tabs
+            .iter()
+            .filter(|tab| Some(tab.id) != keep_browse_tab_id)
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        for page in query_tab_pages {
+            widgets.query_tab_view.close_page(&page);
+        }
+
+        for page in browse_tab_pages {
+            widgets.query_tab_view.close_page(&page);
+        }
+
+        if let Some(tab_id) = keep_query_tab_id
+            && let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            self.active_query_tab_id = tab_id;
+            widgets.query_tab_view.set_selected_page(&tab.page);
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(None));
+        } else if let Some(tab_id) = keep_browse_tab_id
+            && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            widgets.query_tab_view.set_selected_page(&tab.page);
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
+                tab.object.clone(),
+            )));
+        }
+    }
+
+    pub(super) fn close_all_tabs(
+        &mut self,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        let query_tab_pages = self
+            .query_tabs
+            .iter()
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        let browse_tab_pages = self
+            .browse_tabs
+            .iter()
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        self.add_query_tab(widgets, sender);
+
+        for page in query_tab_pages {
+            widgets.query_tab_view.close_page(&page);
+        }
+
+        for page in browse_tab_pages {
+            widgets.query_tab_view.close_page(&page);
+        }
+    }
+
+    pub(super) fn active_query_tab(&self) -> Option<&QueryTab> {
+        self.query_tabs
+            .iter()
+            .find(|tab| tab.id == self.active_query_tab_id)
+    }
+
+    pub(super) fn active_query_tab_mut(&mut self) -> Option<&mut QueryTab> {
+        let active_query_tab_id = self.active_query_tab_id;
+        self.query_tabs
+            .iter_mut()
+            .find(|tab| tab.id == active_query_tab_id)
+    }
+
+    pub(super) fn query_tab_mut(&mut self, tab_id: u64) -> Option<&mut QueryTab> {
+        self.query_tabs.iter_mut().find(|tab| tab.id == tab_id)
+    }
+
+    pub(super) fn update_query_tab_title(&mut self, tab_id: u64) {
+        let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id) else {
+            return;
+        };
+
+        let title = query_tab_title(&self.query_tab_sql(tab_id).unwrap_or_default());
+        tab.page.set_title(&title);
+        tab.page.set_tooltip(&title);
+    }
+
+    pub(super) fn has_multiple_tabs(&self) -> bool {
+        self.tab_count() > 1
+    }
+
+    pub(super) fn tab_count(&self) -> usize {
+        self.query_tabs.len() + self.browse_tabs.len()
+    }
+
+    pub(super) fn run_selected_query_tab(
+        &mut self,
+        widgets: &mut WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        let Some(tab_id) = selected_query_tab_id(widgets) else {
+            self.select_active_query_tab(widgets, sender);
+            return;
+        };
+
+        self.active_query_tab_id = tab_id;
+
+        self.run_query_for_tab(tab_id, widgets, sender);
+    }
+
+    pub(super) fn refresh_active_browse_tab(&self, widgets: &WindowContentWidgets) {
+        let Some(tab_id) = selected_browse_tab_id(widgets) else {
+            return;
+        };
+
+        if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id) {
+            tab.browser.emit(TableBrowserMsg::Refresh);
+        }
+    }
+
+    pub(super) fn query_tab_sql(&self, tab_id: u64) -> Option<String> {
+        let buffer = &self
+            .query_tabs
+            .iter()
+            .find(|tab| tab.id == tab_id)?
+            .editor_buffer;
+
+        Some(
+            buffer
+                .text(&buffer.start_iter(), &buffer.end_iter(), false)
+                .to_string(),
+        )
+    }
+
+    pub(super) fn open_table_browser(
+        &mut self,
+        object: DatabaseObject,
+        widgets: &WindowContentWidgets,
+    ) {
+        if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.object == object) {
+            widgets.query_tab_view.set_selected_page(&tab.page);
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
+                tab.object.clone(),
+            )));
+            workspace_split_view(widgets).set_show_content(true);
+            self.workspace_navigation =
+                WorkspaceNavigation::from_split_view(workspace_split_view(widgets).is_collapsed());
+            return;
+        }
+
+        let Some(pool) = self.active_pool.clone() else {
+            return;
+        };
+
+        self.add_browse_tab(pool, object, widgets);
+        workspace_split_view(widgets).set_show_content(true);
+        self.workspace_navigation =
+            WorkspaceNavigation::from_split_view(workspace_split_view(widgets).is_collapsed());
+    }
+
+    pub(super) fn add_browse_tab(
+        &mut self,
+        pool: PgPool,
+        object: DatabaseObject,
+        widgets: &WindowContentWidgets,
+    ) {
+        let id = self.next_browse_tab_id;
+        self.next_browse_tab_id = self.next_browse_tab_id.wrapping_add(1);
+
+        let browser = TableBrowser::builder().launch(()).detach();
+        let widget = browser.widget();
+        widget.set_widget_name(&format!("browse-tab-{id}"));
+
+        let title = object.name.clone();
+        let page = widgets.query_tab_view.append(widget);
+        page.set_title(&title);
+        page.set_tooltip(&format!("{}.{}", object.schema, object.name));
+        widgets.query_tab_view.set_selected_page(&page);
+
+        browser.emit(TableBrowserMsg::Open {
+            pool,
+            object: object.clone(),
+        });
+
+        self.browse_tabs.push(BrowseTab {
+            id,
+            page,
+            object,
+            browser,
+        });
+
+        if let Some(tab) = self.browse_tabs.last() {
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
+                tab.object.clone(),
+            )));
+        }
+    }
+
+    pub(super) fn apply_renamed_object(
+        &mut self,
+        object: &DatabaseObject,
+        new_name: &str,
+        widgets: &WindowContentWidgets,
+    ) {
+        let mut renamed = object.clone();
+        renamed.name = new_name.to_string();
+
+        for tab in &mut self.browse_tabs {
+            if tab.object == *object {
+                tab.object = renamed.clone();
+                tab.browser
+                    .emit(TableBrowserMsg::ObjectRenamed(renamed.clone()));
+                tab.page.set_title(new_name);
+                tab.page
+                    .set_tooltip(&format!("{}.{}", renamed.schema, renamed.name));
+            }
+        }
+
+        self.sync_sidebar_selection(widgets);
+    }
+
+    pub(super) fn reload_browse_tab(&self, object: &DatabaseObject) {
+        for tab in &self.browse_tabs {
+            if tab.object == *object {
+                tab.browser.emit(TableBrowserMsg::Refresh);
+            }
+        }
+    }
+
+    pub(super) fn remove_deleted_object(
+        &mut self,
+        object: &DatabaseObject,
+        widgets: &WindowContentWidgets,
+    ) {
+        let pages = self
+            .browse_tabs
+            .iter()
+            .filter(|tab| tab.object == *object)
+            .map(|tab| tab.page.clone())
+            .collect::<Vec<_>>();
+
+        self.browse_tabs.retain(|tab| tab.object != *object);
+
+        for page in pages {
+            widgets.query_tab_view.close_page(&page);
+            widgets.query_tab_view.close_page_finish(&page, true);
+        }
+
+        self.sync_sidebar_selection(widgets);
+    }
+
+    pub(super) fn sync_sidebar_selection(&self, widgets: &WindowContentWidgets) {
+        if let Some(tab_id) = selected_browse_tab_id(widgets)
+            && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
+        {
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
+                tab.object.clone(),
+            )));
+        } else {
+            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(None));
+        }
+    }
+
+    pub(super) fn select_active_query_tab(
+        &mut self,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        if self.active_query_tab().is_none() {
+            self.add_query_tab(widgets, sender);
+            return;
+        }
+
+        if let Some(tab) = self.active_query_tab() {
+            widgets.query_tab_view.set_selected_page(&tab.page);
+        }
+    }
+
+    pub(super) fn clear_browse_tabs(&mut self, widgets: &WindowContentWidgets) {
+        for tab in self.browse_tabs.drain(..) {
+            widgets.query_tab_view.close_page(&tab.page);
+            widgets.query_tab_view.close_page_finish(&tab.page, true);
+        }
+    }
+}
+
+pub(super) fn query_tab_id_from_widget(widget: &gtk::Widget) -> Option<u64> {
+    widget
+        .widget_name()
+        .strip_prefix("query-tab-")
+        .and_then(|id| id.parse().ok())
+}
+
+pub(super) fn browse_tab_id_from_widget(widget: &gtk::Widget) -> Option<u64> {
+    widget
+        .widget_name()
+        .strip_prefix("browse-tab-")
+        .and_then(|id| id.parse().ok())
+}
+
+fn tab_id_from_widget_name(widget_name: Option<&str>, prefix: &str) -> Option<u64> {
+    widget_name
+        .and_then(|name| name.strip_prefix(prefix))
+        .and_then(|id| id.parse().ok())
+}
+
+fn query_tab_title(sql: &str) -> String {
+    let preview = sql
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .flat_map(|line| line.split_whitespace())
+        .take(4)
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    if preview.is_empty() {
+        gettext("Query")
+    } else {
+        truncate_for_tab_title(&preview)
+    }
+}
+
+fn truncate_for_tab_title(value: &str) -> String {
+    let mut chars = value.chars();
+    let truncated: String = chars.by_ref().take(28).collect();
+
+    if chars.next().is_some() {
+        format!("{truncated}...")
+    } else {
+        truncated
+    }
+}
