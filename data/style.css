@@ -78,3 +78,16 @@
   padding-top: 3px;
   padding-bottom: 3px;
 }
+
+.cell-type-boolean              { color: #1f9d55; }
+.cell-type-boolean.cell-dark    { color: #4fd785; }
+.cell-type-binary               { color: #8b5cf6; }
+.cell-type-binary.cell-dark     { color: #b89cff; }
+.cell-type-datetime             { color: #0f7abf; }
+.cell-type-datetime.cell-dark   { color: #66c2ff; }
+.cell-type-json                 { color: #d97706; }
+.cell-type-json.cell-dark       { color: #ffb15f; }
+.cell-type-numeric              { color: #6d28d9; }
+.cell-type-numeric.cell-dark    { color: #c69cff; }
+.cell-type-text                 { color: #0057b7; }
+.cell-type-text.cell-dark       { color: #79b8ff; }
