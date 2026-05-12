@@ -25,10 +25,17 @@ impl From<sqlx::Error> for PostgresError {
 }
 
 pub async fn connect(details: &ConnectionDetails) -> Result<PgPool, PostgresError> {
+    connect_to_database(details, &details.saved.database).await
+}
+
+pub async fn connect_to_database(
+    details: &ConnectionDetails,
+    database: &str,
+) -> Result<PgPool, PostgresError> {
     let mut options = PgConnectOptions::new()
         .host(&details.saved.host)
         .port(details.saved.port)
-        .database(&details.saved.database)
+        .database(database)
         .username(&details.saved.username)
         .ssl_mode(PgSslMode::Prefer);
 
@@ -43,6 +50,20 @@ pub async fn connect(details: &ConnectionDetails) -> Result<PgPool, PostgresErro
         .await?;
 
     Ok(pool)
+}
+
+pub async fn list_databases(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
+    sqlx::query_scalar::<_, String>(
+        r#"
+        SELECT datname
+        FROM pg_database
+        WHERE datallowconn
+          AND NOT datistemplate
+        ORDER BY datname
+        "#,
+    )
+    .fetch_all(pool)
+    .await
 }
 
 pub async fn test_connection(details: &ConnectionDetails) -> Result<(), PostgresError> {

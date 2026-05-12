@@ -8,33 +8,70 @@ use std::path::PathBuf;
 const MAX_ENTRIES_PER_CONNECTION: usize = 100;
 const MAX_TOTAL_ENTRIES: usize = 1_000;
 const MAX_SQL_BYTES: usize = 64 * 1024;
+const HISTORY_SCOPE_SEPARATOR: char = '\u{1f}';
 
-pub fn load_for_connection(connection_id: &str) -> Vec<QueryHistoryEntry> {
-    read_history()
-        .unwrap_or_default()
-        .into_iter()
-        .filter(|entry| entry.connection_id == connection_id)
-        .collect()
+pub fn load_for_database(connection_id: &str, database: &str) -> Vec<QueryHistoryEntry> {
+    let history = read_history().unwrap_or_default();
+    filter_database_history(history, connection_id, database)
 }
 
-pub fn record_query(connection_id: &str, sql: &str) -> io::Result<Vec<QueryHistoryEntry>> {
+pub fn migrate_legacy_connection_history(connection_id: &str, database: &str) -> io::Result<()> {
+    let mut history = read_history()?;
+    let changed = migrate_legacy_history_in_memory(&mut history, connection_id, database);
+
+    if changed {
+        atomic_save_history(&history)?;
+    }
+
+    Ok(())
+}
+
+fn migrate_legacy_history_in_memory(
+    history: &mut [QueryHistoryEntry],
+    connection_id: &str,
+    database: &str,
+) -> bool {
+    let scoped_id = database_history_scope(connection_id, database);
+    let mut changed = false;
+
+    for entry in history {
+        if entry.connection_id == connection_id {
+            entry.connection_id = scoped_id.clone();
+            changed = true;
+        }
+    }
+
+    changed
+}
+
+pub fn record_query_for_database(
+    connection_id: &str,
+    database: &str,
+    sql: &str,
+) -> io::Result<Vec<QueryHistoryEntry>> {
+    let scoped_id = database_history_scope(connection_id, database);
     let sql = trimmed_query(sql);
     if sql.is_empty() {
-        return read_history_for_connection(connection_id);
+        return read_history_for_connection(&scoped_id);
     }
 
     let mut history = read_history()?;
-    record_query_in_memory(&mut history, connection_id, sql, Utc::now().timestamp());
+    record_query_in_memory(&mut history, &scoped_id, sql, Utc::now().timestamp());
     atomic_save_history(&history)?;
 
-    Ok(filter_connection_history(history, connection_id))
+    Ok(filter_connection_history(history, &scoped_id))
 }
 
-pub fn clear_connection(connection_id: &str) -> io::Result<Vec<QueryHistoryEntry>> {
+pub fn clear_database(connection_id: &str, database: &str) -> io::Result<Vec<QueryHistoryEntry>> {
+    let scoped_id = database_history_scope(connection_id, database);
     let mut history = read_history()?;
-    history.retain(|entry| entry.connection_id != connection_id);
+    history.retain(|entry| entry.connection_id != scoped_id);
     atomic_save_history(&history)?;
     Ok(Vec::new())
+}
+
+fn database_history_scope(connection_id: &str, database: &str) -> String {
+    format!("{connection_id}{HISTORY_SCOPE_SEPARATOR}{database}")
 }
 
 fn read_history_for_connection(connection_id: &str) -> io::Result<Vec<QueryHistoryEntry>> {
@@ -48,6 +85,19 @@ fn filter_connection_history(
     history
         .into_iter()
         .filter(|entry| entry.connection_id == connection_id)
+        .collect()
+}
+
+fn filter_database_history(
+    history: Vec<QueryHistoryEntry>,
+    connection_id: &str,
+    database: &str,
+) -> Vec<QueryHistoryEntry> {
+    let scoped_id = database_history_scope(connection_id, database);
+
+    history
+        .into_iter()
+        .filter(|entry| entry.connection_id == scoped_id)
         .collect()
 }
 
@@ -134,8 +184,9 @@ fn history_path() -> PathBuf {
 #[cfg(test)]
 mod tests {
     use super::{
-        MAX_ENTRIES_PER_CONNECTION, QueryHistoryEntry, parse_history, record_query_in_memory,
-        trimmed_query,
+        MAX_ENTRIES_PER_CONNECTION, QueryHistoryEntry, database_history_scope,
+        filter_database_history, migrate_legacy_history_in_memory, parse_history,
+        record_query_in_memory, trimmed_query,
     };
 
     #[test]
@@ -200,6 +251,46 @@ mod tests {
             .count();
         assert_eq!(connection_entries, MAX_ENTRIES_PER_CONNECTION);
         assert_eq!(history[0].sql, "select newest;");
+    }
+
+    #[test]
+    fn database_history_uses_database_scoped_connection_ids() {
+        assert_eq!(
+            database_history_scope("connection-a", "codd_dev"),
+            "connection-a\u{1f}codd_dev"
+        );
+    }
+
+    #[test]
+    fn database_history_filters_by_database_scope() {
+        let history = vec![
+            entry("connection-a", "select legacy;", 30),
+            entry("connection-a\u{1f}codd_dev", "select scoped;", 20),
+            entry("connection-a\u{1f}postgres", "select other;", 10),
+        ];
+
+        let filtered = filter_database_history(history, "connection-a", "codd_dev");
+
+        assert_eq!(filtered.len(), 1);
+        assert_eq!(filtered[0].sql, "select scoped;");
+    }
+
+    #[test]
+    fn legacy_history_migration_moves_connection_history_to_database_scope() {
+        let mut history = vec![
+            entry("connection-a", "select legacy;", 20),
+            entry("connection-b", "select other;", 10),
+        ];
+        let scoped_id = database_history_scope("connection-a", "analytics");
+
+        assert!(migrate_legacy_history_in_memory(
+            &mut history,
+            "connection-a",
+            "analytics"
+        ));
+
+        assert_eq!(history[0].connection_id, scoped_id);
+        assert_eq!(history[1].connection_id, "connection-b");
     }
 
     fn entry(connection_id: &str, sql: &str, executed_at: i64) -> QueryHistoryEntry {

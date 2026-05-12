@@ -198,8 +198,12 @@ impl StartScreen {
             let row = adw::ActionRow::builder()
                 .title(&connection.name)
                 .subtitle(format!(
-                    "{}@{}:{}/{}",
-                    connection.username, connection.host, connection.port, connection.database
+                    "{}@{}:{} - {}: {}",
+                    connection.username,
+                    connection.host,
+                    connection.port,
+                    gettext("Default database"),
+                    connection.database
                 ))
                 .activatable(true)
                 .build();

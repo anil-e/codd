@@ -10,14 +10,15 @@ use sqlx::PgPool;
 
 use crate::db;
 use crate::menus;
-use crate::models::connection::SavedConnection;
+use crate::models::connection::{ConnectionDetails, SavedConnection};
 use crate::models::database_object::DatabaseObject;
 use crate::models::query_history::QueryHistoryEntry;
 use crate::models::query_result::QueryExecutionResult;
 use crate::settings;
-use crate::state::{app_state::AppState, connection_store, query_history_store};
+use crate::state::{app_state::AppState, connection_store};
 use crate::ui::components::{
     connection_dialog::{ConnectionDialog, ConnectionDialogInit, ConnectionDialogOutput},
+    database_selector::{DatabaseSelector, DatabaseSelectorMsg, DatabaseSelectorOutput},
     editor::{SqlEditor, SqlEditorMsg, SqlEditorOutput},
     results::{QueryResults, QueryResultsMsg},
     sidebar::{ObjectSidebar, ObjectSidebarMsg, ObjectSidebarOutput},
@@ -25,6 +26,7 @@ use crate::ui::components::{
     table_browser::TableBrowser,
 };
 
+mod database_switching;
 mod object_actions;
 mod tabs;
 
@@ -34,8 +36,9 @@ use tabs::{browse_tab_id_from_widget, query_tab_id_from_widget, setup_tab_contex
 pub struct WindowContent {
     state: AppState,
     active_pool: Option<PgPool>,
+    active_connection_details: Option<ConnectionDetails>,
     connection_dialog: Option<Controller<ConnectionDialog>>,
-    window_subtitle: String,
+    database_selector: Controller<DatabaseSelector>,
     visible_page: VisiblePage,
     start_screen: Controller<StartScreen>,
     sidebar: Controller<ObjectSidebar>,
@@ -48,6 +51,10 @@ pub struct WindowContent {
     menu_button: gtk::MenuButton,
     active_schema_request_id: Option<u64>,
     next_schema_request_id: u64,
+    active_database_list_request_id: Option<u64>,
+    next_database_list_request_id: u64,
+    active_database_switch_request_id: Option<u64>,
+    next_database_switch_request_id: u64,
     next_query_id: u64,
     workspace_navigation: WorkspaceNavigation,
 }
@@ -111,6 +118,12 @@ pub enum WindowContentMsg {
     FocusEditor,
     FocusObjectSearch,
     ToggleSidebar,
+    DatabaseSwitchCompleted {
+        id: u64,
+        database: String,
+        result: Result<PgPool, String>,
+    },
+    DatabaseSelectorOutput(DatabaseSelectorOutput),
     ConnectionDialogOutput(ConnectionDialogOutput),
     StartScreenOutput(StartScreenOutput),
     SidebarOutput(ObjectSidebarOutput),
@@ -127,6 +140,15 @@ pub enum WindowContentCommandOutput {
     SchemaLoaded {
         id: u64,
         result: Result<Vec<DatabaseObject>, String>,
+    },
+    DatabasesLoaded {
+        id: u64,
+        result: Result<Vec<String>, String>,
+    },
+    DatabaseSwitched {
+        id: u64,
+        database: String,
+        result: Result<PgPool, String>,
     },
     QueryExecuted {
         tab_id: u64,
@@ -186,11 +208,7 @@ impl Component for WindowContent {
                     },
 
                     #[wrap(Some)]
-                    set_title_widget = &adw::WindowTitle {
-                        set_title: &gettext("Codd"),
-                        #[watch]
-                        set_subtitle: &model.window_subtitle,
-                    },
+                    set_title_widget = model.database_selector.widget(),
             },
 
             #[wrap(Some)]
@@ -256,6 +274,10 @@ impl Component for WindowContent {
         let sidebar = ObjectSidebar::builder()
             .launch(())
             .forward(sender.input_sender(), WindowContentMsg::SidebarOutput);
+        let database_selector = DatabaseSelector::builder().launch(()).forward(
+            sender.input_sender(),
+            WindowContentMsg::DatabaseSelectorOutput,
+        );
 
         let mut model = WindowContent {
             state: AppState {
@@ -263,8 +285,9 @@ impl Component for WindowContent {
                 ..AppState::default()
             },
             active_pool: None,
+            active_connection_details: None,
             connection_dialog: None,
-            window_subtitle: String::new(),
+            database_selector,
             visible_page: VisiblePage::Start,
             start_screen,
             sidebar,
@@ -277,6 +300,10 @@ impl Component for WindowContent {
             menu_button: gtk::MenuButton::new(),
             active_schema_request_id: None,
             next_schema_request_id: 0,
+            active_database_list_request_id: None,
+            next_database_list_request_id: 0,
+            active_database_switch_request_id: None,
+            next_database_switch_request_id: 0,
             next_query_id: 0,
             workspace_navigation: WorkspaceNavigation::Wide,
         };
@@ -415,10 +442,22 @@ impl Component for WindowContent {
                 self.focus_object_search(widgets);
             }
             WindowContentMsg::ToggleSidebar => self.toggle_sidebar(widgets, root),
+            WindowContentMsg::DatabaseSelectorOutput(DatabaseSelectorOutput::DatabaseSelected(
+                database,
+            )) => {
+                self.switch_database(database, widgets, &sender);
+            }
+            WindowContentMsg::DatabaseSwitchCompleted {
+                id,
+                database,
+                result,
+            } => {
+                self.handle_database_switched(id, database, result, widgets, &sender);
+            }
             WindowContentMsg::ConnectionDialogOutput(ConnectionDialogOutput::Connected {
-                connection,
+                details,
                 pool,
-            }) => self.handle_connected(&connection, pool, widgets, &sender, root),
+            }) => self.handle_connected(details, pool, widgets, &sender, root),
             WindowContentMsg::ConnectionDialogOutput(ConnectionDialogOutput::Dismissed) => {
                 self.connection_dialog = None;
             }
@@ -451,6 +490,20 @@ impl Component for WindowContent {
         match msg {
             WindowContentCommandOutput::SchemaLoaded { id, result } => {
                 self.handle_schema_loaded(id, result);
+            }
+            WindowContentCommandOutput::DatabasesLoaded { id, result } => {
+                self.handle_databases_loaded(id, result);
+            }
+            WindowContentCommandOutput::DatabaseSwitched {
+                id,
+                database,
+                result,
+            } => {
+                sender.input(WindowContentMsg::DatabaseSwitchCompleted {
+                    id,
+                    database,
+                    result,
+                });
             }
             WindowContentCommandOutput::QueryExecuted { tab_id, id, result } => {
                 self.handle_query_executed(tab_id, id, result);
@@ -520,11 +573,24 @@ impl WindowContent {
 
     fn show_start_screen(&mut self, widgets: &mut WindowContentWidgets) {
         self.visible_page = VisiblePage::Start;
-        self.window_subtitle.clear();
+        self.database_selector
+            .emit(DatabaseSelectorMsg::SetContext {
+                connection_title: String::new(),
+                active_database: String::new(),
+                databases: Vec::new(),
+            });
+        self.database_selector
+            .emit(DatabaseSelectorMsg::SetLoading(false));
+
         self.active_pool = None;
+        self.active_connection_details = None;
         self.cancel_all_queries();
         self.active_schema_request_id = None;
+        self.active_database_list_request_id = None;
+        self.active_database_switch_request_id = None;
         self.state.active_connection = None;
+        self.state.active_database = None;
+        self.state.available_databases.clear();
         self.state.objects.clear();
         self.query_history.clear();
         self.clear_browse_tabs(widgets);
@@ -563,7 +629,7 @@ impl WindowContent {
 
     fn handle_connected(
         &mut self,
-        connection: &SavedConnection,
+        details: ConnectionDetails,
         pool: PgPool,
         widgets: &mut WindowContentWidgets,
         sender: &ComponentSender<Self>,
@@ -571,12 +637,20 @@ impl WindowContent {
     ) {
         self.cancel_all_queries();
 
+        let connection = details.saved.clone();
         self.state.active_connection = Some(connection.clone());
-        self.window_subtitle = format!(
-            "{}@{}:{} / {}",
-            connection.username, connection.host, connection.port, connection.database
-        );
+        self.state.active_database = Some(connection.database.clone());
+        self.state.available_databases.clear();
+        self.database_selector
+            .emit(DatabaseSelectorMsg::SetContext {
+                connection_title: connection.name.clone(),
+                active_database: connection.database.clone(),
+                databases: vec![connection.database.clone()],
+            });
+        self.database_selector
+            .emit(DatabaseSelectorMsg::SetLoading(true));
         self.active_pool = Some(pool.clone());
+        self.active_connection_details = Some(details);
         self.connection_dialog = None;
         self.visible_page = VisiblePage::Workspace;
         self.clear_browse_tabs(widgets);
@@ -585,12 +659,13 @@ impl WindowContent {
             tab.editor_buffer.set_text("");
             tab.results.emit(QueryResultsMsg::Clear);
         }
-        self.load_query_history(connection);
+        self.migrate_legacy_query_history(&connection, widgets);
+        self.load_query_history(&connection);
         self.sidebar.emit(ObjectSidebarMsg::Loading);
 
-        self.show_workspace(widgets, root, connection);
+        self.show_workspace(widgets, root, &connection);
 
-        match connection_store::save_connection(connection) {
+        match connection_store::save_connection(&connection) {
             Ok(connections) => {
                 self.state.connections.clone_from(&connections);
                 self.start_screen
@@ -609,6 +684,19 @@ impl WindowContent {
 
         let schema_request_id = self.allocate_schema_request_id();
         self.active_schema_request_id = Some(schema_request_id);
+
+        let database_list_request_id = self.allocate_database_list_request_id();
+        self.active_database_list_request_id = Some(database_list_request_id);
+
+        let database_pool = pool.clone();
+        sender.oneshot_command(async move {
+            WindowContentCommandOutput::DatabasesLoaded {
+                id: database_list_request_id,
+                result: db::postgres::list_databases(&database_pool)
+                    .await
+                    .map_err(|error| error.to_string()),
+            }
+        });
 
         sender.oneshot_command(async move {
             WindowContentCommandOutput::SchemaLoaded {
@@ -851,54 +939,5 @@ impl WindowContent {
             .and_then(|tab| tab.active_query.as_ref())
             .as_ref()
             .is_some_and(|query| query.id == id)
-    }
-
-    fn load_query_history(&mut self, connection: &SavedConnection) {
-        self.set_query_history(query_history_store::load_for_connection(&connection.id));
-    }
-
-    fn record_query_history(&mut self, widgets: &WindowContentWidgets, sql: &str) {
-        let Some(connection) = self.state.active_connection.as_ref() else {
-            return;
-        };
-
-        match query_history_store::record_query(&connection.id, sql) {
-            Ok(history) => {
-                self.set_query_history(history);
-            }
-            Err(error) => {
-                widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
-                    "{}: {error}",
-                    gettext("Saving query history failed")
-                )));
-            }
-        }
-    }
-
-    fn clear_query_history(&mut self, widgets: &WindowContentWidgets) {
-        let Some(connection) = self.state.active_connection.as_ref() else {
-            return;
-        };
-
-        match query_history_store::clear_connection(&connection.id) {
-            Ok(history) => {
-                self.set_query_history(history);
-            }
-            Err(error) => {
-                widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
-                    "{}: {error}",
-                    gettext("Clearing query history failed")
-                )));
-            }
-        }
-    }
-
-    fn set_query_history(&mut self, history: Vec<QueryHistoryEntry>) {
-        self.query_history = history;
-
-        for tab in &self.query_tabs {
-            tab.editor
-                .emit(SqlEditorMsg::SetHistory(self.query_history.clone()));
-        }
     }
 }

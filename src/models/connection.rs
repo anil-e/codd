@@ -29,6 +29,15 @@ pub struct ConnectionDetails {
     pub password: String,
 }
 
+impl ConnectionDetails {
+    pub fn with_database(&self, database: impl Into<String>) -> Self {
+        let mut details = self.clone();
+        details.saved.database = database.into();
+
+        details
+    }
+}
+
 impl Default for ConnectionForm {
     fn default() -> Self {
         Self {
@@ -36,7 +45,7 @@ impl Default for ConnectionForm {
             name: String::new(),
             host: "localhost".to_string(),
             port: "5432".to_string(),
-            database: String::new(),
+            database: "postgres".to_string(),
             username: String::new(),
             password: String::new(),
         }
@@ -76,7 +85,7 @@ impl ConnectionForm {
             .map_err(|_| gettext("Port must be a number between 1 and 65535."))?;
 
         if database.is_empty() {
-            return Err(gettext("Database is required."));
+            return Err(gettext("Default database is required."));
         }
 
         if username.is_empty() {

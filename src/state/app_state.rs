@@ -5,5 +5,7 @@ use crate::models::database_object::DatabaseObject;
 pub struct AppState {
     pub connections: Vec<SavedConnection>,
     pub active_connection: Option<SavedConnection>,
+    pub active_database: Option<String>,
+    pub available_databases: Vec<String>,
     pub objects: Vec<DatabaseObject>,
 }

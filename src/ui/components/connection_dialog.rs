@@ -33,7 +33,7 @@ pub enum ConnectionDialogMsg {
 #[derive(Debug)]
 pub enum ConnectionDialogOutput {
     Connected {
-        connection: SavedConnection,
+        details: ConnectionDetails,
         pool: PgPool,
     },
     Dismissed,
@@ -43,7 +43,7 @@ pub enum ConnectionDialogOutput {
 pub enum ConnectionDialogCommandOutput {
     TestFinished(Result<(), String>),
     ConnectFinished {
-        connection: SavedConnection,
+        details: ConnectionDetails,
         result: Result<PgPool, String>,
     },
 }
@@ -119,7 +119,7 @@ impl Component for ConnectionDialog {
                             },
 
                             adw::EntryRow {
-                                set_title: &gettext("Database"),
+                                set_title: &gettext("Default Database"),
                                 set_text: &model.form.database,
                                 #[watch]
                                 set_sensitive: !model.is_busy,
@@ -239,11 +239,10 @@ impl Component for ConnectionDialog {
                     return;
                 };
 
-                let connection = details.saved.clone();
                 self.is_busy = true;
                 sender.oneshot_command(async move {
                     ConnectionDialogCommandOutput::ConnectFinished {
-                        connection,
+                        details: details.clone(),
                         result: connect(details).await.map_err(|error| error.to_string()),
                     }
                 });
@@ -274,10 +273,10 @@ impl Component for ConnectionDialog {
             }
 
             ConnectionDialogCommandOutput::ConnectFinished {
-                connection,
+                details,
                 result: Ok(pool),
             } => {
-                let _ = sender.output(ConnectionDialogOutput::Connected { connection, pool });
+                let _ = sender.output(ConnectionDialogOutput::Connected { details, pool });
                 root.close();
             }
 
