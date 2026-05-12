@@ -85,10 +85,31 @@ pub struct TablePage {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TableFilter {
-    pub column_name: String,
-    pub operator: FilterOperator,
-    pub value: Option<String>,
+pub enum TableFilter {
+    Column {
+        column_name: String,
+        operator: FilterOperator,
+        value: Option<String>,
+    },
+    CustomSql {
+        expression: String,
+    },
+}
+
+impl TableFilter {
+    pub fn column(column_name: String, operator: FilterOperator, value: Option<String>) -> Self {
+        Self::Column {
+            column_name,
+            operator,
+            value,
+        }
+    }
+
+    pub fn custom_sql(expression: impl Into<String>) -> Self {
+        Self::CustomSql {
+            expression: expression.into(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -192,6 +192,7 @@ pub enum TableFilterError {
         operator: FilterOperator,
     },
     MissingValue(String),
+    InvalidCustomSql,
 }
 
 impl std::fmt::Display for TableFilterError {
@@ -209,6 +210,7 @@ impl std::fmt::Display for TableFilterError {
                 )
             }
             Self::MissingValue(column) => write!(formatter, "Missing filter value for {column}"),
+            Self::InvalidCustomSql => write!(formatter, "Invalid custom SQL filter"),
         }
     }
 }
@@ -273,26 +275,48 @@ fn where_clause(
     let mut values = Vec::new();
 
     for filter in filters {
-        let column = columns
-            .iter()
-            .find(|column| column.name == filter.column_name)
-            .ok_or_else(|| TableFilterError::UnknownColumn(filter.column_name.clone()))?;
+        match filter {
+            TableFilter::CustomSql { expression } => {
+                let expression = expression.trim();
+                if expression.is_empty() || !is_valid_custom_sql_filter(expression) {
+                    return Err(TableFilterError::InvalidCustomSql);
+                }
 
-        if !filter.operator.is_supported_for(column) {
-            return Err(TableFilterError::UnsupportedOperator {
-                column_name: column.name.clone(),
-                operator: filter.operator,
-            });
-        }
+                clauses.push(format!("({expression})"));
+            }
 
-        clauses.push(filter_clause(column, filter, &mut bind_index)?);
-        if filter.operator.needs_value() {
-            let value = filter
-                .value
-                .clone()
-                .ok_or_else(|| TableFilterError::MissingValue(column.name.clone()))?;
+            TableFilter::Column {
+                column_name,
+                operator,
+                value,
+            } => {
+                let column = columns
+                    .iter()
+                    .find(|column| column.name == *column_name)
+                    .ok_or_else(|| TableFilterError::UnknownColumn(column_name.clone()))?;
 
-            values.push(value);
+                if !operator.is_supported_for(column) {
+                    return Err(TableFilterError::UnsupportedOperator {
+                        column_name: column.name.clone(),
+                        operator: *operator,
+                    });
+                }
+
+                clauses.push(filter_clause(
+                    column,
+                    *operator,
+                    value.as_deref(),
+                    &mut bind_index,
+                )?);
+
+                if operator.needs_value() {
+                    let value = value
+                        .clone()
+                        .ok_or_else(|| TableFilterError::MissingValue(column.name.clone()))?;
+
+                    values.push(value);
+                }
+            }
         }
     }
 
@@ -302,33 +326,49 @@ fn where_clause(
     })
 }
 
+fn is_valid_custom_sql_filter(expression: &str) -> bool {
+    !expression.contains(';')
+        && !expression.contains("--")
+        && !expression.contains("/*")
+        && !contains_positional_parameter(expression)
+}
+
+fn contains_positional_parameter(expression: &str) -> bool {
+    expression
+        .as_bytes()
+        .windows(2)
+        .any(|window| window[0] == b'$' && window[1].is_ascii_digit())
+}
+
 fn filter_clause(
     column: &TableColumn,
-    filter: &TableFilter,
+    operator: FilterOperator,
+    value: Option<&str>,
     bind_index: &mut usize,
 ) -> Result<String, TableFilterError> {
     let quoted_column = quote_identifier(&column.name);
 
-    match filter.operator {
+    match operator {
         FilterOperator::IsNull => Ok(format!("{quoted_column} IS NULL")),
         FilterOperator::IsNotNull => Ok(format!("{quoted_column} IS NOT NULL")),
+
         operator => {
-            let value = filter
-                .value
-                .as_ref()
-                .ok_or_else(|| TableFilterError::MissingValue(column.name.clone()))?;
+            let value = value.ok_or_else(|| TableFilterError::MissingValue(column.name.clone()))?;
 
             if value.is_empty() {
                 return Err(TableFilterError::MissingValue(column.name.clone()));
             }
 
             let (column_expression, value_type) = filter_value_expression(column, operator);
+
             let clause = format!(
                 "{column_expression} {} ${}::{value_type}",
                 operator.label(),
                 *bind_index,
             );
+
             *bind_index += 1;
+
             Ok(clause)
         }
     }
@@ -691,6 +731,63 @@ mod tests {
     }
 
     #[test]
+    fn page_query_adds_custom_sql_filters_without_bind_values() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "customers".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![column("id", true), column("name", false)];
+
+        let query = table_page_sql_with_filters(
+            &object,
+            &columns,
+            0,
+            100,
+            &[TableFilter::custom_sql("lower(name) LIKE 'a%'")],
+        )
+        .unwrap();
+
+        assert_eq!(
+            query.sql,
+            "SELECT \"id\", \"name\" FROM \"public\".\"customers\" WHERE (lower(name) LIKE 'a%') ORDER BY \"id\" LIMIT 101 OFFSET 0"
+        );
+        assert!(query.filter_values.is_empty());
+    }
+
+    #[test]
+    fn page_query_rejects_unsafe_custom_sql_filters() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "customers".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![column("id", true), column("name", false)];
+
+        assert!(matches!(
+            table_page_sql_with_filters(
+                &object,
+                &columns,
+                0,
+                100,
+                &[TableFilter::custom_sql("true; DROP TABLE users")]
+            ),
+            Err(TableFilterError::InvalidCustomSql)
+        ));
+
+        assert!(matches!(
+            table_page_sql_with_filters(
+                &object,
+                &columns,
+                0,
+                100,
+                &[TableFilter::custom_sql("name = $1")]
+            ),
+            Err(TableFilterError::InvalidCustomSql)
+        ));
+    }
+
+    #[test]
     fn page_query_rejects_invalid_filter_column() {
         let object = DatabaseObject {
             schema: "public".to_string(),
@@ -892,10 +989,6 @@ mod tests {
     }
 
     fn filter(column_name: &str, operator: FilterOperator, value: Option<&str>) -> TableFilter {
-        TableFilter {
-            column_name: column_name.to_string(),
-            operator,
-            value: value.map(str::to_string),
-        }
+        TableFilter::column(column_name.to_owned(), operator, value.map(str::to_string))
     }
 }
