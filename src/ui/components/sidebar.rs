@@ -4,7 +4,6 @@ use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk;
 use relm4::prelude::*;
-use std::cell::RefCell;
 use std::collections::BTreeMap;
 
 pub struct ObjectSidebar {
@@ -13,7 +12,8 @@ pub struct ObjectSidebar {
     is_loading: bool,
     status_text: String,
     selected_object: Option<String>,
-    context_menu_popovers: RefCell<Vec<gtk::PopoverMenu>>,
+    object_rows: Vec<(String, adw::ActionRow)>,
+    context_menu_popovers: Vec<gtk::PopoverMenu>,
 }
 
 #[derive(Debug)]
@@ -140,7 +140,8 @@ impl Component for ObjectSidebar {
             is_loading: false,
             status_text: gettext("No connection"),
             selected_object: None,
-            context_menu_popovers: RefCell::new(Vec::new()),
+            object_rows: Vec::new(),
+            context_menu_popovers: Vec::new(),
         };
         let widgets = view_output!();
         root.set_visible_child_name(model.visible_child_name());
@@ -157,7 +158,7 @@ impl Component for ObjectSidebar {
     ) {
         match msg {
             ObjectSidebarMsg::Loading => {
-                self.clear_context_menu();
+                self.clear_rendered_rows();
                 self.is_loading = true;
                 self.status_text = gettext("Loading schema...");
                 self.objects.clear();
@@ -179,7 +180,7 @@ impl Component for ObjectSidebar {
             }
 
             ObjectSidebarMsg::SetError(error) => {
-                self.clear_context_menu();
+                self.clear_rendered_rows();
                 self.is_loading = false;
                 self.objects.clear();
                 self.status_text = error;
@@ -191,7 +192,7 @@ impl Component for ObjectSidebar {
 
             ObjectSidebarMsg::SetSelectedObject(object) => {
                 self.selected_object = object.as_ref().map(object_key);
-                self.render_lists(widgets, &sender);
+                sync_selected_rows(&self.object_rows, self.selected_object.as_deref());
             }
 
             ObjectSidebarMsg::SearchChanged(text) => {
@@ -206,7 +207,7 @@ impl Component for ObjectSidebar {
 
             ObjectSidebarMsg::ObjectSelected(object) => {
                 self.selected_object = Some(object_key(&object));
-                self.render_lists(widgets, &sender);
+                sync_selected_rows(&self.object_rows, self.selected_object.as_deref());
                 sender.output(ObjectSidebarOutput::OpenObject(object)).ok();
             }
         }
@@ -216,30 +217,44 @@ impl Component for ObjectSidebar {
     }
 
     fn shutdown(&mut self, _widgets: &mut Self::Widgets, _output: relm4::Sender<Self::Output>) {
-        self.clear_context_menu();
+        self.clear_rendered_rows();
     }
 }
 
 impl ObjectSidebar {
-    fn render_lists(&self, widgets: &ObjectSidebarWidgets, sender: &ComponentSender<Self>) {
-        self.clear_context_menu();
+    fn render_lists(&mut self, widgets: &ObjectSidebarWidgets, sender: &ComponentSender<Self>) {
+        self.clear_rendered_rows();
         clear_list(&widgets.schema_list);
+
+        let mut object_rows = Vec::new();
+        let mut context_menu_popovers = Vec::new();
+        let has_active_search = self.has_active_search();
+        let selected_object = self.selected_object.as_deref();
 
         for (schema, objects) in objects_by_schema(self.filtered_objects()) {
             let row = build_schema_row(
                 &schema,
                 &objects,
-                self.selected_object.as_deref(),
-                self.has_active_search(),
+                selected_object,
+                has_active_search,
                 sender,
-                &self.context_menu_popovers,
+                &mut object_rows,
+                &mut context_menu_popovers,
             );
             widgets.schema_list.append(&row);
         }
+
+        self.object_rows = object_rows;
+        self.context_menu_popovers = context_menu_popovers;
     }
 
-    fn clear_context_menu(&self) {
-        for popover in self.context_menu_popovers.borrow_mut().drain(..) {
+    fn clear_rendered_rows(&mut self) {
+        self.clear_context_menu();
+        self.object_rows.clear();
+    }
+
+    fn clear_context_menu(&mut self) {
+        for popover in self.context_menu_popovers.drain(..) {
             popover.popdown();
             popover.unparent();
         }
@@ -299,7 +314,8 @@ fn build_schema_row(
     selected_key: Option<&str>,
     has_active_search: bool,
     sender: &ComponentSender<ObjectSidebar>,
-    context_menu_popovers: &RefCell<Vec<gtk::PopoverMenu>>,
+    object_rows: &mut Vec<(String, adw::ActionRow)>,
+    context_menu_popovers: &mut Vec<gtk::PopoverMenu>,
 ) -> adw::ExpanderRow {
     let object_count = u32::try_from(objects.len()).unwrap_or(u32::MAX);
     let row = adw::ExpanderRow::builder()
@@ -328,6 +344,7 @@ fn build_schema_row(
             object,
             selected_key,
             sender,
+            object_rows,
             context_menu_popovers,
         ));
     }
@@ -399,11 +416,13 @@ impl ObjectSidebar {
         }
     }
 }
+
 fn build_object_row(
     object: &DatabaseObject,
     selected_key: Option<&str>,
     sender: &ComponentSender<ObjectSidebar>,
-    context_menu_popovers: &RefCell<Vec<gtk::PopoverMenu>>,
+    object_rows: &mut Vec<(String, adw::ActionRow)>,
+    context_menu_popovers: &mut Vec<gtk::PopoverMenu>,
 ) -> adw::ActionRow {
     let row = adw::ActionRow::builder()
         .title(&object.name)
@@ -422,14 +441,17 @@ fn build_object_row(
             .build(),
     );
 
-    if Some(object_key(object).as_str()) == selected_key {
+    let key = object_key(object);
+    if Some(key.as_str()) == selected_key {
         row.add_css_class("accent");
     }
+
+    object_rows.push((key, row.clone()));
 
     let popover = gtk::PopoverMenu::from_model(Some(&object_menu(&object.kind)));
     popover.set_has_arrow(false);
     popover.set_parent(&row);
-    context_menu_popovers.borrow_mut().push(popover.clone());
+    context_menu_popovers.push(popover.clone());
 
     row.insert_action_group(
         "object",
@@ -518,4 +540,20 @@ fn object_key(object: &DatabaseObject) -> String {
     };
 
     format!("{kind}\u{1f}{}\u{1f}{}", object.schema, object.name)
+}
+
+fn sync_selected_rows(rows: &[(String, adw::ActionRow)], selected_key: Option<&str>) {
+    for (key, row) in rows {
+        if Some(key.as_str()) == selected_key {
+            row.add_css_class("accent");
+        } else {
+            remove_accent_class(row);
+        }
+    }
+}
+
+fn remove_accent_class(row: &adw::ActionRow) {
+    if row.has_css_class("accent") {
+        row.remove_css_class("accent");
+    }
 }
