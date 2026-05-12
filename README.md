@@ -2,7 +2,7 @@
 
 Codd is a lightweight native PostgreSQL client for GNOME, built with Rust, Relm4, GTK4, libadwaita, GtkSourceView and sqlx. It is named after Edgar F. Codd, the computer scientist who introduced the relational model for database management.
 
-![Codd query editor](images/screenshot-query.png)
+![Codd table browser](images/screenshot-table-browser.png)
 
 [![Get it on Flathub](https://flathub.org/api/badge?locale=en)](https://flathub.org/apps/io.github.anil_e.Codd)
 
@@ -11,10 +11,12 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 ## Features
 
 - Save and reopen PostgreSQL connections
+- Switch between databases inside a saved PostgreSQL connection
 - Browse tables and views
 - Write SQL with syntax highlighting and line numbers
-- Reuse automatically saved query history per connection
-- Browse table rows with pagination, filters, and editable cell values
+- Reuse automatically saved query history per database
+- Browse table rows with pagination, filters, custom SQL filters, and editable cell values
+- Rename, truncate, and delete tables or views from the object sidebar
 
 ## Requirements
 

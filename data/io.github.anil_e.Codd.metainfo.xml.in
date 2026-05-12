@@ -12,7 +12,7 @@
       GTK4, and libadwaita.
     </p>
     <p>
-      It focuses on saved connections, schema browsing, SQL execution, and
+      It focuses on saved connections, database browsing, SQL execution, and
       native result previews without trying to become a multi-database suite.
     </p>
   </description>
@@ -28,20 +28,24 @@
   </provides>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.1/images/screenshot-query.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-table-browser.png</image>
+      <caption>Browse PostgreSQL table data with pagination and filters</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-query.png</image>
       <caption>Run SQL queries with syntax highlighting and result previews</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.1/images/screenshot-table-browser.png</image>
-      <caption>Browse and edit PostgreSQL table data</caption>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-edit.png</image>
+      <caption>Edit table cell values directly from the table browser</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.1/images/screenshot-start.png</image>
-      <caption>Manage saved PostgreSQL connections</caption>
-    </screenshot>
-    <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.1.1/images/screenshot-history.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-history.png</image>
       <caption>Reuse queries from the local query history</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-start.png</image>
+      <caption>Manage saved PostgreSQL connections</caption>
     </screenshot>
   </screenshots>
   <translation type="gettext">codd</translation>
@@ -51,6 +55,14 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.2.0" date="2026-05-12">
+      <description translate="no">
+        <p>Add connection-wide database switching from the title bar, with query history scoped per database and migrated automatically.</p>
+        <p>Add table and view context actions for renaming, truncating tables, and deleting database objects.</p>
+        <p>Add custom SQL filters to the table browser.</p>
+        <p>Fix slow table rendering for large cell values, thanks to Christian Kruse &lt;cjk@defunct.ch&gt;.</p>
+      </description>
+    </release>
     <release version="0.1.1" date="2026-05-10">
       <description translate="no">
         <p>Maintenance release with CI, packaging metadata improvements, and stable Rust check fixes.</p>
