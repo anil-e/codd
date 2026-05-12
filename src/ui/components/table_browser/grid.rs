@@ -49,7 +49,7 @@ pub(super) fn cell_factory(
     sender: &ComponentSender<TableBrowser>,
 ) -> gtk::SignalListItemFactory {
     let factory = gtk::SignalListItemFactory::new();
-    let color = type_group_color(type_group, is_dark);
+    let type_class = type_group_class(type_group);
     let sender = sender.clone();
 
     factory.connect_setup(move |_, list_item| {
@@ -75,7 +75,13 @@ pub(super) fn cell_factory(
             .build();
 
         label.add_css_class("query-cell");
-        label.set_use_markup(color.is_some());
+        if let Some(class) = type_class {
+            label.add_css_class(class);
+
+            if is_dark {
+                label.add_css_class("cell-dark");
+            }
+        }
 
         label.add_controller({
             let gesture = gtk::GestureClick::new();
@@ -129,37 +135,21 @@ pub(super) fn cell_factory(
             .get(column_index)
             .map_or("", |cell| cell.value.as_str());
 
-        let display = truncated(value, DISPLAY_CHAR_LIMIT);
-
-        if let Some(color) = color {
-            let escaped_value = glib::markup_escape_text(display.as_ref());
-            label.set_markup(&format!(
-                "<span foreground=\"{color}\">{escaped_value}</span>"
-            ));
-        } else {
-            label.set_label(display.as_ref());
-        }
-
+        label.set_label(truncated(value, DISPLAY_CHAR_LIMIT).as_ref());
         label.set_tooltip_text(Some(truncated(value, TOOLTIP_CHAR_LIMIT).as_ref()));
     });
 
     factory
 }
 
-fn type_group_color(type_group: ColumnTypeGroup, is_dark: bool) -> Option<&'static str> {
-    match (type_group, is_dark) {
-        (ColumnTypeGroup::Boolean, false) => Some("#1f9d55"),
-        (ColumnTypeGroup::Boolean, true) => Some("#4fd785"),
-        (ColumnTypeGroup::Binary, false) => Some("#8b5cf6"),
-        (ColumnTypeGroup::Binary, true) => Some("#b89cff"),
-        (ColumnTypeGroup::DateTime, false) => Some("#0f7abf"),
-        (ColumnTypeGroup::DateTime, true) => Some("#66c2ff"),
-        (ColumnTypeGroup::Json, false) => Some("#d97706"),
-        (ColumnTypeGroup::Json, true) => Some("#ffb15f"),
-        (ColumnTypeGroup::Numeric, false) => Some("#6d28d9"),
-        (ColumnTypeGroup::Numeric, true) => Some("#c69cff"),
-        (ColumnTypeGroup::Text, false) => Some("#0057b7"),
-        (ColumnTypeGroup::Text, true) => Some("#79b8ff"),
-        (ColumnTypeGroup::Other, _) => None,
+fn type_group_class(type_group: ColumnTypeGroup) -> Option<&'static str> {
+    match type_group {
+        ColumnTypeGroup::Boolean => Some("cell-type-boolean"),
+        ColumnTypeGroup::Binary => Some("cell-type-binary"),
+        ColumnTypeGroup::DateTime => Some("cell-type-datetime"),
+        ColumnTypeGroup::Json => Some("cell-type-json"),
+        ColumnTypeGroup::Numeric => Some("cell-type-numeric"),
+        ColumnTypeGroup::Text => Some("cell-type-text"),
+        ColumnTypeGroup::Other => None,
     }
 }
