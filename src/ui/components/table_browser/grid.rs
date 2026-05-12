@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use libadwaita::prelude::*;
 use relm4::gtk;
 use relm4::gtk::glib;
@@ -6,6 +8,23 @@ use relm4::prelude::*;
 use crate::models::table_browser::{ColumnTypeGroup, TableCell};
 use crate::ui::components::cell_dialog::show_cell_value_dialog;
 use crate::ui::components::table_browser::{TableBrowser, TableBrowserMsg};
+
+const DISPLAY_CHAR_LIMIT: usize = 256;
+const TOOLTIP_CHAR_LIMIT: usize = 2048;
+
+fn truncated(value: &str, limit: usize) -> Cow<'_, str> {
+    match value.char_indices().nth(limit) {
+        Some((end, _)) => {
+            let mut out = String::with_capacity(end + '…'.len_utf8());
+            out.push_str(&value[..end]);
+            out.push('…');
+
+            Cow::Owned(out)
+        }
+
+        None => Cow::Borrowed(value),
+    }
+}
 
 #[derive(Debug, Clone)]
 pub(super) struct TableBrowserRow {
@@ -78,8 +97,8 @@ pub(super) fn cell_factory(
                             row_index: row.index,
                             column_index,
                         });
-                    } else if let Some(full_value) = label.tooltip_text() {
-                        show_cell_value_dialog(&label, &full_value);
+                    } else if let Some(cell) = row.cells.get(column_index) {
+                        show_cell_value_dialog(&label, &cell.value);
                     }
                 }
             });
@@ -110,16 +129,18 @@ pub(super) fn cell_factory(
             .get(column_index)
             .map_or("", |cell| cell.value.as_str());
 
+        let display = truncated(value, DISPLAY_CHAR_LIMIT);
+
         if let Some(color) = color {
-            let escaped_value = glib::markup_escape_text(value);
+            let escaped_value = glib::markup_escape_text(display.as_ref());
             label.set_markup(&format!(
                 "<span foreground=\"{color}\">{escaped_value}</span>"
             ));
         } else {
-            label.set_label(value);
+            label.set_label(display.as_ref());
         }
 
-        label.set_tooltip_text(Some(value));
+        label.set_tooltip_text(Some(truncated(value, TOOLTIP_CHAR_LIMIT).as_ref()));
     });
 
     factory
