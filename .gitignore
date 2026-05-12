@@ -6,3 +6,5 @@ _build-flatpak-check
 build-dir
 /icons
 scripts/flatpak-cargo-generator.py
+.direnv/
+install/
