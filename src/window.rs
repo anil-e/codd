@@ -106,59 +106,83 @@ fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<
     let app = relm4::main_adw_application();
 
     let action = gtk::gio::SimpleAction::new("new-connection", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::OpenConnectionDialog);
-    });
+    action.connect_activate(glib::clone!(
+        #[strong(rename_to=s)]
+        sender,
+        move |_, _| {
+            s.input(AppWindowMsg::OpenConnectionDialog);
+        }
+    ));
     root.add_action(&action);
 
     let action = gtk::gio::SimpleAction::new("new-query-tab", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::NewQueryTab);
-    });
+    action.connect_activate(glib::clone!(
+        #[strong(rename_to=s)]
+        sender,
+        move |_, _| {
+            s.input(AppWindowMsg::NewQueryTab);
+        }
+    ));
     root.add_action(&action);
 
     let action = gtk::gio::SimpleAction::new("run-query", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::RunQuery);
-    });
+    action.connect_activate(glib::clone!(
+        #[strong(rename_to=s)]
+        sender,
+        move |_, _| {
+            s.input(AppWindowMsg::RunQuery);
+        }
+    ));
     root.add_action(&action);
 
     let action = gtk::gio::SimpleAction::new("refresh-table-browser", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::RefreshTableBrowser);
-    });
+    action.connect_activate(glib::clone!(
+        #[strong(rename_to=s)]
+        sender,
+        move |_, _| {
+            s.input(AppWindowMsg::RefreshTableBrowser);
+        }
+    ));
     root.add_action(&action);
 
     let action = gtk::gio::SimpleAction::new("focus-editor", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::FocusEditor);
-    });
+    action.connect_activate(glib::clone!(
+        #[strong(rename_to=s)]
+        sender,
+        move |_, _| {
+            s.input(AppWindowMsg::FocusEditor);
+        }
+    ));
     root.add_action(&action);
 
     let action = gtk::gio::SimpleAction::new("search", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::FocusObjectSearch);
-    });
+    action.connect_activate(glib::clone!(
+        #[strong(rename_to=s)]
+        sender,
+        move |_, _| {
+            s.input(AppWindowMsg::FocusObjectSearch);
+        }
+    ));
     root.add_action(&action);
 
     let action = gtk::gio::SimpleAction::new("shortcuts", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::Shortcuts);
-    });
+    action.connect_activate(glib::clone!(
+        #[strong(rename_to=s)]
+        sender,
+        move |_, _| {
+            s.input(AppWindowMsg::Shortcuts);
+        }
+    ));
     app.add_action(&action);
 
     let action = gtk::gio::SimpleAction::new("quit", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::Quit);
-    });
+    action.connect_activate(glib::clone!(
+        #[strong(rename_to=s)]
+        sender,
+        move |_, _| {
+            s.input(AppWindowMsg::Quit);
+        }
+    ));
     app.add_action(&action);
 
     app.set_accels_for_action("win.new-query-tab", &["<Control>n"]);
