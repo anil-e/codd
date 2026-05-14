@@ -26,6 +26,10 @@
   <provides>
     <binary>codd</binary>
   </provides>
+  <branding>
+    <color type="primary" scheme_preference="light">#B7DAF8</color>
+    <color type="primary" scheme_preference="dark">#0A2E45</color>
+  </branding>
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-table-browser.png</image>
