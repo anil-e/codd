@@ -10,16 +10,17 @@ use sqlx::PgPool;
 use crate::db;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::table_browser::{
-    DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, SortDirection, TableCell, TableColumn, TableFilter,
-    TablePage, TableSort,
+    DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TableFilter, TablePage, TableSort,
 };
 use cell_editor::show_edit_cell_popover;
 use filters::{FilterEvent, FilterPanel, initial_filter, validate_filter_values};
 use grid::{TableBrowserRow, cell_factory, clear_columns};
+use sorting::{connect_sort_handlers, next_sort_for_header_click, sync_sort_indicator};
 
 mod cell_editor;
 mod filters;
 mod grid;
+mod sorting;
 
 pub struct TableBrowser {
     pool: Option<PgPool>,
@@ -462,7 +463,7 @@ impl Component for TableBrowser {
             }
 
             TableBrowserMsg::SortChanged(sort) => {
-                let next_sort = self.next_sort_for_header_click(sort);
+                let next_sort = next_sort_for_header_click(self.sort.as_ref(), sort);
 
                 if self.sort == next_sort {
                     return;
@@ -470,7 +471,7 @@ impl Component for TableBrowser {
 
                 self.sort = next_sort;
                 self.offset = 0;
-                self.sync_sort_indicator();
+                sync_sort_indicator(&self.table_view, self.sort.as_ref());
                 self.load_page(widgets, &sender);
             }
 
@@ -496,7 +497,7 @@ impl Component for TableBrowser {
                                 .any(|column| column.name == sort.column_name)
                         }) {
                             self.sort = None;
-                            self.sync_sort_indicator();
+                            sync_sort_indicator(&self.table_view, self.sort.as_ref());
                         }
                         self.page = Some(page);
                         self.page_generation = self.page_generation.wrapping_add(1);
@@ -823,39 +824,7 @@ impl TableBrowser {
             self.table_view.append_column(&view_column);
         }
 
-        self.sync_sort_indicator();
-    }
-
-    fn next_sort_for_header_click(&self, sort: TableSort) -> Option<TableSort> {
-        let is_third_click = self.sort.as_ref().is_some_and(|current| {
-            current.column_name == sort.column_name
-                && current.direction == SortDirection::Descending
-                && sort.direction == SortDirection::Ascending
-        });
-
-        (!is_third_click).then_some(sort)
-    }
-
-    fn sync_sort_indicator(&self) {
-        let Some(sort) = self.sort.as_ref() else {
-            self.table_view
-                .sort_by_column(None, gtk::SortType::Ascending);
-            return;
-        };
-
-        let Some(column) = column_view_column_by_title(&self.table_view, &sort.column_name) else {
-            self.table_view
-                .sort_by_column(None, gtk::SortType::Ascending);
-            return;
-        };
-
-        self.table_view.sort_by_column(
-            Some(&column),
-            match sort.direction {
-                SortDirection::Ascending => gtk::SortType::Ascending,
-                SortDirection::Descending => gtk::SortType::Descending,
-            },
-        );
+        sync_sort_indicator(&self.table_view, self.sort.as_ref());
     }
 
     fn object_title(&self) -> String {
@@ -1119,55 +1088,6 @@ fn last_page_offset(row_count: i64, page_size: u32) -> u32 {
     let offset = ((row_count - 1) / page_size) * page_size;
 
     u32::try_from(offset).unwrap_or(u32::MAX)
-}
-
-fn sort_from_sorter(sorter: &gtk::Sorter) -> Option<TableSort> {
-    let column = sorter.property::<Option<gtk::ColumnViewColumn>>("primary-sort-column")?;
-    let column_name = column.title()?.to_string();
-    let direction = match sorter.property::<gtk::SortType>("primary-sort-order") {
-        gtk::SortType::Ascending => SortDirection::Ascending,
-        gtk::SortType::Descending => SortDirection::Descending,
-        _ => return None,
-    };
-
-    Some(TableSort::new(column_name, direction))
-}
-
-fn connect_sort_handlers(view: &gtk::ColumnView, sender: &ComponentSender<TableBrowser>) {
-    let Some(sorter) = view.sorter() else {
-        return;
-    };
-
-    sorter.connect_changed({
-        let sender = sender.clone();
-
-        move |sorter, _| {
-            if let Some(sort) = sort_from_sorter(sorter) {
-                sender.input(TableBrowserMsg::SortChanged(sort));
-            }
-        }
-    });
-}
-
-fn column_view_column_by_title(
-    view: &gtk::ColumnView,
-    title: &str,
-) -> Option<gtk::ColumnViewColumn> {
-    for index in 0..view.columns().n_items() {
-        let Some(column) = view
-            .columns()
-            .item(index)
-            .and_downcast::<gtk::ColumnViewColumn>()
-        else {
-            continue;
-        };
-
-        if column.title().as_deref() == Some(title) {
-            return Some(column);
-        }
-    }
-
-    None
 }
 
 fn page_size_model() -> gtk::StringList {
