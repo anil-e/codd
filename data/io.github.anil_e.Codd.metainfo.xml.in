@@ -32,23 +32,15 @@
   </branding>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-table-browser.png</image>
-      <caption>Browse PostgreSQL table data with pagination and filters</caption>
-    </screenshot>
-    <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-query.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.3.0/images/screenshot-query.png</image>
       <caption>Run SQL queries with syntax highlighting and result previews</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-edit.png</image>
-      <caption>Edit table cell values directly from the table browser</caption>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.3.0/images/screenshot-table-browser.png</image>
+      <caption>Browse PostgreSQL table data with pagination and filters</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-history.png</image>
-      <caption>Reuse queries from the local query history</caption>
-    </screenshot>
-    <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.2.0/images/screenshot-start.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.3.0/images/screenshot-start.png</image>
       <caption>Manage saved PostgreSQL connections</caption>
     </screenshot>
   </screenshots>
@@ -59,6 +51,20 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.3.0" date="2026-05-14">
+      <description translate="no">
+        <p>This release improves SQL execution, table browsing, and application branding.</p>
+
+        <ul>
+          <li>When part of a query is selected, only that selected SQL can now be executed.</li>
+          <li>Table browser columns can be sorted from the column header.</li>
+          <li>First and last page navigation was added to the table browser.</li>
+          <li>Table and view names can now be copied from the object sidebar context menu.</li>
+          <li>PostgreSQL SQL parsing was improved for quoted strings and other edge cases.</li>
+          <li>The application icon, screenshots, and branding metadata were updated.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.0" date="2026-05-12">
       <description translate="no">
         <p>Add connection-wide database switching from the title bar, with query history scoped per database and migrated automatically.</p>

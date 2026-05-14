@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-14 12:07+0200\n"
+"POT-Creation-Date: 2026-05-14 19:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,44 +42,44 @@ msgstr ""
 msgid "Workspace"
 msgstr ""
 
-#: src/window_content.rs:550
+#: src/window_content.rs:560
 msgid "Hide Objects"
 msgstr ""
 
-#: src/window_content.rs:551
+#: src/window_content.rs:561
 msgid "Show Objects"
 msgstr ""
 
-#: src/window_content.rs:605 src/ui/components/sidebar.rs:141
-#: src/ui/components/sidebar.rs:396 src/ui/components/sidebar.rs:410
+#: src/window_content.rs:615 src/ui/components/sidebar.rs:145
+#: src/ui/components/sidebar.rs:400 src/ui/components/sidebar.rs:414
 msgid "No connection"
 msgstr ""
 
-#: src/window_content.rs:675
+#: src/window_content.rs:685
 msgid "Connected to PostgreSQL."
 msgstr ""
 
-#: src/window_content.rs:680
+#: src/window_content.rs:690
 msgid "Connected, but saving the connection failed"
 msgstr ""
 
-#: src/window_content.rs:741
+#: src/window_content.rs:751
 msgid "Schema load failed"
 msgstr ""
 
-#: src/window_content.rs:790 src/ui/components/results.rs:212
+#: src/window_content.rs:800 src/ui/components/results.rs:212
 msgid "Query failed"
 msgstr ""
 
-#: src/window_content.rs:854
+#: src/window_content.rs:864
 msgid "A query is already running."
 msgstr ""
 
-#: src/window_content.rs:860
+#: src/window_content.rs:870
 msgid "Connect to PostgreSQL before running a query."
 msgstr ""
 
-#: src/window_content.rs:868
+#: src/window_content.rs:878
 msgid "Enter SQL before running a query."
 msgstr ""
 
@@ -161,7 +161,7 @@ msgid "PostgreSQL returned the following error:"
 msgstr ""
 
 #: src/ui/components/connection_dialog.rs:353
-#: src/ui/components/table_browser.rs:876
+#: src/ui/components/table_browser.rs:1053
 msgid "Close"
 msgstr ""
 
@@ -234,59 +234,91 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:86
+#: src/ui/components/sidebar.rs:90
 msgid "Search objects"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:110
+#: src/ui/components/sidebar.rs:114
 msgid "No objects match your search."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:163
+#: src/ui/components/sidebar.rs:167
 msgid "Loading schema..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:174 src/ui/components/sidebar.rs:398
-#: src/ui/components/sidebar.rs:412
+#: src/ui/components/sidebar.rs:178 src/ui/components/sidebar.rs:402
+#: src/ui/components/sidebar.rs:416
 msgid "No tables or views found"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:326
+#: src/ui/components/sidebar.rs:330
 msgid "object"
 msgid_plural "objects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/ui/components/sidebar.rs:383
+#: src/ui/components/sidebar.rs:387
 msgid "Loading schema"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:385
+#: src/ui/components/sidebar.rs:389
 msgid "No objects available"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:394
+#: src/ui/components/sidebar.rs:398
 msgid "Fetching tables and views for the current connection."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:397
+#: src/ui/components/sidebar.rs:401
 msgid "Connect to PostgreSQL to browse database objects."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:400
+#: src/ui/components/sidebar.rs:404
 msgid "The selected database does not currently expose tables or views."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:516
+#: src/ui/components/sidebar.rs:561
 msgid "Rename..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:521
+#: src/ui/components/sidebar.rs:566
 msgid "Truncate..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:524
+#: src/ui/components/sidebar.rs:569
 msgid "Delete..."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:577
+msgid "Copy Table Name"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:578
+msgid "Copy Qualified Table Name"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:579
+msgid "Copy View Name"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:580
+msgid "Copy Qualified View Name"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:586
+msgid "Table name copied."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:587
+msgid "Qualified table name copied."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:588
+msgid "View name copied."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:589
+msgid "Qualified view name copied."
 msgstr ""
 
 #: src/ui/components/editor.rs:104
@@ -363,7 +395,7 @@ msgstr ""
 msgid "Query returned no rows."
 msgstr ""
 
-#: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:729
+#: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:906
 msgid "row"
 msgid_plural "rows"
 msgstr[0] ""
@@ -379,108 +411,121 @@ msgstr[1] ""
 msgid "The statement completed successfully."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:149
+#: src/ui/components/table_browser.rs:163
 msgid "Show or edit filters"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:158
+#: src/ui/components/table_browser.rs:172
 msgid "Refresh"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:218
+#: src/ui/components/table_browser.rs:232
+msgid "First page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:241
 msgid "Previous page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:249
+#: src/ui/components/table_browser.rs:272
 msgid "Next page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:259
+#: src/ui/components/table_browser.rs:281
+msgid "Last page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:291
 msgid "Rows"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:264
+#: src/ui/components/table_browser.rs:296
 msgid "Rows per page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:309
+#: src/ui/components/table_browser.rs:341
 msgid "Select a table"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:311
+#: src/ui/components/table_browser.rs:343
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:436
+#: src/ui/components/table_browser.rs:507
 msgid "Loading table failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:473
+#: src/ui/components/table_browser.rs:534
+msgid "Loading last page failed"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:565
 msgid "Saving cell failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:540
+#: src/ui/components/table_browser.rs:636
 msgid "Loading rows"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:541
+#: src/ui/components/table_browser.rs:637
 msgid "Fetching the selected page from PostgreSQL."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:563
+#: src/ui/components/table_browser.rs:667
+#: src/ui/components/table_browser.rs:703
 msgid "Loading cancelled"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:648
+#: src/ui/components/table_browser.rs:788
 msgid "Filter cannot be applied"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:688
+#: src/ui/components/table_browser.rs:865
 msgid "Table Browser"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:697
+#: src/ui/components/table_browser.rs:874
 msgid "Table"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:698
+#: src/ui/components/table_browser.rs:875
 msgid "View"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:706
-#: src/ui/components/table_browser.rs:708
+#: src/ui/components/table_browser.rs:883
+#: src/ui/components/table_browser.rs:885
 msgid "Filters"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:714
+#: src/ui/components/table_browser.rs:891
 msgid "Loading..."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:722
+#: src/ui/components/table_browser.rs:899
 msgid "No rows"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:780
+#: src/ui/components/table_browser.rs:957
 msgid "Cell cannot be edited"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:887
+#: src/ui/components/table_browser.rs:1064
 msgid "Only tables can be edited."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:891
+#: src/ui/components/table_browser.rs:1068
 msgid "The selected cell is no longer available."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:895
+#: src/ui/components/table_browser.rs:1072
 msgid "Primary key columns are read-only for now."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:899
+#: src/ui/components/table_browser.rs:1076
 msgid "This column type is not editable yet."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:903
+#: src/ui/components/table_browser.rs:1080
 msgid "Editing requires a primary key."
 msgstr ""
 
@@ -554,23 +599,15 @@ msgstr ""
 msgid "Anil Erdogan"
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:32
-msgid "Browse PostgreSQL table data with pagination and filters"
-msgstr ""
-
 #: data/io.github.anil_e.Codd.metainfo.xml.in:36
 msgid "Run SQL queries with syntax highlighting and result previews"
 msgstr ""
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:40
-msgid "Edit table cell values directly from the table browser"
+msgid "Browse PostgreSQL table data with pagination and filters"
 msgstr ""
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:44
-msgid "Reuse queries from the local query history"
-msgstr ""
-
-#: data/io.github.anil_e.Codd.metainfo.xml.in:48
 msgid "Manage saved PostgreSQL connections"
 msgstr ""
 
