@@ -9,26 +9,78 @@ use std::fmt::Write;
 pub async fn execute(pool: &PgPool, sql: &str) -> Result<QueryExecutionResult, sqlx::Error> {
     let mut stream = raw_sql(sql).fetch_many(pool);
     let mut affected_rows = 0;
-    let mut rows = Vec::new();
+    let mut current_rows = Vec::new();
+    let mut last_result = None;
 
     while let Some(item) = stream.try_next().await? {
         match item {
             Either::Left(result) => {
-                affected_rows += result.rows_affected();
+                if !current_rows.is_empty() {
+                    last_result = Some(QueryExecutionResult::Rows(rows_to_result(&current_rows)));
+                    current_rows.clear();
+                } else {
+                    let rows = result.rows_affected();
+                    affected_rows += rows;
+                    last_result = Some(QueryExecutionResult::AffectedRows(rows));
+                }
             }
             Either::Right(row) => {
-                rows.push(row);
+                current_rows.push(row);
             }
         }
     }
 
-    if !rows.is_empty() {
-        Ok(QueryExecutionResult::Rows(rows_to_result(&rows)))
+    if !current_rows.is_empty() {
+        Ok(QueryExecutionResult::Rows(rows_to_result(&current_rows)))
+    } else if let Some(result) = last_result {
+        if matches!(result, QueryExecutionResult::AffectedRows(0))
+            && expects_rows_when_empty(last_sql_statement(sql))
+        {
+            return Ok(QueryExecutionResult::Rows(QueryResult::default()));
+        }
+
+        Ok(result)
     } else if expects_rows_when_empty(sql) {
         Ok(QueryExecutionResult::Rows(QueryResult::default()))
     } else {
         Ok(QueryExecutionResult::AffectedRows(affected_rows))
     }
+}
+
+fn last_sql_statement(sql: &str) -> &str {
+    let mut statement_start = 0;
+    let mut last_statement = "";
+    let bytes = sql.as_bytes();
+    let mut index = 0;
+
+    while index < bytes.len() {
+        match bytes[index] {
+            b'\'' => index = skip_single_quoted_string(bytes, index + 1),
+            b'"' => index = skip_double_quoted_identifier(bytes, index + 1),
+            b'-' if bytes.get(index + 1) == Some(&b'-') => {
+                index = skip_line_comment(bytes, index + 2);
+            }
+            b'/' if bytes.get(index + 1) == Some(&b'*') => {
+                index = skip_block_comment(bytes, index + 2);
+            }
+            b';' => {
+                let statement = sql[statement_start..index].trim();
+                if !statement.is_empty() {
+                    last_statement = statement;
+                    statement_start = index + 1;
+                }
+                index += 1;
+            }
+            _ => index += 1,
+        }
+    }
+
+    let tail = sql[statement_start..].trim();
+    if tail.is_empty() || strip_leading_sql_comments(tail).trim().is_empty() {
+        return last_statement;
+    }
+
+    tail
 }
 
 fn expects_rows_when_empty(sql: &str) -> bool {
@@ -280,7 +332,10 @@ fn raw_bytes_to_hex(value: &PgValueRef<'_>) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{contains_keyword_outside_literals, expects_rows_when_empty, rows_to_result};
+    use super::{
+        contains_keyword_outside_literals, expects_rows_when_empty, last_sql_statement,
+        rows_to_result,
+    };
 
     #[test]
     fn detects_row_returning_statements() {
@@ -373,6 +428,18 @@ mod tests {
         assert!(!expects_rows_when_empty("-- comment without newline"));
         assert!(!expects_rows_when_empty("/* unterminated comment"));
         assert!(!expects_rows_when_empty("/* complete */"));
+    }
+
+    #[test]
+    fn finds_last_sql_statement() {
+        assert_eq!(last_sql_statement("select 1"), "select 1");
+        assert_eq!(last_sql_statement("select 1;"), "select 1");
+        assert_eq!(last_sql_statement("select 1; select 2"), "select 2");
+        assert_eq!(
+            last_sql_statement("select ';'; update users set name = 'a'"),
+            "update users set name = 'a'"
+        );
+        assert_eq!(last_sql_statement("select 1; -- tail comment"), "select 1");
     }
 
     #[test]
