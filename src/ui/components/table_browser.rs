@@ -10,7 +10,8 @@ use sqlx::PgPool;
 use crate::db;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::table_browser::{
-    DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TableFilter, TablePage,
+    DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, SortDirection, TableCell, TableColumn, TableFilter,
+    TablePage, TableSort,
 };
 use cell_editor::show_edit_cell_popover;
 use filters::{FilterEvent, FilterPanel, initial_filter, validate_filter_values};
@@ -33,6 +34,7 @@ pub struct TableBrowser {
     available_columns: Vec<TableColumn>,
     draft_filters: Vec<TableFilter>,
     active_filters: Vec<TableFilter>,
+    sort: Option<TableSort>,
     filters_expanded: bool,
     page_generation: u64,
     request_id: u64,
@@ -60,6 +62,7 @@ pub enum TableBrowserMsg {
     PageSizeChanged(u32),
     ToggleFilters,
     FilterEvent(FilterEvent),
+    SortChanged(TableSort),
     PageLoaded {
         id: u64,
         result: Result<TablePage, String>,
@@ -315,6 +318,7 @@ impl Component for TableBrowser {
             available_columns: Vec::new(),
             draft_filters: Vec::new(),
             active_filters: Vec::new(),
+            sort: None,
             filters_expanded: false,
             page_generation: 0,
             request_id: 0,
@@ -331,6 +335,7 @@ impl Component for TableBrowser {
 
         let widgets = view_output!();
         widgets.grid.set_child(Some(&model.table_view));
+        connect_sort_handlers(&model.table_view, &sender);
         FilterPanel::rebuild(
             &model.filter_panel,
             model.filter_columns(),
@@ -359,6 +364,7 @@ impl Component for TableBrowser {
                 self.available_columns.clear();
                 self.draft_filters.clear();
                 self.active_filters.clear();
+                self.sort = None;
                 self.filters_expanded = false;
                 self.load_page(widgets, &sender);
             }
@@ -412,6 +418,19 @@ impl Component for TableBrowser {
                 self.handle_filter_event(event, widgets, &sender, root);
             }
 
+            TableBrowserMsg::SortChanged(sort) => {
+                let next_sort = self.next_sort_for_header_click(sort);
+
+                if self.sort == next_sort {
+                    return;
+                }
+
+                self.sort = next_sort;
+                self.offset = 0;
+                self.sync_sort_indicator();
+                self.load_page(widgets, &sender);
+            }
+
             TableBrowserMsg::PageLoaded { id, result } => {
                 if self.active_request_id != Some(id) {
                     return;
@@ -427,6 +446,15 @@ impl Component for TableBrowser {
                         self.status_title.clear();
                         self.status_description = None;
                         self.available_columns.clone_from(&page.columns);
+                        if self.sort.as_ref().is_some_and(|sort| {
+                            !page
+                                .columns
+                                .iter()
+                                .any(|column| column.name == sort.column_name)
+                        }) {
+                            self.sort = None;
+                            self.sync_sort_indicator();
+                        }
                         self.page = Some(page);
                         self.page_generation = self.page_generation.wrapping_add(1);
                     }
@@ -547,15 +575,23 @@ impl TableBrowser {
         let offset = self.offset;
         let page_size = self.page_size;
         let filters = self.active_filters.clone();
+        let sort = self.sort.clone();
         self.active_request_id = Some(id);
         let (abort_handle, abort_registration) = AbortHandle::new_pair();
         self.active_abort_handle = Some(abort_handle);
 
         sender.oneshot_command(async move {
             let load = async move {
-                db::browser::load_table_page(&pool, &object, offset, page_size, &filters)
-                    .await
-                    .map_err(|error| error.to_string())
+                db::browser::load_table_page(
+                    &pool,
+                    &object,
+                    offset,
+                    page_size,
+                    &filters,
+                    sort.as_ref(),
+                )
+                .await
+                .map_err(|error| error.to_string())
             };
 
             let result = match Abortable::new(load, abort_registration).await {
@@ -677,8 +713,45 @@ impl TableBrowser {
             let view_column = gtk::ColumnViewColumn::new(Some(&title), Some(factory));
             view_column.set_resizable(true);
             view_column.set_expand(index < 3);
+            view_column.set_sorter(Some(&gtk::CustomSorter::new(|_, _| {
+                std::cmp::Ordering::Equal.into()
+            })));
             self.table_view.append_column(&view_column);
         }
+
+        self.sync_sort_indicator();
+    }
+
+    fn next_sort_for_header_click(&self, sort: TableSort) -> Option<TableSort> {
+        let is_third_click = self.sort.as_ref().is_some_and(|current| {
+            current.column_name == sort.column_name
+                && current.direction == SortDirection::Descending
+                && sort.direction == SortDirection::Ascending
+        });
+
+        (!is_third_click).then_some(sort)
+    }
+
+    fn sync_sort_indicator(&self) {
+        let Some(sort) = self.sort.as_ref() else {
+            self.table_view
+                .sort_by_column(None, gtk::SortType::Ascending);
+            return;
+        };
+
+        let Some(column) = column_view_column_by_title(&self.table_view, &sort.column_name) else {
+            self.table_view
+                .sort_by_column(None, gtk::SortType::Ascending);
+            return;
+        };
+
+        self.table_view.sort_by_column(
+            Some(&column),
+            match sort.direction {
+                SortDirection::Ascending => gtk::SortType::Ascending,
+                SortDirection::Descending => gtk::SortType::Descending,
+            },
+        );
     }
 
     fn object_title(&self) -> String {
@@ -930,6 +1003,55 @@ fn set_stack_child(widgets: &TableBrowserWidgets, has_page: bool) {
     widgets
         .stack
         .set_visible_child_name(if has_page { "grid" } else { "status" });
+}
+
+fn sort_from_sorter(sorter: &gtk::Sorter) -> Option<TableSort> {
+    let column = sorter.property::<Option<gtk::ColumnViewColumn>>("primary-sort-column")?;
+    let column_name = column.title()?.to_string();
+    let direction = match sorter.property::<gtk::SortType>("primary-sort-order") {
+        gtk::SortType::Ascending => SortDirection::Ascending,
+        gtk::SortType::Descending => SortDirection::Descending,
+        _ => return None,
+    };
+
+    Some(TableSort::new(column_name, direction))
+}
+
+fn connect_sort_handlers(view: &gtk::ColumnView, sender: &ComponentSender<TableBrowser>) {
+    let Some(sorter) = view.sorter() else {
+        return;
+    };
+
+    sorter.connect_changed({
+        let sender = sender.clone();
+
+        move |sorter, _| {
+            if let Some(sort) = sort_from_sorter(sorter) {
+                sender.input(TableBrowserMsg::SortChanged(sort));
+            }
+        }
+    });
+}
+
+fn column_view_column_by_title(
+    view: &gtk::ColumnView,
+    title: &str,
+) -> Option<gtk::ColumnViewColumn> {
+    for index in 0..view.columns().n_items() {
+        let Some(column) = view
+            .columns()
+            .item(index)
+            .and_downcast::<gtk::ColumnViewColumn>()
+        else {
+            continue;
+        };
+
+        if column.title().as_deref() == Some(title) {
+            return Some(column);
+        }
+    }
+
+    None
 }
 
 fn page_size_model() -> gtk::StringList {

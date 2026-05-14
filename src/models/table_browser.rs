@@ -85,6 +85,36 @@ pub struct TablePage {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableSort {
+    pub column_name: String,
+    pub direction: SortDirection,
+}
+
+impl TableSort {
+    pub fn new(column_name: String, direction: SortDirection) -> Self {
+        Self {
+            column_name,
+            direction,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SortDirection {
+    Ascending,
+    Descending,
+}
+
+impl SortDirection {
+    pub fn sql(self) -> &'static str {
+        match self {
+            Self::Ascending => "ASC",
+            Self::Descending => "DESC",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TableFilter {
     Column {
         column_name: String,

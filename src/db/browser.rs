@@ -1,7 +1,7 @@
 use crate::db::query;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind, quote_identifier};
 use crate::models::table_browser::{
-    ColumnTypeGroup, FilterOperator, TableCell, TableColumn, TableFilter, TablePage,
+    ColumnTypeGroup, FilterOperator, TableCell, TableColumn, TableFilter, TablePage, TableSort,
 };
 use sqlx::{Column, PgPool, Row, TypeInfo};
 
@@ -11,9 +11,10 @@ pub async fn load_table_page(
     offset: u32,
     page_size: u32,
     filters: &[TableFilter],
+    sort: Option<&TableSort>,
 ) -> Result<TablePage, sqlx::Error> {
     let columns = load_table_columns(pool, object).await?;
-    let mut rows = load_page_rows(pool, object, &columns, offset, page_size, filters).await?;
+    let mut rows = load_page_rows(pool, object, &columns, offset, page_size, filters, sort).await?;
     let has_next_page = rows.len() > page_size as usize;
 
     if has_next_page {
@@ -111,8 +112,9 @@ async fn load_page_rows(
     offset: u32,
     page_size: u32,
     filters: &[TableFilter],
+    sort: Option<&TableSort>,
 ) -> Result<Vec<Vec<TableCell>>, sqlx::Error> {
-    let query = table_page_sql_with_filters(object, columns, offset, page_size, filters)
+    let query = table_page_sql_with_filters(object, columns, offset, page_size, filters, sort)
         .map_err(|error| sqlx::Error::Protocol(error.to_string()))?;
     let mut sqlx_query = sqlx::query(&query.sql);
 
@@ -256,7 +258,8 @@ fn table_page_sql(
     offset: u32,
     page_size: u32,
 ) -> Result<String, TableFilterError> {
-    table_page_sql_with_filters(object, columns, offset, page_size, &[]).map(|query| query.sql)
+    table_page_sql_with_filters(object, columns, offset, page_size, &[], None)
+        .map(|query| query.sql)
 }
 
 fn where_clause(
@@ -390,11 +393,12 @@ fn table_page_sql_with_filters(
     offset: u32,
     page_size: u32,
     filters: &[TableFilter],
+    sort: Option<&TableSort>,
 ) -> Result<TablePageSql, TableFilterError> {
     let fetch_limit = page_size.saturating_add(1);
     let select_columns = select_columns_clause(columns);
     let where_clause = where_clause(columns, filters)?;
-    let order_by = order_by_clause(object, columns);
+    let order_by = order_by_clause(object, columns, sort);
 
     Ok(TablePageSql {
         sql: format!(
@@ -526,22 +530,43 @@ fn returning_column_expression(column: &TableColumn) -> String {
     name
 }
 
-fn order_by_clause(object: &DatabaseObject, columns: &[TableColumn]) -> String {
+fn order_by_clause(
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    sort: Option<&TableSort>,
+) -> String {
+    let mut expressions = Vec::new();
+
+    if let Some(sort) = sort
+        && columns.iter().any(|column| column.name == sort.column_name)
+    {
+        expressions.push(format!(
+            "{} {}",
+            quote_identifier(&sort.column_name),
+            sort.direction.sql()
+        ));
+    }
+
     let primary_key_columns = columns
         .iter()
         .filter(|column| column.is_primary_key)
+        .filter(|column| sort.is_none_or(|sort| sort.column_name != column.name))
         .map(|column| quote_identifier(&column.name))
         .collect::<Vec<_>>();
 
     if !primary_key_columns.is_empty() {
-        return format!(" ORDER BY {}", primary_key_columns.join(", "));
+        expressions.extend(primary_key_columns);
+    } else if object.kind == DatabaseObjectKind::Table
+        && sort.is_none_or(|sort| sort.column_name != "ctid")
+    {
+        expressions.push("ctid".to_string());
     }
 
-    if object.kind == DatabaseObjectKind::Table {
-        " ORDER BY ctid".to_string()
-    } else {
-        String::new()
+    if expressions.is_empty() {
+        return String::new();
     }
+
+    format!(" ORDER BY {}", expressions.join(", "))
 }
 
 #[cfg(test)]
@@ -552,7 +577,8 @@ mod tests {
     };
     use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
     use crate::models::table_browser::{
-        ColumnTypeGroup, FilterOperator, TableCell, TableColumn, TableFilter,
+        ColumnTypeGroup, FilterOperator, SortDirection, TableCell, TableColumn, TableFilter,
+        TableSort,
     };
 
     #[test]
@@ -657,6 +683,7 @@ mod tests {
                     Some("2025-01-01"),
                 ),
             ],
+            None,
         )
         .unwrap();
 
@@ -689,6 +716,7 @@ mod tests {
                 FilterOperator::IsNull,
                 None,
             )],
+            None,
         )
         .unwrap();
 
@@ -721,6 +749,7 @@ mod tests {
                 filter("public_id", FilterOperator::Like, Some("8e4%")),
                 filter("status", FilterOperator::ILike, Some("%paid%")),
             ],
+            None,
         )
         .unwrap();
 
@@ -745,6 +774,7 @@ mod tests {
             0,
             100,
             &[TableFilter::custom_sql("lower(name) LIKE 'a%'")],
+            None,
         )
         .unwrap();
 
@@ -770,7 +800,8 @@ mod tests {
                 &columns,
                 0,
                 100,
-                &[TableFilter::custom_sql("true; DROP TABLE users")]
+                &[TableFilter::custom_sql("true; DROP TABLE users")],
+                None
             ),
             Err(TableFilterError::InvalidCustomSql)
         ));
@@ -781,7 +812,8 @@ mod tests {
                 &columns,
                 0,
                 100,
-                &[TableFilter::custom_sql("name = $1")]
+                &[TableFilter::custom_sql("name = $1")],
+                None
             ),
             Err(TableFilterError::InvalidCustomSql)
         ));
@@ -801,7 +833,8 @@ mod tests {
                 &[column("id", true)],
                 0,
                 100,
-                &[filter("missing", FilterOperator::Equal, Some("1"))]
+                &[filter("missing", FilterOperator::Equal, Some("1"))],
+                None
             ),
             Err(TableFilterError::UnknownColumn(column)) if column == "missing"
         ));
@@ -825,7 +858,8 @@ mod tests {
                 &[column("id", true), payload],
                 0,
                 100,
-                &[filter("payload", FilterOperator::Equal, Some("{}"))]
+                &[filter("payload", FilterOperator::Equal, Some("{}"))],
+                None
             ),
             Err(TableFilterError::UnsupportedOperator { .. })
         ));
@@ -839,7 +873,26 @@ mod tests {
             kind: DatabaseObjectKind::View,
         };
 
-        assert_eq!(order_by_clause(&object, &[column("name", false)]), "");
+        assert_eq!(order_by_clause(&object, &[column("name", false)], None), "");
+    }
+
+    #[test]
+    fn page_query_orders_by_selected_column_before_stable_fallback() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "customers".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![column("id", true), column("name", false)];
+        let sort = TableSort::new("name".to_string(), SortDirection::Descending);
+
+        let query =
+            table_page_sql_with_filters(&object, &columns, 0, 100, &[], Some(&sort)).unwrap();
+
+        assert_eq!(
+            query.sql,
+            "SELECT \"id\", \"name\" FROM \"public\".\"customers\" ORDER BY \"name\" DESC, \"id\" LIMIT 101 OFFSET 0"
+        );
     }
 
     #[test]
