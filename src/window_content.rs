@@ -862,7 +862,7 @@ impl WindowContent {
             return;
         };
 
-        let sql = self.query_tab_sql(tab_id).unwrap_or_default();
+        let sql = self.query_tab_execution_sql(tab_id).unwrap_or_default();
         if sql.trim().is_empty() {
             widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
                 "Enter SQL before running a query.",

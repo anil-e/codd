@@ -11,15 +11,18 @@ pub struct SqlEditor {
     buffer: sourceview5::Buffer,
     history_preview_buffer: sourceview5::Buffer,
     is_running: bool,
+    has_selection: bool,
     history: Vec<QueryHistoryEntry>,
     selected_history_index: Option<usize>,
     style_manager: adw::StyleManager,
     dark_notify_handler: Option<glib::SignalHandlerId>,
+    selection_notify_handler: Option<glib::SignalHandlerId>,
 }
 
 #[derive(Debug)]
 pub enum SqlEditorMsg {
     SetRunning(bool),
+    SelectionChanged(bool),
     SetHistory(Vec<QueryHistoryEntry>),
     Focus,
     RunRequested,
@@ -210,12 +213,22 @@ impl Component for SqlEditor {
                     set_hexpand: true,
                 },
 
+                gtk::Label {
+                    set_label: &gettext("Selection will be executed"),
+                    add_css_class: "caption",
+                    add_css_class: "dim-label",
+                    set_width_chars: 28,
+                    set_xalign: 1.0,
+                    #[watch]
+                    set_visible: model.has_selection && !model.is_running,
+                },
+
                 gtk::Button {
-                    set_tooltip_text: Some(&gettext("Execute Statement")),
+                    set_tooltip_text: Some(&gettext("Execute selection or statement")),
                     add_css_class: "suggested-action",
                     set_child: Some(&adw::ButtonContent::builder()
                         .icon_name("media-playback-start-symbolic")
-                        .label(gettext("Execute Statement"))
+                        .label(gettext("Execute"))
                         .build()
                     ),
                     #[watch]
@@ -253,15 +266,23 @@ impl Component for SqlEditor {
                 apply_style_scheme(&buffer, &history_preview_buffer, style_manager.is_dark());
             })
         };
+        let selection_notify_handler = {
+            let sender = sender.clone();
+            buffer.connect_has_selection_notify(move |buffer| {
+                sender.input(SqlEditorMsg::SelectionChanged(buffer.has_selection()));
+            })
+        };
 
         let mut model = SqlEditor {
             buffer,
             history_preview_buffer,
             is_running: false,
+            has_selection: false,
             history: Vec::new(),
             selected_history_index: None,
             style_manager,
             dark_notify_handler: Some(dark_notify_handler),
+            selection_notify_handler: Some(selection_notify_handler),
         };
         let widgets = view_output!();
         model.render_history(&widgets);
@@ -279,6 +300,10 @@ impl Component for SqlEditor {
         match msg {
             SqlEditorMsg::SetRunning(is_running) => {
                 self.is_running = is_running;
+            }
+
+            SqlEditorMsg::SelectionChanged(has_selection) => {
+                self.has_selection = has_selection;
             }
 
             SqlEditorMsg::SetHistory(history) => {
@@ -325,6 +350,10 @@ impl Component for SqlEditor {
     fn shutdown(&mut self, _widgets: &mut Self::Widgets, _output: relm4::Sender<Self::Output>) {
         if let Some(handler) = self.dark_notify_handler.take() {
             self.style_manager.disconnect(handler);
+        }
+
+        if let Some(handler) = self.selection_notify_handler.take() {
+            self.buffer.disconnect(handler);
         }
     }
 }

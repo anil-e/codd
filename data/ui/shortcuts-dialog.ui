@@ -62,7 +62,7 @@
         </child>
         <child>
           <object class="AdwShortcutsItem">
-            <property name="title" translatable="yes" context="shortcut window">Execute Statement</property>
+            <property name="title" translatable="yes" context="shortcut window">Execute</property>
             <property name="accelerator">&lt;Control&gt;Return</property>
           </object>
         </child>

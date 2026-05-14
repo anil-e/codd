@@ -409,6 +409,20 @@ impl WindowContent {
         )
     }
 
+    pub(super) fn query_tab_execution_sql(&self, tab_id: u64) -> Option<String> {
+        let buffer = &self
+            .query_tabs
+            .iter()
+            .find(|tab| tab.id == tab_id)?
+            .editor_buffer;
+
+        if let Some((start, end)) = buffer.selection_bounds() {
+            return Some(buffer.text(&start, &end, false).to_string());
+        }
+
+        self.query_tab_sql(tab_id)
+    }
+
     pub(super) fn open_table_browser(
         &mut self,
         object: DatabaseObject,

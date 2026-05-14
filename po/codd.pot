@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-03 14:08+0200\n"
+"POT-Creation-Date: 2026-05-14 12:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,133 +18,88 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: src/window_content.rs:99
+#: src/window_content.rs:177
 msgid "Back to connections"
 msgstr ""
 
-#: src/window_content.rs:121 data/io.github.anil_e.Codd.desktop.in:3
-#: data/io.github.anil_e.Codd.metainfo.xml.in:6
-msgid "Codd"
-msgstr ""
-
-#: src/window_content.rs:150
-msgid "Objects"
-msgstr ""
-
-#: src/window_content.rs:156
-msgid "Workspace"
-msgstr ""
-
-#: src/window_content.rs:191
-msgid "New Query Tab"
-msgstr ""
-
-#: src/window_content.rs:194
-msgid "New"
-msgstr ""
-
-#: src/window_content.rs:152
+#: src/window_content.rs:196
 msgid "Main Menu"
 msgstr ""
 
-#: src/menus.rs:9
-msgid "_New Connection"
+#: src/window_content.rs:202
+msgid "New Query Tab"
 msgstr ""
 
-#: src/menus.rs:15
-msgid "_Keyboard Shortcuts"
+#: src/window_content.rs:206
+msgid "New"
 msgstr ""
 
-#: src/menus.rs:14
-msgid "_Quit"
+#: src/window_content.rs:228
+msgid "Objects"
 msgstr ""
 
-#: data/ui/shortcuts-dialog.ui:6
-msgid "General"
+#: src/window_content.rs:234
+msgid "Workspace"
 msgstr ""
 
-#: data/ui/shortcuts-dialog.ui:9
-msgid "Keyboard Shortcuts"
-msgstr ""
-
-#: data/ui/shortcuts-dialog.ui:26
-msgid "New Connection"
-msgstr ""
-
-#: data/ui/shortcuts-dialog.ui:49
-msgid "Focus SQL Editor"
-msgstr ""
-
-#: src/window_content.rs:422
-msgid "Query"
-msgstr ""
-
-#: src/window_content.rs:308
+#: src/window_content.rs:550
 msgid "Hide Objects"
 msgstr ""
 
-#: src/window_content.rs:309
+#: src/window_content.rs:551
 msgid "Show Objects"
 msgstr ""
 
-#: src/window_content.rs:343 src/ui/components/sidebar.rs:86
-#: src/ui/components/sidebar.rs:247 src/ui/components/sidebar.rs:261
+#: src/window_content.rs:605 src/ui/components/sidebar.rs:141
+#: src/ui/components/sidebar.rs:396 src/ui/components/sidebar.rs:410
 msgid "No connection"
 msgstr ""
 
-#: src/window_content.rs:385
+#: src/window_content.rs:675
 msgid "Connected to PostgreSQL."
 msgstr ""
 
-#: src/window_content.rs:390
+#: src/window_content.rs:680
 msgid "Connected, but saving the connection failed"
 msgstr ""
 
-#: src/window_content.rs:431
+#: src/window_content.rs:741
 msgid "Schema load failed"
 msgstr ""
 
-#: src/window_content.rs:464 src/ui/components/results.rs:210
+#: src/window_content.rs:790 src/ui/components/results.rs:212
 msgid "Query failed"
 msgstr ""
 
-#: src/window_content.rs:514
+#: src/window_content.rs:854
 msgid "A query is already running."
 msgstr ""
 
-#: src/window_content.rs:520
+#: src/window_content.rs:860
 msgid "Connect to PostgreSQL before running a query."
 msgstr ""
 
-#: src/window_content.rs:528
+#: src/window_content.rs:868
 msgid "Enter SQL before running a query."
 msgstr ""
 
-#: src/window_content.rs:640
-msgid "Saving query history failed"
-msgstr ""
-
-#: src/window_content.rs:658
-msgid "Clearing query history failed"
-msgstr ""
-
-#: src/models/connection.rs:67
+#: src/models/connection.rs:76
 msgid "Connection name is required."
 msgstr ""
 
-#: src/models/connection.rs:71
+#: src/models/connection.rs:80
 msgid "Host is required."
 msgstr ""
 
-#: src/models/connection.rs:76
+#: src/models/connection.rs:85
 msgid "Port must be a number between 1 and 65535."
 msgstr ""
 
-#: src/models/connection.rs:79
-msgid "Database is required."
+#: src/models/connection.rs:88
+msgid "Default database is required."
 msgstr ""
 
-#: src/models/connection.rs:83
+#: src/models/connection.rs:92
 msgid "Username is required."
 msgstr ""
 
@@ -170,7 +125,7 @@ msgid "Port"
 msgstr ""
 
 #: src/ui/components/connection_dialog.rs:122
-msgid "Database"
+msgid "Default Database"
 msgstr ""
 
 #: src/ui/components/connection_dialog.rs:132
@@ -189,16 +144,29 @@ msgstr ""
 msgid "Connect"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:268
+#: src/ui/components/connection_dialog.rs:267
 msgid "Connection test succeeded."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:276
+#: src/ui/components/connection_dialog.rs:272
 msgid "Connection test failed"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:295
+#: src/ui/components/connection_dialog.rs:286
 msgid "Connection failed"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:348
+msgid "PostgreSQL returned the following error:"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:353
+#: src/ui/components/table_browser.rs:876
+msgid "Close"
+msgstr ""
+
+#: src/ui/components/cell_dialog.rs:29 src/ui/components/cell_dialog.rs:41
+msgid "Cell value"
 msgstr ""
 
 #: src/ui/components/start_screen.rs:45
@@ -209,199 +177,464 @@ msgstr ""
 msgid "Add a PostgreSQL connection to get started"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:50 src/ui/components/start_screen.rs:82
+#: src/ui/components/start_screen.rs:50 src/ui/components/start_screen.rs:84
 msgid "Add Connection..."
 msgstr ""
 
-#: src/ui/components/start_screen.rs:74
+#: src/ui/components/start_screen.rs:76
 msgid "Connections"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:158
+#: src/ui/components/start_screen.rs:160
 msgid "Renaming the connection failed"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:173
+#: src/ui/components/start_screen.rs:175
 msgid "Removing the connection failed"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:214
-msgid "Rename connection"
+#: src/ui/components/start_screen.rs:205
+msgid "Default database"
 msgstr ""
 
 #: src/ui/components/start_screen.rs:220
+msgid "Rename connection"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:226
 msgid "Remove connection"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:275
+#: src/ui/components/start_screen.rs:281
 msgid "Rename Connection"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:276
+#: src/ui/components/start_screen.rs:282
 msgid "Choose a new name for this connection."
 msgstr ""
 
-#: src/ui/components/start_screen.rs:280 src/ui/components/start_screen.rs:316
-#: src/ui/components/editor.rs:102
+#: src/ui/components/start_screen.rs:286 src/ui/components/start_screen.rs:322
+#: src/ui/components/editor.rs:242
 msgid "Cancel"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:281
+#: src/ui/components/start_screen.rs:287
 msgid "Rename"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:308
+#: src/ui/components/start_screen.rs:314
 msgid "Remove Connection"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:311
+#: src/ui/components/start_screen.rs:317
 msgid "Remove the saved connection"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:317
+#: src/ui/components/start_screen.rs:323
 msgid "Remove"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:105
+#: src/ui/components/sidebar.rs:86
+msgid "Search objects"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:110
+msgid "No objects match your search."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:163
 msgid "Loading schema..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:114 src/ui/components/sidebar.rs:249
-#: src/ui/components/sidebar.rs:263
+#: src/ui/components/sidebar.rs:174 src/ui/components/sidebar.rs:398
+#: src/ui/components/sidebar.rs:412
 msgid "No tables or views found"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:187
+#: src/ui/components/sidebar.rs:326
 msgid "object"
 msgid_plural "objects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/ui/components/sidebar.rs:234
+#: src/ui/components/sidebar.rs:383
 msgid "Loading schema"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:236
+#: src/ui/components/sidebar.rs:385
 msgid "No objects available"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:245
+#: src/ui/components/sidebar.rs:394
 msgid "Fetching tables and views for the current connection."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:248
+#: src/ui/components/sidebar.rs:397
 msgid "Connect to PostgreSQL to browse database objects."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:251
+#: src/ui/components/sidebar.rs:400
 msgid "The selected database does not currently expose tables or views."
 msgstr ""
 
-#: src/ui/components/editor.rs:98 src/ui/components/editor.rs:121
+#: src/ui/components/sidebar.rs:516
+msgid "Rename..."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:521
+msgid "Truncate..."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:524
+msgid "Delete..."
+msgstr ""
+
+#: src/ui/components/editor.rs:104
 msgid "Query History"
 msgstr ""
 
-#: src/ui/components/editor.rs:102
+#: src/ui/components/editor.rs:108
 msgid "History"
 msgstr ""
 
-#: src/ui/components/editor.rs:128
+#: src/ui/components/editor.rs:188
+#: src/ui/components/table_browser/filters.rs:417
 msgid "Clear"
 msgstr ""
 
-#: src/ui/components/editor.rs:205
-msgid "Insert"
+#: src/ui/components/editor.rs:201
+#: src/ui/components/table_browser/filters.rs:421
+msgid "Apply"
 msgstr ""
 
-#: src/ui/components/editor.rs:270
+#: src/ui/components/editor.rs:217
+msgid "Selection will be executed"
+msgstr ""
+
+#: src/ui/components/editor.rs:227
+msgid "Execute selection or statement"
+msgstr ""
+
+#: src/ui/components/editor.rs:231
+msgid "Execute"
+msgstr ""
+
+#: src/ui/components/editor.rs:372
 msgid "No query history yet."
 msgstr ""
 
-#: src/ui/components/editor.rs:327
+#: src/ui/components/editor.rs:477
 msgid "Unknown time"
 msgstr ""
 
-#: src/ui/components/editor.rs:152 src/ui/components/editor.rs:156
-msgid "Execute Statement"
-msgstr ""
-
-#: src/ui/components/results.rs:120 src/ui/components/results.rs:149
+#: src/ui/components/results.rs:122 src/ui/components/results.rs:151
 msgid "Run a query to see results"
 msgstr ""
 
-#: src/ui/components/results.rs:124 src/ui/components/results.rs:151
+#: src/ui/components/results.rs:126 src/ui/components/results.rs:153
 msgid "Run a query"
 msgstr ""
 
-#: src/ui/components/results.rs:125 src/ui/components/results.rs:153
+#: src/ui/components/results.rs:127 src/ui/components/results.rs:155
 msgid "Results will appear here after execution."
 msgstr ""
 
-#: src/ui/components/results.rs:159
+#: src/ui/components/results.rs:161
 msgid "Running query..."
 msgstr ""
 
-#: src/ui/components/results.rs:161
+#: src/ui/components/results.rs:163
 msgid "Running query"
 msgstr ""
 
-#: src/ui/components/results.rs:163
+#: src/ui/components/results.rs:165
 msgid "Waiting for PostgreSQL to return results."
 msgstr ""
 
-#: src/ui/components/results.rs:171
+#: src/ui/components/results.rs:173
 msgid "Query cancelled"
 msgstr ""
 
-#: src/ui/components/results.rs:172
+#: src/ui/components/results.rs:174
 msgid "The query was cancelled."
 msgstr ""
 
-#: src/ui/components/results.rs:179
+#: src/ui/components/results.rs:181
 msgid "Query returned no rows."
 msgstr ""
 
-#: src/ui/components/results.rs:185
+#: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:729
 msgid "row"
 msgid_plural "rows"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/ui/components/results.rs:200
+#: src/ui/components/results.rs:202
 msgid "row affected"
 msgid_plural "rows affected"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/ui/components/results.rs:202
+#: src/ui/components/results.rs:204
 msgid "The statement completed successfully."
 msgstr ""
 
-#: src/ui/components/results.rs:391 src/ui/components/results.rs:403
-msgid "Cell value"
+#: src/ui/components/table_browser.rs:149
+msgid "Show or edit filters"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:158
+msgid "Refresh"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:218
+msgid "Previous page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:249
+msgid "Next page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:259
+msgid "Rows"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:264
+msgid "Rows per page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:309
+msgid "Select a table"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:311
+msgid "Choose a table or view from the sidebar to browse its rows."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:436
+msgid "Loading table failed"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:473
+msgid "Saving cell failed"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:540
+msgid "Loading rows"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:541
+msgid "Fetching the selected page from PostgreSQL."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:563
+msgid "Loading cancelled"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:648
+msgid "Filter cannot be applied"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:688
+msgid "Table Browser"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:697
+msgid "Table"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:698
+msgid "View"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:706
+#: src/ui/components/table_browser.rs:708
+msgid "Filters"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:714
+msgid "Loading..."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:722
+msgid "No rows"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:780
+msgid "Cell cannot be edited"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:887
+msgid "Only tables can be edited."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:891
+msgid "The selected cell is no longer available."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:895
+msgid "Primary key columns are read-only for now."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:899
+msgid "This column type is not editable yet."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:903
+msgid "Editing requires a primary key."
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:52
+msgid "Load the table before adding filters."
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:57
+msgid "This table has no filterable columns."
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:64
+msgid "No filters applied."
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:86
+msgid "Missing custom SQL filter"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:100
+msgid "Missing value for filter"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:239
+msgid "Remove filter"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:314
+msgid "Value"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:342
+msgid "SQL expression"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:414
+msgid "Add Filter"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:580
+msgid "Custom SQL"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.desktop.in:3
+#: data/io.github.anil_e.Codd.metainfo.xml.in:7
+msgid "Codd"
 msgstr ""
 
 #: data/io.github.anil_e.Codd.desktop.in:4
-#: data/io.github.anil_e.Codd.metainfo.xml.in:7
-msgid "Lightweight native PostgreSQL query app"
+#: data/io.github.anil_e.Codd.metainfo.xml.in:8
+msgid "Lightweight PostgreSQL client"
 msgstr ""
 
 #: data/io.github.anil_e.Codd.desktop.in:10
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:9
+#: data/io.github.anil_e.Codd.metainfo.xml.in:10
 msgid ""
 "Codd is a lightweight PostgreSQL query app for GNOME built with Rust, GTK4, "
 "and libadwaita."
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:13
+#: data/io.github.anil_e.Codd.metainfo.xml.in:14
 msgid ""
-"It focuses on saved connections, schema browsing, SQL execution, and native "
-"result previews without trying to become a multi-database suite."
+"It focuses on saved connections, database browsing, SQL execution, and "
+"native result previews without trying to become a multi-database suite."
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:22
-msgid "Anil E"
+#: data/io.github.anil_e.Codd.metainfo.xml.in:24
+msgid "Anil Erdogan"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:32
+msgid "Browse PostgreSQL table data with pagination and filters"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:36
+msgid "Run SQL queries with syntax highlighting and result previews"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:40
+msgid "Edit table cell values directly from the table browser"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:44
+msgid "Reuse queries from the local query history"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:48
+msgid "Manage saved PostgreSQL connections"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:6
+msgctxt "shortcut window"
+msgid "General"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:9
+msgctxt "shortcut window"
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:15
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:23
+msgctxt "shortcut window"
+msgid "Connections"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:26
+msgctxt "shortcut window"
+msgid "New Connection"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:34
+msgctxt "shortcut window"
+msgid "Navigation"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:37
+msgctxt "shortcut window"
+msgid "Search Database Objects"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:45
+msgctxt "shortcut window"
+msgid "Table Browser"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:48
+msgctxt "shortcut window"
+msgid "Refresh Table or View"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:56
+msgctxt "shortcut window"
+msgid "Query"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:59
+msgctxt "shortcut window"
+msgid "New Query Tab"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:65
+msgctxt "shortcut window"
+msgid "Execute"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:71
+msgctxt "shortcut window"
+msgid "Focus SQL Editor"
 msgstr ""
