@@ -8,7 +8,6 @@ use std::fmt::Write;
 
 pub async fn execute(pool: &PgPool, sql: &str) -> Result<QueryExecutionResult, sqlx::Error> {
     let mut stream = raw_sql(sql).fetch_many(pool);
-    let mut affected_rows = 0;
     let mut current_rows = Vec::new();
     let mut last_result = None;
 
@@ -20,7 +19,6 @@ pub async fn execute(pool: &PgPool, sql: &str) -> Result<QueryExecutionResult, s
                     current_rows.clear();
                 } else {
                     let rows = result.rows_affected();
-                    affected_rows += rows;
                     last_result = Some(QueryExecutionResult::AffectedRows(rows));
                 }
             }
@@ -43,7 +41,7 @@ pub async fn execute(pool: &PgPool, sql: &str) -> Result<QueryExecutionResult, s
     } else if expects_rows_when_empty(sql) {
         Ok(QueryExecutionResult::Rows(QueryResult::default()))
     } else {
-        Ok(QueryExecutionResult::AffectedRows(affected_rows))
+        Ok(QueryExecutionResult::AffectedRows(0))
     }
 }
 
@@ -55,6 +53,9 @@ fn last_sql_statement(sql: &str) -> &str {
 
     while index < bytes.len() {
         match bytes[index] {
+            b'\'' if is_escape_string_quote(sql, index) => {
+                index = skip_escape_quoted_string(bytes, index + 1);
+            }
             b'\'' => index = skip_single_quoted_string(bytes, index + 1),
             b'"' => index = skip_double_quoted_identifier(bytes, index + 1),
             b'-' if bytes.get(index + 1) == Some(&b'-') => {
@@ -62,6 +63,9 @@ fn last_sql_statement(sql: &str) -> &str {
             }
             b'/' if bytes.get(index + 1) == Some(&b'*') => {
                 index = skip_block_comment(bytes, index + 2);
+            }
+            b'$' if let Some(end) = skip_dollar_quoted_string(sql, index) => {
+                index = end;
             }
             b';' => {
                 let statement = sql[statement_start..index].trim();
@@ -123,6 +127,9 @@ fn contains_keyword_outside_literals(sql: &str, keyword: &str) -> bool {
 
     while index < bytes.len() {
         match bytes[index] {
+            b'\'' if is_escape_string_quote(sql, index) => {
+                index = skip_escape_quoted_string(bytes, index + 1);
+            }
             b'\'' => index = skip_single_quoted_string(bytes, index + 1),
             b'"' => index = skip_double_quoted_identifier(bytes, index + 1),
             b'-' if bytes.get(index + 1) == Some(&b'-') => {
@@ -130,6 +137,9 @@ fn contains_keyword_outside_literals(sql: &str, keyword: &str) -> bool {
             }
             b'/' if bytes.get(index + 1) == Some(&b'*') => {
                 index = skip_block_comment(bytes, index + 2);
+            }
+            b'$' if let Some(end) = skip_dollar_quoted_string(sql, index) => {
+                index = end;
             }
             byte if is_identifier_start(byte) => {
                 let start = index;
@@ -163,6 +173,25 @@ fn skip_single_quoted_string(bytes: &[u8], mut index: usize) -> usize {
             }
         } else {
             index += 1;
+        }
+    }
+
+    index
+}
+
+fn skip_escape_quoted_string(bytes: &[u8], mut index: usize) -> usize {
+    while index < bytes.len() {
+        match bytes[index] {
+            b'\\' => index = (index + 2).min(bytes.len()),
+            b'\'' => {
+                index += 1;
+                if bytes.get(index) == Some(&b'\'') {
+                    index += 1;
+                } else {
+                    return index;
+                }
+            }
+            _ => index += 1,
         }
     }
 
@@ -204,6 +233,39 @@ fn skip_block_comment(bytes: &[u8], mut index: usize) -> usize {
     }
 
     bytes.len()
+}
+
+fn skip_dollar_quoted_string(sql: &str, start: usize) -> Option<usize> {
+    let bytes = sql.as_bytes();
+    let tag_end = bytes
+        .get(start + 1..)?
+        .iter()
+        .position(|byte| *byte == b'$')?
+        + start
+        + 1;
+
+    if !bytes[start + 1..tag_end]
+        .iter()
+        .all(|byte| byte.is_ascii_alphanumeric() || *byte == b'_')
+    {
+        return None;
+    }
+
+    let delimiter = &sql[start..=tag_end];
+    let content_start = tag_end + 1;
+    let relative_end = sql[content_start..].find(delimiter)?;
+
+    Some(content_start + relative_end + delimiter.len())
+}
+
+fn is_escape_string_quote(sql: &str, quote_index: usize) -> bool {
+    let bytes = sql.as_bytes();
+
+    if quote_index == 0 || !matches!(bytes.get(quote_index - 1), Some(b'e' | b'E')) {
+        return false;
+    }
+
+    quote_index < 2 || !is_identifier_continue(bytes[quote_index - 2])
 }
 
 fn is_identifier_start(byte: u8) -> bool {
@@ -412,6 +474,18 @@ mod tests {
             "returning"
         ));
         assert!(!contains_keyword_outside_literals(
+            "$$ returning $$",
+            "returning"
+        ));
+        assert!(!contains_keyword_outside_literals(
+            "$body$ returning $body$",
+            "returning"
+        ));
+        assert!(!contains_keyword_outside_literals(
+            r"E'returning \\'",
+            "returning"
+        ));
+        assert!(!contains_keyword_outside_literals(
             "returning_value",
             "returning"
         ));
@@ -439,6 +513,15 @@ mod tests {
             last_sql_statement("select ';'; update users set name = 'a'"),
             "update users set name = 'a'"
         );
+        assert_eq!(
+            last_sql_statement("select $$;$$; update users set name = 'a'"),
+            "update users set name = 'a'"
+        );
+        assert_eq!(
+            last_sql_statement("select $body$;$body$; select 2"),
+            "select 2"
+        );
+        assert_eq!(last_sql_statement(r"select E'a\';'; select 2"), "select 2");
         assert_eq!(last_sql_statement("select 1; -- tail comment"), "select 1");
     }
 
