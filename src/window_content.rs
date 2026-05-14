@@ -464,6 +464,10 @@ impl Component for WindowContent {
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::OpenObject(object)) => {
                 self.open_table_browser(object, widgets);
             }
+            WindowContentMsg::SidebarOutput(ObjectSidebarOutput::CopyText { text, message }) => {
+                copy_text_to_clipboard(&text);
+                widgets.toast_overlay.add_toast(adw::Toast::new(&message));
+            }
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::ObjectAction {
                 object,
                 action,
@@ -534,6 +538,12 @@ fn icon_label_widget(icon_name: &str, label: &str) -> gtk::Box {
     let label = gtk::Label::new(Some(label));
     container.append(&label);
     container
+}
+
+fn copy_text_to_clipboard(text: &str) {
+    if let Some(display) = gtk::gdk::Display::default() {
+        display.clipboard().set_text(text);
+    }
 }
 
 impl WorkspaceNavigation {

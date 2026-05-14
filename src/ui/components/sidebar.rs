@@ -37,6 +37,10 @@ pub enum ObjectAction {
 #[derive(Debug)]
 pub enum ObjectSidebarOutput {
     OpenObject(DatabaseObject),
+    CopyText {
+        text: String,
+        message: String,
+    },
     ObjectAction {
         object: DatabaseObject,
         action: ObjectAction,
@@ -485,6 +489,34 @@ fn object_action_group(
     sender: ComponentSender<ObjectSidebar>,
 ) -> gtk::gio::SimpleActionGroup {
     let action_group = gtk::gio::SimpleActionGroup::new();
+    let copy_actions = [
+        (
+            "copy-name",
+            object.name.clone(),
+            object_copy_message(&object.kind, false),
+        ),
+        (
+            "copy-qualified-name",
+            object.qualified_name(),
+            object_copy_message(&object.kind, true),
+        ),
+    ];
+
+    for (name, text, message) in copy_actions {
+        let simple_action = gtk::gio::SimpleAction::new(name, None);
+        let sender = sender.clone();
+
+        simple_action.connect_activate(move |_, _| {
+            sender
+                .output(ObjectSidebarOutput::CopyText {
+                    text: text.clone(),
+                    message: message.clone(),
+                })
+                .ok();
+        });
+
+        action_group.add_action(&simple_action);
+    }
 
     for (name, action) in [
         ("rename", ObjectAction::Rename),
@@ -512,6 +544,19 @@ fn object_action_group(
 
 fn object_menu(kind: &DatabaseObjectKind) -> gtk::gio::Menu {
     let menu = gtk::gio::Menu::new();
+    let copy_section = gtk::gio::Menu::new();
+
+    copy_section.append(
+        Some(&object_copy_label(kind, false)),
+        Some("object.copy-name"),
+    );
+    copy_section.append(
+        Some(&object_copy_label(kind, true)),
+        Some("object.copy-qualified-name"),
+    );
+
+    menu.append_section(None, &copy_section);
+
     let edit_section = gtk::gio::Menu::new();
     edit_section.append(Some(&gettext("Rename...")), Some("object.rename"));
     menu.append_section(None, &edit_section);
@@ -525,6 +570,24 @@ fn object_menu(kind: &DatabaseObjectKind) -> gtk::gio::Menu {
     menu.append_section(None, &destructive_section);
 
     menu
+}
+
+fn object_copy_label(kind: &DatabaseObjectKind, qualified: bool) -> String {
+    match (kind, qualified) {
+        (DatabaseObjectKind::Table, false) => gettext("Copy Table Name"),
+        (DatabaseObjectKind::Table, true) => gettext("Copy Qualified Table Name"),
+        (DatabaseObjectKind::View, false) => gettext("Copy View Name"),
+        (DatabaseObjectKind::View, true) => gettext("Copy Qualified View Name"),
+    }
+}
+
+fn object_copy_message(kind: &DatabaseObjectKind, qualified: bool) -> String {
+    match (kind, qualified) {
+        (DatabaseObjectKind::Table, false) => gettext("Table name copied."),
+        (DatabaseObjectKind::Table, true) => gettext("Qualified table name copied."),
+        (DatabaseObjectKind::View, false) => gettext("View name copied."),
+        (DatabaseObjectKind::View, true) => gettext("Qualified view name copied."),
+    }
 }
 
 fn clear_list(list: &gtk::ListBox) {
