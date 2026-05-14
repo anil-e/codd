@@ -39,6 +39,7 @@ pub struct TableBrowser {
     page_generation: u64,
     request_id: u64,
     active_request_id: Option<u64>,
+    active_last_page_request_id: Option<u64>,
     active_abort_handle: Option<AbortHandle>,
     table_rows: gio::ListStore,
     table_view: gtk::ColumnView,
@@ -57,8 +58,10 @@ pub enum TableBrowserMsg {
     },
     ObjectRenamed(DatabaseObject),
     Refresh,
+    FirstPage,
     PreviousPage,
     NextPage,
+    LastPage,
     PageSizeChanged(u32),
     ToggleFilters,
     FilterEvent(FilterEvent),
@@ -66,6 +69,10 @@ pub enum TableBrowserMsg {
     PageLoaded {
         id: u64,
         result: Result<TablePage, String>,
+    },
+    LastPageOffsetLoaded {
+        id: u64,
+        result: Result<u32, String>,
     },
     EditCellRequested {
         anchor: gtk::Label,
@@ -92,6 +99,10 @@ pub enum TableBrowserCommandOutput {
     PageLoaded {
         id: u64,
         result: Result<TablePage, String>,
+    },
+    LastPageOffsetLoaded {
+        id: u64,
+        result: Result<u32, String>,
     },
     CellUpdated {
         page_generation: u64,
@@ -217,6 +228,15 @@ impl Component for TableBrowser {
                 set_visible: model.object.is_some(),
 
                 gtk::Button {
+                    set_icon_name: "go-first-symbolic",
+                    set_tooltip_text: Some(&gettext("First page")),
+                    add_css_class: "flat",
+                    #[watch]
+                    set_sensitive: model.can_go_previous(),
+                    connect_clicked => TableBrowserMsg::FirstPage,
+                },
+
+                gtk::Button {
                     set_icon_name: "go-previous-symbolic",
                     set_tooltip_text: Some(&gettext("Previous page")),
                     add_css_class: "flat",
@@ -254,6 +274,15 @@ impl Component for TableBrowser {
                     #[watch]
                     set_sensitive: model.can_go_next(),
                     connect_clicked => TableBrowserMsg::NextPage,
+                },
+
+                gtk::Button {
+                    set_icon_name: "go-last-symbolic",
+                    set_tooltip_text: Some(&gettext("Last page")),
+                    add_css_class: "flat",
+                    #[watch]
+                    set_sensitive: model.can_go_next(),
+                    connect_clicked => TableBrowserMsg::LastPage,
                 },
 
                 gtk::Label {
@@ -323,6 +352,7 @@ impl Component for TableBrowser {
             page_generation: 0,
             request_id: 0,
             active_request_id: None,
+            active_last_page_request_id: None,
             active_abort_handle: None,
             table_rows,
             table_view,
@@ -379,6 +409,13 @@ impl Component for TableBrowser {
                 self.load_page(widgets, &sender);
             }
 
+            TableBrowserMsg::FirstPage => {
+                if self.can_go_previous() {
+                    self.offset = 0;
+                    self.load_page(widgets, &sender);
+                }
+            }
+
             TableBrowserMsg::PreviousPage => {
                 self.offset = self.offset.saturating_sub(self.page_size);
                 self.load_page(widgets, &sender);
@@ -388,6 +425,12 @@ impl Component for TableBrowser {
                 if self.can_go_next() {
                     self.offset = self.offset.saturating_add(self.page_size);
                     self.load_page(widgets, &sender);
+                }
+            }
+
+            TableBrowserMsg::LastPage => {
+                if self.can_go_next() {
+                    self.load_last_page_offset(&sender);
                 }
             }
 
@@ -472,6 +515,27 @@ impl Component for TableBrowser {
                 set_stack_child(widgets, self.page.is_some());
             }
 
+            TableBrowserMsg::LastPageOffsetLoaded { id, result } => {
+                if self.active_last_page_request_id != Some(id) {
+                    return;
+                }
+
+                self.active_last_page_request_id = None;
+                self.active_abort_handle = None;
+                self.is_loading = false;
+
+                match result {
+                    Ok(offset) => {
+                        self.offset = offset;
+                        self.load_page(widgets, &sender);
+                    }
+
+                    Err(error) => {
+                        self.show_warning(root, &gettext("Loading last page failed"), &error);
+                    }
+                }
+            }
+
             TableBrowserMsg::EditCellRequested {
                 anchor,
                 row_index,
@@ -524,6 +588,9 @@ impl Component for TableBrowser {
             TableBrowserCommandOutput::PageLoaded { id, result } => {
                 TableBrowserMsg::PageLoaded { id, result }
             }
+            TableBrowserCommandOutput::LastPageOffsetLoaded { id, result } => {
+                TableBrowserMsg::LastPageOffsetLoaded { id, result }
+            }
             TableBrowserCommandOutput::CellUpdated {
                 page_generation,
                 row_index,
@@ -563,6 +630,7 @@ impl TableBrowser {
 
         close_popover(&mut self.edit_popover);
 
+        self.active_last_page_request_id = None;
         self.is_loading = true;
         self.is_error = false;
         self.status_title = gettext("Loading rows");
@@ -600,6 +668,42 @@ impl TableBrowser {
             };
 
             TableBrowserCommandOutput::PageLoaded { id, result }
+        });
+    }
+
+    fn load_last_page_offset(&mut self, sender: &ComponentSender<Self>) {
+        let (Some(pool), Some(object)) = (self.pool.clone(), self.object.clone()) else {
+            return;
+        };
+
+        close_popover(&mut self.edit_popover);
+
+        if let Some(abort_handle) = self.active_abort_handle.take() {
+            abort_handle.abort();
+        }
+
+        self.is_loading = true;
+        let id = self.allocate_request_id();
+        let page_size = self.page_size;
+        let filters = self.active_filters.clone();
+        self.active_last_page_request_id = Some(id);
+        let (abort_handle, abort_registration) = AbortHandle::new_pair();
+        self.active_abort_handle = Some(abort_handle);
+
+        sender.oneshot_command(async move {
+            let count = async move {
+                db::browser::load_table_row_count(&pool, &object, &filters)
+                    .await
+                    .map(|row_count| last_page_offset(row_count, page_size))
+                    .map_err(|error| error.to_string())
+            };
+
+            let result = match Abortable::new(count, abort_registration).await {
+                Ok(result) => result,
+                Err(_) => Err(gettext("Loading cancelled")),
+            };
+
+            TableBrowserCommandOutput::LastPageOffsetLoaded { id, result }
         });
     }
 
@@ -1005,6 +1109,18 @@ fn set_stack_child(widgets: &TableBrowserWidgets, has_page: bool) {
         .set_visible_child_name(if has_page { "grid" } else { "status" });
 }
 
+fn last_page_offset(row_count: i64, page_size: u32) -> u32 {
+    if row_count <= 0 || page_size == 0 {
+        return 0;
+    }
+
+    let row_count = row_count as u64;
+    let page_size = u64::from(page_size);
+    let offset = ((row_count - 1) / page_size) * page_size;
+
+    u32::try_from(offset).unwrap_or(u32::MAX)
+}
+
 fn sort_from_sorter(sorter: &gtk::Sorter) -> Option<TableSort> {
     let column = sorter.property::<Option<gtk::ColumnViewColumn>>("primary-sort-column")?;
     let column_name = column.title()?.to_string();
@@ -1062,4 +1178,23 @@ fn page_size_model() -> gtk::StringList {
     let borrowed = labels.iter().map(String::as_str).collect::<Vec<_>>();
 
     gtk::StringList::new(&borrowed)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::last_page_offset;
+
+    #[test]
+    fn last_page_offset_handles_empty_pages() {
+        assert_eq!(last_page_offset(0, 100), 0);
+        assert_eq!(last_page_offset(-1, 100), 0);
+    }
+
+    #[test]
+    fn last_page_offset_points_to_first_row_of_last_page() {
+        assert_eq!(last_page_offset(1, 100), 0);
+        assert_eq!(last_page_offset(100, 100), 0);
+        assert_eq!(last_page_offset(101, 100), 100);
+        assert_eq!(last_page_offset(250, 100), 200);
+    }
 }

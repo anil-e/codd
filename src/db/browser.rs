@@ -31,6 +31,23 @@ pub async fn load_table_page(
     })
 }
 
+pub async fn load_table_row_count(
+    pool: &PgPool,
+    object: &DatabaseObject,
+    filters: &[TableFilter],
+) -> Result<i64, sqlx::Error> {
+    let columns = load_table_columns(pool, object).await?;
+    let query = table_count_sql_with_filters(object, &columns, filters)
+        .map_err(|error| sqlx::Error::Protocol(error.to_string()))?;
+    let mut sqlx_query = sqlx::query_scalar::<_, i64>(&query.sql);
+
+    for value in query.filter_values {
+        sqlx_query = sqlx_query.bind(value);
+    }
+
+    sqlx_query.fetch_one(pool).await
+}
+
 pub async fn load_table_columns(
     pool: &PgPool,
     object: &DatabaseObject,
@@ -217,7 +234,7 @@ impl std::fmt::Display for TableFilterError {
     }
 }
 
-struct TablePageSql {
+struct TableBrowserSql {
     sql: String,
     filter_values: Vec<String>,
 }
@@ -394,15 +411,32 @@ fn table_page_sql_with_filters(
     page_size: u32,
     filters: &[TableFilter],
     sort: Option<&TableSort>,
-) -> Result<TablePageSql, TableFilterError> {
+) -> Result<TableBrowserSql, TableFilterError> {
     let fetch_limit = page_size.saturating_add(1);
     let select_columns = select_columns_clause(columns);
     let where_clause = where_clause(columns, filters)?;
     let order_by = order_by_clause(object, columns, sort);
 
-    Ok(TablePageSql {
+    Ok(TableBrowserSql {
         sql: format!(
             "SELECT {select_columns} FROM {}{}{order_by} LIMIT {fetch_limit} OFFSET {offset}",
+            object.qualified_name(),
+            where_clause.sql,
+        ),
+        filter_values: where_clause.values,
+    })
+}
+
+fn table_count_sql_with_filters(
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    filters: &[TableFilter],
+) -> Result<TableBrowserSql, TableFilterError> {
+    let where_clause = where_clause(columns, filters)?;
+
+    Ok(TableBrowserSql {
+        sql: format!(
+            "SELECT COUNT(*) FROM {}{}",
             object.qualified_name(),
             where_clause.sql,
         ),
@@ -572,8 +606,8 @@ fn order_by_clause(
 #[cfg(test)]
 mod tests {
     use super::{
-        TableCellUpdateError, TableFilterError, order_by_clause, table_page_sql,
-        table_page_sql_with_filters, update_cell_sql, validate_update_input,
+        TableCellUpdateError, TableFilterError, order_by_clause, table_count_sql_with_filters,
+        table_page_sql, table_page_sql_with_filters, update_cell_sql, validate_update_input,
     };
     use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
     use crate::models::table_browser::{
@@ -783,6 +817,29 @@ mod tests {
             "SELECT \"id\", \"name\" FROM \"public\".\"customers\" WHERE (lower(name) LIKE 'a%') ORDER BY \"id\" LIMIT 101 OFFSET 0"
         );
         assert!(query.filter_values.is_empty());
+    }
+
+    #[test]
+    fn count_query_reuses_filters() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "customers".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![column("id", true), column("name", false)];
+        let filter = TableFilter::column(
+            "name".to_string(),
+            FilterOperator::ILike,
+            Some("%Ada%".to_string()),
+        );
+
+        let query = table_count_sql_with_filters(&object, &columns, &[filter]).unwrap();
+
+        assert_eq!(
+            query.sql,
+            "SELECT COUNT(*) FROM \"public\".\"customers\" WHERE \"name\"::text ILIKE $1::text"
+        );
+        assert_eq!(query.filter_values, vec!["%Ada%"]);
     }
 
     #[test]
