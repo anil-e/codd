@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-05-16 16:18+0200\n"
-"PO-Revision-Date: 2026-05-15 23:36-0400\n"
+"PO-Revision-Date: 2026-05-16 11:03-0400\n"
 "Last-Translator: Francisco <fvasquez>\n"
 "Language-Team: es_DO\n"
 "Language: es\n"
@@ -57,7 +57,7 @@ msgstr "Espacio de trabajo"
 
 #: src/window_content.rs:493
 msgid "Updating the saved password failed"
-msgstr ""
+msgstr "Actualización de contraseña guardada fallida"
 
 #: src/window_content.rs:607
 msgid "Hide Objects"
@@ -82,7 +82,7 @@ msgstr "Conectado, pero guardar la conexión falló"
 
 #: src/window_content.rs:818
 msgid "Disabling saved password failed"
-msgstr ""
+msgstr "La desactivación de la contraseña guardada ha fallado"
 
 #: src/window_content.rs:839
 msgid "Schema load failed"
@@ -290,7 +290,7 @@ msgstr "Contraseña"
 
 #: src/ui/components/connection_dialog.rs:195
 msgid "Save Password"
-msgstr ""
+msgstr "Guardar contraseña"
 
 #: src/ui/components/connection_dialog.rs:221
 msgid "Test Connection"
@@ -303,7 +303,7 @@ msgstr "Conectar"
 #: src/ui/components/connection_dialog.rs:358
 #: src/ui/components/connection_dialog.rs:473
 msgid "Reading the saved password failed"
-msgstr ""
+msgstr "La lectura de la contraseña guardada ha fallado"
 
 #: src/ui/components/connection_dialog.rs:364
 msgid "Connection test succeeded."
@@ -319,23 +319,27 @@ msgstr "Conexión fallida"
 
 #: src/ui/components/connection_dialog.rs:405
 msgid "Checking password storage availability."
-msgstr ""
+msgstr "Verificando disponibilidad de depósito de claves."
 
 #: src/ui/components/connection_dialog.rs:406
 msgid "Store this password in GNOME Keyring."
-msgstr ""
+msgstr "Almacene esta contraseña en el depósito de claves de Gnome."
 
 #: src/ui/components/connection_dialog.rs:407
 msgid "Password storage is not available."
-msgstr ""
+msgstr "El depósito de claves no está disponible."
 
 #: src/ui/components/connection_dialog.rs:424
 msgid "Saved in GNOME Keyring. Enter a new password to replace it."
 msgstr ""
+"Almacenada en depósito de claves. Ingrese una nueva contraseña para "
+"reemplazarla"
 
 #: src/ui/components/connection_dialog.rs:427
 msgid "No saved password was found. Enter a password to save it."
 msgstr ""
+"No se encontró una contraseña almacenada. Ingrese una contraseña para "
+"guardarla."
 
 #: src/ui/components/connection_dialog.rs:499
 msgid "PostgreSQL returned the following error:"
@@ -394,7 +398,7 @@ msgstr "Eliminar la conexión ha fallado"
 
 #: src/ui/components/start_screen.rs:207
 msgid "Removing the saved password failed"
-msgstr ""
+msgstr "La eliminación de la contraseña guardada ha fallado"
 
 #: src/ui/components/start_screen.rs:239
 msgid "Default database"
