@@ -1,5 +1,5 @@
 use crate::models::connection::SavedConnection;
-use crate::state::connection_store;
+use crate::state::{connection_store, credential_store};
 use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
@@ -18,7 +18,7 @@ pub enum StartScreenMsg {
     RequestRename(SavedConnection),
     RequestRemove(SavedConnection),
     RenameConfirmed { id: String, name: String },
-    RemoveConfirmed(String),
+    RemoveConfirmed(SavedConnection),
 }
 
 #[derive(Debug)]
@@ -33,7 +33,7 @@ impl Component for StartScreen {
     type Init = Vec<SavedConnection>;
     type Input = StartScreenMsg;
     type Output = StartScreenOutput;
-    type CommandOutput = ();
+    type CommandOutput = StartScreenCommandOutput;
 
     view! {
         adw::ToastOverlay {
@@ -163,23 +163,57 @@ impl Component for StartScreen {
                 }
             }
 
-            StartScreenMsg::RemoveConfirmed(id) => match connection_store::remove_connection(&id) {
-                Ok(connections) => {
-                    self.connections.clone_from(&connections);
-                    self.render(widgets, &sender);
-                    let _ = sender.output(StartScreenOutput::ConnectionsChanged(connections));
+            StartScreenMsg::RemoveConfirmed(connection) => {
+                match connection_store::remove_connection(&connection.id) {
+                    Ok(connections) => {
+                        self.connections.clone_from(&connections);
+                        self.render(widgets, &sender);
+                        let _ = sender.output(StartScreenOutput::ConnectionsChanged(connections));
+
+                        if connection.save_password {
+                            sender.oneshot_command(async move {
+                                StartScreenCommandOutput::PasswordDeleteFinished(
+                                    credential_store::delete_password(&connection.id)
+                                        .await
+                                        .map_err(|error| error.to_string()),
+                                )
+                            });
+                        }
+                    }
+                    Err(error) => {
+                        show_error_toast(
+                            root,
+                            format!("{}: {error}", gettext("Removing the connection failed")),
+                        );
+                    }
                 }
-                Err(error) => {
-                    show_error_toast(
-                        root,
-                        format!("{}: {error}", gettext("Removing the connection failed")),
-                    );
-                }
-            },
+            }
         }
 
         self.update_view(widgets, sender);
     }
+
+    fn update_cmd(
+        &mut self,
+        msg: Self::CommandOutput,
+        _sender: ComponentSender<Self>,
+        root: &Self::Root,
+    ) {
+        match msg {
+            StartScreenCommandOutput::PasswordDeleteFinished(Ok(())) => {}
+            StartScreenCommandOutput::PasswordDeleteFinished(Err(error)) => {
+                show_error_toast(
+                    root,
+                    format!("{}: {error}", gettext("Removing the saved password failed")),
+                );
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum StartScreenCommandOutput {
+    PasswordDeleteFinished(Result<(), String>),
 }
 
 impl StartScreen {
@@ -325,13 +359,13 @@ fn show_remove_dialog(
     dialog.set_response_appearance("remove", adw::ResponseAppearance::Destructive);
 
     let sender = sender.clone();
-    let id = connection.id.clone();
+    let connection = connection.clone();
     dialog.choose(
         root.root().as_ref(),
         None::<&gtk::gio::Cancellable>,
         move |response| {
             if response == "remove" {
-                sender.input(StartScreenMsg::RemoveConfirmed(id));
+                sender.input(StartScreenMsg::RemoveConfirmed(connection));
             }
         },
     );

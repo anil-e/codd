@@ -32,6 +32,17 @@ pub fn rename_connection(connection_id: &str, new_name: &str) -> io::Result<Vec<
     })
 }
 
+pub fn set_save_password(
+    connection_id: &str,
+    save_password: bool,
+) -> io::Result<Vec<SavedConnection>> {
+    update_connections(|connections| {
+        if let Some(existing) = connections.iter_mut().find(|item| item.id == connection_id) {
+            existing.save_password = save_password;
+        }
+    })
+}
+
 pub fn remove_connection(connection_id: &str) -> io::Result<Vec<SavedConnection>> {
     update_connections(|connections| {
         connections.retain(|item| item.id != connection_id);

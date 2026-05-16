@@ -15,7 +15,7 @@ use crate::models::database_object::DatabaseObject;
 use crate::models::query_history::QueryHistoryEntry;
 use crate::models::query_result::QueryExecutionResult;
 use crate::settings;
-use crate::state::{app_state::AppState, connection_store};
+use crate::state::{app_state::AppState, connection_store, credential_store};
 use crate::ui::components::{
     connection_dialog::{ConnectionDialog, ConnectionDialogInit, ConnectionDialogOutput},
     database_selector::{DatabaseSelector, DatabaseSelectorMsg, DatabaseSelectorOutput},
@@ -129,6 +129,8 @@ pub enum WindowContentMsg {
     SidebarOutput(ObjectSidebarOutput),
     ObjectActionConfirmed(ObjectActionRequest),
     ObjectActionCompleted(ObjectActionRequest, Result<(), String>),
+    CredentialWarning(String),
+    DisableSavedPassword(String),
     EditorOutput {
         tab_id: u64,
         output: SqlEditorOutput,
@@ -160,6 +162,11 @@ pub enum WindowContentCommandOutput {
         id: u64,
     },
     ObjectActionFinished(ObjectActionRequest, Result<(), String>),
+    SavedPasswordUpdated {
+        connection_id: String,
+        save_password: bool,
+        result: Result<(), String>,
+    },
 }
 
 #[relm4::component(pub)]
@@ -480,6 +487,15 @@ impl Component for WindowContent {
             WindowContentMsg::ObjectActionCompleted(request, result) => {
                 self.handle_object_action_completed(request, result, widgets, &sender);
             }
+            WindowContentMsg::CredentialWarning(error) => {
+                widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                    "{}: {error}",
+                    gettext("Updating the saved password failed")
+                )));
+            }
+            WindowContentMsg::DisableSavedPassword(connection_id) => {
+                self.disable_saved_password(&connection_id, widgets);
+            }
         }
 
         self.update_view(widgets, sender);
@@ -518,6 +534,19 @@ impl Component for WindowContent {
             WindowContentCommandOutput::ObjectActionFinished(request, result) => {
                 sender.input(WindowContentMsg::ObjectActionCompleted(request, result));
             }
+            WindowContentCommandOutput::SavedPasswordUpdated {
+                connection_id,
+                save_password,
+                result,
+            } => {
+                if let Err(error) = result {
+                    if save_password {
+                        sender.input(WindowContentMsg::DisableSavedPassword(connection_id));
+                    }
+
+                    sender.input(WindowContentMsg::CredentialWarning(error));
+                }
+            }
         }
     }
 }
@@ -544,6 +573,24 @@ fn copy_text_to_clipboard(text: &str) {
     if let Some(display) = gtk::gdk::Display::default() {
         display.clipboard().set_text(text);
     }
+}
+
+async fn update_saved_password(details: ConnectionDetails) -> Result<(), String> {
+    if details.saved.save_password {
+        if details.password.is_empty() {
+            return Ok(());
+        }
+
+        credential_store::store_password(&details.saved, &details.password)
+            .await
+            .map_err(|error| error.to_string())?;
+    } else {
+        credential_store::delete_password(&details.saved.id)
+            .await
+            .map_err(|error| error.to_string())?;
+    }
+
+    Ok(())
 }
 
 impl WorkspaceNavigation {
@@ -660,7 +707,7 @@ impl WindowContent {
         self.database_selector
             .emit(DatabaseSelectorMsg::SetLoading(true));
         self.active_pool = Some(pool.clone());
-        self.active_connection_details = Some(details);
+        self.active_connection_details = Some(details.clone());
         self.connection_dialog = None;
         self.visible_page = VisiblePage::Workspace;
         self.clear_browse_tabs(widgets);
@@ -683,6 +730,14 @@ impl WindowContent {
                 widgets
                     .toast_overlay
                     .add_toast(adw::Toast::new(&gettext("Connected to PostgreSQL.")));
+
+                sender.oneshot_command(async move {
+                    WindowContentCommandOutput::SavedPasswordUpdated {
+                        connection_id: details.saved.id.clone(),
+                        save_password: details.saved.save_password,
+                        result: update_saved_password(details).await,
+                    }
+                });
             }
             Err(error) => {
                 widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
@@ -731,6 +786,39 @@ impl WindowContent {
         split_view.set_collapsed(sidebar_hidden);
         self.workspace_navigation = WorkspaceNavigation::from_split_view(split_view.is_collapsed());
         widgets.content_stack.set_visible_child_name("workspace");
+    }
+
+    fn disable_saved_password(&mut self, connection_id: &str, widgets: &WindowContentWidgets) {
+        match connection_store::set_save_password(connection_id, false) {
+            Ok(connections) => {
+                self.state.connections.clone_from(&connections);
+                self.start_screen
+                    .emit(StartScreenMsg::SetConnections(connections));
+
+                if let Some(connection) = self
+                    .state
+                    .active_connection
+                    .as_mut()
+                    .filter(|connection| connection.id == connection_id)
+                {
+                    connection.save_password = false;
+                }
+
+                if let Some(details) = self
+                    .active_connection_details
+                    .as_mut()
+                    .filter(|details| details.saved.id == connection_id)
+                {
+                    details.saved.save_password = false;
+                }
+            }
+            Err(error) => {
+                widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                    "{}: {error}",
+                    gettext("Disabling saved password failed")
+                )));
+            }
+        }
     }
 
     fn handle_schema_loaded(&mut self, id: u64, result: Result<Vec<DatabaseObject>, String>) {

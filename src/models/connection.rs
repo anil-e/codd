@@ -1,6 +1,5 @@
 use gettextrs::gettext;
 use serde::{Deserialize, Serialize};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SavedConnection {
@@ -10,6 +9,8 @@ pub struct SavedConnection {
     pub port: u16,
     pub database: String,
     pub username: String,
+    #[serde(default)]
+    pub save_password: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -21,6 +22,7 @@ pub struct ConnectionForm {
     pub database: String,
     pub username: String,
     pub password: String,
+    pub save_password: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,6 +50,7 @@ impl Default for ConnectionForm {
             database: "postgres".to_string(),
             username: String::new(),
             password: String::new(),
+            save_password: false,
         }
     }
 }
@@ -62,6 +65,7 @@ impl ConnectionForm {
             database: connection.database.clone(),
             username: connection.username.clone(),
             password: String::new(),
+            save_password: connection.save_password,
         }
     }
 
@@ -100,6 +104,7 @@ impl ConnectionForm {
                 port,
                 database: database.to_string(),
                 username: username.to_string(),
+                save_password: self.save_password,
             },
             password: self.password.clone(),
         })
@@ -107,10 +112,64 @@ impl ConnectionForm {
 }
 
 fn connection_id() -> String {
-    let millis = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|duration| duration.as_millis())
-        .unwrap_or_default();
+    format!("pg-{}", uuid::Uuid::new_v4())
+}
 
-    format!("pg-{millis}")
+#[cfg(test)]
+mod tests {
+    use super::{ConnectionForm, SavedConnection};
+
+    #[test]
+    fn saved_connection_defaults_save_password_for_legacy_json() {
+        let connection: SavedConnection = serde_json::from_str(
+            r#"{
+                "id": "pg-1",
+                "name": "Local",
+                "host": "localhost",
+                "port": 5432,
+                "database": "postgres",
+                "username": "anil"
+            }"#,
+        )
+        .expect("legacy connection json to deserialize");
+
+        assert!(!connection.save_password);
+    }
+
+    #[test]
+    fn connection_form_copies_save_password_from_saved_connection() {
+        let connection = SavedConnection {
+            id: "pg-1".to_string(),
+            name: "Local".to_string(),
+            host: "localhost".to_string(),
+            port: 5432,
+            database: "postgres".to_string(),
+            username: "anil".to_string(),
+            save_password: true,
+        };
+
+        let form = ConnectionForm::from_saved(&connection);
+
+        assert!(form.save_password);
+        assert!(form.password.is_empty());
+    }
+
+    #[test]
+    fn validated_details_preserve_save_password_without_storing_password() {
+        let form = ConnectionForm {
+            id: Some("pg-1".to_string()),
+            name: " Local ".to_string(),
+            host: " localhost ".to_string(),
+            port: "5432".to_string(),
+            database: " postgres ".to_string(),
+            username: " anil ".to_string(),
+            password: "secret".to_string(),
+            save_password: true,
+        };
+
+        let details = form.validate().expect("form to validate");
+
+        assert!(details.saved.save_password);
+        assert_eq!(details.password, "secret");
+    }
 }

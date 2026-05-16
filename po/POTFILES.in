@@ -15,8 +15,11 @@ src/ui/components/editor.rs
 src/ui/components/results.rs
 src/ui/components/table_browser.rs
 src/ui/components/table_browser/cell_editor.rs
+src/ui/components/table_browser/editing.rs
 src/ui/components/table_browser/filters.rs
+src/ui/components/table_browser/grid.rs
 src/ui/components/table_browser/loading.rs
+src/ui/components/table_browser/sorting.rs
 data/io.github.anil_e.Codd.desktop.in
 data/io.github.anil_e.Codd.metainfo.xml.in
 data/ui/shortcuts-dialog.ui

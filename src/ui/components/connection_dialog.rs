@@ -1,5 +1,6 @@
 use crate::db;
 use crate::models::connection::{ConnectionDetails, ConnectionForm, SavedConnection};
+use crate::state::credential_store;
 use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
@@ -16,6 +17,15 @@ pub struct ConnectionDialogInit {
 pub struct ConnectionDialog {
     form: ConnectionForm,
     is_busy: bool,
+    saved_password_state: SavedPasswordState,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SavedPasswordState {
+    Unknown,
+    Available,
+    Missing,
+    Error,
 }
 
 #[derive(Debug)]
@@ -26,6 +36,7 @@ pub enum ConnectionDialogMsg {
     DatabaseChanged(String),
     UsernameChanged(String),
     PasswordChanged(String),
+    SavePasswordChanged(bool),
     TestConnection,
     Connect,
 }
@@ -41,11 +52,9 @@ pub enum ConnectionDialogOutput {
 
 #[derive(Debug)]
 pub enum ConnectionDialogCommandOutput {
+    SavedPasswordChecked(Result<bool, String>),
     TestFinished(Result<(), String>),
-    ConnectFinished {
-        details: ConnectionDetails,
-        result: Result<PgPool, String>,
-    },
+    ConnectFinished(Result<(ConnectionDetails, PgPool), String>),
 }
 
 #[relm4::component(pub)]
@@ -147,6 +156,44 @@ impl Component for ConnectionDialog {
                                     sender.input(ConnectionDialogMsg::PasswordChanged(row.text().to_string()));
                                 },
                             },
+
+                            gtk::Box {
+                                set_orientation: gtk::Orientation::Horizontal,
+                                set_spacing: 6,
+                                set_margin_start: 16,
+                                set_margin_end: 16,
+                                set_margin_top: 6,
+                                set_margin_bottom: 6,
+                                #[watch]
+                                set_visible: model.shows_password_status(),
+
+                                gtk::Image {
+                                    set_icon_name: Some("object-select-symbolic"),
+                                    add_css_class: "success",
+                                },
+
+                                gtk::Label {
+                                    #[watch]
+                                    set_label: &model.password_status_text(),
+                                    set_xalign: 0.0,
+                                    set_wrap: true,
+                                    add_css_class: "caption",
+                                    add_css_class: "dim-label",
+                                },
+                            },
+
+                            adw::SwitchRow {
+                                set_title: &gettext("Save Password"),
+                                #[watch]
+                                set_subtitle: &model.save_password_subtitle(),
+                                #[watch]
+                                set_active: model.form.save_password,
+                                #[watch]
+                                set_sensitive: !model.is_busy,
+                                connect_active_notify[sender] => move |row| {
+                                    sender.input(ConnectionDialogMsg::SavePasswordChanged(row.is_active()));
+                                },
+                            },
                         },
 
                         gtk::Box {
@@ -196,8 +243,22 @@ impl Component for ConnectionDialog {
                 .map(ConnectionForm::from_saved)
                 .unwrap_or_default(),
             is_busy: false,
+            saved_password_state: SavedPasswordState::Unknown,
         };
         let widgets = view_output!();
+
+        if let Some(connection) = init
+            .connection
+            .filter(|connection| connection.save_password)
+        {
+            sender.oneshot_command(async move {
+                ConnectionDialogCommandOutput::SavedPasswordChecked(
+                    credential_store::has_password(&connection.id)
+                        .await
+                        .map_err(|error| error.to_string()),
+                )
+            });
+        }
 
         root.present();
 
@@ -218,6 +279,7 @@ impl Component for ConnectionDialog {
             ConnectionDialogMsg::DatabaseChanged(value) => self.form.database = value,
             ConnectionDialogMsg::UsernameChanged(value) => self.form.username = value,
             ConnectionDialogMsg::PasswordChanged(value) => self.form.password = value,
+            ConnectionDialogMsg::SavePasswordChanged(value) => self.form.save_password = value,
 
             ConnectionDialogMsg::TestConnection => {
                 let Some(details) = self.validated_details(widgets) else {
@@ -226,11 +288,7 @@ impl Component for ConnectionDialog {
 
                 self.is_busy = true;
                 sender.oneshot_command(async move {
-                    ConnectionDialogCommandOutput::TestFinished(
-                        test_connection(details)
-                            .await
-                            .map_err(|error| error.to_string()),
-                    )
+                    ConnectionDialogCommandOutput::TestFinished(test_connection(details).await)
                 });
             }
 
@@ -241,10 +299,7 @@ impl Component for ConnectionDialog {
 
                 self.is_busy = true;
                 sender.oneshot_command(async move {
-                    ConnectionDialogCommandOutput::ConnectFinished {
-                        details: details.clone(),
-                        result: connect(details).await.map_err(|error| error.to_string()),
-                    }
+                    ConnectionDialogCommandOutput::ConnectFinished(connect(details).await)
                 });
             }
         }
@@ -261,6 +316,19 @@ impl Component for ConnectionDialog {
         self.is_busy = false;
 
         match msg {
+            ConnectionDialogCommandOutput::SavedPasswordChecked(Ok(true)) => {
+                self.saved_password_state = SavedPasswordState::Available;
+            }
+
+            ConnectionDialogCommandOutput::SavedPasswordChecked(Ok(false)) => {
+                self.saved_password_state = SavedPasswordState::Missing;
+            }
+
+            ConnectionDialogCommandOutput::SavedPasswordChecked(Err(error)) => {
+                self.saved_password_state = SavedPasswordState::Error;
+                show_error_dialog(root, &gettext("Reading the saved password failed"), &error);
+            }
+
             ConnectionDialogCommandOutput::TestFinished(Ok(())) => {
                 if let Some(toast_overlay) = root.toast_overlay() {
                     toast_overlay
@@ -272,17 +340,12 @@ impl Component for ConnectionDialog {
                 show_error_dialog(root, &gettext("Connection test failed"), &error);
             }
 
-            ConnectionDialogCommandOutput::ConnectFinished {
-                details,
-                result: Ok(pool),
-            } => {
+            ConnectionDialogCommandOutput::ConnectFinished(Ok((details, pool))) => {
                 let _ = sender.output(ConnectionDialogOutput::Connected { details, pool });
                 root.close();
             }
 
-            ConnectionDialogCommandOutput::ConnectFinished {
-                result: Err(error), ..
-            } => {
+            ConnectionDialogCommandOutput::ConnectFinished(Err(error)) => {
                 show_error_dialog(root, &gettext("Connection failed"), &error);
             }
         }
@@ -307,6 +370,32 @@ impl ConnectionDialog {
             }
         }
     }
+
+    fn save_password_subtitle(&self) -> String {
+        gettext("Store this password in GNOME Keyring.")
+    }
+
+    fn shows_password_status(&self) -> bool {
+        self.form.save_password
+            && self.form.password.is_empty()
+            && self.form.id.is_some()
+            && matches!(
+                self.saved_password_state,
+                SavedPasswordState::Available | SavedPasswordState::Missing
+            )
+    }
+
+    fn password_status_text(&self) -> String {
+        match self.saved_password_state {
+            SavedPasswordState::Available => {
+                gettext("Saved in GNOME Keyring. Enter a new password to replace it.")
+            }
+            SavedPasswordState::Missing => {
+                gettext("No saved password was found. Enter a password to save it.")
+            }
+            SavedPasswordState::Unknown | SavedPasswordState::Error => String::new(),
+        }
+    }
 }
 
 trait WindowToastOverlay {
@@ -319,12 +408,37 @@ impl WindowToastOverlay for adw::Window {
     }
 }
 
-async fn test_connection(details: ConnectionDetails) -> Result<(), db::postgres::PostgresError> {
-    db::postgres::test_connection(&details).await
+async fn test_connection(details: ConnectionDetails) -> Result<(), String> {
+    let details = details_with_saved_password(details).await?;
+    db::postgres::test_connection(&details)
+        .await
+        .map_err(|error| error.to_string())
 }
 
-async fn connect(details: ConnectionDetails) -> Result<PgPool, db::postgres::PostgresError> {
-    db::postgres::connect(&details).await
+async fn connect(details: ConnectionDetails) -> Result<(ConnectionDetails, PgPool), String> {
+    let details = details_with_saved_password(details).await?;
+    let pool = db::postgres::connect(&details)
+        .await
+        .map_err(|error| error.to_string())?;
+
+    Ok((details, pool))
+}
+
+async fn details_with_saved_password(
+    mut details: ConnectionDetails,
+) -> Result<ConnectionDetails, String> {
+    if !details.password.is_empty() || !details.saved.save_password {
+        return Ok(details);
+    }
+
+    if let Some(password) = credential_store::load_password(&details.saved.id)
+        .await
+        .map_err(|error| format!("{}: {error}", gettext("Reading the saved password failed")))?
+    {
+        details.password = password;
+    }
+
+    Ok(details)
 }
 
 fn show_error_dialog(parent: &adw::Window, heading: &str, error: &str) {

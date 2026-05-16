@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: codd 0.3.0\n"
+"Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-14 16:23-0400\n"
+"POT-Creation-Date: 2026-05-16 15:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,68 +30,76 @@ msgstr ""
 msgid "_Quit"
 msgstr ""
 
-#: src/window_content.rs:177
+#: src/window_content.rs:184
 msgid "Back to connections"
 msgstr ""
 
-#: src/window_content.rs:196
+#: src/window_content.rs:203
 msgid "Main Menu"
 msgstr ""
 
-#: src/window_content.rs:202
+#: src/window_content.rs:209
 msgid "New Query Tab"
 msgstr ""
 
-#: src/window_content.rs:206
+#: src/window_content.rs:213
 msgid "New"
 msgstr ""
 
-#: src/window_content.rs:228
+#: src/window_content.rs:235
 msgid "Objects"
 msgstr ""
 
-#: src/window_content.rs:234
+#: src/window_content.rs:241
 msgid "Workspace"
 msgstr ""
 
-#: src/window_content.rs:560
+#: src/window_content.rs:493
+msgid "Updating the saved password failed"
+msgstr ""
+
+#: src/window_content.rs:607
 msgid "Hide Objects"
 msgstr ""
 
-#: src/window_content.rs:561
+#: src/window_content.rs:608
 msgid "Show Objects"
 msgstr ""
 
-#: src/window_content.rs:615 src/ui/components/sidebar.rs:145
+#: src/window_content.rs:662 src/ui/components/sidebar.rs:145
 #: src/ui/components/sidebar.rs:400 src/ui/components/sidebar.rs:414
 msgid "No connection"
 msgstr ""
 
-#: src/window_content.rs:685
+#: src/window_content.rs:732
 msgid "Connected to PostgreSQL."
 msgstr ""
 
-#: src/window_content.rs:690
+#: src/window_content.rs:745
 msgid "Connected, but saving the connection failed"
 msgstr ""
 
-#: src/window_content.rs:751
+#: src/window_content.rs:818
+msgid "Disabling saved password failed"
+msgstr ""
+
+#: src/window_content.rs:839
 msgid "Schema load failed"
 msgstr ""
 
-#: src/window_content.rs:800 src/ui/components/results.rs:212
+#: src/window_content.rs:888 src/ui/components/results.rs:212
 msgid "Query failed"
 msgstr ""
 
-#: src/window_content.rs:864
+#: src/window_content.rs:952
 msgid "A query is already running."
 msgstr ""
 
-#: src/window_content.rs:870
+#: src/window_content.rs:958
 msgid "Connect to PostgreSQL before running a query."
 msgstr ""
 
-#: src/window_content.rs:878
+#: src/window_content.rs:966
 msgid "Enter SQL before running a query."
 msgstr ""
 
@@ -125,7 +133,7 @@ msgstr ""
 
 #: src/window_content/object_actions.rs:38
 #: src/window_content/object_actions.rs:94
-#: src/ui/components/start_screen.rs:286 src/ui/components/start_screen.rs:322
+#: src/ui/components/start_screen.rs:320 src/ui/components/start_screen.rs:356
 #: src/ui/components/editor.rs:242
 #: src/ui/components/table_browser/cell_editor.rs:93
 msgid "Cancel"
@@ -133,7 +141,7 @@ msgstr ""
 
 #: src/window_content/object_actions.rs:39
 #: src/window_content/object_actions.rs:271
-#: src/ui/components/start_screen.rs:287
+#: src/ui/components/start_screen.rs:321
 msgid "Rename"
 msgstr ""
 
@@ -207,8 +215,8 @@ msgstr ""
 msgid "Enter a valid object name."
 msgstr ""
 
-#: src/window_content/tabs.rs:44 src/ui/components/connection_dialog.rs:353
-#: src/ui/components/table_browser.rs:929
+#: src/window_content/tabs.rs:44 src/ui/components/connection_dialog.rs:467
+#: src/ui/components/table_browser.rs:768
 msgid "Close"
 msgstr ""
 
@@ -224,80 +232,101 @@ msgstr ""
 msgid "Query"
 msgstr ""
 
-#: src/models/connection.rs:76
+#: src/models/connection.rs:80
 msgid "Connection name is required."
 msgstr ""
 
-#: src/models/connection.rs:80
+#: src/models/connection.rs:84
 msgid "Host is required."
 msgstr ""
 
-#: src/models/connection.rs:85
+#: src/models/connection.rs:89
 msgid "Port must be a number between 1 and 65535."
 msgstr ""
 
-#: src/models/connection.rs:88
+#: src/models/connection.rs:92
 msgid "Default database is required."
 msgstr ""
 
-#: src/models/connection.rs:92
+#: src/models/connection.rs:96
 msgid "Username is required."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:60
-#: src/ui/components/connection_dialog.rs:75
+#: src/ui/components/connection_dialog.rs:69
+#: src/ui/components/connection_dialog.rs:84
 msgid "PostgreSQL Connection"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:88
+#: src/ui/components/connection_dialog.rs:97
 msgid "Connection"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:91
+#: src/ui/components/connection_dialog.rs:100
 msgid "Name"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:101
+#: src/ui/components/connection_dialog.rs:110
 msgid "Host"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:111
+#: src/ui/components/connection_dialog.rs:120
 msgid "Port"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:122
+#: src/ui/components/connection_dialog.rs:131
 msgid "Default Database"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:132
+#: src/ui/components/connection_dialog.rs:141
 msgid "Username"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:142
+#: src/ui/components/connection_dialog.rs:151
 msgid "Password"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:165
+#: src/ui/components/connection_dialog.rs:186
+msgid "Save Password"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:212
 msgid "Test Connection"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:172
+#: src/ui/components/connection_dialog.rs:219
 msgid "Connect"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:267
+#: src/ui/components/connection_dialog.rs:329
+#: src/ui/components/connection_dialog.rs:436
+msgid "Reading the saved password failed"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:335
 msgid "Connection test succeeded."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:272
+#: src/ui/components/connection_dialog.rs:340
 msgid "Connection test failed"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:286
+#: src/ui/components/connection_dialog.rs:349
 msgid "Connection failed"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:348
+#: src/ui/components/connection_dialog.rs:375
+msgid "Store this password in GNOME Keyring."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:391
+msgid "Saved in GNOME Keyring. Enter a new password to replace it."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:394
+msgid "No saved password was found. Enter a password to save it."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:462
 msgid "PostgreSQL returned the following error:"
 msgstr ""
 
@@ -324,7 +353,7 @@ msgid "No databases match your search."
 msgstr ""
 
 #: src/ui/components/database_selector.rs:214
-#: src/ui/components/table_browser.rs:767
+#: src/ui/components/table_browser.rs:718
 msgid "Loading..."
 msgstr ""
 
@@ -348,39 +377,43 @@ msgstr ""
 msgid "Renaming the connection failed"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:175
+#: src/ui/components/start_screen.rs:186
 msgid "Removing the connection failed"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:205
+#: src/ui/components/start_screen.rs:207
+msgid "Removing the saved password failed"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:239
 msgid "Default database"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:220
+#: src/ui/components/start_screen.rs:254
 msgid "Rename connection"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:226
+#: src/ui/components/start_screen.rs:260
 msgid "Remove connection"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:281
+#: src/ui/components/start_screen.rs:315
 msgid "Rename Connection"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:282
+#: src/ui/components/start_screen.rs:316
 msgid "Choose a new name for this connection."
 msgstr ""
 
-#: src/ui/components/start_screen.rs:314
+#: src/ui/components/start_screen.rs:348
 msgid "Remove Connection"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:317
+#: src/ui/components/start_screen.rs:351
 msgid "Remove the saved connection"
 msgstr ""
 
-#: src/ui/components/start_screen.rs:323
+#: src/ui/components/start_screen.rs:357
 msgid "Remove"
 msgstr ""
 
@@ -545,7 +578,7 @@ msgstr ""
 msgid "Query returned no rows."
 msgstr ""
 
-#: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:782
+#: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:733
 msgid "row"
 msgid_plural "rows"
 msgstr[0] ""
@@ -561,105 +594,81 @@ msgstr[1] ""
 msgid "The statement completed successfully."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:165
+#: src/ui/components/table_browser.rs:164
 msgid "Show or edit filters"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:174
+#: src/ui/components/table_browser.rs:173
 msgid "Refresh"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:234
+#: src/ui/components/table_browser.rs:233
 msgid "First page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:243
+#: src/ui/components/table_browser.rs:242
 msgid "Previous page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:274
+#: src/ui/components/table_browser.rs:273
 msgid "Next page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:283
+#: src/ui/components/table_browser.rs:282
 msgid "Last page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:293
+#: src/ui/components/table_browser.rs:292
 msgid "Rows"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:298
+#: src/ui/components/table_browser.rs:297
 msgid "Rows per page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:343
+#: src/ui/components/table_browser.rs:342
 msgid "Select a table"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:345
+#: src/ui/components/table_browser.rs:344
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:509
+#: src/ui/components/table_browser.rs:508
 msgid "Loading table failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:536
+#: src/ui/components/table_browser.rs:535
 msgid "Loading last page failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:567
+#: src/ui/components/table_browser.rs:566
 msgid "Saving cell failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:696
+#: src/ui/components/table_browser.rs:677
 msgid "Filter cannot be applied"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:741
+#: src/ui/components/table_browser.rs:692
 msgid "Table Browser"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:750
+#: src/ui/components/table_browser.rs:701
 msgid "Table"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:751
+#: src/ui/components/table_browser.rs:702
 msgid "View"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:759
-#: src/ui/components/table_browser.rs:761
+#: src/ui/components/table_browser.rs:710
+#: src/ui/components/table_browser.rs:712
 msgid "Filters"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:775
+#: src/ui/components/table_browser.rs:726
 msgid "No rows"
-msgstr ""
-
-#: src/ui/components/table_browser.rs:833
-msgid "Cell cannot be edited"
-msgstr ""
-
-#: src/ui/components/table_browser.rs:940
-msgid "Only tables can be edited."
-msgstr ""
-
-#: src/ui/components/table_browser.rs:944
-msgid "The selected cell is no longer available."
-msgstr ""
-
-#: src/ui/components/table_browser.rs:948
-msgid "Primary key columns are read-only for now."
-msgstr ""
-
-#: src/ui/components/table_browser.rs:952
-msgid "This column type is not editable yet."
-msgstr ""
-
-#: src/ui/components/table_browser.rs:956
-msgid "Editing requires a primary key."
 msgstr ""
 
 #: src/ui/components/table_browser/cell_editor.rs:32
@@ -686,6 +695,30 @@ msgstr ""
 
 #: src/ui/components/table_browser/cell_editor.rs:99
 msgid "Save"
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:38
+msgid "Cell cannot be edited"
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:134
+msgid "Only tables can be edited."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:138
+msgid "The selected cell is no longer available."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:142
+msgid "Primary key columns are read-only for now."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:146
+msgid "This column type is not editable yet."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:150
+msgid "Editing requires a primary key."
 msgstr ""
 
 #: src/ui/components/table_browser/filters.rs:52
@@ -724,16 +757,16 @@ msgstr ""
 msgid "Custom SQL"
 msgstr ""
 
-#: src/ui/components/table_browser/loading.rs:31
+#: src/ui/components/table_browser/loading.rs:32
 msgid "Loading rows"
 msgstr ""
 
-#: src/ui/components/table_browser/loading.rs:32
+#: src/ui/components/table_browser/loading.rs:33
 msgid "Fetching the selected page from PostgreSQL."
 msgstr ""
 
-#: src/ui/components/table_browser/loading.rs:62
-#: src/ui/components/table_browser/loading.rs:98
+#: src/ui/components/table_browser/loading.rs:63
+#: src/ui/components/table_browser/loading.rs:99
 msgid "Loading cancelled"
 msgstr ""
 
