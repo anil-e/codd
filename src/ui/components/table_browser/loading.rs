@@ -7,6 +7,7 @@ use crate::ui::components::table_browser::{
     TableBrowser, TableBrowserCommandOutput, TableBrowserWidgets,
 };
 
+use super::grid::render_table;
 use super::{close_popover, set_stack_child};
 
 impl TableBrowser {
@@ -31,7 +32,7 @@ impl TableBrowser {
         self.status_title = gettext("Loading rows");
         self.status_description = Some(gettext("Fetching the selected page from PostgreSQL."));
         self.page = None;
-        self.render_table(sender);
+        render_table(self, sender);
         set_stack_child(widgets, false);
 
         let id = self.allocate_request_id();

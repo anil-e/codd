@@ -5,9 +5,11 @@ use relm4::gtk;
 use relm4::gtk::glib;
 use relm4::prelude::*;
 
-use crate::models::table_browser::{ColumnTypeGroup, TableCell};
+use crate::models::table_browser::{ColumnTypeGroup, TableCell, TableColumn};
 use crate::ui::components::cell_dialog::show_cell_value_dialog;
 use crate::ui::components::table_browser::{TableBrowser, TableBrowserMsg};
+
+use super::sorting::sync_sort_indicator;
 
 const DISPLAY_CHAR_LIMIT: usize = 256;
 const TOOLTIP_CHAR_LIMIT: usize = 2048;
@@ -140,6 +142,62 @@ pub(super) fn cell_factory(
     });
 
     factory
+}
+
+pub(super) fn render_table(
+    table_browser: &mut TableBrowser,
+    sender: &ComponentSender<TableBrowser>,
+) {
+    let Some(page) = table_browser.page.clone() else {
+        table_browser.table_rows.remove_all();
+        return;
+    };
+
+    sync_columns(table_browser, &page.columns, sender);
+    table_browser.table_rows.remove_all();
+
+    for (index, row) in page.rows.iter().enumerate() {
+        table_browser
+            .table_rows
+            .append(&glib::BoxedAnyObject::new(TableBrowserRow {
+                index,
+                cells: row.clone(),
+            }));
+    }
+}
+
+fn sync_columns(
+    table_browser: &mut TableBrowser,
+    columns: &[TableColumn],
+    sender: &ComponentSender<TableBrowser>,
+) {
+    let column_keys = columns
+        .iter()
+        .map(|column| format!("{}\u{1f}{}", column.name, column.display_type))
+        .collect::<Vec<_>>();
+
+    if table_browser.rendered_columns == column_keys {
+        return;
+    }
+
+    clear_columns(&table_browser.table_view);
+    table_browser.rendered_columns = column_keys;
+
+    let is_dark = table_browser.style_manager.is_dark();
+
+    for (index, column) in columns.iter().enumerate() {
+        let factory = cell_factory(index, column.type_group, is_dark, sender);
+        let title = column.name.clone();
+        let view_column = gtk::ColumnViewColumn::new(Some(&title), Some(factory));
+        view_column.set_resizable(true);
+        view_column.set_expand(index < 3);
+        view_column.set_sorter(Some(&gtk::CustomSorter::new(|_, _| {
+            std::cmp::Ordering::Equal.into()
+        })));
+        table_browser.table_view.append_column(&view_column);
+    }
+
+    sync_sort_indicator(&table_browser.table_view, table_browser.sort.as_ref());
 }
 
 fn type_group_class(type_group: ColumnTypeGroup) -> Option<&'static str> {

@@ -12,7 +12,7 @@ use crate::models::table_browser::{
     DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TableFilter, TablePage, TableSort,
 };
 use filters::{FilterEvent, FilterPanel, initial_filter, validate_filter_values};
-use grid::{TableBrowserRow, cell_factory, clear_columns};
+use grid::render_table;
 use sorting::{connect_sort_handlers, next_sort_for_header_click, sync_sort_indicator};
 
 mod cell_editor;
@@ -511,7 +511,7 @@ impl Component for TableBrowser {
                     }
                 }
 
-                self.render_table(&sender);
+                render_table(self, &sender);
                 self.rebuild_filters(widgets, &sender);
                 set_stack_child(widgets, self.page.is_some());
             }
@@ -566,13 +566,13 @@ impl Component for TableBrowser {
                     self.show_warning(root, &gettext("Saving cell failed"), &error);
                 }
 
-                self.render_table(&sender);
+                render_table(self, &sender);
             }
 
             TableBrowserMsg::AppearanceChanged => {
                 close_popover(&mut self.edit_popover);
                 self.rendered_columns.clear();
-                self.render_table(&sender);
+                render_table(self, &sender);
             }
         }
 
@@ -620,24 +620,6 @@ impl Component for TableBrowser {
 }
 
 impl TableBrowser {
-    fn render_table(&mut self, sender: &ComponentSender<Self>) {
-        let Some(page) = self.page.clone() else {
-            self.table_rows.remove_all();
-            return;
-        };
-
-        self.sync_columns(&page.columns, sender);
-        self.table_rows.remove_all();
-
-        for (index, row) in page.rows.iter().enumerate() {
-            self.table_rows
-                .append(&glib::BoxedAnyObject::new(TableBrowserRow {
-                    index,
-                    cells: row.clone(),
-                }));
-        }
-    }
-
     fn rebuild_filters(&self, _widgets: &TableBrowserWidgets, sender: &ComponentSender<Self>) {
         FilterPanel::rebuild(
             &self.filter_panel,
@@ -701,36 +683,6 @@ impl TableBrowser {
         self.filters_expanded = !self.active_filters.is_empty();
         self.offset = 0;
         self.load_page(widgets, sender);
-    }
-
-    fn sync_columns(&mut self, columns: &[TableColumn], sender: &ComponentSender<Self>) {
-        let column_keys = columns
-            .iter()
-            .map(|column| format!("{}\u{1f}{}", column.name, column.display_type))
-            .collect::<Vec<_>>();
-
-        if self.rendered_columns == column_keys {
-            return;
-        }
-
-        clear_columns(&self.table_view);
-        self.rendered_columns = column_keys;
-
-        let is_dark = self.style_manager.is_dark();
-
-        for (index, column) in columns.iter().enumerate() {
-            let factory = cell_factory(index, column.type_group, is_dark, sender);
-            let title = column.name.clone();
-            let view_column = gtk::ColumnViewColumn::new(Some(&title), Some(factory));
-            view_column.set_resizable(true);
-            view_column.set_expand(index < 3);
-            view_column.set_sorter(Some(&gtk::CustomSorter::new(|_, _| {
-                std::cmp::Ordering::Equal.into()
-            })));
-            self.table_view.append_column(&view_column);
-        }
-
-        sync_sort_indicator(&self.table_view, self.sort.as_ref());
     }
 
     fn object_title(&self) -> String {
