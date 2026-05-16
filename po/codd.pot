@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 15:54+0200\n"
+"POT-Creation-Date: 2026-05-16 16:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -215,7 +215,7 @@ msgstr ""
 msgid "Enter a valid object name."
 msgstr ""
 
-#: src/window_content/tabs.rs:44 src/ui/components/connection_dialog.rs:467
+#: src/window_content/tabs.rs:44 src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:768
 msgid "Close"
 msgstr ""
@@ -252,81 +252,89 @@ msgstr ""
 msgid "Username is required."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:69
-#: src/ui/components/connection_dialog.rs:84
+#: src/ui/components/connection_dialog.rs:78
+#: src/ui/components/connection_dialog.rs:93
 msgid "PostgreSQL Connection"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:97
+#: src/ui/components/connection_dialog.rs:106
 msgid "Connection"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:100
+#: src/ui/components/connection_dialog.rs:109
 msgid "Name"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:110
+#: src/ui/components/connection_dialog.rs:119
 msgid "Host"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:120
+#: src/ui/components/connection_dialog.rs:129
 msgid "Port"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:131
+#: src/ui/components/connection_dialog.rs:140
 msgid "Default Database"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:141
+#: src/ui/components/connection_dialog.rs:150
 msgid "Username"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:151
+#: src/ui/components/connection_dialog.rs:160
 msgid "Password"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:186
+#: src/ui/components/connection_dialog.rs:195
 msgid "Save Password"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:212
+#: src/ui/components/connection_dialog.rs:221
 msgid "Test Connection"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:219
+#: src/ui/components/connection_dialog.rs:228
 msgid "Connect"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:329
-#: src/ui/components/connection_dialog.rs:436
+#: src/ui/components/connection_dialog.rs:358
+#: src/ui/components/connection_dialog.rs:473
 msgid "Reading the saved password failed"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:335
+#: src/ui/components/connection_dialog.rs:364
 msgid "Connection test succeeded."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:340
+#: src/ui/components/connection_dialog.rs:369
 msgid "Connection test failed"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:349
+#: src/ui/components/connection_dialog.rs:378
 msgid "Connection failed"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:375
+#: src/ui/components/connection_dialog.rs:405
+msgid "Checking password storage availability."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:406
 msgid "Store this password in GNOME Keyring."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:391
+#: src/ui/components/connection_dialog.rs:407
+msgid "Password storage is not available."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:424
 msgid "Saved in GNOME Keyring. Enter a new password to replace it."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:394
+#: src/ui/components/connection_dialog.rs:427
 msgid "No saved password was found. Enter a password to save it."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:462
+#: src/ui/components/connection_dialog.rs:499
 msgid "PostgreSQL returned the following error:"
 msgstr ""
 

@@ -87,6 +87,12 @@ pub async fn has_password(connection_id: &str) -> Result<bool, CredentialError> 
     Ok(!keyring.search_items(&attributes).await?.is_empty())
 }
 
+pub async fn is_available() -> Result<(), CredentialError> {
+    let _ = unlocked_keyring().await?;
+
+    Ok(())
+}
+
 async fn unlocked_keyring() -> Result<oo7::Keyring, CredentialError> {
     let keyring = oo7::Keyring::new().await?;
     keyring.unlock().await?;

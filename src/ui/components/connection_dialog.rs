@@ -18,6 +18,7 @@ pub struct ConnectionDialog {
     form: ConnectionForm,
     is_busy: bool,
     saved_password_state: SavedPasswordState,
+    credential_state: CredentialState,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -26,6 +27,13 @@ enum SavedPasswordState {
     Available,
     Missing,
     Error,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum CredentialState {
+    Checking,
+    Available,
+    Unavailable(String),
 }
 
 #[derive(Debug)]
@@ -52,6 +60,7 @@ pub enum ConnectionDialogOutput {
 
 #[derive(Debug)]
 pub enum ConnectionDialogCommandOutput {
+    CredentialChecked(Result<(), String>),
     SavedPasswordChecked(Result<bool, String>),
     TestFinished(Result<(), String>),
     ConnectFinished(Result<(ConnectionDetails, PgPool), String>),
@@ -189,7 +198,7 @@ impl Component for ConnectionDialog {
                                 #[watch]
                                 set_active: model.form.save_password,
                                 #[watch]
-                                set_sensitive: !model.is_busy,
+                                set_sensitive: !model.is_busy && model.can_save_password(),
                                 connect_active_notify[sender] => move |row| {
                                     sender.input(ConnectionDialogMsg::SavePasswordChanged(row.is_active()));
                                 },
@@ -244,8 +253,17 @@ impl Component for ConnectionDialog {
                 .unwrap_or_default(),
             is_busy: false,
             saved_password_state: SavedPasswordState::Unknown,
+            credential_state: CredentialState::Checking,
         };
         let widgets = view_output!();
+
+        sender.oneshot_command(async {
+            ConnectionDialogCommandOutput::CredentialChecked(
+                credential_store::is_available()
+                    .await
+                    .map_err(|error| error.to_string()),
+            )
+        });
 
         if let Some(connection) = init
             .connection
@@ -279,7 +297,9 @@ impl Component for ConnectionDialog {
             ConnectionDialogMsg::DatabaseChanged(value) => self.form.database = value,
             ConnectionDialogMsg::UsernameChanged(value) => self.form.username = value,
             ConnectionDialogMsg::PasswordChanged(value) => self.form.password = value,
-            ConnectionDialogMsg::SavePasswordChanged(value) => self.form.save_password = value,
+            ConnectionDialogMsg::SavePasswordChanged(value) => {
+                self.form.save_password = value && self.can_save_password();
+            }
 
             ConnectionDialogMsg::TestConnection => {
                 let Some(details) = self.validated_details(widgets) else {
@@ -316,6 +336,15 @@ impl Component for ConnectionDialog {
         self.is_busy = false;
 
         match msg {
+            ConnectionDialogCommandOutput::CredentialChecked(Ok(())) => {
+                self.credential_state = CredentialState::Available;
+            }
+
+            ConnectionDialogCommandOutput::CredentialChecked(Err(error)) => {
+                self.credential_state = CredentialState::Unavailable(error);
+                self.form.save_password = false;
+            }
+
             ConnectionDialogCommandOutput::SavedPasswordChecked(Ok(true)) => {
                 self.saved_password_state = SavedPasswordState::Available;
             }
@@ -372,7 +401,11 @@ impl ConnectionDialog {
     }
 
     fn save_password_subtitle(&self) -> String {
-        gettext("Store this password in GNOME Keyring.")
+        match &self.credential_state {
+            CredentialState::Checking => gettext("Checking password storage availability."),
+            CredentialState::Available => gettext("Store this password in GNOME Keyring."),
+            CredentialState::Unavailable(_) => gettext("Password storage is not available."),
+        }
     }
 
     fn shows_password_status(&self) -> bool {
@@ -395,6 +428,10 @@ impl ConnectionDialog {
             }
             SavedPasswordState::Unknown | SavedPasswordState::Error => String::new(),
         }
+    }
+
+    fn can_save_password(&self) -> bool {
+        self.credential_state == CredentialState::Available
     }
 }
 
