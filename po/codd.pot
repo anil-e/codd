@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: codd\n"
+"Project-Id-Version: codd 0.3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-14 19:36+0200\n"
+"POT-Creation-Date: 2026-05-14 16:23-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,18 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: src/menus.rs:9
+msgid "_New Connection"
+msgstr ""
+
+#: src/menus.rs:15
+msgid "_Keyboard Shortcuts"
+msgstr ""
+
+#: src/menus.rs:16
+msgid "_Quit"
+msgstr ""
 
 #: src/window_content.rs:177
 msgid "Back to connections"
@@ -81,6 +93,135 @@ msgstr ""
 
 #: src/window_content.rs:878
 msgid "Enter SQL before running a query."
+msgstr ""
+
+#: src/window_content/database_switching.rs:57
+msgid "Connect to PostgreSQL before switching databases."
+msgstr ""
+
+#: src/window_content/database_switching.rs:100
+msgid "Database switch failed"
+msgstr ""
+
+#: src/window_content/database_switching.rs:150
+msgid "Saving the selected database failed"
+msgstr ""
+
+#: src/window_content/database_switching.rs:191
+msgid "Migrating query history failed"
+msgstr ""
+
+#: src/window_content/database_switching.rs:219
+msgid "Saving query history failed"
+msgstr ""
+
+#: src/window_content/database_switching.rs:241
+msgid "Clearing query history failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:33
+msgid "Choose a new name for this database object."
+msgstr ""
+
+#: src/window_content/object_actions.rs:38
+#: src/window_content/object_actions.rs:94
+#: src/ui/components/start_screen.rs:286 src/ui/components/start_screen.rs:322
+#: src/ui/components/editor.rs:242
+#: src/ui/components/table_browser/cell_editor.rs:93
+msgid "Cancel"
+msgstr ""
+
+#: src/window_content/object_actions.rs:39
+#: src/window_content/object_actions.rs:271
+#: src/ui/components/start_screen.rs:287
+msgid "Rename"
+msgstr ""
+
+#: src/window_content/object_actions.rs:219
+msgid "Missing new object name."
+msgstr ""
+
+#: src/window_content/object_actions.rs:240
+msgid "Rename Table"
+msgstr ""
+
+#: src/window_content/object_actions.rs:241
+msgid "Rename View"
+msgstr ""
+
+#: src/window_content/object_actions.rs:243
+msgid "Truncate Table"
+msgstr ""
+
+#: src/window_content/object_actions.rs:245
+msgid "Delete Table"
+msgstr ""
+
+#: src/window_content/object_actions.rs:246
+msgid "Delete View"
+msgstr ""
+
+#: src/window_content/object_actions.rs:256
+msgid "Remove all rows from"
+msgstr ""
+
+#: src/window_content/object_actions.rs:258
+#: src/window_content/object_actions.rs:264
+msgid "This cannot be undone."
+msgstr ""
+
+#: src/window_content/object_actions.rs:262
+#: src/window_content/object_actions.rs:273
+msgid "Delete"
+msgstr ""
+
+#: src/window_content/object_actions.rs:272
+msgid "Truncate"
+msgstr ""
+
+#: src/window_content/object_actions.rs:279
+msgid "Database object renamed."
+msgstr ""
+
+#: src/window_content/object_actions.rs:282
+msgid "Table truncated:"
+msgstr ""
+
+#: src/window_content/object_actions.rs:285
+msgid "Database object deleted."
+msgstr ""
+
+#: src/window_content/object_actions.rs:291
+msgid "Renaming failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:292
+msgid "Truncating failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:293
+msgid "Deleting failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:310
+msgid "Enter a valid object name."
+msgstr ""
+
+#: src/window_content/tabs.rs:44 src/ui/components/connection_dialog.rs:353
+#: src/ui/components/table_browser.rs:929
+msgid "Close"
+msgstr ""
+
+#: src/window_content/tabs.rs:46
+msgid "Close Other Tabs"
+msgstr ""
+
+#: src/window_content/tabs.rs:50
+msgid "Close All"
+msgstr ""
+
+#: src/window_content/tabs.rs:609
+msgid "Query"
 msgstr ""
 
 #: src/models/connection.rs:76
@@ -160,13 +301,31 @@ msgstr ""
 msgid "PostgreSQL returned the following error:"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:353
-#: src/ui/components/table_browser.rs:1053
-msgid "Close"
-msgstr ""
-
 #: src/ui/components/cell_dialog.rs:29 src/ui/components/cell_dialog.rs:41
 msgid "Cell value"
+msgstr ""
+
+#: src/ui/components/database_selector.rs:43
+#: data/io.github.anil_e.Codd.desktop.in:3
+#: data/io.github.anil_e.Codd.metainfo.xml.in:7
+msgid "Codd"
+msgstr ""
+
+#: src/ui/components/database_selector.rs:48
+msgid "Switch database"
+msgstr ""
+
+#: src/ui/components/database_selector.rs:96
+msgid "Search databases"
+msgstr ""
+
+#: src/ui/components/database_selector.rs:119
+msgid "No databases match your search."
+msgstr ""
+
+#: src/ui/components/database_selector.rs:214
+#: src/ui/components/table_browser.rs:767
+msgid "Loading..."
 msgstr ""
 
 #: src/ui/components/start_screen.rs:45
@@ -211,15 +370,6 @@ msgstr ""
 
 #: src/ui/components/start_screen.rs:282
 msgid "Choose a new name for this connection."
-msgstr ""
-
-#: src/ui/components/start_screen.rs:286 src/ui/components/start_screen.rs:322
-#: src/ui/components/editor.rs:242
-msgid "Cancel"
-msgstr ""
-
-#: src/ui/components/start_screen.rs:287
-msgid "Rename"
 msgstr ""
 
 #: src/ui/components/start_screen.rs:314
@@ -395,7 +545,7 @@ msgstr ""
 msgid "Query returned no rows."
 msgstr ""
 
-#: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:906
+#: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:782
 msgid "row"
 msgid_plural "rows"
 msgstr[0] ""
@@ -411,122 +561,131 @@ msgstr[1] ""
 msgid "The statement completed successfully."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:163
+#: src/ui/components/table_browser.rs:165
 msgid "Show or edit filters"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:172
+#: src/ui/components/table_browser.rs:174
 msgid "Refresh"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:232
+#: src/ui/components/table_browser.rs:234
 msgid "First page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:241
+#: src/ui/components/table_browser.rs:243
 msgid "Previous page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:272
+#: src/ui/components/table_browser.rs:274
 msgid "Next page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:281
+#: src/ui/components/table_browser.rs:283
 msgid "Last page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:291
+#: src/ui/components/table_browser.rs:293
 msgid "Rows"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:296
+#: src/ui/components/table_browser.rs:298
 msgid "Rows per page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:341
+#: src/ui/components/table_browser.rs:343
 msgid "Select a table"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:343
+#: src/ui/components/table_browser.rs:345
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:507
+#: src/ui/components/table_browser.rs:509
 msgid "Loading table failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:534
+#: src/ui/components/table_browser.rs:536
 msgid "Loading last page failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:565
+#: src/ui/components/table_browser.rs:567
 msgid "Saving cell failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:636
-msgid "Loading rows"
-msgstr ""
-
-#: src/ui/components/table_browser.rs:637
-msgid "Fetching the selected page from PostgreSQL."
-msgstr ""
-
-#: src/ui/components/table_browser.rs:667
-#: src/ui/components/table_browser.rs:703
-msgid "Loading cancelled"
-msgstr ""
-
-#: src/ui/components/table_browser.rs:788
+#: src/ui/components/table_browser.rs:696
 msgid "Filter cannot be applied"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:865
+#: src/ui/components/table_browser.rs:741
 msgid "Table Browser"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:874
+#: src/ui/components/table_browser.rs:750
 msgid "Table"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:875
+#: src/ui/components/table_browser.rs:751
 msgid "View"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:883
-#: src/ui/components/table_browser.rs:885
+#: src/ui/components/table_browser.rs:759
+#: src/ui/components/table_browser.rs:761
 msgid "Filters"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:891
-msgid "Loading..."
-msgstr ""
-
-#: src/ui/components/table_browser.rs:899
+#: src/ui/components/table_browser.rs:775
 msgid "No rows"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:957
+#: src/ui/components/table_browser.rs:833
 msgid "Cell cannot be edited"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:1064
+#: src/ui/components/table_browser.rs:940
 msgid "Only tables can be edited."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:1068
+#: src/ui/components/table_browser.rs:944
 msgid "The selected cell is no longer available."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:1072
+#: src/ui/components/table_browser.rs:948
 msgid "Primary key columns are read-only for now."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:1076
+#: src/ui/components/table_browser.rs:952
 msgid "This column type is not editable yet."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:1080
+#: src/ui/components/table_browser.rs:956
 msgid "Editing requires a primary key."
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:32
+msgid "Type"
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:40
+#: src/ui/components/table_browser/filters.rs:314
+msgid "Value"
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:49
+msgid ""
+"Use Set NULL to store a database NULL. Empty text is saved as empty text."
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:51
+msgid "This column is not nullable."
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:94
+msgid "Set NULL"
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:99
+msgid "Save"
 msgstr ""
 
 #: src/ui/components/table_browser/filters.rs:52
@@ -553,10 +712,6 @@ msgstr ""
 msgid "Remove filter"
 msgstr ""
 
-#: src/ui/components/table_browser/filters.rs:314
-msgid "Value"
-msgstr ""
-
 #: src/ui/components/table_browser/filters.rs:342
 msgid "SQL expression"
 msgstr ""
@@ -569,9 +724,17 @@ msgstr ""
 msgid "Custom SQL"
 msgstr ""
 
-#: data/io.github.anil_e.Codd.desktop.in:3
-#: data/io.github.anil_e.Codd.metainfo.xml.in:7
-msgid "Codd"
+#: src/ui/components/table_browser/loading.rs:31
+msgid "Loading rows"
+msgstr ""
+
+#: src/ui/components/table_browser/loading.rs:32
+msgid "Fetching the selected page from PostgreSQL."
+msgstr ""
+
+#: src/ui/components/table_browser/loading.rs:62
+#: src/ui/components/table_browser/loading.rs:98
+msgid "Loading cancelled"
 msgstr ""
 
 #: data/io.github.anil_e.Codd.desktop.in:4
