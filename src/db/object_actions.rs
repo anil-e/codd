@@ -1,6 +1,12 @@
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind, quote_identifier};
 use sqlx::PgPool;
 
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct TruncateOptions {
+    pub restart_identity: bool,
+    pub cascade: bool,
+}
+
 pub async fn rename_object(
     pool: &PgPool,
     object: &DatabaseObject,
@@ -13,8 +19,12 @@ pub async fn rename_object(
     Ok(())
 }
 
-pub async fn truncate_table(pool: &PgPool, object: &DatabaseObject) -> Result<(), sqlx::Error> {
-    sqlx::query(&truncate_table_sql(object))
+pub async fn truncate_table(
+    pool: &PgPool,
+    object: &DatabaseObject,
+    options: TruncateOptions,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(&truncate_table_sql(object, options))
         .execute(pool)
         .await?;
 
@@ -40,8 +50,18 @@ fn rename_sql(object: &DatabaseObject, new_name: &str) -> String {
     )
 }
 
-fn truncate_table_sql(object: &DatabaseObject) -> String {
-    format!("TRUNCATE TABLE {}", object.qualified_name())
+fn truncate_table_sql(object: &DatabaseObject, options: TruncateOptions) -> String {
+    let mut sql = format!("TRUNCATE TABLE {}", object.qualified_name());
+
+    if options.restart_identity {
+        sql.push_str(" RESTART IDENTITY");
+    }
+
+    if options.cascade {
+        sql.push_str(" CASCADE");
+    }
+
+    sql
 }
 
 fn drop_sql(object: &DatabaseObject) -> String {
@@ -102,8 +122,22 @@ mod tests {
     #[test]
     fn builds_truncate_sql() {
         assert_eq!(
-            truncate_table_sql(&table()),
+            truncate_table_sql(&table(), TruncateOptions::default()),
             "TRUNCATE TABLE \"public\".\"customer data\""
+        );
+    }
+
+    #[test]
+    fn builds_truncate_sql_with_options() {
+        assert_eq!(
+            truncate_table_sql(
+                &table(),
+                TruncateOptions {
+                    restart_identity: true,
+                    cascade: true,
+                },
+            ),
+            "TRUNCATE TABLE \"public\".\"customer data\" RESTART IDENTITY CASCADE"
         );
     }
 

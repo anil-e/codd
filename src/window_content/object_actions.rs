@@ -5,16 +5,43 @@ use relm4::gtk;
 use relm4::prelude::*;
 
 use crate::db;
+use crate::db::object_actions::TruncateOptions;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::ui::components::sidebar::ObjectAction;
 
 use super::{WindowContent, WindowContentCommandOutput, WindowContentMsg, WindowContentWidgets};
 
 #[derive(Debug)]
-pub(crate) struct ObjectActionRequest {
-    action: ObjectAction,
-    object: DatabaseObject,
-    new_name: Option<String>,
+pub(crate) enum ObjectActionRequest {
+    Rename {
+        object: DatabaseObject,
+        new_name: String,
+    },
+    Truncate {
+        object: DatabaseObject,
+        options: TruncateOptions,
+    },
+    Delete {
+        object: DatabaseObject,
+    },
+}
+
+impl ObjectActionRequest {
+    fn action(&self) -> ObjectAction {
+        match self {
+            Self::Rename { .. } => ObjectAction::Rename,
+            Self::Truncate { .. } => ObjectAction::Truncate,
+            Self::Delete { .. } => ObjectAction::Delete,
+        }
+    }
+
+    fn object(&self) -> &DatabaseObject {
+        match self {
+            Self::Rename { object, .. }
+            | Self::Truncate { object, .. }
+            | Self::Delete { object } => object,
+        }
+    }
 }
 
 pub(super) fn show_rename_object_dialog(
@@ -68,10 +95,9 @@ pub(super) fn show_rename_object_dialog(
         move |response| {
             if response == "rename" {
                 sender.input(WindowContentMsg::ObjectActionConfirmed(
-                    ObjectActionRequest {
-                        action: ObjectAction::Rename,
+                    ObjectActionRequest::Rename {
                         object,
-                        new_name: Some(entry.text().to_string()),
+                        new_name: entry.text().to_string(),
                     },
                 ));
             }
@@ -79,20 +105,77 @@ pub(super) fn show_rename_object_dialog(
     );
 }
 
-pub(super) fn show_confirm_object_dialog(
+pub(super) fn show_delete_object_dialog(
     root: &adw::ToastOverlay,
     sender: &ComponentSender<WindowContent>,
     object: DatabaseObject,
-    action: ObjectAction,
 ) {
     let dialog = adw::AlertDialog::builder()
-        .heading(object_action_heading(action, &object))
-        .body(object_action_body(action, &object))
+        .heading(object_action_heading(ObjectAction::Delete, &object))
+        .body(object_action_body(ObjectAction::Delete, &object))
         .build();
 
     dialog.add_responses(&[
         ("cancel", &gettext("Cancel")),
-        ("confirm", &object_action_confirm_label(action)),
+        (
+            "confirm",
+            &object_action_confirm_label(ObjectAction::Delete),
+        ),
+    ]);
+
+    dialog.set_response_appearance("confirm", adw::ResponseAppearance::Destructive);
+
+    let sender = sender.clone();
+
+    dialog.choose(
+        root.root().as_ref(),
+        None::<&gtk::gio::Cancellable>,
+        move |response| {
+            if response == "confirm" {
+                sender.input(WindowContentMsg::ObjectActionConfirmed(
+                    ObjectActionRequest::Delete { object },
+                ));
+            }
+        },
+    );
+}
+
+pub(super) fn show_truncate_object_dialog(
+    root: &adw::ToastOverlay,
+    sender: &ComponentSender<WindowContent>,
+    object: DatabaseObject,
+) {
+    let restart_identity_row = adw::SwitchRow::builder()
+        .title(gettext("Restart identity"))
+        .subtitle(gettext(
+            "Reset sequences owned by columns of the truncated table.",
+        ))
+        .build();
+
+    let cascade_row = adw::SwitchRow::builder()
+        .title(gettext("Cascade"))
+        .subtitle(gettext(
+            "Also truncate tables that have foreign-key references to this table.",
+        ))
+        .build();
+
+    let options_group = adw::PreferencesGroup::builder().margin_top(12).build();
+
+    options_group.add(&restart_identity_row);
+    options_group.add(&cascade_row);
+
+    let dialog = adw::AlertDialog::builder()
+        .heading(object_action_heading(ObjectAction::Truncate, &object))
+        .body(object_action_body(ObjectAction::Truncate, &object))
+        .extra_child(&options_group)
+        .build();
+
+    dialog.add_responses(&[
+        ("cancel", &gettext("Cancel")),
+        (
+            "confirm",
+            &object_action_confirm_label(ObjectAction::Truncate),
+        ),
     ]);
 
     dialog.set_response_appearance("confirm", adw::ResponseAppearance::Destructive);
@@ -107,27 +190,17 @@ pub(super) fn show_confirm_object_dialog(
                 return;
             }
 
-            match action {
-                ObjectAction::Rename => {}
-                ObjectAction::Truncate => {
-                    sender.input(WindowContentMsg::ObjectActionConfirmed(
-                        ObjectActionRequest {
-                            action,
-                            object,
-                            new_name: None,
-                        },
-                    ));
-                }
-                ObjectAction::Delete => {
-                    sender.input(WindowContentMsg::ObjectActionConfirmed(
-                        ObjectActionRequest {
-                            action,
-                            object,
-                            new_name: None,
-                        },
-                    ));
-                }
-            }
+            let truncate_options = TruncateOptions {
+                restart_identity: restart_identity_row.is_active(),
+                cascade: cascade_row.is_active(),
+            };
+
+            sender.input(WindowContentMsg::ObjectActionConfirmed(
+                ObjectActionRequest::Truncate {
+                    object,
+                    options: truncate_options,
+                },
+            ));
         },
     );
 }
@@ -140,34 +213,35 @@ impl WindowContent {
         widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        let action = request.action();
+        let object = request.object().clone();
+
         match result {
             Ok(()) => {
-                match request.action {
-                    ObjectAction::Rename => {
-                        if let Some(new_name) = request.new_name {
-                            self.apply_renamed_object(&request.object, &new_name, widgets);
-                        }
+                match request {
+                    ObjectActionRequest::Rename { new_name, .. } => {
+                        self.apply_renamed_object(&object, &new_name, widgets);
                     }
-                    ObjectAction::Truncate => {
-                        self.reload_browse_tab(&request.object);
+                    ObjectActionRequest::Truncate { .. } => {
+                        self.reload_browse_tab(&object);
                     }
-                    ObjectAction::Delete => {
-                        self.remove_deleted_object(&request.object, widgets);
+                    ObjectActionRequest::Delete { .. } => {
+                        self.remove_deleted_object(&object, widgets);
                     }
                 }
 
                 self.reload_schema(sender);
+
                 widgets
                     .toast_overlay
                     .add_toast(adw::Toast::new(&object_action_success_message(
-                        request.action,
-                        &request.object,
+                        action, &object,
                     )));
             }
             Err(error) => {
                 widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
                     "{}: {error}",
-                    object_action_failure_message(request.action)
+                    object_action_failure_message(action)
                 )));
             }
         }
@@ -185,10 +259,10 @@ impl WindowContent {
                 show_rename_object_dialog(&widgets.toast_overlay, sender, object)
             }
             ObjectAction::Truncate => {
-                show_confirm_object_dialog(&widgets.toast_overlay, sender, object, action);
+                show_truncate_object_dialog(&widgets.toast_overlay, sender, object);
             }
             ObjectAction::Delete => {
-                show_confirm_object_dialog(&widgets.toast_overlay, sender, object, action);
+                show_delete_object_dialog(&widgets.toast_overlay, sender, object);
             }
         }
     }
@@ -209,24 +283,22 @@ impl WindowContent {
         };
 
         sender.oneshot_command(async move {
-            let result = match request.action {
-                ObjectAction::Rename => {
-                    if let Some(new_name) = request.new_name.as_deref() {
-                        db::object_actions::rename_object(&pool, &request.object, new_name)
-                            .await
-                            .map_err(|error| error.to_string())
-                    } else {
-                        Err(gettext("Missing new object name."))
-                    }
-                }
-                ObjectAction::Truncate => {
-                    db::object_actions::truncate_table(&pool, &request.object)
+            let result = match &request {
+                ObjectActionRequest::Rename { object, new_name } => {
+                    db::object_actions::rename_object(&pool, object, new_name)
                         .await
                         .map_err(|error| error.to_string())
                 }
-                ObjectAction::Delete => db::object_actions::drop_object(&pool, &request.object)
-                    .await
-                    .map_err(|error| error.to_string()),
+                ObjectActionRequest::Truncate { object, options } => {
+                    db::object_actions::truncate_table(&pool, object, *options)
+                        .await
+                        .map_err(|error| error.to_string())
+                }
+                ObjectActionRequest::Delete { object } => {
+                    db::object_actions::drop_object(&pool, object)
+                        .await
+                        .map_err(|error| error.to_string())
+                }
             };
 
             WindowContentCommandOutput::ObjectActionFinished(request, result)
@@ -295,14 +367,12 @@ fn object_action_failure_message(action: ObjectAction) -> String {
 }
 
 fn normalize_object_action_request(
-    mut request: ObjectActionRequest,
+    request: ObjectActionRequest,
     widgets: &WindowContentWidgets,
 ) -> Option<ObjectActionRequest> {
-    match request.action {
-        ObjectAction::Rename => {
-            let new_name = match db::object_actions::normalize_new_object_name(
-                request.new_name.as_deref().unwrap_or_default(),
-            ) {
+    match request {
+        ObjectActionRequest::Rename { object, new_name } => {
+            let new_name = match db::object_actions::normalize_new_object_name(&new_name) {
                 Some(name) => name,
                 None => {
                     widgets
@@ -312,16 +382,12 @@ fn normalize_object_action_request(
                 }
             };
 
-            if new_name == request.object.name {
+            if new_name == object.name {
                 return None;
             }
 
-            request.new_name = Some(new_name);
+            Some(ObjectActionRequest::Rename { object, new_name })
         }
-        ObjectAction::Truncate | ObjectAction::Delete => {
-            request.new_name = None;
-        }
+        ObjectActionRequest::Truncate { .. } | ObjectActionRequest::Delete { .. } => Some(request),
     }
-
-    Some(request)
 }

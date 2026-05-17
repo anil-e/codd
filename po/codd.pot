@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 16:18+0200\n"
+"POT-Creation-Date: 2026-05-17 15:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -127,91 +127,104 @@ msgstr ""
 msgid "Clearing query history failed"
 msgstr ""
 
-#: src/window_content/object_actions.rs:33
+#: src/window_content/object_actions.rs:60
 msgid "Choose a new name for this database object."
 msgstr ""
 
-#: src/window_content/object_actions.rs:38
-#: src/window_content/object_actions.rs:94
+#: src/window_content/object_actions.rs:65
+#: src/window_content/object_actions.rs:119
+#: src/window_content/object_actions.rs:173
 #: src/ui/components/start_screen.rs:320 src/ui/components/start_screen.rs:356
 #: src/ui/components/editor.rs:242
 #: src/ui/components/table_browser/cell_editor.rs:93
 msgid "Cancel"
 msgstr ""
 
-#: src/window_content/object_actions.rs:39
-#: src/window_content/object_actions.rs:271
+#: src/window_content/object_actions.rs:66
+#: src/window_content/object_actions.rs:341
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
 msgstr ""
 
-#: src/window_content/object_actions.rs:219
-msgid "Missing new object name."
+#: src/window_content/object_actions.rs:149
+msgid "Restart identity"
 msgstr ""
 
-#: src/window_content/object_actions.rs:240
-msgid "Rename Table"
+#: src/window_content/object_actions.rs:151
+msgid "Reset sequences owned by columns of the truncated table."
 msgstr ""
 
-#: src/window_content/object_actions.rs:241
-msgid "Rename View"
+#: src/window_content/object_actions.rs:156
+msgid "Cascade"
 msgstr ""
 
-#: src/window_content/object_actions.rs:243
-msgid "Truncate Table"
-msgstr ""
-
-#: src/window_content/object_actions.rs:245
-msgid "Delete Table"
-msgstr ""
-
-#: src/window_content/object_actions.rs:246
-msgid "Delete View"
-msgstr ""
-
-#: src/window_content/object_actions.rs:256
-msgid "Remove all rows from"
-msgstr ""
-
-#: src/window_content/object_actions.rs:258
-#: src/window_content/object_actions.rs:264
-msgid "This cannot be undone."
-msgstr ""
-
-#: src/window_content/object_actions.rs:262
-#: src/window_content/object_actions.rs:273
-msgid "Delete"
-msgstr ""
-
-#: src/window_content/object_actions.rs:272
-msgid "Truncate"
-msgstr ""
-
-#: src/window_content/object_actions.rs:279
-msgid "Database object renamed."
-msgstr ""
-
-#: src/window_content/object_actions.rs:282
-msgid "Table truncated:"
-msgstr ""
-
-#: src/window_content/object_actions.rs:285
-msgid "Database object deleted."
-msgstr ""
-
-#: src/window_content/object_actions.rs:291
-msgid "Renaming failed"
-msgstr ""
-
-#: src/window_content/object_actions.rs:292
-msgid "Truncating failed"
-msgstr ""
-
-#: src/window_content/object_actions.rs:293
-msgid "Deleting failed"
+#: src/window_content/object_actions.rs:158
+msgid "Also truncate tables that have foreign-key references to this table."
 msgstr ""
 
 #: src/window_content/object_actions.rs:310
+msgid "Rename Table"
+msgstr ""
+
+#: src/window_content/object_actions.rs:311
+msgid "Rename View"
+msgstr ""
+
+#: src/window_content/object_actions.rs:313
+msgid "Truncate Table"
+msgstr ""
+
+#: src/window_content/object_actions.rs:315
+msgid "Delete Table"
+msgstr ""
+
+#: src/window_content/object_actions.rs:316
+msgid "Delete View"
+msgstr ""
+
+#: src/window_content/object_actions.rs:326
+msgid "Remove all rows from"
+msgstr ""
+
+#: src/window_content/object_actions.rs:328
+#: src/window_content/object_actions.rs:334
+msgid "This cannot be undone."
+msgstr ""
+
+#: src/window_content/object_actions.rs:332
+#: src/window_content/object_actions.rs:343
+msgid "Delete"
+msgstr ""
+
+#: src/window_content/object_actions.rs:342
+msgid "Truncate"
+msgstr ""
+
+#: src/window_content/object_actions.rs:349
+msgid "Database object renamed."
+msgstr ""
+
+#: src/window_content/object_actions.rs:352
+msgid "Table truncated:"
+msgstr ""
+
+#: src/window_content/object_actions.rs:355
+msgid "Database object deleted."
+msgstr ""
+
+#: src/window_content/object_actions.rs:361
+msgid "Renaming failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:362
+msgid "Truncating failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:363
+msgid "Deleting failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:378
 msgid "Enter a valid object name."
 msgstr ""
 
