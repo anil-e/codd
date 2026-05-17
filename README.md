@@ -11,7 +11,7 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 ## Features
 
 - Save and reopen PostgreSQL connections
-- Switch between databases inside a saved PostgreSQL connection
+- Store connection passwords securely in Keyring
 - Browse tables and views
 - Write SQL with syntax highlighting and line numbers
 - Reuse automatically saved query history per database

@@ -841,6 +841,10 @@ msgid "Browse PostgreSQL table data with pagination and filters"
 msgstr "Explore datos de tablas de PostgreSQL con paginación y filtros"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:44
+msgid "Use table actions like rename, truncate and delete"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:48
 msgid "Manage saved PostgreSQL connections"
 msgstr "Administre conexiones de PostgreSQL guardadas"
 

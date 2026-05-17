@@ -32,15 +32,19 @@
   </branding>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.3.0/images/screenshot-query.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.4.0/images/flathub/screenshot-query.png</image>
       <caption>Run SQL queries with syntax highlighting and result previews</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.3.0/images/screenshot-table-browser.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.4.0/images/flathub/screenshot-table-browser.png</image>
       <caption>Browse PostgreSQL table data with pagination and filters</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.3.0/images/screenshot-start.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.4.0/images/flathub/screenshot-truncate.png</image>
+      <caption>Use table actions like rename, truncate and delete</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.4.0/images/flathub/screenshot-start.png</image>
       <caption>Manage saved PostgreSQL connections</caption>
     </screenshot>
   </screenshots>
@@ -51,6 +55,19 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.4.0" date="2026-05-17">
+      <description translate="no">
+        <p>This release adds secure password storage, Spanish translations and more complete table actions.</p>
+
+        <ul>
+          <li>Passwords can now be saved securely in Keyring.</li>
+          <li>Table truncation now supports RESTART IDENTITY and CASCADE options.</li>
+          <li>Table browser internals were split into smaller modules for better maintainability.</li>
+          <li>Spanish translations were added, thanks to Francisco V. &lt;fvasquez@fvtronics.com&gt;.</li>
+          <li>Screenshots and branding colors were refreshed for Flathub.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.0" date="2026-05-14">
       <description translate="no">
         <p>This release improves SQL execution, table browsing, and application branding.</p>
