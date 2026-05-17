@@ -27,8 +27,8 @@
     <binary>codd</binary>
   </provides>
   <branding>
-    <color type="primary" scheme_preference="light">#B7DAF8</color>
-    <color type="primary" scheme_preference="dark">#0A2E45</color>
+    <color type="primary" scheme_preference="light">#F59E0B</color>
+    <color type="primary" scheme_preference="dark">#92400E</color>
   </branding>
   <screenshots>
     <screenshot type="default">
