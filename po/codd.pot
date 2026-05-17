@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-17 15:35+0200\n"
+"POT-Creation-Date: 2026-05-17 16:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -133,7 +133,7 @@ msgstr ""
 
 #: src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
-#: src/window_content/object_actions.rs:173
+#: src/window_content/object_actions.rs:174
 #: src/ui/components/start_screen.rs:320 src/ui/components/start_screen.rs:356
 #: src/ui/components/editor.rs:242
 #: src/ui/components/table_browser/cell_editor.rs:93
@@ -141,7 +141,7 @@ msgid "Cancel"
 msgstr ""
 
 #: src/window_content/object_actions.rs:66
-#: src/window_content/object_actions.rs:341
+#: src/window_content/object_actions.rs:343
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
 msgstr ""
@@ -162,69 +162,69 @@ msgstr ""
 msgid "Also truncate tables that have foreign-key references to this table."
 msgstr ""
 
-#: src/window_content/object_actions.rs:310
+#: src/window_content/object_actions.rs:312
 msgid "Rename Table"
 msgstr ""
 
-#: src/window_content/object_actions.rs:311
+#: src/window_content/object_actions.rs:313
 msgid "Rename View"
 msgstr ""
 
-#: src/window_content/object_actions.rs:313
+#: src/window_content/object_actions.rs:315
 msgid "Truncate Table"
 msgstr ""
 
-#: src/window_content/object_actions.rs:315
+#: src/window_content/object_actions.rs:317
 msgid "Delete Table"
 msgstr ""
 
-#: src/window_content/object_actions.rs:316
+#: src/window_content/object_actions.rs:318
 msgid "Delete View"
 msgstr ""
 
-#: src/window_content/object_actions.rs:326
+#: src/window_content/object_actions.rs:328
 msgid "Remove all rows from"
 msgstr ""
 
-#: src/window_content/object_actions.rs:328
-#: src/window_content/object_actions.rs:334
+#: src/window_content/object_actions.rs:330
+#: src/window_content/object_actions.rs:336
 msgid "This cannot be undone."
 msgstr ""
 
-#: src/window_content/object_actions.rs:332
-#: src/window_content/object_actions.rs:343
+#: src/window_content/object_actions.rs:334
+#: src/window_content/object_actions.rs:345
 msgid "Delete"
 msgstr ""
 
-#: src/window_content/object_actions.rs:342
+#: src/window_content/object_actions.rs:344
 msgid "Truncate"
 msgstr ""
 
-#: src/window_content/object_actions.rs:349
+#: src/window_content/object_actions.rs:351
 msgid "Database object renamed."
 msgstr ""
 
-#: src/window_content/object_actions.rs:352
+#: src/window_content/object_actions.rs:354
 msgid "Table truncated:"
 msgstr ""
 
-#: src/window_content/object_actions.rs:355
+#: src/window_content/object_actions.rs:357
 msgid "Database object deleted."
 msgstr ""
 
-#: src/window_content/object_actions.rs:361
+#: src/window_content/object_actions.rs:363
 msgid "Renaming failed"
 msgstr ""
 
-#: src/window_content/object_actions.rs:362
+#: src/window_content/object_actions.rs:364
 msgid "Truncating failed"
 msgstr ""
 
-#: src/window_content/object_actions.rs:363
+#: src/window_content/object_actions.rs:365
 msgid "Deleting failed"
 msgstr ""
 
-#: src/window_content/object_actions.rs:378
+#: src/window_content/object_actions.rs:380
 msgid "Enter a valid object name."
 msgstr ""
 
@@ -332,7 +332,7 @@ msgid "Checking password storage availability."
 msgstr ""
 
 #: src/ui/components/connection_dialog.rs:406
-msgid "Store this password in GNOME Keyring."
+msgid "Store this password in Keyring."
 msgstr ""
 
 #: src/ui/components/connection_dialog.rs:407
@@ -340,7 +340,7 @@ msgid "Password storage is not available."
 msgstr ""
 
 #: src/ui/components/connection_dialog.rs:424
-msgid "Saved in GNOME Keyring. Enter a new password to replace it."
+msgid "Saved in Keyring. Enter a new password to replace it."
 msgstr ""
 
 #: src/ui/components/connection_dialog.rs:427

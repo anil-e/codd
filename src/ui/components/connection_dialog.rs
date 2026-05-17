@@ -403,7 +403,7 @@ impl ConnectionDialog {
     fn save_password_subtitle(&self) -> String {
         match &self.credential_state {
             CredentialState::Checking => gettext("Checking password storage availability."),
-            CredentialState::Available => gettext("Store this password in GNOME Keyring."),
+            CredentialState::Available => gettext("Store this password in Keyring."),
             CredentialState::Unavailable(_) => gettext("Password storage is not available."),
         }
     }
@@ -421,7 +421,7 @@ impl ConnectionDialog {
     fn password_status_text(&self) -> String {
         match self.saved_password_state {
             SavedPasswordState::Available => {
-                gettext("Saved in GNOME Keyring. Enter a new password to replace it.")
+                gettext("Saved in Keyring. Enter a new password to replace it.")
             }
             SavedPasswordState::Missing => {
                 gettext("No saved password was found. Enter a password to save it.")
