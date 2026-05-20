@@ -14,6 +14,7 @@ use crate::models::connection::{ConnectionDetails, SavedConnection};
 use crate::models::database_object::DatabaseObject;
 use crate::models::query_history::QueryHistoryEntry;
 use crate::models::query_result::QueryExecutionResult;
+use crate::models::table_script::TableScriptKind;
 use crate::settings;
 use crate::state::{app_state::AppState, connection_store, credential_store};
 use crate::ui::components::{
@@ -55,6 +56,7 @@ pub struct WindowContent {
     next_database_list_request_id: u64,
     active_database_switch_request_id: Option<u64>,
     next_database_switch_request_id: u64,
+    table_script_generation: u64,
     next_query_id: u64,
     workspace_navigation: WorkspaceNavigation,
 }
@@ -129,6 +131,11 @@ pub enum WindowContentMsg {
     SidebarOutput(ObjectSidebarOutput),
     ObjectActionConfirmed(ObjectActionRequest),
     ObjectActionCompleted(ObjectActionRequest, Result<(), String>),
+    TableScriptGenerated {
+        generation: u64,
+        kind: TableScriptKind,
+        result: Result<String, String>,
+    },
     CredentialWarning(String),
     DisableSavedPassword(String),
     EditorOutput {
@@ -162,6 +169,11 @@ pub enum WindowContentCommandOutput {
         id: u64,
     },
     ObjectActionFinished(ObjectActionRequest, Result<(), String>),
+    TableScriptGenerated {
+        generation: u64,
+        kind: TableScriptKind,
+        result: Result<String, String>,
+    },
     SavedPasswordUpdated {
         connection_id: String,
         save_password: bool,
@@ -311,6 +323,7 @@ impl Component for WindowContent {
             next_database_list_request_id: 0,
             active_database_switch_request_id: None,
             next_database_switch_request_id: 0,
+            table_script_generation: 0,
             next_query_id: 0,
             workspace_navigation: WorkspaceNavigation::Wide,
         };
@@ -481,11 +494,24 @@ impl Component for WindowContent {
             }) => {
                 self.handle_object_action(object, action, widgets, &sender);
             }
+            WindowContentMsg::SidebarOutput(ObjectSidebarOutput::TableScriptRequested {
+                object,
+                kind,
+            }) => {
+                self.generate_table_script(object, kind, widgets, &sender);
+            }
             WindowContentMsg::ObjectActionConfirmed(request) => {
                 self.run_object_action(request, widgets, &sender);
             }
             WindowContentMsg::ObjectActionCompleted(request, result) => {
                 self.handle_object_action_completed(request, result, widgets, &sender);
+            }
+            WindowContentMsg::TableScriptGenerated {
+                generation,
+                kind,
+                result,
+            } => {
+                self.handle_table_script_generated(generation, kind, result, widgets, &sender);
             }
             WindowContentMsg::CredentialWarning(error) => {
                 widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
@@ -533,6 +559,17 @@ impl Component for WindowContent {
             }
             WindowContentCommandOutput::ObjectActionFinished(request, result) => {
                 sender.input(WindowContentMsg::ObjectActionCompleted(request, result));
+            }
+            WindowContentCommandOutput::TableScriptGenerated {
+                generation,
+                kind,
+                result,
+            } => {
+                sender.input(WindowContentMsg::TableScriptGenerated {
+                    generation,
+                    kind,
+                    result,
+                });
             }
             WindowContentCommandOutput::SavedPasswordUpdated {
                 connection_id,
@@ -645,6 +682,7 @@ impl WindowContent {
         self.active_schema_request_id = None;
         self.active_database_list_request_id = None;
         self.active_database_switch_request_id = None;
+        self.advance_table_script_generation();
         self.state.active_connection = None;
         self.state.active_database = None;
         self.state.available_databases.clear();
@@ -693,6 +731,7 @@ impl WindowContent {
         root: &adw::ToolbarView,
     ) {
         self.cancel_all_queries();
+        self.advance_table_script_generation();
 
         let connection = details.saved.clone();
         self.state.active_connection = Some(connection.clone());
@@ -858,6 +897,61 @@ impl WindowContent {
                     .map_err(|error| error.to_string()),
             }
         });
+    }
+
+    fn generate_table_script(
+        &mut self,
+        object: DatabaseObject,
+        kind: TableScriptKind,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        let Some(pool) = self.active_pool.clone() else {
+            widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                "Connect to PostgreSQL before generating a script.",
+            )));
+            return;
+        };
+
+        let generation = self.table_script_generation;
+
+        sender.oneshot_command(async move {
+            WindowContentCommandOutput::TableScriptGenerated {
+                generation,
+                kind,
+                result: db::table_scripts::generate_table_script(&pool, &object, kind)
+                    .await
+                    .map_err(|error| error.to_string()),
+            }
+        });
+    }
+
+    fn handle_table_script_generated(
+        &mut self,
+        generation: u64,
+        kind: TableScriptKind,
+        result: Result<String, String>,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        if self.table_script_generation != generation {
+            return;
+        }
+
+        match result {
+            Ok(sql) => {
+                self.add_query_tab_with_sql(sql, widgets, sender);
+                widgets
+                    .toast_overlay
+                    .add_toast(adw::Toast::new(&table_script_generated_message(kind)));
+            }
+            Err(error) => {
+                widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                    "{}: {error}",
+                    gettext("Generating the table script failed")
+                )));
+            }
+        }
     }
 
     fn handle_query_executed(
@@ -1030,6 +1124,10 @@ impl WindowContent {
         id
     }
 
+    fn advance_table_script_generation(&mut self) {
+        self.table_script_generation = self.table_script_generation.wrapping_add(1);
+    }
+
     fn is_active_query(&self, tab_id: u64, id: u64) -> bool {
         self.query_tabs
             .iter()
@@ -1037,5 +1135,15 @@ impl WindowContent {
             .and_then(|tab| tab.active_query.as_ref())
             .as_ref()
             .is_some_and(|query| query.id == id)
+    }
+}
+
+fn table_script_generated_message(kind: TableScriptKind) -> String {
+    match kind {
+        TableScriptKind::Create => gettext("CREATE script generated."),
+        TableScriptKind::Select => gettext("SELECT script generated."),
+        TableScriptKind::Insert => gettext("INSERT script generated."),
+        TableScriptKind::Update => gettext("UPDATE script generated."),
+        TableScriptKind::Delete => gettext("DELETE script generated."),
     }
 }

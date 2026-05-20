@@ -176,6 +176,26 @@ impl WindowContent {
         }
     }
 
+    pub(super) fn add_query_tab_with_sql(
+        &mut self,
+        sql: String,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        self.add_query_tab(widgets, sender);
+
+        if let Some(tab) = self.active_query_tab_mut() {
+            tab.editor_buffer.set_text(&sql);
+            tab.editor.emit(SqlEditorMsg::Focus);
+        }
+
+        self.update_query_tab_title(self.active_query_tab_id);
+
+        let split_view = workspace_split_view(widgets);
+        split_view.set_show_content(true);
+        self.workspace_navigation = WorkspaceNavigation::from_split_view(split_view.is_collapsed());
+    }
+
     pub(super) fn add_query_tab_if_workspace_visible(
         &mut self,
         widgets: &WindowContentWidgets,

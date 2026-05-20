@@ -321,6 +321,7 @@ pub(crate) fn value_to_cell(row: &PgRow, index: usize, type_name: &str) -> Table
         "INT8" => decode::<i64>(row, index),
         "FLOAT4" => decode::<f32>(row, index),
         "FLOAT8" => decode::<f64>(row, index),
+        "CHAR" => decode_pg_char(row, index),
         "JSON" | "JSONB" => decode_json(row, index),
         "DATE" => decode::<chrono::NaiveDate>(row, index),
         "TIME" => decode::<chrono::NaiveTime>(row, index),
@@ -339,6 +340,21 @@ where
     row.try_get::<T, _>(index).map_or_else(
         |_| fallback_value_to_string(row, index),
         |value| value.to_string(),
+    )
+}
+
+fn decode_pg_char(row: &PgRow, index: usize) -> String {
+    row.try_get::<i8, _>(index).map_or_else(
+        |_| {
+            row.try_get_raw(index).map_or_else(
+                |_| "<unavailable>".to_string(),
+                |value| raw_value_to_string(&value),
+            )
+        },
+        |value| {
+            let byte = value as u8;
+            char::from(byte).to_string()
+        },
     )
 }
 

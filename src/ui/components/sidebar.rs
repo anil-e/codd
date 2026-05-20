@@ -1,4 +1,5 @@
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
+use crate::models::table_script::TableScriptKind;
 use gettextrs::{gettext, ngettext};
 use libadwaita as adw;
 use libadwaita::prelude::*;
@@ -44,6 +45,10 @@ pub enum ObjectSidebarOutput {
     ObjectAction {
         object: DatabaseObject,
         action: ObjectAction,
+    },
+    TableScriptRequested {
+        object: DatabaseObject,
+        kind: TableScriptKind,
     },
 }
 
@@ -539,6 +544,31 @@ fn object_action_group(
         action_group.add_action(&simple_action);
     }
 
+    if object.kind == DatabaseObjectKind::Table {
+        for (name, kind) in [
+            ("script-create", TableScriptKind::Create),
+            ("script-select", TableScriptKind::Select),
+            ("script-insert", TableScriptKind::Insert),
+            ("script-update", TableScriptKind::Update),
+            ("script-delete", TableScriptKind::Delete),
+        ] {
+            let simple_action = gtk::gio::SimpleAction::new(name, None);
+            let sender = sender.clone();
+            let object = object.clone();
+
+            simple_action.connect_activate(move |_, _| {
+                sender
+                    .output(ObjectSidebarOutput::TableScriptRequested {
+                        object: object.clone(),
+                        kind,
+                    })
+                    .ok();
+            });
+
+            action_group.add_action(&simple_action);
+        }
+    }
+
     action_group
 }
 
@@ -557,6 +587,10 @@ fn object_menu(kind: &DatabaseObjectKind) -> gtk::gio::Menu {
 
     menu.append_section(None, &copy_section);
 
+    if *kind == DatabaseObjectKind::Table {
+        menu.append_submenu(Some(&gettext("Scripts")), &table_scripts_menu());
+    }
+
     let edit_section = gtk::gio::Menu::new();
     edit_section.append(Some(&gettext("Rename...")), Some("object.rename"));
     menu.append_section(None, &edit_section);
@@ -569,6 +603,31 @@ fn object_menu(kind: &DatabaseObjectKind) -> gtk::gio::Menu {
     destructive_section.append(Some(&gettext("Delete...")), Some("object.delete"));
     menu.append_section(None, &destructive_section);
 
+    menu
+}
+
+fn table_scripts_menu() -> gtk::gio::Menu {
+    let menu = gtk::gio::Menu::new();
+    menu.append(
+        Some(&gettext("CREATE Script")),
+        Some("object.script-create"),
+    );
+    menu.append(
+        Some(&gettext("SELECT Script")),
+        Some("object.script-select"),
+    );
+    menu.append(
+        Some(&gettext("INSERT Script")),
+        Some("object.script-insert"),
+    );
+    menu.append(
+        Some(&gettext("UPDATE Script")),
+        Some("object.script-update"),
+    );
+    menu.append(
+        Some(&gettext("DELETE Script")),
+        Some("object.script-delete"),
+    );
     menu
 }
 

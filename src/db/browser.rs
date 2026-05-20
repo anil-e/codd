@@ -5,6 +5,17 @@ use crate::models::table_browser::{
 };
 use sqlx::{Column, PgPool, Row, TypeInfo};
 
+#[derive(Debug)]
+struct TableColumnRow {
+    name: String,
+    display_type: String,
+    type_name: String,
+    enum_values: Option<Vec<String>>,
+    is_nullable: bool,
+    is_primary_key: bool,
+    ordinal_position: i32,
+}
+
 pub async fn load_table_page(
     pool: &PgPool,
     object: &DatabaseObject,
@@ -52,12 +63,12 @@ pub async fn load_table_columns(
     pool: &PgPool,
     object: &DatabaseObject,
 ) -> Result<Vec<TableColumn>, sqlx::Error> {
-    let rows = sqlx::query_as::<_, (String, String, String, Option<Vec<String>>, bool, bool, i32)>(
+    let rows = sqlx::query(
         r"
         SELECT
-            a.attname,
+            a.attname AS name,
             format_type(a.atttypid, a.atttypmod) AS display_type,
-            t.typname,
+            t.typname AS type_name,
             array_agg(e.enumlabel ORDER BY e.enumsortorder)
                 FILTER (WHERE e.enumlabel IS NOT NULL) AS enum_values,
             NOT a.attnotnull AS is_nullable,
@@ -95,31 +106,30 @@ pub async fn load_table_columns(
     .fetch_all(pool)
     .await?;
 
-    Ok(rows
-        .into_iter()
-        .map(
-            |(
-                name,
-                display_type,
-                type_name,
-                enum_values,
-                is_nullable,
-                is_primary_key,
-                ordinal_position,
-            )| {
-                TableColumn {
-                    name,
-                    display_type,
-                    enum_values: enum_values.unwrap_or_default(),
-                    type_group: ColumnTypeGroup::from_postgres_type(&type_name),
-                    type_name,
-                    is_nullable,
-                    is_primary_key,
-                    ordinal_position,
-                }
-            },
-        )
-        .collect())
+    rows.into_iter()
+        .map(|row| {
+            let row = TableColumnRow {
+                name: row.try_get("name")?,
+                display_type: row.try_get("display_type")?,
+                type_name: row.try_get("type_name")?,
+                enum_values: row.try_get("enum_values")?,
+                is_nullable: row.try_get("is_nullable")?,
+                is_primary_key: row.try_get("is_primary_key")?,
+                ordinal_position: row.try_get("ordinal_position")?,
+            };
+
+            Ok(TableColumn {
+                name: row.name,
+                display_type: row.display_type,
+                enum_values: row.enum_values.unwrap_or_default(),
+                type_group: ColumnTypeGroup::from_postgres_type(&row.type_name),
+                type_name: row.type_name,
+                is_nullable: row.is_nullable,
+                is_primary_key: row.is_primary_key,
+                ordinal_position: row.ordinal_position,
+            })
+        })
+        .collect()
 }
 
 async fn load_page_rows(
