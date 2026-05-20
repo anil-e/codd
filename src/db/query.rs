@@ -100,6 +100,16 @@ fn expects_rows_when_empty(sql: &str) -> bool {
         || contains_keyword_outside_literals(&normalized, "returning")
 }
 
+pub(crate) fn changes_schema(sql: &str) -> bool {
+    let normalized = sql.to_ascii_lowercase();
+
+    [
+        "alter", "comment", "create", "drop", "grant", "reindex", "revoke",
+    ]
+    .into_iter()
+    .any(|keyword| contains_keyword_outside_literals(&normalized, keyword))
+}
+
 fn strip_leading_sql_comments(mut sql: &str) -> &str {
     loop {
         sql = sql.trim_start();
@@ -411,8 +421,8 @@ fn raw_bytes_to_hex(value: &PgValueRef<'_>) -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        contains_keyword_outside_literals, expects_rows_when_empty, last_sql_statement,
-        rows_to_result,
+        changes_schema, contains_keyword_outside_literals, expects_rows_when_empty,
+        last_sql_statement, rows_to_result,
     };
 
     #[test]
@@ -518,6 +528,21 @@ mod tests {
         assert!(!expects_rows_when_empty("-- comment without newline"));
         assert!(!expects_rows_when_empty("/* unterminated comment"));
         assert!(!expects_rows_when_empty("/* complete */"));
+    }
+
+    #[test]
+    fn detects_schema_changes_outside_literals_and_comments() {
+        assert!(changes_schema("create table users(id bigint)"));
+        assert!(changes_schema(
+            "select 1; alter table users add column name text"
+        ));
+        assert!(changes_schema("drop table users"));
+        assert!(changes_schema("comment on table users is 'public users'"));
+
+        assert!(!changes_schema("-- drop table users\nselect 1"));
+        assert!(!changes_schema("select 'create table users(id bigint)'"));
+        assert!(!changes_schema("select * from create_log"));
+        assert!(!changes_schema("insert into users(name) values ('a')"));
     }
 
     #[test]

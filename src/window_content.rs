@@ -162,6 +162,7 @@ pub enum WindowContentCommandOutput {
     QueryExecuted {
         tab_id: u64,
         id: u64,
+        reload_schema_on_success: bool,
         result: Result<QueryExecutionResult, String>,
     },
     QueryCancelled {
@@ -551,8 +552,13 @@ impl Component for WindowContent {
                     result,
                 });
             }
-            WindowContentCommandOutput::QueryExecuted { tab_id, id, result } => {
-                self.handle_query_executed(tab_id, id, result);
+            WindowContentCommandOutput::QueryExecuted {
+                tab_id,
+                id,
+                reload_schema_on_success,
+                result,
+            } => {
+                self.handle_query_executed(tab_id, id, reload_schema_on_success, result, &sender);
             }
             WindowContentCommandOutput::QueryCancelled { tab_id, id } => {
                 self.handle_query_cancelled(tab_id, id);
@@ -958,30 +964,40 @@ impl WindowContent {
         &mut self,
         tab_id: u64,
         id: u64,
+        reload_schema_on_success: bool,
         result: Result<QueryExecutionResult, String>,
+        sender: &ComponentSender<Self>,
     ) {
         if !self.is_active_query(tab_id, id) {
             return;
         }
 
-        let Some(tab) = self.query_tab_mut(tab_id) else {
-            return;
+        let should_reload_schema = {
+            let Some(tab) = self.query_tab_mut(tab_id) else {
+                return;
+            };
+
+            tab.active_query = None;
+            tab.query_state = QueryState::Idle;
+            tab.editor.emit(SqlEditorMsg::SetRunning(false));
+
+            match result {
+                Ok(result) => {
+                    tab.results.emit(QueryResultsMsg::ShowResult(result));
+                    reload_schema_on_success
+                }
+                Err(error) => {
+                    tab.results.emit(QueryResultsMsg::ShowError(format!(
+                        "{}: {error}",
+                        gettext("Query failed")
+                    )));
+                    false
+                }
+            }
         };
 
-        tab.active_query = None;
-        tab.query_state = QueryState::Idle;
-        tab.editor.emit(SqlEditorMsg::SetRunning(false));
-
-        match result {
-            Ok(result) => {
-                tab.results.emit(QueryResultsMsg::ShowResult(result));
-            }
-            Err(error) => {
-                tab.results.emit(QueryResultsMsg::ShowError(format!(
-                    "{}: {error}",
-                    gettext("Query failed")
-                )));
-            }
+        if should_reload_schema {
+            self.reload_schema(sender);
         }
     }
 
@@ -1063,6 +1079,7 @@ impl WindowContent {
         }
         self.record_query_history(widgets, &sql);
 
+        let reload_schema_on_success = db::query::changes_schema(&sql);
         let id = self.allocate_query_id();
         let (abort_handle, abort_registration) = AbortHandle::new_pair();
         if let Some(tab) = self.query_tab_mut(tab_id) {
@@ -1080,7 +1097,12 @@ impl WindowContent {
             };
 
             match Abortable::new(query, abort_registration).await {
-                Ok(result) => WindowContentCommandOutput::QueryExecuted { tab_id, id, result },
+                Ok(result) => WindowContentCommandOutput::QueryExecuted {
+                    tab_id,
+                    id,
+                    reload_schema_on_success,
+                    result,
+                },
                 Err(_) => WindowContentCommandOutput::QueryCancelled { tab_id, id },
             }
         });
