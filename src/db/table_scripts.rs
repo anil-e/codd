@@ -2,7 +2,7 @@ use crate::db::browser;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::table_browser::TableColumn;
 use crate::models::table_script::TableScriptKind;
-use sqlx::{PgPool, Row};
+use sqlx::PgPool;
 
 const TABLE_DEFINITION_SQL: &str = r"
 SELECT
@@ -101,7 +101,7 @@ async fn create_script(pool: &PgPool, object: &DatabaseObject) -> Result<String,
     ))
 }
 
-#[derive(Debug)]
+#[derive(Debug, sqlx::FromRow)]
 struct TableDefinition {
     owner: String,
     tablespace: Option<String>,
@@ -119,7 +119,7 @@ struct ColumnDefinition {
     generated: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, sqlx::FromRow)]
 struct ColumnDefinitionRow {
     name: String,
     data_type: String,
@@ -146,13 +146,13 @@ struct IdentitySequenceOptions {
     cycle: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, sqlx::FromRow)]
 struct ConstraintDefinition {
     name: String,
     definition: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, sqlx::FromRow)]
 struct IndexDefinition {
     schema: String,
     name: String,
@@ -163,46 +163,26 @@ async fn load_table_definition(
     pool: &PgPool,
     object: &DatabaseObject,
 ) -> Result<TableDefinition, sqlx::Error> {
-    let row = sqlx::query(TABLE_DEFINITION_SQL)
+    sqlx::query_as::<_, TableDefinition>(TABLE_DEFINITION_SQL)
         .bind(&object.schema)
         .bind(&object.name)
         .fetch_one(pool)
-        .await?;
-
-    Ok(TableDefinition {
-        owner: row.try_get("owner")?,
-        tablespace: row.try_get("tablespace")?,
-    })
+        .await
 }
 
 async fn load_column_definitions(
     pool: &PgPool,
     object: &DatabaseObject,
 ) -> Result<Vec<ColumnDefinition>, sqlx::Error> {
-    let rows = sqlx::query(COLUMN_DEFINITION_SQL)
+    let rows = sqlx::query_as::<_, ColumnDefinitionRow>(COLUMN_DEFINITION_SQL)
         .bind(&object.schema)
         .bind(&object.name)
         .fetch_all(pool)
         .await?;
 
-    rows.into_iter()
+    Ok(rows
+        .into_iter()
         .map(|row| {
-            let row = ColumnDefinitionRow {
-                name: row.try_get("name")?,
-                data_type: row.try_get("data_type")?,
-                collation: row.try_get("collation")?,
-                is_not_null: row.try_get("is_not_null")?,
-                default_expression: row.try_get("default_expression")?,
-                identity: row.try_get("identity")?,
-                identity_increment: row.try_get("identity_increment")?,
-                identity_start: row.try_get("identity_start")?,
-                identity_min_value: row.try_get("identity_min_value")?,
-                identity_max_value: row.try_get("identity_max_value")?,
-                identity_cache: row.try_get("identity_cache")?,
-                identity_cycle: row.try_get("identity_cycle")?,
-                generated: row.try_get("generated")?,
-            };
-
             let identity_sequence = identity_sequence_options(
                 row.identity_increment,
                 row.identity_start,
@@ -212,7 +192,7 @@ async fn load_column_definitions(
                 row.identity_cycle,
             );
 
-            Ok(ColumnDefinition {
+            ColumnDefinition {
                 name: row.name,
                 data_type: row.data_type,
                 collation: row.collation,
@@ -221,16 +201,16 @@ async fn load_column_definitions(
                 identity: row.identity,
                 identity_sequence,
                 generated: row.generated,
-            })
+            }
         })
-        .collect()
+        .collect())
 }
 
 async fn load_constraints(
     pool: &PgPool,
     object: &DatabaseObject,
 ) -> Result<Vec<ConstraintDefinition>, sqlx::Error> {
-    let rows = sqlx::query(
+    sqlx::query_as::<_, ConstraintDefinition>(
         r"
         SELECT
             con.conname AS name,
@@ -255,23 +235,14 @@ async fn load_constraints(
     .bind(&object.schema)
     .bind(&object.name)
     .fetch_all(pool)
-    .await?;
-
-    rows.into_iter()
-        .map(|row| {
-            Ok(ConstraintDefinition {
-                name: row.try_get("name")?,
-                definition: row.try_get("definition")?,
-            })
-        })
-        .collect()
+    .await
 }
 
 async fn load_indexes(
     pool: &PgPool,
     object: &DatabaseObject,
 ) -> Result<Vec<IndexDefinition>, sqlx::Error> {
-    let rows = sqlx::query(
+    sqlx::query_as::<_, IndexDefinition>(
         r"
         SELECT
             index_ns.nspname AS schema,
@@ -296,17 +267,7 @@ async fn load_indexes(
     .bind(&object.schema)
     .bind(&object.name)
     .fetch_all(pool)
-    .await?;
-
-    rows.into_iter()
-        .map(|row| {
-            Ok(IndexDefinition {
-                schema: row.try_get("schema")?,
-                name: row.try_get("name")?,
-                definition: row.try_get("definition")?,
-            })
-        })
-        .collect()
+    .await
 }
 
 fn identity_sequence_options(

@@ -1,7 +1,7 @@
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
-use sqlx::{PgPool, Row};
+use sqlx::PgPool;
 
-#[derive(Debug)]
+#[derive(Debug, sqlx::FromRow)]
 struct SchemaObjectRow {
     schema: String,
     name: String,
@@ -9,7 +9,7 @@ struct SchemaObjectRow {
 }
 
 pub async fn load_schema(pool: &PgPool) -> Result<Vec<DatabaseObject>, sqlx::Error> {
-    let rows = sqlx::query(
+    let rows = sqlx::query_as::<_, SchemaObjectRow>(
         r"
         SELECT
             table_schema AS schema,
@@ -24,22 +24,15 @@ pub async fn load_schema(pool: &PgPool) -> Result<Vec<DatabaseObject>, sqlx::Err
     .fetch_all(pool)
     .await?;
 
-    rows.into_iter()
-        .map(|row| {
-            let row = SchemaObjectRow {
-                schema: row.try_get("schema")?,
-                name: row.try_get("name")?,
-                table_type: row.try_get("table_type")?,
-            };
-
-            Ok(DatabaseObject {
-                schema: row.schema,
-                name: row.name,
-                kind: match row.table_type.as_str() {
-                    "VIEW" => DatabaseObjectKind::View,
-                    _ => DatabaseObjectKind::Table,
-                },
-            })
+    Ok(rows
+        .into_iter()
+        .map(|row| DatabaseObject {
+            schema: row.schema,
+            name: row.name,
+            kind: match row.table_type.as_str() {
+                "VIEW" => DatabaseObjectKind::View,
+                _ => DatabaseObjectKind::Table,
+            },
         })
-        .collect()
+        .collect())
 }
