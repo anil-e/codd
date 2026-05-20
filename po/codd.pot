@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-17 16:26+0200\n"
+"POT-Creation-Date: 2026-05-20 11:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,77 +30,105 @@ msgstr ""
 msgid "_Quit"
 msgstr ""
 
-#: src/window_content.rs:184
+#: src/window_content.rs:197
 msgid "Back to connections"
 msgstr ""
 
-#: src/window_content.rs:203
+#: src/window_content.rs:216
 msgid "Main Menu"
 msgstr ""
 
-#: src/window_content.rs:209
+#: src/window_content.rs:222
 msgid "New Query Tab"
 msgstr ""
 
-#: src/window_content.rs:213
+#: src/window_content.rs:226
 msgid "New"
 msgstr ""
 
-#: src/window_content.rs:235
+#: src/window_content.rs:248
 msgid "Objects"
 msgstr ""
 
-#: src/window_content.rs:241
+#: src/window_content.rs:254
 msgid "Workspace"
 msgstr ""
 
-#: src/window_content.rs:493
+#: src/window_content.rs:520
 msgid "Updating the saved password failed"
 msgstr ""
 
-#: src/window_content.rs:607
+#: src/window_content.rs:650
 msgid "Hide Objects"
 msgstr ""
 
-#: src/window_content.rs:608
+#: src/window_content.rs:651
 msgid "Show Objects"
 msgstr ""
 
-#: src/window_content.rs:662 src/ui/components/sidebar.rs:145
-#: src/ui/components/sidebar.rs:400 src/ui/components/sidebar.rs:414
+#: src/window_content.rs:706 src/ui/components/sidebar.rs:150
+#: src/ui/components/sidebar.rs:405 src/ui/components/sidebar.rs:419
 msgid "No connection"
 msgstr ""
 
-#: src/window_content.rs:732
+#: src/window_content.rs:777
 msgid "Connected to PostgreSQL."
 msgstr ""
 
-#: src/window_content.rs:745
+#: src/window_content.rs:790
 msgid "Connected, but saving the connection failed"
 msgstr ""
 
-#: src/window_content.rs:818
+#: src/window_content.rs:863
 msgid "Disabling saved password failed"
 msgstr ""
 
-#: src/window_content.rs:839
+#: src/window_content.rs:884
 msgid "Schema load failed"
 msgstr ""
 
-#: src/window_content.rs:888 src/ui/components/results.rs:212
+#: src/window_content.rs:917
+msgid "Connect to PostgreSQL before generating a script."
+msgstr ""
+
+#: src/window_content.rs:957
+msgid "Generating the table script failed"
+msgstr ""
+
+#: src/window_content.rs:992 src/ui/components/results.rs:212
 msgid "Query failed"
 msgstr ""
 
-#: src/window_content.rs:952
+#: src/window_content.rs:1062
 msgid "A query is already running."
 msgstr ""
 
-#: src/window_content.rs:958
+#: src/window_content.rs:1068
 msgid "Connect to PostgreSQL before running a query."
 msgstr ""
 
-#: src/window_content.rs:966
+#: src/window_content.rs:1076
 msgid "Enter SQL before running a query."
+msgstr ""
+
+#: src/window_content.rs:1165
+msgid "CREATE script generated."
+msgstr ""
+
+#: src/window_content.rs:1166
+msgid "SELECT script generated."
+msgstr ""
+
+#: src/window_content.rs:1167
+msgid "INSERT script generated."
+msgstr ""
+
+#: src/window_content.rs:1168
+msgid "UPDATE script generated."
+msgstr ""
+
+#: src/window_content.rs:1169
+msgid "DELETE script generated."
 msgstr ""
 
 #: src/window_content/database_switching.rs:57
@@ -241,7 +269,7 @@ msgstr ""
 msgid "Close All"
 msgstr ""
 
-#: src/window_content/tabs.rs:609
+#: src/window_content/tabs.rs:629
 msgid "Query"
 msgstr ""
 
@@ -438,90 +466,114 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:90
+#: src/ui/components/sidebar.rs:95
 msgid "Search objects"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:114
+#: src/ui/components/sidebar.rs:119
 msgid "No objects match your search."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:167
+#: src/ui/components/sidebar.rs:172
 msgid "Loading schema..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:178 src/ui/components/sidebar.rs:402
-#: src/ui/components/sidebar.rs:416
+#: src/ui/components/sidebar.rs:183 src/ui/components/sidebar.rs:407
+#: src/ui/components/sidebar.rs:421
 msgid "No tables or views found"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:330
+#: src/ui/components/sidebar.rs:335
 msgid "object"
 msgid_plural "objects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/ui/components/sidebar.rs:387
+#: src/ui/components/sidebar.rs:392
 msgid "Loading schema"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:389
+#: src/ui/components/sidebar.rs:394
 msgid "No objects available"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:398
+#: src/ui/components/sidebar.rs:403
 msgid "Fetching tables and views for the current connection."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:401
+#: src/ui/components/sidebar.rs:406
 msgid "Connect to PostgreSQL to browse database objects."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:404
+#: src/ui/components/sidebar.rs:409
 msgid "The selected database does not currently expose tables or views."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:561
+#: src/ui/components/sidebar.rs:591
+msgid "Scripts"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:595
 msgid "Rename..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:566
+#: src/ui/components/sidebar.rs:600
 msgid "Truncate..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:569
+#: src/ui/components/sidebar.rs:603
 msgid "Delete..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:577
+#: src/ui/components/sidebar.rs:612
+msgid "CREATE Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:616
+msgid "SELECT Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:620
+msgid "INSERT Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:624
+msgid "UPDATE Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:628
+msgid "DELETE Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:636
 msgid "Copy Table Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:578
+#: src/ui/components/sidebar.rs:637
 msgid "Copy Qualified Table Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:579
+#: src/ui/components/sidebar.rs:638
 msgid "Copy View Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:580
+#: src/ui/components/sidebar.rs:639
 msgid "Copy Qualified View Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:586
+#: src/ui/components/sidebar.rs:645
 msgid "Table name copied."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:587
+#: src/ui/components/sidebar.rs:646
 msgid "Qualified table name copied."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:588
+#: src/ui/components/sidebar.rs:647
 msgid "View name copied."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:589
+#: src/ui/components/sidebar.rs:648
 msgid "Qualified view name copied."
 msgstr ""
 
