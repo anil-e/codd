@@ -24,7 +24,7 @@ use crate::ui::components::{
     results::{QueryResults, QueryResultsMsg},
     sidebar::{ObjectSidebar, ObjectSidebarMsg, ObjectSidebarOutput},
     start_screen::{StartScreen, StartScreenMsg, StartScreenOutput},
-    table_browser::TableBrowser,
+    table_view::TableView,
 };
 
 mod database_switching;
@@ -75,7 +75,7 @@ struct BrowseTab {
     id: u64,
     page: adw::TabPage,
     object: DatabaseObject,
-    browser: Controller<TableBrowser>,
+    view: Controller<TableView>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

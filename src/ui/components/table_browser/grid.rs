@@ -7,6 +7,7 @@ use relm4::prelude::*;
 
 use crate::models::table_browser::{ColumnTypeGroup, TableCell, TableColumn};
 use crate::ui::components::cell_dialog::show_cell_value_dialog;
+use crate::ui::components::cell_style;
 use crate::ui::components::table_browser::{TableBrowser, TableBrowserMsg};
 
 use super::sorting::sync_sort_indicator;
@@ -51,7 +52,7 @@ pub(super) fn cell_factory(
     sender: &ComponentSender<TableBrowser>,
 ) -> gtk::SignalListItemFactory {
     let factory = gtk::SignalListItemFactory::new();
-    let type_class = type_group_class(type_group);
+    let type_class = cell_style::type_group_class(type_group);
     let sender = sender.clone();
 
     factory.connect_setup(move |_, list_item| {
@@ -198,16 +199,4 @@ fn sync_columns(
     }
 
     sync_sort_indicator(&table_browser.table_view, table_browser.sort.as_ref());
-}
-
-fn type_group_class(type_group: ColumnTypeGroup) -> Option<&'static str> {
-    match type_group {
-        ColumnTypeGroup::Boolean => Some("cell-type-boolean"),
-        ColumnTypeGroup::Binary => Some("cell-type-binary"),
-        ColumnTypeGroup::DateTime => Some("cell-type-datetime"),
-        ColumnTypeGroup::Json => Some("cell-type-json"),
-        ColumnTypeGroup::Numeric => Some("cell-type-numeric"),
-        ColumnTypeGroup::Text => Some("cell-type-text"),
-        ColumnTypeGroup::Other => None,
-    }
 }

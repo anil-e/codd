@@ -37,6 +37,7 @@ pub struct TableBrowser {
     active_filters: Vec<TableFilter>,
     sort: Option<TableSort>,
     filters_expanded: bool,
+    show_header: bool,
     page_generation: u64,
     request_id: u64,
     active_request_id: Option<u64>,
@@ -59,6 +60,7 @@ pub enum TableBrowserMsg {
     },
     ObjectRenamed(DatabaseObject),
     Refresh,
+    SetHeaderVisible(bool),
     FirstPage,
     PreviousPage,
     NextPage,
@@ -135,7 +137,7 @@ impl Component for TableBrowser {
                 set_margin_end: 12,
                 add_css_class: "table-browser-header",
                 #[watch]
-                set_visible: model.object.is_some(),
+                set_visible: model.show_header && model.object.is_some(),
 
                 gtk::Box {
                     set_orientation: gtk::Orientation::Vertical,
@@ -350,6 +352,7 @@ impl Component for TableBrowser {
             active_filters: Vec::new(),
             sort: None,
             filters_expanded: false,
+            show_header: true,
             page_generation: 0,
             request_id: 0,
             active_request_id: None,
@@ -408,6 +411,10 @@ impl Component for TableBrowser {
 
             TableBrowserMsg::Refresh => {
                 self.load_page(widgets, &sender);
+            }
+
+            TableBrowserMsg::SetHeaderVisible(visible) => {
+                self.show_header = visible;
             }
 
             TableBrowserMsg::FirstPage => {

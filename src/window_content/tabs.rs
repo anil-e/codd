@@ -14,7 +14,7 @@ use crate::ui::components::{
     editor::{SqlEditor, SqlEditorMsg},
     results::QueryResults,
     sidebar::ObjectSidebarMsg,
-    table_browser::{TableBrowser, TableBrowserMsg},
+    table_view::{TableView, TableViewMsg},
 };
 
 use super::{
@@ -411,7 +411,7 @@ impl WindowContent {
         };
 
         if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id) {
-            tab.browser.emit(TableBrowserMsg::Refresh);
+            tab.view.emit(TableViewMsg::Refresh);
         }
     }
 
@@ -478,8 +478,8 @@ impl WindowContent {
         let id = self.next_browse_tab_id;
         self.next_browse_tab_id = self.next_browse_tab_id.wrapping_add(1);
 
-        let browser = TableBrowser::builder().launch(()).detach();
-        let widget = browser.widget();
+        let view = TableView::builder().launch(()).detach();
+        let widget = view.widget();
         widget.set_widget_name(&format!("browse-tab-{id}"));
 
         let title = object.name.clone();
@@ -488,7 +488,7 @@ impl WindowContent {
         page.set_tooltip(&format!("{}.{}", object.schema, object.name));
         widgets.query_tab_view.set_selected_page(&page);
 
-        browser.emit(TableBrowserMsg::Open {
+        view.emit(TableViewMsg::Open {
             pool,
             object: object.clone(),
         });
@@ -497,7 +497,7 @@ impl WindowContent {
             id,
             page,
             object,
-            browser,
+            view,
         });
 
         if let Some(tab) = self.browse_tabs.last() {
@@ -519,8 +519,7 @@ impl WindowContent {
         for tab in &mut self.browse_tabs {
             if tab.object == *object {
                 tab.object = renamed.clone();
-                tab.browser
-                    .emit(TableBrowserMsg::ObjectRenamed(renamed.clone()));
+                tab.view.emit(TableViewMsg::ObjectRenamed(renamed.clone()));
                 tab.page.set_title(new_name);
                 tab.page
                     .set_tooltip(&format!("{}.{}", renamed.schema, renamed.name));
@@ -533,7 +532,7 @@ impl WindowContent {
     pub(super) fn reload_browse_tab(&self, object: &DatabaseObject) {
         for tab in &self.browse_tabs {
             if tab.object == *object {
-                tab.browser.emit(TableBrowserMsg::Refresh);
+                tab.view.emit(TableViewMsg::Refresh);
             }
         }
     }

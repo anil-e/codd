@@ -1,4 +1,5 @@
 pub mod cell_dialog;
+pub mod cell_style;
 pub mod connection_dialog;
 pub mod database_selector;
 pub mod editor;
@@ -6,3 +7,5 @@ pub mod results;
 pub mod sidebar;
 pub mod start_screen;
 pub mod table_browser;
+pub mod table_structure;
+pub mod table_view;

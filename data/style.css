@@ -56,6 +56,11 @@
   font-size: 0.98em;
 }
 
+.table-mode-switcher button {
+  margin-bottom: 2px;
+  margin-top: 2px;
+}
+
 .table-browser-scroller,
 .table-browser-scroller viewport,
 .table-browser-scroller > widget {
@@ -79,15 +84,15 @@
   padding-bottom: 3px;
 }
 
-.cell-type-boolean              { color: #1f9d55; }
-.cell-type-boolean.cell-dark    { color: #4fd785; }
-.cell-type-binary               { color: #8b5cf6; }
-.cell-type-binary.cell-dark     { color: #b89cff; }
-.cell-type-datetime             { color: #0f7abf; }
-.cell-type-datetime.cell-dark   { color: #66c2ff; }
-.cell-type-json                 { color: #d97706; }
-.cell-type-json.cell-dark       { color: #ffb15f; }
-.cell-type-numeric              { color: #6d28d9; }
-.cell-type-numeric.cell-dark    { color: #c69cff; }
-.cell-type-text                 { color: #0057b7; }
-.cell-type-text.cell-dark       { color: #79b8ff; }
+.cell-type-boolean              { color: #0b7d3b; }
+.cell-type-boolean.cell-dark    { color: #8ff0a4; }
+.cell-type-binary               { color: #6f2dbd; }
+.cell-type-binary.cell-dark     { color: #dc8add; }
+.cell-type-datetime             { color: #0057a8; }
+.cell-type-datetime.cell-dark   { color: #99c1f1; }
+.cell-type-json                 { color: #9a4b00; }
+.cell-type-json.cell-dark       { color: #ffbe6f; }
+.cell-type-numeric              { color: #5b21b6; }
+.cell-type-numeric.cell-dark    { color: #cba6f7; }
+.cell-type-text                 { color: #004f9e; }
+.cell-type-text.cell-dark       { color: #8be9fd; }
