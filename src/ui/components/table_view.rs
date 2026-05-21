@@ -106,7 +106,9 @@ impl Component for TableView {
                     set_tooltip_text: Some(&gettext("Show or edit filters")),
                     add_css_class: "flat",
                     #[watch]
-                    set_visible: model.mode == TableViewMode::Content,
+                    set_sensitive: model.mode == TableViewMode::Content,
+                    #[watch]
+                    set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     set_child: Some(&icon_label_widget("filter-symbolic", &gettext("Filters"))),
                     connect_clicked => TableViewMsg::ToggleFilters,
                 },
