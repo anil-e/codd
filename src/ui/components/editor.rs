@@ -104,7 +104,7 @@ impl Component for SqlEditor {
                     set_tooltip_text: Some(&gettext("Query History")),
                     add_css_class: "flat",
                     set_child: Some(&adw::ButtonContent::builder()
-                        .icon_name("document-open-recent-symbolic")
+                        .icon_name("document-open-symbolic")
                         .label(gettext("History"))
                         .build()
                     ),

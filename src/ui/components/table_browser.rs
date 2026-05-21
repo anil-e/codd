@@ -231,7 +231,7 @@ impl Component for TableBrowser {
                 set_visible: model.object.is_some(),
 
                 gtk::Button {
-                    set_icon_name: "go-first-symbolic",
+                    set_icon_name: "first-symbolic",
                     set_tooltip_text: Some(&gettext("First page")),
                     add_css_class: "flat",
                     #[watch]
@@ -280,7 +280,7 @@ impl Component for TableBrowser {
                 },
 
                 gtk::Button {
-                    set_icon_name: "go-last-symbolic",
+                    set_icon_name: "last-symbolic",
                     set_tooltip_text: Some(&gettext("Last page")),
                     add_css_class: "flat",
                     #[watch]
@@ -761,7 +761,7 @@ impl TableBrowser {
         } else if self.is_loading {
             "view-refresh-symbolic"
         } else {
-            "table"
+            "table-symbolic"
         }
     }
 

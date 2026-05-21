@@ -193,7 +193,7 @@ impl Component for WindowContent {
         root = adw::ToolbarView {
             add_top_bar = &adw::HeaderBar {
                     pack_start = &gtk::Button {
-                        set_icon_name: "go-previous",
+                        set_icon_name: "go-previous-symbolic",
                         set_tooltip_text: Some(&gettext("Back to connections")),
                         add_css_class: "flat",
                         #[watch]
@@ -202,7 +202,7 @@ impl Component for WindowContent {
                     },
 
                     pack_start = &gtk::Button {
-                        set_icon_name: "sidebar-left",
+                        set_icon_name: "sidebar-show-symbolic",
                         #[watch]
                         set_tooltip_text: Some(&model.sidebar_toggle_tooltip()),
                         add_css_class: "flat",
@@ -223,7 +223,7 @@ impl Component for WindowContent {
                         add_css_class: "flat",
                         #[watch]
                         set_visible: model.shows_workspace(),
-                        set_child: Some(&icon_label_widget("document-edit-regular-symbolic", &gettext("New"))),
+                        set_child: Some(&icon_label_widget("tab-new-symbolic", &gettext("New"))),
                         connect_clicked => WindowContentMsg::NewQueryTab,
                     },
 

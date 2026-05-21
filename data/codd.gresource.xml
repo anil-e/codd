@@ -4,4 +4,27 @@
     <file preprocess="xml-stripblanks">ui/shortcuts-dialog.ui</file>
     <file>style.css</file>
   </gresource>
+  <gresource prefix="/io/github/anil_e/codd/icons">
+    <file preprocess="xml-stripblanks" alias="scalable/actions/dialog-error-symbolic.svg">icons/symbolic/actions/dialog-error-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/document-open-symbolic.svg">icons/symbolic/actions/document-open-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/drawer-symbolic.svg">icons/symbolic/actions/drawer-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/edit-symbolic.svg">icons/symbolic/actions/edit-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/filter-symbolic.svg">icons/symbolic/actions/filter-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/first-symbolic.svg">icons/symbolic/actions/first-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/folder-symbolic.svg">icons/symbolic/actions/folder-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/go-next-symbolic.svg">icons/symbolic/actions/go-next-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/go-previous-symbolic.svg">icons/symbolic/actions/go-previous-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/last-symbolic.svg">icons/symbolic/actions/last-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/list-add-symbolic.svg">icons/symbolic/actions/list-add-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/media-playback-start-symbolic.svg">icons/symbolic/actions/media-playback-start-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/object-select-symbolic.svg">icons/symbolic/actions/object-select-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/open-menu-symbolic.svg">icons/symbolic/actions/open-menu-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/pan-down-symbolic.svg">icons/symbolic/actions/pan-down-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/sidebar-show-symbolic.svg">icons/symbolic/actions/sidebar-show-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/tab-new-symbolic.svg">icons/symbolic/actions/tab-new-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/table-symbolic.svg">icons/symbolic/actions/table-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/user-trash-symbolic.svg">icons/symbolic/actions/user-trash-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/view-list-symbolic.svg">icons/symbolic/actions/view-list-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/view-refresh-symbolic.svg">icons/symbolic/actions/view-refresh-symbolic.svg</file>
+  </gresource>
 </gresources>

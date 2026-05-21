@@ -417,7 +417,7 @@ impl ObjectSidebar {
         if self.is_loading {
             "view-refresh-symbolic"
         } else if self.status_text == gettext("No connection") {
-            "database-symbolic"
+            "drawer-symbolic"
         } else if self.status_text == gettext("No tables or views found") {
             "view-list-symbolic"
         } else {
@@ -439,8 +439,8 @@ fn build_object_row(
         .build();
 
     let icon_name = match object.kind {
-        DatabaseObjectKind::Table => "table",
-        DatabaseObjectKind::View => "view-list",
+        DatabaseObjectKind::Table => "table-symbolic",
+        DatabaseObjectKind::View => "view-list-symbolic",
     };
 
     row.add_prefix(
@@ -657,7 +657,7 @@ fn clear_list(list: &gtk::ListBox) {
 
 fn object_key(object: &DatabaseObject) -> String {
     let kind = match object.kind {
-        DatabaseObjectKind::Table => "table",
+        DatabaseObjectKind::Table => "table-symbolic",
         DatabaseObjectKind::View => "view",
     };
 

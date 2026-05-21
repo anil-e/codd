@@ -280,7 +280,7 @@ impl TableStructureView {
         } else if self.is_loading {
             "view-refresh-symbolic"
         } else {
-            "table"
+            "table-symbolic"
         }
     }
 }

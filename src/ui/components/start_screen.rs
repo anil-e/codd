@@ -41,7 +41,7 @@ impl Component for StartScreen {
             #[name = "stack"]
             set_child = &gtk::Stack {
                 add_named[Some("empty")] = &adw::StatusPage {
-                    set_icon_name: Some("database-regular"),
+                    set_icon_name: Some("drawer-symbolic"),
                     set_title: &gettext("Welcome to Codd"),
                     set_description: Some(&gettext("Add a PostgreSQL connection to get started")),
 
@@ -80,7 +80,7 @@ impl Component for StartScreen {
                                 },
 
                                 gtk::Button {
-                                    set_icon_name: "add",
+                                    set_icon_name: "list-add-symbolic",
                                     set_tooltip_text: Some(&gettext("Add Connection...")),
                                     add_css_class: "flat",
                                     connect_clicked => StartScreenMsg::NewConnection,
@@ -244,19 +244,19 @@ impl StartScreen {
 
             row.add_prefix(
                 &gtk::Image::builder()
-                    .icon_name("database-regular")
+                    .icon_name("drawer-symbolic")
                     .css_classes(["dim-label"])
                     .build(),
             );
 
             let rename_button = gtk::Button::builder()
-                .icon_name("edit-regular")
+                .icon_name("edit-symbolic")
                 .tooltip_text(gettext("Rename connection"))
                 .css_classes(["flat"])
                 .valign(gtk::Align::Center)
                 .build();
             let delete_button = gtk::Button::builder()
-                .icon_name("delete-regular")
+                .icon_name("user-trash-symbolic")
                 .tooltip_text(gettext("Remove connection"))
                 .css_classes(["flat"])
                 .valign(gtk::Align::Center)
@@ -278,7 +278,7 @@ impl StartScreen {
             row.add_suffix(&delete_button);
             row.add_suffix(
                 &gtk::Image::builder()
-                    .icon_name("go-next")
+                    .icon_name("go-next-symbolic")
                     .css_classes(["dim-label"])
                     .build(),
             );

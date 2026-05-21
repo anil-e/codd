@@ -224,11 +224,11 @@ impl Component for QueryResults {
 impl QueryResults {
     fn status_icon_name(&self) -> &'static str {
         if self.is_error {
-            "error"
+            "dialog-error-symbolic"
         } else if self.is_loading {
-            "running"
+            "view-refresh-symbolic"
         } else {
-            "database"
+            "drawer-symbolic"
         }
     }
 }

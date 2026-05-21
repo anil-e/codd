@@ -12,25 +12,15 @@ use config::{APP_ID, GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
 use gettextrs::{LocaleCategory, bind_textdomain_codeset, bindtextdomain, setlocale, textdomain};
 use relm4::RelmApp;
 use relm4::gtk::gio;
+use relm4::gtk::prelude::*;
 use std::path::Path;
 use window::AppWindow;
-
-include!(concat!(env!("OUT_DIR"), "/icons"));
 
 fn main() {
     setlocale(LocaleCategory::LcAll, "");
     setup_gettext();
     register_app_resources();
-
-    relm4_icons::initialize_icons(GRESOURCE_BYTES, RESOURCE_PREFIX);
-
-    if let Some(display) = relm4::gtk::gdk::Display::default() {
-        let icon_theme = relm4::gtk::IconTheme::for_display(&display);
-
-        if icon_theme.theme_name() == "hicolor" || icon_theme.theme_name().is_empty() {
-            icon_theme.set_theme_name(Some("Adwaita"));
-        }
-    }
+    setup_icon_theme();
 
     let app = RelmApp::new(APP_ID);
     ui::style::load();
@@ -44,10 +34,25 @@ fn setup_gettext() {
 }
 
 fn register_app_resources() {
+    gio::resources_register_include!("codd.gresource").expect("bundled resources to register");
+
     let resource_path = Path::new(PKGDATADIR).join("codd.gresource");
     let Ok(resources) = gio::Resource::load(resource_path) else {
         return;
     };
 
     gio::resources_register(&resources);
+}
+
+fn setup_icon_theme() {
+    relm4::main_adw_application().connect_startup(|_| {
+        if let Some(display) = relm4::gtk::gdk::Display::default() {
+            let icon_theme = relm4::gtk::IconTheme::for_display(&display);
+            icon_theme.add_resource_path("/io/github/anil_e/codd/icons");
+
+            if icon_theme.theme_name() == "hicolor" || icon_theme.theme_name().is_empty() {
+                icon_theme.set_theme_name(Some("Adwaita"));
+            }
+        }
+    });
 }

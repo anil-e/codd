@@ -1,5 +1,9 @@
 fn main() {
     println!("cargo:rerun-if-changed=data/io.github.anil_e.Codd.gschema.xml");
+    println!("cargo:rerun-if-changed=data/codd.gresource.xml");
+    println!("cargo:rerun-if-changed=data/style.css");
+    println!("cargo:rerun-if-changed=data/ui/shortcuts-dialog.ui");
+    rerun_if_changed_dir("data/icons/symbolic/actions");
     println!("cargo:rerun-if-env-changed=CODD_APP_ID");
     println!("cargo:rerun-if-env-changed=CODD_APP_SETTINGS_PATH");
     println!("cargo:rerun-if-env-changed=CODD_CONNECTION_STATE_SCHEMA_ID");
@@ -8,35 +12,22 @@ fn main() {
     println!("cargo:rerun-if-env-changed=CODD_LOCALEDIR");
     println!("cargo:rerun-if-env-changed=CODD_PKGDATADIR");
 
-    relm4_icons_build::bundle_icons(
-        "icons",
-        None::<&str>,
-        None::<&str>,
-        None::<&str>,
-        [
-            "add",
-            "database",
-            "database-regular",
-            "delete-regular",
-            "document-edit-regular",
-            "edit-regular",
-            "error",
-            "filter",
-            "go-previous",
-            "go-next",
-            "media-playback-start",
-            "network-server",
-            "open-menu",
-            "preview",
-            "running",
-            "sidebar-left",
-            "table",
-            "view-list",
-        ],
-    );
-
     write_config();
     compile_gsettings_schema();
+    compile_app_resources();
+}
+
+fn rerun_if_changed_dir(path: &str) {
+    let Ok(entries) = std::fs::read_dir(path) else {
+        return;
+    };
+
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_file() {
+            println!("cargo:rerun-if-changed={}", path.display());
+        }
+    }
 }
 
 fn write_config() {
@@ -108,4 +99,20 @@ fn compile_gsettings_schema() {
         .expect("glib-compile-schemas to run");
 
     assert!(status.success(), "glib-compile-schemas failed");
+}
+
+fn compile_app_resources() {
+    use std::path::PathBuf;
+    use std::process::Command;
+
+    let out_dir = PathBuf::from(std::env::var_os("OUT_DIR").expect("OUT_DIR to be set"));
+    let target = out_dir.join("codd.gresource");
+    let status = Command::new("glib-compile-resources")
+        .arg("--sourcedir=data")
+        .arg(format!("--target={}", target.display()))
+        .arg("data/codd.gresource.xml")
+        .status()
+        .expect("glib-compile-resources to run");
+
+    assert!(status.success(), "glib-compile-resources failed");
 }

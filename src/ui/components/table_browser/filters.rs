@@ -235,7 +235,7 @@ fn filter_row(
     row.append(&fields);
 
     let remove_button = gtk::Button::builder()
-        .icon_name("delete-regular-symbolic")
+        .icon_name("user-trash-symbolic")
         .tooltip_text(gettext("Remove filter"))
         .build();
     remove_button.add_css_class("flat");

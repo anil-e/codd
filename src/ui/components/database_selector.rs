@@ -56,7 +56,7 @@ impl Component for DatabaseSelector {
                     set_spacing: 8,
 
                     gtk::Image {
-                        set_icon_name: Some("database-symbolic"),
+                        set_icon_name: Some("drawer-symbolic"),
                     },
 
                     gtk::Label {
