@@ -1,16 +1,24 @@
+mod columns;
+mod sections;
+
+use futures_util::future::{AbortHandle, Abortable};
 use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk;
-use relm4::gtk::{gio, glib};
+use relm4::gtk::glib;
 use relm4::prelude::*;
 use sqlx::PgPool;
 
 use crate::db;
 use crate::models::database_object::DatabaseObject;
-use crate::models::table_browser::ColumnTypeGroup;
-use crate::models::table_structure::{TableStructure, TableStructureColumn};
-use crate::ui::components::cell_style;
+use crate::models::table_structure::TableStructure;
+
+use columns::append_columns_section;
+use sections::{
+    append_constraints_section, append_foreign_keys_section, append_indexes_section,
+    append_triggers_section, clear_box,
+};
 
 pub struct TableStructureView {
     pool: Option<PgPool>,
@@ -22,8 +30,8 @@ pub struct TableStructureView {
     status_description: Option<String>,
     request_id: u64,
     active_request_id: Option<u64>,
-    rows: gio::ListStore,
-    columns_view: gtk::ColumnView,
+    active_abort_handle: Option<AbortHandle>,
+    structure_box: gtk::Box,
     style_manager: adw::StyleManager,
     dark_notify_handler: Option<glib::SignalHandlerId>,
 }
@@ -78,8 +86,8 @@ impl Component for TableStructureView {
                 },
             },
 
-            #[name = "columns_scroller"]
-            add_named[Some("columns")] = &gtk::ScrolledWindow {
+            #[name = "structure_scroller"]
+            add_named[Some("structure")] = &gtk::ScrolledWindow {
                 set_hexpand: true,
                 set_vexpand: true,
                 set_policy: (gtk::PolicyType::Automatic, gtk::PolicyType::Automatic),
@@ -92,19 +100,11 @@ impl Component for TableStructureView {
         _root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        let rows = gio::ListStore::new::<glib::BoxedAnyObject>();
-        let columns_view = gtk::ColumnView::new(Some(gtk::NoSelection::new(Some(
-            rows.clone().upcast::<gio::ListModel>(),
-        ))));
-        columns_view.set_vexpand(true);
-        columns_view.set_hexpand(true);
-        columns_view.set_show_row_separators(true);
-        columns_view.set_show_column_separators(true);
-        columns_view.add_css_class("data-table");
-
-        for column in structure_columns() {
-            columns_view.append_column(&column);
-        }
+        let structure_box = gtk::Box::new(gtk::Orientation::Vertical, 16);
+        structure_box.set_margin_top(12);
+        structure_box.set_margin_bottom(12);
+        structure_box.set_margin_start(12);
+        structure_box.set_margin_end(12);
 
         let style_manager = adw::StyleManager::default();
         let dark_notify_handler = {
@@ -124,16 +124,16 @@ impl Component for TableStructureView {
             status_description: Some(gettext("Open a table to inspect its columns.")),
             request_id: 0,
             active_request_id: None,
-            rows,
-            columns_view,
+            active_abort_handle: None,
+            structure_box,
             style_manager,
             dark_notify_handler: Some(dark_notify_handler),
         };
 
         let widgets = view_output!();
         widgets
-            .columns_scroller
-            .set_child(Some(&model.columns_view));
+            .structure_scroller
+            .set_child(Some(&model.structure_box));
         set_stack_child(&widgets, false);
 
         ComponentParts { model, widgets }
@@ -163,6 +163,7 @@ impl Component for TableStructureView {
                 }
 
                 self.active_request_id = None;
+                self.active_abort_handle = None;
                 self.is_loading = false;
 
                 match result {
@@ -181,12 +182,12 @@ impl Component for TableStructureView {
                     }
                 }
 
-                self.render_columns();
+                self.render_structure();
                 set_stack_child(widgets, self.structure.is_some());
             }
 
             TableStructureMsg::AppearanceChanged => {
-                self.render_columns();
+                self.render_structure();
             }
         }
 
@@ -207,6 +208,10 @@ impl Component for TableStructureView {
     }
 
     fn shutdown(&mut self, _widgets: &mut Self::Widgets, _output: relm4::Sender<Self::Output>) {
+        if let Some(abort_handle) = self.active_abort_handle.take() {
+            abort_handle.abort();
+        }
+
         if let Some(handler) = self.dark_notify_handler.take() {
             self.style_manager.disconnect(handler);
         }
@@ -223,34 +228,49 @@ impl TableStructureView {
             return;
         };
 
+        if let Some(abort_handle) = self.active_abort_handle.take() {
+            abort_handle.abort();
+        }
+
         self.is_loading = true;
         self.is_error = false;
         self.status_title = gettext("Loading structure");
-        self.status_description = Some(gettext("Fetching table columns from PostgreSQL."));
+        self.status_description = Some(gettext("Fetching table structure from PostgreSQL."));
         self.structure = None;
-        self.rows.remove_all();
+        clear_box(&self.structure_box);
         set_stack_child(widgets, false);
 
         let id = self.request_id;
         self.request_id = self.request_id.wrapping_add(1);
         self.active_request_id = Some(id);
+        let (abort_handle, abort_registration) = AbortHandle::new_pair();
+        self.active_abort_handle = Some(abort_handle);
 
         sender.oneshot_command(async move {
-            let result = db::structure::load_table_structure(&pool, &object)
-                .await
-                .map_err(|error| error.to_string());
+            let load = async move {
+                db::structure::load_table_structure(&pool, &object)
+                    .await
+                    .map_err(|error| error.to_string())
+            };
+
+            let result = match Abortable::new(load, abort_registration).await {
+                Ok(result) => result,
+                Err(_) => Err(gettext("Loading cancelled")),
+            };
 
             TableStructureCommandOutput::StructureLoaded { id, result }
         });
     }
 
-    fn render_columns(&self) {
-        self.rows.remove_all();
+    fn render_structure(&self) {
+        clear_box(&self.structure_box);
 
         if let Some(structure) = &self.structure {
-            for column in &structure.columns {
-                self.rows.append(&glib::BoxedAnyObject::new(column.clone()));
-            }
+            append_columns_section(&self.structure_box, structure, self.style_manager.is_dark());
+            append_indexes_section(&self.structure_box, structure);
+            append_constraints_section(&self.structure_box, structure);
+            append_foreign_keys_section(&self.structure_box, structure);
+            append_triggers_section(&self.structure_box, structure);
         }
     }
 
@@ -265,178 +285,8 @@ impl TableStructureView {
     }
 }
 
-fn structure_columns() -> [gtk::ColumnViewColumn; 5] {
-    [
-        text_column(&gettext("Name"), |column| column.name.clone(), true, None),
-        text_column(
-            &gettext("Type"),
-            |column| column.data_type.clone(),
-            true,
-            Some(style_type_label),
-        ),
-        text_column(
-            &gettext("Nullable"),
-            |column| {
-                if column.is_nullable {
-                    gettext("Yes")
-                } else {
-                    gettext("No")
-                }
-            },
-            false,
-            None,
-        ),
-        text_column(&gettext("Default"), default_label, true, None),
-        text_column(&gettext("Key"), key_label, false, None),
-    ]
-}
-
-fn text_column(
-    title: &str,
-    value: fn(&TableStructureColumn) -> String,
-    expand: bool,
-    style: Option<fn(&gtk::Label, &TableStructureColumn)>,
-) -> gtk::ColumnViewColumn {
-    let factory = gtk::SignalListItemFactory::new();
-
-    factory.connect_setup(|_, list_item| {
-        let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
-            return;
-        };
-
-        let label = gtk::Label::builder()
-            .xalign(0.0)
-            .selectable(true)
-            .ellipsize(gtk::pango::EllipsizeMode::End)
-            .single_line_mode(true)
-            .lines(1)
-            .margin_top(4)
-            .margin_bottom(4)
-            .margin_start(8)
-            .margin_end(8)
-            .build();
-        label.add_css_class("query-cell");
-
-        list_item.set_child(Some(&label));
-    });
-
-    factory.connect_bind(move |_, list_item| {
-        let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
-            return;
-        };
-        let Some(item) = list_item.item() else {
-            return;
-        };
-        let Some(label) = list_item.child().and_downcast::<gtk::Label>() else {
-            return;
-        };
-        let Ok(row) = item.downcast::<glib::BoxedAnyObject>() else {
-            return;
-        };
-
-        let row = row.borrow::<TableStructureColumn>();
-        let text = value(&row);
-        cell_style::clear_type_classes(&label);
-
-        if let Some(style) = style {
-            style(&label, &row);
-        }
-
-        label.set_label(&text);
-        label.set_tooltip_text(if text.is_empty() { None } else { Some(&text) });
-    });
-
-    let column = gtk::ColumnViewColumn::new(Some(title), Some(factory));
-    column.set_resizable(true);
-    column.set_expand(expand);
-    column
-}
-
-fn style_type_label(label: &gtk::Label, column: &TableStructureColumn) {
-    cell_style::apply_type_class(
-        label,
-        ColumnTypeGroup::from_postgres_type(&column.type_name),
-        adw::StyleManager::default().is_dark(),
-    );
-}
-
-fn default_label(column: &TableStructureColumn) -> String {
-    if let Some(identity) = column.identity {
-        return format!("Identity ({})", identity.label());
-    }
-
-    if column.generated.is_some() {
-        return gettext("Generated");
-    }
-
-    column.default_expression.clone().unwrap_or_default()
-}
-
-fn key_label(column: &TableStructureColumn) -> String {
-    if column.is_primary_key {
-        gettext("Primary")
-    } else {
-        String::new()
-    }
-}
-
 fn set_stack_child(widgets: &TableStructureViewWidgets, has_structure: bool) {
     widgets
         .stack
-        .set_visible_child_name(if has_structure { "columns" } else { "status" });
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::models::table_structure::{TableColumnIdentity, TableStructureColumn};
-
-    use super::{default_label, key_label};
-
-    #[test]
-    fn default_label_prefers_identity() {
-        let column = TableStructureColumn {
-            name: "id".to_string(),
-            data_type: "bigint".to_string(),
-            type_name: "int8".to_string(),
-            is_nullable: false,
-            default_expression: Some("nextval('example_id_seq'::regclass)".to_string()),
-            is_primary_key: true,
-            identity: Some(TableColumnIdentity::Always),
-            generated: None,
-        };
-
-        assert_eq!(default_label(&column), "Identity (Always)");
-    }
-
-    #[test]
-    fn key_label_marks_primary_key() {
-        let column = TableStructureColumn {
-            name: "id".to_string(),
-            data_type: "bigint".to_string(),
-            type_name: "int8".to_string(),
-            is_nullable: false,
-            default_expression: None,
-            is_primary_key: true,
-            identity: None,
-            generated: None,
-        };
-
-        assert_eq!(key_label(&column), "Primary");
-    }
-
-    #[test]
-    fn key_label_is_empty_for_regular_columns() {
-        let column = TableStructureColumn {
-            name: "name".to_string(),
-            data_type: "text".to_string(),
-            type_name: "text".to_string(),
-            is_nullable: true,
-            default_expression: None,
-            is_primary_key: false,
-            identity: None,
-            generated: None,
-        };
-
-        assert_eq!(key_label(&column), "");
-    }
+        .set_visible_child_name(if has_structure { "structure" } else { "status" });
 }
