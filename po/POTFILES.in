@@ -20,6 +20,10 @@ src/ui/components/table_browser/filters.rs
 src/ui/components/table_browser/grid.rs
 src/ui/components/table_browser/loading.rs
 src/ui/components/table_browser/sorting.rs
+src/ui/components/table_structure.rs
+src/ui/components/table_structure/columns.rs
+src/ui/components/table_structure/sections.rs
+src/ui/components/table_view.rs
 data/io.github.anil_e.Codd.desktop.in
 data/io.github.anil_e.Codd.metainfo.xml.in
 data/ui/shortcuts-dialog.ui

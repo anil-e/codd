@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-20 11:11-0400\n"
+"POT-Creation-Date: 2026-05-22 07:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -257,7 +257,7 @@ msgid "Enter a valid object name."
 msgstr ""
 
 #: src/window_content/tabs.rs:44 src/ui/components/connection_dialog.rs:504
-#: src/ui/components/table_browser.rs:768
+#: src/ui/components/table_browser.rs:775
 msgid "Close"
 msgstr ""
 
@@ -269,7 +269,7 @@ msgstr ""
 msgid "Close All"
 msgstr ""
 
-#: src/window_content/tabs.rs:629
+#: src/window_content/tabs.rs:628
 msgid "Query"
 msgstr ""
 
@@ -303,6 +303,7 @@ msgid "Connection"
 msgstr ""
 
 #: src/ui/components/connection_dialog.rs:109
+#: src/ui/components/table_structure/columns.rs:43
 msgid "Name"
 msgstr ""
 
@@ -402,7 +403,7 @@ msgid "No databases match your search."
 msgstr ""
 
 #: src/ui/components/database_selector.rs:214
-#: src/ui/components/table_browser.rs:718
+#: src/ui/components/table_browser.rs:725
 msgid "Loading..."
 msgstr ""
 
@@ -651,7 +652,7 @@ msgstr ""
 msgid "Query returned no rows."
 msgstr ""
 
-#: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:733
+#: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:740
 msgid "row"
 msgid_plural "rows"
 msgstr[0] ""
@@ -667,84 +668,86 @@ msgstr[1] ""
 msgid "The statement completed successfully."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:164
+#: src/ui/components/table_browser.rs:166 src/ui/components/table_view.rs:106
 msgid "Show or edit filters"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:173
+#: src/ui/components/table_browser.rs:175 src/ui/components/table_view.rs:118
 msgid "Refresh"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:233
+#: src/ui/components/table_browser.rs:235
 msgid "First page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:242
+#: src/ui/components/table_browser.rs:244
 msgid "Previous page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:273
+#: src/ui/components/table_browser.rs:275
 msgid "Next page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:282
+#: src/ui/components/table_browser.rs:284
 msgid "Last page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:292
+#: src/ui/components/table_browser.rs:294
 msgid "Rows"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:297
+#: src/ui/components/table_browser.rs:299
 msgid "Rows per page"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:342
+#: src/ui/components/table_browser.rs:344
 msgid "Select a table"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:344
+#: src/ui/components/table_browser.rs:346
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:508
+#: src/ui/components/table_browser.rs:515
 msgid "Loading table failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:535
+#: src/ui/components/table_browser.rs:542
 msgid "Loading last page failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:566
+#: src/ui/components/table_browser.rs:573
 msgid "Saving cell failed"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:677
+#: src/ui/components/table_browser.rs:684
 msgid "Filter cannot be applied"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:692
+#: src/ui/components/table_browser.rs:699
 msgid "Table Browser"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:701
+#: src/ui/components/table_browser.rs:708 src/ui/components/table_view.rs:252
+#: src/ui/components/table_view.rs:267
 msgid "Table"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:702
+#: src/ui/components/table_browser.rs:709 src/ui/components/table_view.rs:268
 msgid "View"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:710
-#: src/ui/components/table_browser.rs:712
+#: src/ui/components/table_browser.rs:717
+#: src/ui/components/table_browser.rs:719 src/ui/components/table_view.rs:112
 msgid "Filters"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:726
+#: src/ui/components/table_browser.rs:733
 msgid "No rows"
 msgstr ""
 
 #: src/ui/components/table_browser/cell_editor.rs:32
+#: src/ui/components/table_structure/columns.rs:50
 msgid "Type"
 msgstr ""
 
@@ -840,7 +843,121 @@ msgstr ""
 
 #: src/ui/components/table_browser/loading.rs:63
 #: src/ui/components/table_browser/loading.rs:99
+#: src/ui/components/table_structure.rs:258
 msgid "Loading cancelled"
+msgstr ""
+
+#: src/ui/components/table_structure.rs:123 src/ui/components/table_view.rs:157
+msgid "Structure"
+msgstr ""
+
+#: src/ui/components/table_structure.rs:124
+msgid "Open a table to inspect its columns."
+msgstr ""
+
+#: src/ui/components/table_structure.rs:179
+msgid "Loading structure failed"
+msgstr ""
+
+#: src/ui/components/table_structure.rs:237
+msgid "Loading structure"
+msgstr ""
+
+#: src/ui/components/table_structure.rs:238
+msgid "Fetching table structure from PostgreSQL."
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:17
+msgid "Columns"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:57
+msgid "Nullable"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:60
+msgid "Yes"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:62
+msgid "No"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:69
+msgid "Default"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:70
+msgid "Key"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:146
+msgid "Generated"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:154
+#: src/ui/components/table_structure/sections.rs:180
+msgid "Primary"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:11
+msgid "Indexes"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:12
+msgid "No indexes"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:22
+msgid "Constraints"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:24
+msgid "No constraints"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:34
+msgid "Foreign Keys"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:37
+msgid "No foreign keys"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:49
+msgid "Triggers"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:50
+msgid "No triggers"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:182
+msgid "Unique"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:186
+msgid "Invalid"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:190
+msgid "Partial"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:200
+msgid "Not validated"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:213
+msgid "Deferred"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:214
+msgid "Deferrable"
+msgstr ""
+
+#: src/ui/components/table_view.rs:153
+msgid "Content"
 msgstr ""
 
 #: data/io.github.anil_e.Codd.desktop.in:4
@@ -877,10 +994,20 @@ msgid "Browse PostgreSQL table data with pagination and filters"
 msgstr ""
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:44
-msgid "Use table actions like rename, truncate and delete"
+msgid ""
+"Inspect table columns, data types, nullability, defaults and primary keys"
 msgstr ""
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:48
+msgid ""
+"Review indexes, constraints, foreign keys and triggers in the structure view"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:52
+msgid "Use table actions like rename, truncate and delete"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:56
 msgid "Manage saved PostgreSQL connections"
 msgstr ""
 

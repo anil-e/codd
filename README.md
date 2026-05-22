@@ -13,9 +13,11 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 - Save and reopen PostgreSQL connections
 - Store connection passwords securely in Keyring
 - Browse tables and views
+- Inspect table structure, including columns, indexes, constraints, foreign keys, and triggers
 - Write SQL with syntax highlighting and line numbers
 - Reuse automatically saved query history per database
 - Browse table rows with pagination, filters, custom SQL filters, and editable cell values
+- Generate common table scripts from the object sidebar
 - Rename, truncate, and delete tables or views from the object sidebar
 
 ## Requirements
