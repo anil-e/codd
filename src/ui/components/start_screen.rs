@@ -41,7 +41,7 @@ impl Component for StartScreen {
             #[name = "stack"]
             set_child = &gtk::Stack {
                 add_named[Some("empty")] = &adw::StatusPage {
-                    set_icon_name: Some("drawer-symbolic"),
+                    set_icon_name: Some("network-server-symbolic"),
                     set_title: &gettext("Welcome to Codd"),
                     set_description: Some(&gettext("Add a PostgreSQL connection to get started")),
 
@@ -244,7 +244,7 @@ impl StartScreen {
 
             row.add_prefix(
                 &gtk::Image::builder()
-                    .icon_name("drawer-symbolic")
+                    .icon_name("network-server-symbolic")
                     .css_classes(["dim-label"])
                     .build(),
             );

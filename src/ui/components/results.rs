@@ -228,7 +228,7 @@ impl QueryResults {
         } else if self.is_loading {
             "view-refresh-symbolic"
         } else {
-            "drawer-symbolic"
+            "network-server-symbolic"
         }
     }
 }

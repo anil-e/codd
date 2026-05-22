@@ -219,11 +219,11 @@ impl Component for WindowContent {
                     },
 
                     pack_end = &gtk::Button {
+                        set_icon_name: "tab-new-symbolic",
                         set_tooltip_text: Some(&gettext("New Query Tab")),
                         add_css_class: "flat",
                         #[watch]
                         set_visible: model.shows_workspace(),
-                        set_child: Some(&icon_label_widget("tab-new-symbolic", &gettext("New"))),
                         connect_clicked => WindowContentMsg::NewQueryTab,
                     },
 
@@ -600,16 +600,6 @@ fn workspace_split_view(widgets: &WindowContentWidgets) -> adw::NavigationSplitV
         .child_by_name("workspace")
         .and_downcast::<adw::NavigationSplitView>()
         .expect("workspace split view to exist")
-}
-
-fn icon_label_widget(icon_name: &str, label: &str) -> gtk::Box {
-    let container = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-    let image = gtk::Image::from_icon_name(icon_name);
-    container.append(&image);
-
-    let label = gtk::Label::new(Some(label));
-    container.append(&label);
-    container
 }
 
 fn copy_text_to_clipboard(text: &str) {

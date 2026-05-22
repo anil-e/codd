@@ -417,7 +417,7 @@ impl ObjectSidebar {
         if self.is_loading {
             "view-refresh-symbolic"
         } else if self.status_text == gettext("No connection") {
-            "drawer-symbolic"
+            "network-server-symbolic"
         } else if self.status_text == gettext("No tables or views found") {
             "view-list-symbolic"
         } else {
