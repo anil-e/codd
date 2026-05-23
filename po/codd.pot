@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-22 07:39+0200\n"
+"POT-Creation-Date: 2026-05-22 04:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,12 +38,8 @@ msgstr ""
 msgid "Main Menu"
 msgstr ""
 
-#: src/window_content.rs:222
+#: src/window_content.rs:223
 msgid "New Query Tab"
-msgstr ""
-
-#: src/window_content.rs:226
-msgid "New"
 msgstr ""
 
 #: src/window_content.rs:248
@@ -58,76 +54,76 @@ msgstr ""
 msgid "Updating the saved password failed"
 msgstr ""
 
-#: src/window_content.rs:650
+#: src/window_content.rs:640
 msgid "Hide Objects"
 msgstr ""
 
-#: src/window_content.rs:651
+#: src/window_content.rs:641
 msgid "Show Objects"
 msgstr ""
 
-#: src/window_content.rs:706 src/ui/components/sidebar.rs:150
+#: src/window_content.rs:696 src/ui/components/sidebar.rs:150
 #: src/ui/components/sidebar.rs:405 src/ui/components/sidebar.rs:419
 msgid "No connection"
 msgstr ""
 
-#: src/window_content.rs:777
+#: src/window_content.rs:767
 msgid "Connected to PostgreSQL."
 msgstr ""
 
-#: src/window_content.rs:790
+#: src/window_content.rs:780
 msgid "Connected, but saving the connection failed"
 msgstr ""
 
-#: src/window_content.rs:863
+#: src/window_content.rs:853
 msgid "Disabling saved password failed"
 msgstr ""
 
-#: src/window_content.rs:884
+#: src/window_content.rs:874
 msgid "Schema load failed"
 msgstr ""
 
-#: src/window_content.rs:917
+#: src/window_content.rs:907
 msgid "Connect to PostgreSQL before generating a script."
 msgstr ""
 
-#: src/window_content.rs:957
+#: src/window_content.rs:947
 msgid "Generating the table script failed"
 msgstr ""
 
-#: src/window_content.rs:992 src/ui/components/results.rs:212
+#: src/window_content.rs:982 src/ui/components/results.rs:212
 msgid "Query failed"
 msgstr ""
 
-#: src/window_content.rs:1062
+#: src/window_content.rs:1052
 msgid "A query is already running."
 msgstr ""
 
-#: src/window_content.rs:1068
+#: src/window_content.rs:1058
 msgid "Connect to PostgreSQL before running a query."
 msgstr ""
 
-#: src/window_content.rs:1076
+#: src/window_content.rs:1066
 msgid "Enter SQL before running a query."
 msgstr ""
 
-#: src/window_content.rs:1165
+#: src/window_content.rs:1155
 msgid "CREATE script generated."
 msgstr ""
 
-#: src/window_content.rs:1166
+#: src/window_content.rs:1156
 msgid "SELECT script generated."
 msgstr ""
 
-#: src/window_content.rs:1167
+#: src/window_content.rs:1157
 msgid "INSERT script generated."
 msgstr ""
 
-#: src/window_content.rs:1168
+#: src/window_content.rs:1158
 msgid "UPDATE script generated."
 msgstr ""
 
-#: src/window_content.rs:1169
+#: src/window_content.rs:1159
 msgid "DELETE script generated."
 msgstr ""
 
