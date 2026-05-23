@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-22 07:39+0200\n"
-"PO-Revision-Date: 2026-05-20 11:35-0400\n"
+"POT-Creation-Date: 2026-05-22 04:40-0400\n"
+"PO-Revision-Date: 2026-05-23 12:54-0400\n"
 "Last-Translator: Francisco <fvasquez>\n"
 "Language-Team: es_DO\n"
 "Language: es\n"
@@ -39,13 +39,9 @@ msgstr "Volver a conexiones"
 msgid "Main Menu"
 msgstr "Menú principal"
 
-#: src/window_content.rs:222
+#: src/window_content.rs:223
 msgid "New Query Tab"
 msgstr "Nueva pestaña de consulta"
-
-#: src/window_content.rs:226
-msgid "New"
-msgstr "Nuevo"
 
 #: src/window_content.rs:248
 msgid "Objects"
@@ -57,105 +53,105 @@ msgstr "Espacio de trabajo"
 
 #: src/window_content.rs:520
 msgid "Updating the saved password failed"
-msgstr "Actualización de contraseña guardada fallida"
+msgstr "No se pudo actualizar la contraseña guardada"
 
-#: src/window_content.rs:650
+#: src/window_content.rs:640
 msgid "Hide Objects"
 msgstr "Ocultar objetos"
 
-#: src/window_content.rs:651
+#: src/window_content.rs:641
 msgid "Show Objects"
 msgstr "Mostrar objetos"
 
-#: src/window_content.rs:706 src/ui/components/sidebar.rs:150
+#: src/window_content.rs:696 src/ui/components/sidebar.rs:150
 #: src/ui/components/sidebar.rs:405 src/ui/components/sidebar.rs:419
 msgid "No connection"
 msgstr "Sin conexión"
 
-#: src/window_content.rs:777
+#: src/window_content.rs:767
 msgid "Connected to PostgreSQL."
 msgstr "Conectado a PostgreSQL."
 
-#: src/window_content.rs:790
+#: src/window_content.rs:780
 msgid "Connected, but saving the connection failed"
-msgstr "Conectado, pero guardar la conexión falló"
+msgstr "Conectado, pero no se pudo guardar la conexión"
 
-#: src/window_content.rs:863
+#: src/window_content.rs:853
 msgid "Disabling saved password failed"
-msgstr "La desactivación de la contraseña guardada ha fallado"
+msgstr "No se pudo desactivar la contraseña guardada"
 
-#: src/window_content.rs:884
+#: src/window_content.rs:874
 msgid "Schema load failed"
-msgstr "Fallo al cargar el esquema"
+msgstr "No se pudo cargar el esquema"
 
 # script is an accepted anglocism in this context
-#: src/window_content.rs:917
+#: src/window_content.rs:907
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "Debe conectarse a PostgreSQL antes de generar un script."
 
-#: src/window_content.rs:957
+#: src/window_content.rs:947
 msgid "Generating the table script failed"
-msgstr "La generación del script para la tabla ha fallado"
+msgstr "No se pudo generar el script de la tabla"
 
-#: src/window_content.rs:992 src/ui/components/results.rs:212
+#: src/window_content.rs:982 src/ui/components/results.rs:212
 msgid "Query failed"
-msgstr "Consulta fallida"
+msgstr "La consulta falló"
 
-#: src/window_content.rs:1062
+#: src/window_content.rs:1052
 msgid "A query is already running."
 msgstr "Una consulta ya está en ejecución."
 
-#: src/window_content.rs:1068
+#: src/window_content.rs:1058
 msgid "Connect to PostgreSQL before running a query."
 msgstr "Debe conectarse a PostgreSQL antes de ejecutar una consulta."
 
-#: src/window_content.rs:1076
+#: src/window_content.rs:1066
 msgid "Enter SQL before running a query."
 msgstr "Ingrese SQL antes de ejecutar una consulta."
 
-#: src/window_content.rs:1165
+#: src/window_content.rs:1155
 msgid "CREATE script generated."
 msgstr "Script CREATE generado."
 
-#: src/window_content.rs:1166
+#: src/window_content.rs:1156
 msgid "SELECT script generated."
 msgstr "Script SELECT generado."
 
-#: src/window_content.rs:1167
+#: src/window_content.rs:1157
 msgid "INSERT script generated."
 msgstr "Script INSERT generado."
 
-#: src/window_content.rs:1168
+#: src/window_content.rs:1158
 msgid "UPDATE script generated."
 msgstr "Script UPDATE generado."
 
-#: src/window_content.rs:1169
+#: src/window_content.rs:1159
 msgid "DELETE script generated."
 msgstr "Script DELETE generado."
 
 #: src/window_content/database_switching.rs:57
 msgid "Connect to PostgreSQL before switching databases."
-msgstr "Debe conectarse a PostgreSQL antes de cambiar de bases de datos."
+msgstr "Debe conectarse a PostgreSQL antes de cambiar de base de datos."
 
 #: src/window_content/database_switching.rs:100
 msgid "Database switch failed"
-msgstr "Cambio de base de datos fallido"
+msgstr "No se pudo cambiar de base de datos"
 
 #: src/window_content/database_switching.rs:150
 msgid "Saving the selected database failed"
-msgstr "Guardar la base de datos seleccionada ha fallado"
+msgstr "No se pudo guardar la base de datos seleccionada"
 
 #: src/window_content/database_switching.rs:191
 msgid "Migrating query history failed"
-msgstr "Migrar el historial de consultas ha fallado"
+msgstr "No se pudo migrar el historial de consultas"
 
 #: src/window_content/database_switching.rs:219
 msgid "Saving query history failed"
-msgstr "Guardar el historial de consultas ha fallado"
+msgstr "No se pudo guardar el historial de consultas"
 
 #: src/window_content/database_switching.rs:241
 msgid "Clearing query history failed"
-msgstr "Limpiar el historial de consultas ha fallado"
+msgstr "No se pudo limpiar el historial de consultas"
 
 #: src/window_content/object_actions.rs:60
 msgid "Choose a new name for this database object."
@@ -246,19 +242,19 @@ msgstr "Objeto de base de datos eliminado."
 
 #: src/window_content/object_actions.rs:363
 msgid "Renaming failed"
-msgstr "El renombrado ha fallado"
+msgstr "No se pudo renombrar"
 
 #: src/window_content/object_actions.rs:364
 msgid "Truncating failed"
-msgstr "El truncado ha fallado"
+msgstr "No se pudo truncar"
 
 #: src/window_content/object_actions.rs:365
 msgid "Deleting failed"
-msgstr "La eliminación ha fallado"
+msgstr "No se pudo eliminar"
 
 #: src/window_content/object_actions.rs:380
 msgid "Enter a valid object name."
-msgstr "Inserte un nombre de objeto válido."
+msgstr "Ingrese un nombre de objeto válido."
 
 #: src/window_content/tabs.rs:44 src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:775
@@ -279,12 +275,12 @@ msgstr "Consulta"
 
 #: src/models/connection.rs:80
 msgid "Connection name is required."
-msgstr "El nombre de la conexión es requerido."
+msgstr "El nombre de la conexión es obligatorio."
 
 # Host is left untranslated, it is usually understood that way.
 #: src/models/connection.rs:84
 msgid "Host is required."
-msgstr "El host es requerido."
+msgstr "El host es obligatorio."
 
 #: src/models/connection.rs:89
 msgid "Port must be a number between 1 and 65535."
@@ -292,11 +288,11 @@ msgstr "El puerto debe ser un número entre 1 y 65535."
 
 #: src/models/connection.rs:92
 msgid "Default database is required."
-msgstr "La base de datos por defecto es requerida."
+msgstr "La base de datos por defecto es obligatoria."
 
 #: src/models/connection.rs:96
 msgid "Username is required."
-msgstr "El nombre de usuario es requerido."
+msgstr "El nombre de usuario es obligatorio."
 
 #: src/ui/components/connection_dialog.rs:78
 #: src/ui/components/connection_dialog.rs:93
@@ -348,27 +344,27 @@ msgstr "Conectar"
 #: src/ui/components/connection_dialog.rs:358
 #: src/ui/components/connection_dialog.rs:473
 msgid "Reading the saved password failed"
-msgstr "La lectura de la contraseña guardada ha fallado"
+msgstr "No se pudo leer la contraseña guardada"
 
 #: src/ui/components/connection_dialog.rs:364
 msgid "Connection test succeeded."
-msgstr "Prueba de conexión exitosa."
+msgstr "La prueba de conexión se realizó correctamente."
 
 #: src/ui/components/connection_dialog.rs:369
 msgid "Connection test failed"
-msgstr "Prueba de conexión fallida"
+msgstr "La prueba de conexión falló"
 
 #: src/ui/components/connection_dialog.rs:378
 msgid "Connection failed"
-msgstr "Conexión fallida"
+msgstr "La conexión falló"
 
 #: src/ui/components/connection_dialog.rs:405
 msgid "Checking password storage availability."
-msgstr "Verificando disponibilidad de depósito de claves."
+msgstr "Verificando la disponibilidad del depósito de claves."
 
 #: src/ui/components/connection_dialog.rs:406
 msgid "Store this password in Keyring."
-msgstr "Almacene esta contraseña en el depósito de claves."
+msgstr "Guardar esta contraseña en el depósito de claves."
 
 #: src/ui/components/connection_dialog.rs:407
 msgid "Password storage is not available."
@@ -377,7 +373,7 @@ msgstr "El depósito de claves no está disponible."
 #: src/ui/components/connection_dialog.rs:424
 msgid "Saved in Keyring. Enter a new password to replace it."
 msgstr ""
-"Almacenada en depósito de claves. Ingrese una nueva contraseña para "
+"Guardada en el depósito de claves. Ingrese una contraseña nueva para "
 "reemplazarla."
 
 #: src/ui/components/connection_dialog.rs:427
@@ -388,7 +384,7 @@ msgstr ""
 
 #: src/ui/components/connection_dialog.rs:499
 msgid "PostgreSQL returned the following error:"
-msgstr "PostgreSQL retornó el siguiente error:"
+msgstr "PostgreSQL devolvió el siguiente error:"
 
 #: src/ui/components/cell_dialog.rs:29 src/ui/components/cell_dialog.rs:41
 msgid "Cell value"
@@ -423,7 +419,7 @@ msgstr "Bienvenido a Codd"
 
 #: src/ui/components/start_screen.rs:46
 msgid "Add a PostgreSQL connection to get started"
-msgstr "Añada una conexión de PostgreSQL para iniciar"
+msgstr "Añada una conexión a PostgreSQL para empezar"
 
 #: src/ui/components/start_screen.rs:50 src/ui/components/start_screen.rs:84
 msgid "Add Connection..."
@@ -435,15 +431,15 @@ msgstr "Conexiones"
 
 #: src/ui/components/start_screen.rs:160
 msgid "Renaming the connection failed"
-msgstr "Renombrar la conexión ha fallado"
+msgstr "No se pudo renombrar la conexión"
 
 #: src/ui/components/start_screen.rs:186
 msgid "Removing the connection failed"
-msgstr "Eliminar la conexión ha fallado"
+msgstr "No se pudo eliminar la conexión"
 
 #: src/ui/components/start_screen.rs:207
 msgid "Removing the saved password failed"
-msgstr "La eliminación de la contraseña guardada ha fallado"
+msgstr "No se pudo eliminar la contraseña guardada"
 
 #: src/ui/components/start_screen.rs:239
 msgid "Default database"
@@ -518,7 +514,7 @@ msgstr "Conéctese a PostgreSQL para explorar objetos de base de datos."
 
 #: src/ui/components/sidebar.rs:409
 msgid "The selected database does not currently expose tables or views."
-msgstr "La base de datos seleccionada actualmente no expone tablas o vistas."
+msgstr "La base de datos seleccionada no expone tablas ni vistas actualmente."
 
 #: src/ui/components/sidebar.rs:591
 msgid "Scripts"
@@ -608,11 +604,11 @@ msgstr "Aplicar"
 
 #: src/ui/components/editor.rs:217
 msgid "Selection will be executed"
-msgstr "La selección será ejecutada"
+msgstr "Se ejecutará la selección"
 
 #: src/ui/components/editor.rs:227
 msgid "Execute selection or statement"
-msgstr "Ejecuta la selección o la sentencia"
+msgstr "Ejecutar la selección o la sentencia"
 
 #: src/ui/components/editor.rs:231
 msgid "Execute"
@@ -648,7 +644,7 @@ msgstr "Ejecutando consulta"
 
 #: src/ui/components/results.rs:165
 msgid "Waiting for PostgreSQL to return results."
-msgstr "Esperando que PostgreSQL retorne resultados."
+msgstr "Esperando que PostgreSQL devuelva resultados."
 
 #: src/ui/components/results.rs:173
 msgid "Query cancelled"
@@ -660,7 +656,7 @@ msgstr "La consulta fue cancelada."
 
 #: src/ui/components/results.rs:181
 msgid "Query returned no rows."
-msgstr "La consulta no retornó filas."
+msgstr "La consulta no devolvió filas."
 
 #: src/ui/components/results.rs:187 src/ui/components/table_browser.rs:740
 msgid "row"
@@ -676,7 +672,7 @@ msgstr[1] "filas afectadas"
 
 #: src/ui/components/results.rs:204
 msgid "The statement completed successfully."
-msgstr "La sentencia se completó exitosamente."
+msgstr "La sentencia se completó correctamente."
 
 #: src/ui/components/table_browser.rs:166 src/ui/components/table_view.rs:106
 msgid "Show or edit filters"
@@ -684,7 +680,7 @@ msgstr "Mostrar o editar filtros"
 
 #: src/ui/components/table_browser.rs:175 src/ui/components/table_view.rs:118
 msgid "Refresh"
-msgstr "Refrescar"
+msgstr "Actualizar"
 
 #: src/ui/components/table_browser.rs:235
 msgid "First page"
@@ -720,15 +716,15 @@ msgstr "Elija una tabla o vista en el panel lateral para explorar sus filas."
 
 #: src/ui/components/table_browser.rs:515
 msgid "Loading table failed"
-msgstr "Carga de tabla fallida"
+msgstr "No se pudo cargar la tabla"
 
 #: src/ui/components/table_browser.rs:542
 msgid "Loading last page failed"
-msgstr "Carga de última página fallida"
+msgstr "No se pudo cargar la última página"
 
 #: src/ui/components/table_browser.rs:573
 msgid "Saving cell failed"
-msgstr "Guardado de celda fallido"
+msgstr "No se pudo guardar la celda"
 
 #: src/ui/components/table_browser.rs:684
 msgid "Filter cannot be applied"
@@ -770,8 +766,8 @@ msgstr "Valor"
 msgid ""
 "Use Set NULL to store a database NULL. Empty text is saved as empty text."
 msgstr ""
-"Use Asignar NULL para un valor NULL en la base de datos. El texto vacío se "
-"guarda como texto vacío."
+"Use Asignar NULL para guardar un valor NULL en la base de datos. El texto "
+"vacío se guardará como texto vacío."
 
 #: src/ui/components/table_browser/cell_editor.rs:51
 msgid "This column is not nullable."
@@ -823,11 +819,11 @@ msgstr "Sin filtros aplicados."
 
 #: src/ui/components/table_browser/filters.rs:86
 msgid "Missing custom SQL filter"
-msgstr "Filtro SQL personalizado faltante"
+msgstr "Falta el filtro SQL personalizado"
 
 #: src/ui/components/table_browser/filters.rs:100
 msgid "Missing value for filter"
-msgstr "Valor faltante para filtro"
+msgstr "Falta el valor del filtro"
 
 #: src/ui/components/table_browser/filters.rs:239
 msgid "Remove filter"
@@ -861,116 +857,116 @@ msgstr "Carga cancelada"
 
 #: src/ui/components/table_structure.rs:123 src/ui/components/table_view.rs:157
 msgid "Structure"
-msgstr ""
+msgstr "Estructura"
 
 #: src/ui/components/table_structure.rs:124
 msgid "Open a table to inspect its columns."
-msgstr ""
+msgstr "Abra una tabla para inspeccionar sus columnas."
 
 #: src/ui/components/table_structure.rs:179
 msgid "Loading structure failed"
-msgstr ""
+msgstr "No se pudo cargar la estructura"
 
 #: src/ui/components/table_structure.rs:237
 msgid "Loading structure"
-msgstr ""
+msgstr "Cargando estructura"
 
 #: src/ui/components/table_structure.rs:238
 msgid "Fetching table structure from PostgreSQL."
-msgstr ""
+msgstr "Obteniendo la estructura de la tabla desde PostgreSQL."
 
 #: src/ui/components/table_structure/columns.rs:17
 msgid "Columns"
-msgstr ""
+msgstr "Columnas"
 
 #: src/ui/components/table_structure/columns.rs:57
 msgid "Nullable"
-msgstr ""
+msgstr "Permite NULL"
 
 #: src/ui/components/table_structure/columns.rs:60
 msgid "Yes"
-msgstr ""
+msgstr "Sí"
 
 #: src/ui/components/table_structure/columns.rs:62
 msgid "No"
-msgstr ""
+msgstr "No"
 
 #: src/ui/components/table_structure/columns.rs:69
 msgid "Default"
-msgstr ""
+msgstr "Valor por defecto"
 
 #: src/ui/components/table_structure/columns.rs:70
 msgid "Key"
-msgstr ""
+msgstr "Clave"
 
 #: src/ui/components/table_structure/columns.rs:146
 msgid "Generated"
-msgstr ""
+msgstr "Generada"
 
 #: src/ui/components/table_structure/columns.rs:154
 #: src/ui/components/table_structure/sections.rs:180
 msgid "Primary"
-msgstr ""
+msgstr "Primaria"
 
 #: src/ui/components/table_structure/sections.rs:11
 msgid "Indexes"
-msgstr ""
+msgstr "Índices"
 
 #: src/ui/components/table_structure/sections.rs:12
 msgid "No indexes"
-msgstr ""
+msgstr "Sin índices"
 
 #: src/ui/components/table_structure/sections.rs:22
 msgid "Constraints"
-msgstr ""
+msgstr "Restricciones"
 
 #: src/ui/components/table_structure/sections.rs:24
 msgid "No constraints"
-msgstr ""
+msgstr "Sin restricciones"
 
 #: src/ui/components/table_structure/sections.rs:34
 msgid "Foreign Keys"
-msgstr ""
+msgstr "Claves foráneas"
 
 #: src/ui/components/table_structure/sections.rs:37
 msgid "No foreign keys"
-msgstr ""
+msgstr "Sin claves foráneas"
 
 #: src/ui/components/table_structure/sections.rs:49
 msgid "Triggers"
-msgstr ""
+msgstr "Disparadores"
 
 #: src/ui/components/table_structure/sections.rs:50
 msgid "No triggers"
-msgstr ""
+msgstr "Sin disparadores"
 
 #: src/ui/components/table_structure/sections.rs:182
 msgid "Unique"
-msgstr ""
+msgstr "Única"
 
 #: src/ui/components/table_structure/sections.rs:186
 msgid "Invalid"
-msgstr ""
+msgstr "Inválida"
 
 #: src/ui/components/table_structure/sections.rs:190
 msgid "Partial"
-msgstr ""
+msgstr "Parcial"
 
 #: src/ui/components/table_structure/sections.rs:200
 msgid "Not validated"
-msgstr ""
+msgstr "Sin validar"
 
 #: src/ui/components/table_structure/sections.rs:213
 msgid "Deferred"
-msgstr ""
+msgstr "Diferida"
 
 #: src/ui/components/table_structure/sections.rs:214
 msgid "Deferrable"
-msgstr ""
+msgstr "Diferible"
 
 #: src/ui/components/table_view.rs:153
 msgid "Content"
-msgstr ""
+msgstr "Contenido"
 
 #: data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
@@ -1016,11 +1012,15 @@ msgstr "Explore datos de tablas de PostgreSQL con paginación y filtros"
 msgid ""
 "Inspect table columns, data types, nullability, defaults and primary keys"
 msgstr ""
+"Inspeccione columnas, tipos de datos, admisión de NULL, valores por defecto "
+"y claves primarias de la tabla"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:48
 msgid ""
 "Review indexes, constraints, foreign keys and triggers in the structure view"
 msgstr ""
+"Revise índices, restricciones, claves foráneas y disparadores en la vista de "
+"estructura"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:52
 msgid "Use table actions like rename, truncate and delete"
@@ -1073,7 +1073,7 @@ msgstr "Explorador de tablas"
 #: data/ui/shortcuts-dialog.ui:48
 msgctxt "shortcut window"
 msgid "Refresh Table or View"
-msgstr "Refrescar tabla o vista"
+msgstr "Actualizar tabla o vista"
 
 #: data/ui/shortcuts-dialog.ui:56
 msgctxt "shortcut window"
@@ -1094,3 +1094,6 @@ msgstr "Ejecutar"
 msgctxt "shortcut window"
 msgid "Focus SQL Editor"
 msgstr "Enfocar editor SQL"
+
+#~ msgid "New"
+#~ msgstr "Nuevo"
