@@ -456,6 +456,8 @@ impl WindowContent {
     ) {
         if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.object == object) {
             widgets.query_tab_view.set_selected_page(&tab.page);
+            tab.view.emit(TableViewMsg::Refresh);
+
             self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
                 tab.object.clone(),
             )));
