@@ -1,4 +1,6 @@
-use crate::models::query_result::{QueryExecutionResult, QueryResult};
+use crate::models::query_result::{
+    MAX_QUERY_RESULT_ROW_LIMIT, MIN_QUERY_RESULT_ROW_LIMIT, QueryExecutionResult, QueryResult,
+};
 use gettextrs::{gettext, ngettext};
 use libadwaita as adw;
 use libadwaita::prelude::*;
@@ -15,6 +17,7 @@ pub struct QueryResults {
     result: Option<QueryResult>,
     status_title: String,
     status_description: Option<String>,
+    row_limit: usize,
     table_rows: gio::ListStore,
     table_view: gtk::ColumnView,
     rendered_columns: Vec<String>,
@@ -25,15 +28,21 @@ pub enum QueryResultsMsg {
     Clear,
     Loading,
     Cancelled,
+    RowLimitChanged(usize),
     ShowResult(QueryExecutionResult),
     ShowError(String),
 }
 
+#[derive(Debug)]
+pub enum QueryResultsOutput {
+    RowLimitChanged(usize),
+}
+
 #[relm4::component(pub)]
 impl Component for QueryResults {
-    type Init = ();
+    type Init = usize;
     type Input = QueryResultsMsg;
-    type Output = ();
+    type Output = QueryResultsOutput;
     type CommandOutput = ();
 
     view! {
@@ -99,14 +108,42 @@ impl Component for QueryResults {
                     set_visible: !model.status_text.is_empty(),
                 },
 
+                gtk::Separator {
+                    set_orientation: gtk::Orientation::Vertical,
+                },
+
+                gtk::Label {
+                    set_label: &gettext("Row limit"),
+                    add_css_class: "caption",
+                    add_css_class: "dim-label",
+                },
+
+                gtk::SpinButton {
+                    set_range: (
+                        MIN_QUERY_RESULT_ROW_LIMIT as f64,
+                        MAX_QUERY_RESULT_ROW_LIMIT as f64,
+                    ),
+                    set_increments: (100.0, 1_000.0),
+                    set_numeric: true,
+                    set_width_chars: 5,
+                    #[watch]
+                    set_value: model.row_limit as f64,
+                    #[watch]
+                    set_sensitive: !model.is_loading,
+                    connect_value_changed[sender] => move |spin_button| {
+                        sender.input(QueryResultsMsg::RowLimitChanged(
+                            spin_button.value_as_int().try_into().unwrap_or_default(),
+                        ));
+                    },
+                },
             },
         }
     }
 
     fn init(
-        _init: Self::Init,
+        row_limit: Self::Init,
         root: Self::Root,
-        _sender: ComponentSender<Self>,
+        sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         let table_rows = gio::ListStore::new::<glib::BoxedAnyObject>();
         let table_view = gtk::ColumnView::new(Some(gtk::NoSelection::new(Some(
@@ -125,6 +162,7 @@ impl Component for QueryResults {
             result: None,
             status_title: gettext("Run a query"),
             status_description: Some(gettext("Results will appear here after execution.")),
+            row_limit,
             table_rows,
             table_view,
             rendered_columns: Vec::new(),
@@ -141,7 +179,7 @@ impl Component for QueryResults {
         &mut self,
         widgets: &mut Self::Widgets,
         msg: Self::Input,
-        _sender: ComponentSender<Self>,
+        sender: ComponentSender<Self>,
         _root: &Self::Root,
     ) {
         match msg {
@@ -174,19 +212,18 @@ impl Component for QueryResults {
                 self.status_description = Some(gettext("The query was cancelled."));
             }
 
+            QueryResultsMsg::RowLimitChanged(row_limit) => {
+                self.row_limit =
+                    row_limit.clamp(MIN_QUERY_RESULT_ROW_LIMIT, MAX_QUERY_RESULT_ROW_LIMIT);
+                let _ = sender.output(QueryResultsOutput::RowLimitChanged(self.row_limit));
+                self.update_view(widgets, sender);
+                return;
+            }
+
             QueryResultsMsg::ShowResult(QueryExecutionResult::Rows(result)) => {
                 self.is_loading = false;
                 self.is_error = false;
-                self.status_text = if result.rows.is_empty() {
-                    gettext("Query returned no rows.")
-                } else {
-                    let row_count = plural_count(result.rows.len());
-                    format!(
-                        "{} {}",
-                        result.rows.len(),
-                        ngettext("row", "rows", row_count)
-                    )
-                };
+                self.status_text = result_status_text(&result);
                 self.status_title.clear();
                 self.status_description = None;
                 self.result = Some(result);
@@ -217,7 +254,7 @@ impl Component for QueryResults {
 
         self.render_table(widgets);
         set_results_stack_child(widgets, self.result.is_some());
-        self.update_view(widgets, _sender);
+        self.update_view(widgets, sender);
     }
 }
 
@@ -245,6 +282,20 @@ fn plural_count(count: usize) -> u32 {
 
 fn plural_count_u64(count: u64) -> u32 {
     u32::try_from(count).unwrap_or(u32::MAX)
+}
+
+fn result_status_text(result: &QueryResult) -> String {
+    if result.rows.is_empty() {
+        return gettext("Query returned no rows.");
+    }
+
+    let row_suffix = if result.row_limit_reached { "+" } else { "" };
+    let row_count = plural_count(result.rows.len());
+    format!(
+        "{}{row_suffix} {}",
+        result.rows.len(),
+        ngettext("row", "rows", row_count)
+    )
 }
 
 impl QueryResults {
@@ -365,4 +416,21 @@ fn display_cell_value(value: &str, is_header: bool) -> String {
     let mut shortened = value.chars().take(80).collect::<String>();
     shortened.push_str("...");
     shortened
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{QueryResult, result_status_text};
+
+    #[test]
+    fn result_status_keeps_row_count_when_row_limit_was_reached() {
+        let result = QueryResult {
+            columns: vec!["id".to_string()],
+            rows: vec![vec!["1".to_string()], vec!["2".to_string()]],
+            row_limit: Some(2),
+            row_limit_reached: true,
+        };
+
+        assert_eq!(result_status_text(&result), "2+ rows");
+    }
 }

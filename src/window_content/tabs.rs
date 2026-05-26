@@ -10,6 +10,7 @@ use relm4::prelude::*;
 use sqlx::PgPool;
 
 use crate::models::database_object::DatabaseObject;
+use crate::models::query_result::DEFAULT_QUERY_RESULT_ROW_LIMIT;
 use crate::ui::components::{
     editor::{SqlEditor, SqlEditorMsg},
     results::QueryResults,
@@ -140,7 +141,11 @@ impl WindowContent {
                 WindowContentMsg::EditorOutput { tab_id: id, output }
             });
 
-        let results = QueryResults::builder().launch(()).detach();
+        let results = QueryResults::builder()
+            .launch(DEFAULT_QUERY_RESULT_ROW_LIMIT)
+            .forward(sender.input_sender(), move |output| {
+                WindowContentMsg::ResultsOutput { tab_id: id, output }
+            });
 
         let widget = gtk::Paned::builder()
             .orientation(gtk::Orientation::Vertical)
@@ -166,6 +171,7 @@ impl WindowContent {
             editor,
             results,
             editor_buffer,
+            row_limit: DEFAULT_QUERY_RESULT_ROW_LIMIT,
             query_state: QueryState::Idle,
             active_query: None,
         });

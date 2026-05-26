@@ -1,4 +1,6 @@
-use crate::models::query_result::{QueryExecutionResult, QueryResult};
+use crate::models::query_result::{
+    MAX_QUERY_RESULT_ROW_LIMIT, MIN_QUERY_RESULT_ROW_LIMIT, QueryExecutionResult, QueryResult,
+};
 use crate::models::table_browser::TableCell;
 use futures_util::TryStreamExt;
 use sqlx::postgres::{PgRow, PgValueFormat, PgValueRef};
@@ -6,30 +8,50 @@ use sqlx::{Column, Either, PgPool, Row, TypeInfo, ValueRef, raw_sql};
 use sqlx_core::type_checking::TypeChecking;
 use std::fmt::Write;
 
-pub async fn execute(pool: &PgPool, sql: &str) -> Result<QueryExecutionResult, sqlx::Error> {
+pub async fn execute(
+    pool: &PgPool,
+    sql: &str,
+    row_limit: usize,
+) -> Result<QueryExecutionResult, sqlx::Error> {
+    let row_limit = safe_row_limit(row_limit);
     let mut stream = raw_sql(sql).fetch_many(pool);
-    let mut current_rows = Vec::new();
+    let mut current_result: Option<QueryResult> = None;
     let mut last_result = None;
 
     while let Some(item) = stream.try_next().await? {
         match item {
             Either::Left(result) => {
-                if !current_rows.is_empty() {
-                    last_result = Some(QueryExecutionResult::Rows(rows_to_result(&current_rows)));
-                    current_rows.clear();
+                if let Some(result) = current_result.take() {
+                    last_result = Some(QueryExecutionResult::Rows(result));
                 } else {
                     let rows = result.rows_affected();
                     last_result = Some(QueryExecutionResult::AffectedRows(rows));
                 }
             }
             Either::Right(row) => {
-                current_rows.push(row);
+                let row_limit_reached = {
+                    let result =
+                        current_result.get_or_insert_with(|| limited_query_result(row_limit));
+                    if result.rows.len() >= row_limit {
+                        result.row_limit_reached = true;
+                        true
+                    } else {
+                        append_row_to_result(result, &row);
+                        false
+                    }
+                };
+
+                if row_limit_reached {
+                    return Ok(QueryExecutionResult::Rows(
+                        current_result.expect("limited query result to exist"),
+                    ));
+                }
             }
         }
     }
 
-    if !current_rows.is_empty() {
-        Ok(QueryExecutionResult::Rows(rows_to_result(&current_rows)))
+    if let Some(result) = current_result {
+        Ok(QueryExecutionResult::Rows(result))
     } else if let Some(result) = last_result {
         if matches!(result, QueryExecutionResult::AffectedRows(0))
             && expects_rows_when_empty(last_sql_statement(sql))
@@ -43,6 +65,17 @@ pub async fn execute(pool: &PgPool, sql: &str) -> Result<QueryExecutionResult, s
     } else {
         Ok(QueryExecutionResult::AffectedRows(0))
     }
+}
+
+fn limited_query_result(row_limit: usize) -> QueryResult {
+    QueryResult {
+        row_limit: Some(row_limit),
+        ..QueryResult::default()
+    }
+}
+
+pub(crate) fn safe_row_limit(row_limit: usize) -> usize {
+    row_limit.clamp(MIN_QUERY_RESULT_ROW_LIMIT, MAX_QUERY_RESULT_ROW_LIMIT)
 }
 
 fn last_sql_statement(sql: &str) -> &str {
@@ -85,6 +118,50 @@ fn last_sql_statement(sql: &str) -> &str {
     }
 
     tail
+}
+
+pub(crate) fn has_multiple_statements(sql: &str) -> bool {
+    count_sql_statements(sql) > 1
+}
+
+fn count_sql_statements(sql: &str) -> usize {
+    let mut count = 0;
+    let mut statement_start = 0;
+    let bytes = sql.as_bytes();
+    let mut index = 0;
+
+    while index < bytes.len() {
+        match bytes[index] {
+            b'\'' if is_escape_string_quote(sql, index) => {
+                index = skip_escape_quoted_string(bytes, index + 1);
+            }
+            b'\'' => index = skip_single_quoted_string(bytes, index + 1),
+            b'"' => index = skip_double_quoted_identifier(bytes, index + 1),
+            b'-' if bytes.get(index + 1) == Some(&b'-') => {
+                index = skip_line_comment(bytes, index + 2);
+            }
+            b'/' if bytes.get(index + 1) == Some(&b'*') => {
+                index = skip_block_comment(bytes, index + 2);
+            }
+            b'$' if let Some(end) = skip_dollar_quoted_string(sql, index) => {
+                index = end;
+            }
+            b';' => {
+                if !sql[statement_start..index].trim().is_empty() {
+                    count += 1;
+                }
+                statement_start = index + 1;
+                index += 1;
+            }
+            _ => index += 1,
+        }
+    }
+
+    if !strip_leading_sql_comments(sql[statement_start..].trim()).is_empty() {
+        count += 1;
+    }
+
+    count
 }
 
 fn expects_rows_when_empty(sql: &str) -> bool {
@@ -286,29 +363,33 @@ fn is_identifier_continue(byte: u8) -> bool {
     byte.is_ascii_alphanumeric() || byte == b'_'
 }
 
+#[cfg(test)]
 fn rows_to_result(rows: &[PgRow]) -> QueryResult {
-    let Some(first_row) = rows.first() else {
-        return QueryResult::default();
-    };
+    let mut result = QueryResult::default();
 
-    let columns = first_row
-        .columns()
-        .iter()
-        .map(|column| column.name().to_string())
-        .collect();
+    for row in rows {
+        append_row_to_result(&mut result, row);
+    }
 
-    let rows = rows
-        .iter()
-        .map(|row| {
-            row.columns()
-                .iter()
-                .enumerate()
-                .map(|(index, column)| value_to_string(row, index, column.type_info().name()))
-                .collect()
-        })
-        .collect();
+    result
+}
 
-    QueryResult { columns, rows }
+fn append_row_to_result(result: &mut QueryResult, row: &PgRow) {
+    if result.columns.is_empty() {
+        result.columns = row
+            .columns()
+            .iter()
+            .map(|column| column.name().to_string())
+            .collect();
+    }
+
+    result.rows.push(
+        row.columns()
+            .iter()
+            .enumerate()
+            .map(|(index, column)| value_to_string(row, index, column.type_info().name()))
+            .collect(),
+    );
 }
 
 pub(crate) fn value_to_string(row: &PgRow, index: usize, type_name: &str) -> String {
@@ -422,8 +503,9 @@ fn raw_bytes_to_hex(value: &PgValueRef<'_>) -> String {
 mod tests {
     use super::{
         changes_schema, contains_keyword_outside_literals, expects_rows_when_empty,
-        last_sql_statement, rows_to_result,
+        has_multiple_statements, last_sql_statement, rows_to_result, safe_row_limit,
     };
+    use crate::models::query_result::{MAX_QUERY_RESULT_ROW_LIMIT, MIN_QUERY_RESULT_ROW_LIMIT};
 
     #[test]
     fn detects_row_returning_statements() {
@@ -567,10 +649,30 @@ mod tests {
     }
 
     #[test]
+    fn detects_multiple_statements_outside_literals_and_comments() {
+        assert!(!has_multiple_statements("select 1"));
+        assert!(!has_multiple_statements("select 1;"));
+        assert!(!has_multiple_statements("select ';'"));
+        assert!(!has_multiple_statements("-- select 1;\nselect 1"));
+        assert!(!has_multiple_statements("select $$;$$"));
+        assert!(has_multiple_statements("select 1; select 2"));
+    }
+
+    #[test]
     fn empty_results_are_supported() {
         let result = rows_to_result(&[]);
 
         assert!(result.columns.is_empty());
         assert!(result.rows.is_empty());
+    }
+
+    #[test]
+    fn row_limit_is_clamped_to_safe_bounds() {
+        assert_eq!(safe_row_limit(0), MIN_QUERY_RESULT_ROW_LIMIT);
+        assert_eq!(safe_row_limit(1_000), 1_000);
+        assert_eq!(
+            safe_row_limit(MAX_QUERY_RESULT_ROW_LIMIT + 1),
+            MAX_QUERY_RESULT_ROW_LIMIT
+        );
     }
 }

@@ -13,7 +13,7 @@ use crate::menus;
 use crate::models::connection::{ConnectionDetails, SavedConnection};
 use crate::models::database_object::DatabaseObject;
 use crate::models::query_history::QueryHistoryEntry;
-use crate::models::query_result::QueryExecutionResult;
+use crate::models::query_result::{DEFAULT_QUERY_RESULT_ROW_LIMIT, QueryExecutionResult};
 use crate::models::table_script::TableScriptKind;
 use crate::settings;
 use crate::state::{app_state::AppState, connection_store, credential_store};
@@ -21,7 +21,7 @@ use crate::ui::components::{
     connection_dialog::{ConnectionDialog, ConnectionDialogInit, ConnectionDialogOutput},
     database_selector::{DatabaseSelector, DatabaseSelectorMsg, DatabaseSelectorOutput},
     editor::{SqlEditor, SqlEditorMsg, SqlEditorOutput},
-    results::{QueryResults, QueryResultsMsg},
+    results::{QueryResults, QueryResultsMsg, QueryResultsOutput},
     sidebar::{ObjectSidebar, ObjectSidebarMsg, ObjectSidebarOutput},
     start_screen::{StartScreen, StartScreenMsg, StartScreenOutput},
     table_view::TableView,
@@ -67,6 +67,7 @@ struct QueryTab {
     editor: Controller<SqlEditor>,
     results: Controller<QueryResults>,
     editor_buffer: sourceview5::Buffer,
+    row_limit: usize,
     query_state: QueryState,
     active_query: Option<RunningQuery>,
 }
@@ -94,6 +95,12 @@ enum QueryState {
 struct RunningQuery {
     id: u64,
     abort_handle: AbortHandle,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct QueryExecutionContext {
+    has_multiple_statements: bool,
+    reload_schema_on_success: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -142,6 +149,10 @@ pub enum WindowContentMsg {
         tab_id: u64,
         output: SqlEditorOutput,
     },
+    ResultsOutput {
+        tab_id: u64,
+        output: QueryResultsOutput,
+    },
 }
 
 #[derive(Debug)]
@@ -162,7 +173,7 @@ pub enum WindowContentCommandOutput {
     QueryExecuted {
         tab_id: u64,
         id: u64,
-        reload_schema_on_success: bool,
+        context: QueryExecutionContext,
         result: Result<QueryExecutionResult, String>,
     },
     QueryCancelled {
@@ -452,6 +463,14 @@ impl Component for WindowContent {
             } => {
                 self.clear_query_history(widgets);
             }
+            WindowContentMsg::ResultsOutput {
+                tab_id,
+                output: QueryResultsOutput::RowLimitChanged(row_limit),
+            } => {
+                if let Some(tab) = self.query_tab_mut(tab_id) {
+                    tab.row_limit = row_limit;
+                }
+            }
             WindowContentMsg::FocusEditor => {
                 self.select_active_query_tab(widgets, &sender);
 
@@ -528,8 +547,9 @@ impl Component for WindowContent {
         self.update_view(widgets, sender);
     }
 
-    fn update_cmd(
+    fn update_cmd_with_view(
         &mut self,
+        widgets: &mut Self::Widgets,
         msg: Self::CommandOutput,
         sender: ComponentSender<Self>,
         _root: &Self::Root,
@@ -555,10 +575,10 @@ impl Component for WindowContent {
             WindowContentCommandOutput::QueryExecuted {
                 tab_id,
                 id,
-                reload_schema_on_success,
+                context,
                 result,
             } => {
-                self.handle_query_executed(tab_id, id, reload_schema_on_success, result, &sender);
+                self.handle_query_executed(tab_id, id, context, result, widgets, &sender);
             }
             WindowContentCommandOutput::QueryCancelled { tab_id, id } => {
                 self.handle_query_cancelled(tab_id, id);
@@ -591,6 +611,8 @@ impl Component for WindowContent {
                 }
             }
         }
+
+        self.update_view(widgets, sender);
     }
 }
 
@@ -606,6 +628,10 @@ fn copy_text_to_clipboard(text: &str) {
     if let Some(display) = gtk::gdk::Display::default() {
         display.clipboard().set_text(text);
     }
+}
+
+fn query_result_reached_row_limit(result: &QueryExecutionResult) -> bool {
+    matches!(result, QueryExecutionResult::Rows(result) if result.row_limit_reached)
 }
 
 async fn update_saved_password(details: ConnectionDetails) -> Result<(), String> {
@@ -954,8 +980,9 @@ impl WindowContent {
         &mut self,
         tab_id: u64,
         id: u64,
-        reload_schema_on_success: bool,
+        context: QueryExecutionContext,
         result: Result<QueryExecutionResult, String>,
+        widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
         if !self.is_active_query(tab_id, id) {
@@ -973,8 +1000,13 @@ impl WindowContent {
 
             match result {
                 Ok(result) => {
+                    if context.has_multiple_statements && query_result_reached_row_limit(&result) {
+                        widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                            "Row limit reached. Query execution stopped.",
+                        )));
+                    }
                     tab.results.emit(QueryResultsMsg::ShowResult(result));
-                    reload_schema_on_success
+                    context.reload_schema_on_success
                 }
                 Err(error) => {
                     tab.results.emit(QueryResultsMsg::ShowError(format!(
@@ -1067,9 +1099,17 @@ impl WindowContent {
             )));
             return;
         }
+        let row_limit = self
+            .query_tabs
+            .iter()
+            .find(|tab| tab.id == tab_id)
+            .map_or(DEFAULT_QUERY_RESULT_ROW_LIMIT, |tab| tab.row_limit);
         self.record_query_history(widgets, &sql);
 
-        let reload_schema_on_success = db::query::changes_schema(&sql);
+        let context = QueryExecutionContext {
+            has_multiple_statements: db::query::has_multiple_statements(&sql),
+            reload_schema_on_success: db::query::changes_schema(&sql),
+        };
         let id = self.allocate_query_id();
         let (abort_handle, abort_registration) = AbortHandle::new_pair();
         if let Some(tab) = self.query_tab_mut(tab_id) {
@@ -1081,7 +1121,7 @@ impl WindowContent {
 
         sender.oneshot_command(async move {
             let query = async move {
-                db::query::execute(&pool, &sql)
+                db::query::execute(&pool, &sql, row_limit)
                     .await
                     .map_err(|error| error.to_string())
             };
@@ -1090,7 +1130,7 @@ impl WindowContent {
                 Ok(result) => WindowContentCommandOutput::QueryExecuted {
                     tab_id,
                     id,
-                    reload_schema_on_success,
+                    context,
                     result,
                 },
                 Err(_) => WindowContentCommandOutput::QueryCancelled { tab_id, id },
