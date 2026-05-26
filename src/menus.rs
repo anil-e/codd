@@ -1,7 +1,7 @@
 use gettextrs::gettext;
 use relm4::gtk;
 
-pub(crate) fn main_menu() -> gtk::gio::Menu {
+pub(crate) fn start_menu() -> gtk::gio::Menu {
     let menu = gtk::gio::Menu::new();
 
     let connection_section = gtk::gio::Menu::new();
@@ -11,10 +11,22 @@ pub(crate) fn main_menu() -> gtk::gio::Menu {
     );
     menu.append_section(None, &connection_section);
 
-    let app_section = gtk::gio::Menu::new();
-    app_section.append(Some(&gettext("_Keyboard Shortcuts")), Some("app.shortcuts"));
-    app_section.append(Some(&gettext("_Quit")), Some("app.quit"));
-    menu.append_section(None, &app_section);
+    menu.append_section(None, &app_menu_section());
 
     menu
+}
+
+pub(crate) fn workspace_menu() -> gtk::gio::Menu {
+    let menu = gtk::gio::Menu::new();
+
+    menu.append_section(None, &app_menu_section());
+
+    menu
+}
+
+fn app_menu_section() -> gtk::gio::Menu {
+    let section = gtk::gio::Menu::new();
+    section.append(Some(&gettext("_Keyboard Shortcuts")), Some("app.shortcuts"));
+    section.append(Some(&gettext("_Quit")), Some("app.quit"));
+    section
 }

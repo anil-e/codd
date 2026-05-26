@@ -226,7 +226,7 @@ impl Component for WindowContent {
                         set_icon_name: "open-menu-symbolic",
                         set_tooltip_text: Some(&gettext("Main Menu")),
                         set_primary: true,
-                        set_menu_model: Some(&menus::main_menu()),
+                        set_menu_model: Some(&menus::start_menu()),
                     },
 
                     pack_end = &gtk::Button {
@@ -418,8 +418,12 @@ impl Component for WindowContent {
             WindowContentMsg::QueryTabTitleChanged(tab_id) => {
                 self.update_query_tab_title(tab_id);
             }
-            WindowContentMsg::OpenConnectionDialog
-            | WindowContentMsg::StartScreenOutput(StartScreenOutput::NewConnection) => {
+            WindowContentMsg::OpenConnectionDialog => {
+                if !self.shows_workspace() {
+                    self.open_connection_dialog(root, &sender, None);
+                }
+            }
+            WindowContentMsg::StartScreenOutput(StartScreenOutput::NewConnection) => {
                 self.open_connection_dialog(root, &sender, None);
             }
             WindowContentMsg::StartScreenOutput(StartScreenOutput::ConnectionsChanged(
@@ -720,6 +724,7 @@ impl WindowContent {
 
         self.sidebar
             .emit(ObjectSidebarMsg::SetError(gettext("No connection")));
+        self.menu_button.set_menu_model(Some(&menus::start_menu()));
         widgets.content_stack.set_visible_child_name("start");
     }
 
@@ -846,6 +851,8 @@ impl WindowContent {
             settings::connection_state_settings(&connection.id).boolean("sidebar-hidden");
         split_view.set_collapsed(sidebar_hidden);
         self.workspace_navigation = WorkspaceNavigation::from_split_view(split_view.is_collapsed());
+        self.menu_button
+            .set_menu_model(Some(&menus::workspace_menu()));
         widgets.content_stack.set_visible_child_name("workspace");
     }
 
