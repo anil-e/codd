@@ -32,27 +32,27 @@
   </branding>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.5.2/images/flathub/screenshot-query.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.6.0/images/flathub/screenshot-query.png</image>
       <caption>Run SQL queries with syntax highlighting and result previews</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.5.2/images/flathub/screenshot-table-browser.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.6.0/images/flathub/screenshot-table-browser.png</image>
       <caption>Browse PostgreSQL table data with pagination and filters</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.5.2/images/flathub/screenshot-structure-columns.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.6.0/images/flathub/screenshot-structure-columns.png</image>
       <caption>Inspect table columns, data types, nullability, defaults and primary keys</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.5.2/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.6.0/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
       <caption>Review indexes, constraints, foreign keys and triggers in the structure view</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.5.2/images/flathub/screenshot-truncate.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.6.0/images/flathub/screenshot-truncate.png</image>
       <caption>Use table actions like rename, truncate and delete</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.5.2/images/flathub/screenshot-start.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.6.0/images/flathub/screenshot-start.png</image>
       <caption>Manage saved PostgreSQL connections</caption>
     </screenshot>
   </screenshots>
@@ -63,6 +63,19 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.6.0" date="2026-05-29">
+      <description translate="no">
+        <p>This release adds multi-window support and safer handling for large query results.</p>
+
+        <ul>
+          <li>Multiple windows can now be opened, each with its own connection, sidebar, query tabs and table tabs.</li>
+          <li>Query results now use a configurable row limit to avoid loading unbounded result sets into memory.</li>
+          <li>Opening an already open table from the sidebar now refreshes the existing tab.</li>
+          <li>The New Connection action is now kept on the start screen, while workspace windows focus on the active connection.</li>
+          <li>Empty query results now show a clear status page instead of an empty grid.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.5.2" date="2026-05-24">
       <description translate="no">
         <p>This release updates the Spanish translation.</p>
