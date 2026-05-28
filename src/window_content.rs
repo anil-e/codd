@@ -3,10 +3,16 @@ use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 
+use relm4::Sender;
 use relm4::gtk;
 use relm4::gtk::glib;
 use relm4::prelude::*;
 use sqlx::PgPool;
+use std::collections::HashMap;
+use std::sync::{
+    Mutex,
+    atomic::{AtomicU64, Ordering},
+};
 
 use crate::db;
 use crate::menus;
@@ -34,6 +40,10 @@ mod tabs;
 use object_actions::ObjectActionRequest;
 use tabs::{browse_tab_id_from_widget, query_tab_id_from_widget, setup_tab_context_menu};
 
+static WINDOW_CONTENT_SUBSCRIBERS: Mutex<Option<HashMap<u64, Sender<WindowContentMsg>>>> =
+    Mutex::new(None);
+static NEXT_WINDOW_CONTENT_SUBSCRIPTION_ID: AtomicU64 = AtomicU64::new(0);
+
 pub struct WindowContent {
     state: AppState,
     active_pool: Option<PgPool>,
@@ -59,6 +69,7 @@ pub struct WindowContent {
     table_script_generation: u64,
     next_query_id: u64,
     workspace_navigation: WorkspaceNavigation,
+    sync_subscription_id: u64,
 }
 
 struct QueryTab {
@@ -152,6 +163,20 @@ pub enum WindowContentMsg {
     ResultsOutput {
         tab_id: u64,
         output: QueryResultsOutput,
+    },
+    WindowEvent(WindowContentEvent),
+}
+
+#[derive(Debug, Clone)]
+pub enum WindowContentEvent {
+    Connections(Vec<SavedConnection>),
+    QueryHistory {
+        connection_id: String,
+        database: String,
+    },
+    Schema {
+        connection_id: String,
+        database: String,
     },
 }
 
@@ -338,6 +363,7 @@ impl Component for WindowContent {
             table_script_generation: 0,
             next_query_id: 0,
             workspace_navigation: WorkspaceNavigation::Wide,
+            sync_subscription_id: subscribe_window_content(sender.input_sender().clone()),
         };
         let widgets = view_output!();
 
@@ -429,7 +455,8 @@ impl Component for WindowContent {
             WindowContentMsg::StartScreenOutput(StartScreenOutput::ConnectionsChanged(
                 connections,
             )) => {
-                self.state.connections = connections;
+                self.state.connections.clone_from(&connections);
+                self.broadcast_connections_changed(connections);
             }
             WindowContentMsg::StartScreenOutput(StartScreenOutput::OpenConnection(connection)) => {
                 self.open_connection_dialog(root, &sender, Some(connection));
@@ -474,6 +501,9 @@ impl Component for WindowContent {
                 if let Some(tab) = self.query_tab_mut(tab_id) {
                     tab.row_limit = row_limit;
                 }
+            }
+            WindowContentMsg::WindowEvent(event) => {
+                self.handle_window_event(event, widgets, &sender);
             }
             WindowContentMsg::FocusEditor => {
                 self.select_active_query_tab(widgets, &sender);
@@ -618,6 +648,48 @@ impl Component for WindowContent {
 
         self.update_view(widgets, sender);
     }
+
+    fn shutdown(&mut self, _widgets: &mut Self::Widgets, _output: Sender<Self::Output>) {
+        unsubscribe_window_content(self.sync_subscription_id);
+    }
+}
+
+fn with_window_content_subscribers<R>(
+    f: impl FnOnce(&mut HashMap<u64, Sender<WindowContentMsg>>) -> R,
+) -> R {
+    let mut guard = WINDOW_CONTENT_SUBSCRIBERS.lock().expect("subscribers lock");
+    let subscribers = guard.get_or_insert_with(HashMap::new);
+    f(subscribers)
+}
+
+fn subscribe_window_content(sender: Sender<WindowContentMsg>) -> u64 {
+    let id = NEXT_WINDOW_CONTENT_SUBSCRIPTION_ID.fetch_add(1, Ordering::Relaxed);
+
+    with_window_content_subscribers(|subscribers| {
+        subscribers.insert(id, sender);
+    });
+
+    id
+}
+
+fn unsubscribe_window_content(id: u64) {
+    with_window_content_subscribers(|subscribers| {
+        subscribers.remove(&id);
+    });
+}
+
+fn broadcast_window_content_event(event: WindowContentEvent, except: Option<u64>) {
+    with_window_content_subscribers(|subscribers| {
+        subscribers.retain(|id, sender| {
+            if Some(*id) == except {
+                return true;
+            }
+
+            sender
+                .send(WindowContentMsg::WindowEvent(event.clone()))
+                .is_ok()
+        });
+    });
 }
 
 fn workspace_split_view(widgets: &WindowContentWidgets) -> adw::NavigationSplitView {
@@ -674,6 +746,132 @@ impl WorkspaceNavigation {
 }
 
 impl WindowContent {
+    fn handle_window_event(
+        &mut self,
+        event: WindowContentEvent,
+        widgets: &mut WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        match event {
+            WindowContentEvent::Connections(connections) => {
+                self.apply_external_connections(connections, widgets);
+            }
+            WindowContentEvent::QueryHistory {
+                connection_id,
+                database,
+            } => {
+                self.reload_query_history_if_active(&connection_id, &database);
+            }
+            WindowContentEvent::Schema {
+                connection_id,
+                database,
+            } => {
+                if self.matches_active_database(&connection_id, &database) {
+                    self.reload_schema(sender);
+                }
+            }
+        }
+    }
+
+    fn apply_external_connections(
+        &mut self,
+        connections: Vec<SavedConnection>,
+        widgets: &mut WindowContentWidgets,
+    ) {
+        let active_connection_id = self
+            .state
+            .active_connection
+            .as_ref()
+            .map(|connection| connection.id.clone());
+
+        if let Some(active_connection_id) = active_connection_id {
+            let updated = connections
+                .iter()
+                .find(|connection| connection.id == active_connection_id);
+
+            if let Some(updated) = updated {
+                if let Some(active_connection) = self.state.active_connection.as_mut() {
+                    active_connection.name.clone_from(&updated.name);
+                    active_connection.save_password = updated.save_password;
+                }
+
+                if let Some(details) = self.active_connection_details.as_mut() {
+                    details.saved.name.clone_from(&updated.name);
+                    details.saved.save_password = updated.save_password;
+                }
+
+                let active_database = self
+                    .state
+                    .active_database
+                    .clone()
+                    .unwrap_or_else(|| updated.database.clone());
+                self.database_selector
+                    .emit(DatabaseSelectorMsg::SetContext {
+                        connection_title: updated.name.clone(),
+                        active_database,
+                        databases: self
+                            .databases_with_active_database(self.state.available_databases.clone()),
+                    });
+            } else if self.shows_workspace() {
+                self.show_start_screen(widgets);
+            }
+        }
+
+        self.state.connections.clone_from(&connections);
+        self.start_screen
+            .emit(StartScreenMsg::SetConnections(connections));
+    }
+
+    pub(super) fn broadcast_connections_changed(&self, connections: Vec<SavedConnection>) {
+        broadcast_window_content_event(
+            WindowContentEvent::Connections(connections),
+            Some(self.sync_subscription_id),
+        );
+    }
+
+    pub(super) fn broadcast_query_history_changed(&self) {
+        let Some((connection_id, database)) = self.active_database_scope() else {
+            return;
+        };
+
+        broadcast_window_content_event(
+            WindowContentEvent::QueryHistory {
+                connection_id,
+                database,
+            },
+            Some(self.sync_subscription_id),
+        );
+    }
+
+    pub(super) fn broadcast_schema_changed(&self) {
+        let Some((connection_id, database)) = self.active_database_scope() else {
+            return;
+        };
+
+        broadcast_window_content_event(
+            WindowContentEvent::Schema {
+                connection_id,
+                database,
+            },
+            Some(self.sync_subscription_id),
+        );
+    }
+
+    fn active_database_scope(&self) -> Option<(String, String)> {
+        let connection_id = self.state.active_connection.as_ref()?.id.clone();
+        let database = self.state.active_database.clone()?;
+
+        Some((connection_id, database))
+    }
+
+    fn matches_active_database(&self, connection_id: &str, database: &str) -> bool {
+        self.state
+            .active_connection
+            .as_ref()
+            .is_some_and(|connection| connection.id == connection_id)
+            && self.state.active_database.as_deref() == Some(database)
+    }
+
     fn shows_workspace(&self) -> bool {
         self.visible_page == VisiblePage::Workspace
     }
@@ -792,7 +990,8 @@ impl WindowContent {
             Ok(connections) => {
                 self.state.connections.clone_from(&connections);
                 self.start_screen
-                    .emit(StartScreenMsg::SetConnections(connections));
+                    .emit(StartScreenMsg::SetConnections(connections.clone()));
+                self.broadcast_connections_changed(connections);
                 widgets
                     .toast_overlay
                     .add_toast(adw::Toast::new(&gettext("Connected to PostgreSQL.")));
@@ -861,7 +1060,8 @@ impl WindowContent {
             Ok(connections) => {
                 self.state.connections.clone_from(&connections);
                 self.start_screen
-                    .emit(StartScreenMsg::SetConnections(connections));
+                    .emit(StartScreenMsg::SetConnections(connections.clone()));
+                self.broadcast_connections_changed(connections);
 
                 if let Some(connection) = self
                     .state
@@ -1027,6 +1227,7 @@ impl WindowContent {
 
         if should_reload_schema {
             self.reload_schema(sender);
+            self.broadcast_schema_changed();
         }
     }
 

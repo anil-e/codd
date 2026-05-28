@@ -12,19 +12,14 @@
         </child>
         <child>
           <object class="AdwShortcutsItem">
-            <property name="title" translatable="yes" context="shortcut window">Quit</property>
-            <property name="accelerator">&lt;Control&gt;q</property>
+            <property name="title" translatable="yes" context="shortcut window">New Window</property>
+            <property name="accelerator">&lt;Control&gt;&lt;Shift&gt;n</property>
           </object>
         </child>
-      </object>
-    </child>
-    <child>
-      <object class="AdwShortcutsSection">
-        <property name="title" translatable="yes" context="shortcut window">Connections</property>
         <child>
           <object class="AdwShortcutsItem">
-            <property name="title" translatable="yes" context="shortcut window">New Connection</property>
-            <property name="accelerator">&lt;Control&gt;&lt;Shift&gt;n</property>
+            <property name="title" translatable="yes" context="shortcut window">Quit</property>
+            <property name="accelerator">&lt;Control&gt;q</property>
           </object>
         </child>
       </object>

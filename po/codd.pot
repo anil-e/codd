@@ -18,15 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: src/menus.rs:9
+#: src/menus.rs:11
 msgid "_New Connection"
 msgstr ""
 
-#: src/menus.rs:15
+#: src/menus.rs:32
+msgid "_New Window"
+msgstr ""
+
+#: src/menus.rs:38
 msgid "_Keyboard Shortcuts"
 msgstr ""
 
-#: src/menus.rs:16
+#: src/menus.rs:39
 msgid "_Quit"
 msgstr ""
 
@@ -1027,25 +1031,20 @@ msgstr ""
 
 #: data/ui/shortcuts-dialog.ui:15
 msgctxt "shortcut window"
+msgid "New Window"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:21
+msgctxt "shortcut window"
 msgid "Quit"
 msgstr ""
 
-#: data/ui/shortcuts-dialog.ui:23
-msgctxt "shortcut window"
-msgid "Connections"
-msgstr ""
-
-#: data/ui/shortcuts-dialog.ui:26
-msgctxt "shortcut window"
-msgid "New Connection"
-msgstr ""
-
-#: data/ui/shortcuts-dialog.ui:34
+#: data/ui/shortcuts-dialog.ui:29
 msgctxt "shortcut window"
 msgid "Navigation"
 msgstr ""
 
-#: data/ui/shortcuts-dialog.ui:37
+#: data/ui/shortcuts-dialog.ui:32
 msgctxt "shortcut window"
 msgid "Search Database Objects"
 msgstr ""

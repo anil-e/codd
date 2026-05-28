@@ -231,6 +231,7 @@ impl WindowContent {
                 }
 
                 self.reload_schema(sender);
+                self.broadcast_schema_changed();
 
                 widgets
                     .toast_overlay

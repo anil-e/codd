@@ -1,3 +1,4 @@
+mod app_window;
 mod config;
 mod db;
 mod menus;

@@ -142,7 +142,8 @@ impl WindowContent {
             Ok(connections) => {
                 self.state.connections.clone_from(&connections);
                 self.start_screen
-                    .emit(StartScreenMsg::SetConnections(connections));
+                    .emit(StartScreenMsg::SetConnections(connections.clone()));
+                self.broadcast_connections_changed(connections);
             }
             Err(error) => {
                 widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
@@ -212,6 +213,7 @@ impl WindowContent {
         match query_history_store::record_query_for_database(&connection.id, database, sql) {
             Ok(history) => {
                 self.set_query_history(history);
+                self.broadcast_query_history_changed();
             }
             Err(error) => {
                 widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
@@ -234,6 +236,7 @@ impl WindowContent {
         match query_history_store::clear_database(&connection.id, database) {
             Ok(history) => {
                 self.set_query_history(history);
+                self.broadcast_query_history_changed();
             }
             Err(error) => {
                 widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
@@ -251,5 +254,22 @@ impl WindowContent {
             tab.editor
                 .emit(SqlEditorMsg::SetHistory(self.query_history.clone()));
         }
+    }
+
+    pub(super) fn reload_query_history_if_active(&mut self, connection_id: &str, database: &str) {
+        let Some(active_connection) = self.state.active_connection.as_ref() else {
+            return;
+        };
+
+        if active_connection.id != connection_id
+            || self.state.active_database.as_deref() != Some(database)
+        {
+            return;
+        }
+
+        self.set_query_history(query_history_store::load_for_database(
+            connection_id,
+            database,
+        ));
     }
 }

@@ -19,15 +19,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Gtranslator 50.0\n"
 
-#: src/menus.rs:9
+#: src/menus.rs:11
 msgid "_New Connection"
 msgstr "_Nueva conexión"
 
-#: src/menus.rs:15
+#: src/menus.rs:32
+msgid "_New Window"
+msgstr ""
+
+#: src/menus.rs:38
 msgid "_Keyboard Shortcuts"
 msgstr "_Atajos de teclado"
 
-#: src/menus.rs:16
+#: src/menus.rs:39
 msgid "_Quit"
 msgstr "_Salir"
 
@@ -1050,20 +1054,15 @@ msgstr "Atajos de teclado"
 
 #: data/ui/shortcuts-dialog.ui:15
 msgctxt "shortcut window"
+msgid "New Window"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:21
+msgctxt "shortcut window"
 msgid "Quit"
 msgstr "Salir"
 
-#: data/ui/shortcuts-dialog.ui:23
-msgctxt "shortcut window"
-msgid "Connections"
-msgstr "Conexiones"
-
-#: data/ui/shortcuts-dialog.ui:26
-msgctxt "shortcut window"
-msgid "New Connection"
-msgstr "Nueva conexión"
-
-#: data/ui/shortcuts-dialog.ui:34
+#: data/ui/shortcuts-dialog.ui:29
 msgctxt "shortcut window"
 msgid "Navigation"
 msgstr "Navegación"

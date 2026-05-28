@@ -224,9 +224,13 @@ impl Component for QueryResults {
                 self.is_loading = false;
                 self.is_error = false;
                 self.status_text = result_status_text(&result);
-                self.status_title.clear();
+                self.status_title = if result.rows.is_empty() {
+                    gettext("Query returned no rows.")
+                } else {
+                    String::new()
+                };
                 self.status_description = None;
-                self.result = Some(result);
+                self.result = (!result.rows.is_empty()).then_some(result);
             }
 
             QueryResultsMsg::ShowResult(QueryExecutionResult::AffectedRows(rows)) => {
