@@ -48,7 +48,11 @@ impl TableColumn {
     }
 
     pub fn uses_text_display(&self) -> bool {
-        self.type_name.eq_ignore_ascii_case("uuid") || !self.enum_values.is_empty()
+        matches!(
+            self.type_name.to_ascii_lowercase().as_str(),
+            "numeric" | "decimal" | "money" | "inet" | "cidr" | "macaddr" | "macaddr8"
+        ) || self.type_name.eq_ignore_ascii_case("uuid")
+            || !self.enum_values.is_empty()
     }
 }
 
@@ -219,7 +223,7 @@ impl FilterOperator {
 
 #[cfg(test)]
 mod tests {
-    use super::ColumnTypeGroup;
+    use super::{ColumnTypeGroup, TableColumn};
 
     #[test]
     fn groups_common_postgres_types() {
@@ -247,5 +251,36 @@ mod tests {
             ColumnTypeGroup::from_postgres_type("uuid"),
             ColumnTypeGroup::Other
         );
+    }
+
+    #[test]
+    fn uses_text_display_for_types_that_need_stable_postgres_formatting() {
+        assert!(column("numeric").uses_text_display());
+        assert!(column("decimal").uses_text_display());
+        assert!(column("money").uses_text_display());
+        assert!(column("uuid").uses_text_display());
+        assert!(column("inet").uses_text_display());
+        assert!(column("cidr").uses_text_display());
+        assert!(column("macaddr").uses_text_display());
+        assert!(column("macaddr8").uses_text_display());
+    }
+
+    #[test]
+    fn keeps_native_display_for_basic_numeric_types() {
+        assert!(!column("int8").uses_text_display());
+        assert!(!column("float8").uses_text_display());
+    }
+
+    fn column(type_name: &str) -> TableColumn {
+        TableColumn {
+            name: "value".to_string(),
+            display_type: type_name.to_string(),
+            type_name: type_name.to_string(),
+            enum_values: Vec::new(),
+            type_group: ColumnTypeGroup::from_postgres_type(type_name),
+            is_nullable: false,
+            is_primary_key: false,
+            ordinal_position: 1,
+        }
     }
 }

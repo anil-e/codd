@@ -162,17 +162,21 @@ mod tests {
     }
 
     #[test]
-    fn page_query_casts_uuid_and_enum_columns_to_text_for_display() {
+    fn page_query_casts_text_display_columns_to_text() {
         let object = DatabaseObject {
             schema: "public".to_string(),
             name: "orders".to_string(),
             kind: DatabaseObjectKind::Table,
         };
-        let columns = vec![uuid_column("public_id", true), enum_column("status", false)];
+        let columns = vec![
+            uuid_column("public_id", true),
+            enum_column("status", false),
+            numeric_column("amount", false),
+        ];
 
         assert_eq!(
             table_page_sql(&object, &columns, 0, 100).unwrap(),
-            "SELECT \"public_id\"::text AS \"public_id\", \"status\"::text AS \"status\" FROM \"public\".\"orders\" ORDER BY \"public_id\" LIMIT 101 OFFSET 0"
+            "SELECT \"public_id\"::text AS \"public_id\", \"status\"::text AS \"status\", \"amount\"::text AS \"amount\" FROM \"public\".\"orders\" ORDER BY \"public_id\" LIMIT 101 OFFSET 0"
         );
     }
 
@@ -472,7 +476,7 @@ mod tests {
     }
 
     #[test]
-    fn update_cell_query_returns_uuid_and_enum_values_as_text() {
+    fn update_cell_query_returns_text_display_values_as_text() {
         let object = DatabaseObject {
             schema: "public".to_string(),
             name: "orders".to_string(),
@@ -497,6 +501,16 @@ mod tests {
             )
             .unwrap(),
             "UPDATE \"public\".\"orders\" SET \"status\" = $1::public.order_status WHERE \"id\" IS NOT DISTINCT FROM $2::text RETURNING \"status\"::text"
+        );
+
+        assert_eq!(
+            update_cell_sql(
+                &object,
+                &[column("id", true), numeric_column("amount", false)],
+                1
+            )
+            .unwrap(),
+            "UPDATE \"public\".\"orders\" SET \"amount\" = $1::numeric(14,4) WHERE \"id\" IS NOT DISTINCT FROM $2::text RETURNING \"amount\"::text"
         );
     }
 
@@ -579,6 +593,15 @@ mod tests {
             type_name: "order_status".to_string(),
             enum_values: vec!["draft".to_string(), "paid".to_string()],
             type_group: ColumnTypeGroup::Other,
+            ..column(name, is_primary_key)
+        }
+    }
+
+    fn numeric_column(name: &str, is_primary_key: bool) -> TableColumn {
+        TableColumn {
+            display_type: "numeric(14,4)".to_string(),
+            type_name: "numeric".to_string(),
+            type_group: ColumnTypeGroup::Numeric,
             ..column(name, is_primary_key)
         }
     }
