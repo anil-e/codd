@@ -4,6 +4,7 @@ use relm4::gtk::glib;
 use relm4::prelude::*;
 
 use crate::settings;
+use crate::window_actions::{self, WindowAction};
 use crate::window_content::{WindowContent, WindowContentMsg};
 
 pub struct AppWindowInit {
@@ -71,7 +72,10 @@ impl Component for AppWindow {
         root.set_default_height(height);
         root.set_application(Some(&relm4::main_adw_application()));
 
-        setup_window_actions(&root, &sender);
+        window_actions::setup_window_actions(&root, {
+            let sender = sender.clone();
+            move |action| sender.input(AppWindowMsg::from(action))
+        });
 
         let output_sender = sender.output_sender().clone();
         let id = model.id;
@@ -113,46 +117,15 @@ impl Component for AppWindow {
     }
 }
 
-fn setup_window_actions(root: &adw::ApplicationWindow, sender: &ComponentSender<AppWindow>) {
-    let action = gtk::gio::SimpleAction::new("new-connection", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::OpenConnectionDialog);
-    });
-    root.add_action(&action);
-
-    let action = gtk::gio::SimpleAction::new("new-query-tab", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::NewQueryTab);
-    });
-    root.add_action(&action);
-
-    let action = gtk::gio::SimpleAction::new("run-query", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::RunQuery);
-    });
-    root.add_action(&action);
-
-    let action = gtk::gio::SimpleAction::new("refresh-table-browser", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::RefreshTableBrowser);
-    });
-    root.add_action(&action);
-
-    let action = gtk::gio::SimpleAction::new("focus-editor", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::FocusEditor);
-    });
-    root.add_action(&action);
-
-    let action = gtk::gio::SimpleAction::new("search", None);
-    let s = sender.clone();
-    action.connect_activate(move |_, _| {
-        s.input(AppWindowMsg::FocusObjectSearch);
-    });
-    root.add_action(&action);
+impl From<WindowAction> for AppWindowMsg {
+    fn from(action: WindowAction) -> Self {
+        match action {
+            WindowAction::OpenConnectionDialog => Self::OpenConnectionDialog,
+            WindowAction::NewQueryTab => Self::NewQueryTab,
+            WindowAction::RunQuery => Self::RunQuery,
+            WindowAction::RefreshTableBrowser => Self::RefreshTableBrowser,
+            WindowAction::FocusEditor => Self::FocusEditor,
+            WindowAction::FocusObjectSearch => Self::FocusObjectSearch,
+        }
+    }
 }

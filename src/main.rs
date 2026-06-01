@@ -7,6 +7,7 @@ mod settings;
 mod state;
 mod ui;
 mod window;
+mod window_actions;
 mod window_content;
 
 use config::{APP_ID, GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
