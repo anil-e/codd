@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use gettextrs::gettext;
@@ -7,10 +7,14 @@ use libadwaita::prelude::*;
 use relm4::gtk;
 use relm4::gtk::gio;
 use relm4::prelude::*;
-use sqlx::PgPool;
 
 use crate::models::database_object::DatabaseObject;
-use crate::models::query_result::DEFAULT_QUERY_RESULT_ROW_LIMIT;
+use crate::models::query_result::{
+    DEFAULT_QUERY_RESULT_ROW_LIMIT, MAX_QUERY_RESULT_ROW_LIMIT, MIN_QUERY_RESULT_ROW_LIMIT,
+};
+use crate::models::session::{
+    SavedSession, SavedSessionObject, SavedSessionTab, SavedSessionTabId,
+};
 use crate::ui::components::{
     editor::{SqlEditor, SqlEditorMsg},
     results::QueryResults,
@@ -19,8 +23,8 @@ use crate::ui::components::{
 };
 
 use super::{
-    BrowseTab, QueryState, QueryTab, WindowContent, WindowContentMsg, WindowContentWidgets,
-    WorkspaceNavigation, workspace_split_view,
+    BrowseTab, QueryResultsMsg, QueryState, QueryTab, WindowContent, WindowContentMsg,
+    WindowContentWidgets, WorkspaceNavigation, workspace_split_view,
 };
 
 pub(super) fn selected_query_tab_id(widgets: &WindowContentWidgets) -> Option<u64> {
@@ -126,8 +130,28 @@ impl WindowContent {
         widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        self.add_query_tab_with_row_limit(DEFAULT_QUERY_RESULT_ROW_LIMIT, widgets, sender);
+    }
+
+    fn add_query_tab_with_row_limit(
+        &mut self,
+        row_limit: usize,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
         let id = self.next_query_tab_id;
-        self.next_query_tab_id = self.next_query_tab_id.wrapping_add(1);
+        self.add_query_tab_with_id(id, row_limit, widgets, sender);
+    }
+
+    fn add_query_tab_with_id(
+        &mut self,
+        id: u64,
+        row_limit: usize,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        self.next_query_tab_id = self.next_query_tab_id.max(id.wrapping_add(1));
+        let row_limit = row_limit.clamp(MIN_QUERY_RESULT_ROW_LIMIT, MAX_QUERY_RESULT_ROW_LIMIT);
 
         let editor_buffer = sourceview5::Buffer::new(None);
         let s = sender.clone();
@@ -142,7 +166,7 @@ impl WindowContent {
             });
 
         let results = QueryResults::builder()
-            .launch(DEFAULT_QUERY_RESULT_ROW_LIMIT)
+            .launch(row_limit)
             .forward(sender.input_sender(), move |output| {
                 WindowContentMsg::ResultsOutput { tab_id: id, output }
             });
@@ -171,7 +195,7 @@ impl WindowContent {
             editor,
             results,
             editor_buffer,
-            row_limit: DEFAULT_QUERY_RESULT_ROW_LIMIT,
+            row_limit,
             query_state: QueryState::Idle,
             active_query: None,
         });
@@ -200,6 +224,93 @@ impl WindowContent {
         let split_view = workspace_split_view(widgets);
         split_view.set_show_content(true);
         self.workspace_navigation = WorkspaceNavigation::from_split_view(split_view.is_collapsed());
+    }
+
+    pub(super) fn build_saved_session(
+        &self,
+        connection_id: String,
+        database: String,
+        widgets: &WindowContentWidgets,
+    ) -> SavedSession {
+        let mut tabs = Vec::with_capacity(self.tab_count());
+
+        for index in 0..widgets.query_tab_view.n_pages() {
+            let page = widgets.query_tab_view.nth_page(index);
+
+            if let Some(tab_id) = query_tab_id_from_widget(&page.child())
+                && let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id)
+            {
+                tabs.push(SavedSessionTab::Query {
+                    id: tab.id,
+                    sql: self.query_tab_sql(tab.id).unwrap_or_default(),
+                    row_limit: tab.row_limit,
+                });
+            } else if let Some(tab_id) = browse_tab_id_from_widget(&page.child())
+                && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
+            {
+                tabs.push(SavedSessionTab::Browse {
+                    id: tab.id,
+                    object: SavedSessionObject::from_database_object(&tab.object),
+                });
+            }
+        }
+
+        SavedSession {
+            connection_id,
+            database,
+            active_tab: self.active_session_tab_id(widgets),
+            tabs,
+        }
+    }
+
+    pub(super) fn restore_session(
+        &mut self,
+        session: Option<SavedSession>,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        let tab_view_signals_blocked = self.tab_view_signals_blocked.clone();
+        let active_tab = with_tab_view_signals_blocked(&tab_view_signals_blocked, || {
+            self.clear_all_tabs(widgets);
+
+            let session = session?;
+
+            let active_tab = session.active_tab;
+
+            for tab in session.tabs {
+                match tab {
+                    SavedSessionTab::Query { id, sql, row_limit } => {
+                        self.add_query_tab_with_id(id, row_limit, widgets, sender);
+
+                        if let Some(tab) = self.active_query_tab_mut() {
+                            tab.editor_buffer.set_text(&sql);
+                            tab.results.emit(QueryResultsMsg::Clear);
+                        }
+
+                        self.update_query_tab_title(self.active_query_tab_id);
+                    }
+                    SavedSessionTab::Browse { id, object } => {
+                        self.add_browse_tab_with_id(
+                            id,
+                            object.to_database_object(),
+                            widgets,
+                            false,
+                        );
+                    }
+                }
+            }
+
+            active_tab
+        });
+
+        self.select_session_tab(active_tab, widgets, sender);
+        self.load_selected_browse_tab_if_needed(widgets);
+
+        if self.tab_count() == 0 {
+            self.add_query_tab(widgets, sender);
+        }
+
+        self.sync_sidebar_selection(widgets);
     }
 
     pub(super) fn add_query_tab_if_workspace_visible(
@@ -411,13 +522,17 @@ impl WindowContent {
         self.run_query_for_tab(tab_id, widgets, sender);
     }
 
-    pub(super) fn refresh_active_browse_tab(&self, widgets: &WindowContentWidgets) {
+    pub(super) fn refresh_active_browse_tab(&mut self, widgets: &WindowContentWidgets) {
         let Some(tab_id) = selected_browse_tab_id(widgets) else {
             return;
         };
 
-        if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id) {
-            tab.view.emit(TableViewMsg::Refresh);
+        self.load_browse_tab_if_needed(tab_id);
+
+        if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
+            && let Some(view) = &tab.view
+        {
+            view.emit(TableViewMsg::Refresh);
         }
     }
 
@@ -454,24 +569,40 @@ impl WindowContent {
         object: DatabaseObject,
         widgets: &WindowContentWidgets,
     ) {
-        if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.object == object) {
-            widgets.query_tab_view.set_selected_page(&tab.page);
-            tab.view.emit(TableViewMsg::Refresh);
+        if let Some((tab_id, page, object)) = self
+            .browse_tabs
+            .iter()
+            .find(|tab| tab.object == object)
+            .map(|tab| (tab.id, tab.page.clone(), tab.object.clone()))
+        {
+            let was_loaded = self
+                .browse_tabs
+                .iter()
+                .find(|tab| tab.id == tab_id)
+                .is_some_and(|tab| tab.loaded);
+            widgets.query_tab_view.set_selected_page(&page);
+            self.load_browse_tab_if_needed(tab_id);
 
-            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
-                tab.object.clone(),
-            )));
+            if was_loaded
+                && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
+                && let Some(view) = &tab.view
+            {
+                view.emit(TableViewMsg::Refresh);
+            }
+
+            self.sidebar
+                .emit(ObjectSidebarMsg::SetSelectedObject(Some(object)));
             workspace_split_view(widgets).set_show_content(true);
             self.workspace_navigation =
                 WorkspaceNavigation::from_split_view(workspace_split_view(widgets).is_collapsed());
             return;
         }
 
-        let Some(pool) = self.active_pool.clone() else {
+        if self.active_pool.is_none() {
             return;
         };
 
-        self.add_browse_tab(pool, object, widgets);
+        self.add_browse_tab(object, widgets);
         workspace_split_view(widgets).set_show_content(true);
         self.workspace_navigation =
             WorkspaceNavigation::from_split_view(workspace_split_view(widgets).is_collapsed());
@@ -479,39 +610,89 @@ impl WindowContent {
 
     pub(super) fn add_browse_tab(
         &mut self,
-        pool: PgPool,
         object: DatabaseObject,
         widgets: &WindowContentWidgets,
     ) {
         let id = self.next_browse_tab_id;
-        self.next_browse_tab_id = self.next_browse_tab_id.wrapping_add(1);
+        self.add_browse_tab_with_id(id, object, widgets, true);
+    }
 
-        let view = TableView::builder().launch(()).detach();
-        let widget = view.widget();
-        widget.set_widget_name(&format!("browse-tab-{id}"));
+    fn add_browse_tab_with_id(
+        &mut self,
+        id: u64,
+        object: DatabaseObject,
+        widgets: &WindowContentWidgets,
+        load: bool,
+    ) {
+        self.next_browse_tab_id = self.next_browse_tab_id.max(id.wrapping_add(1));
+        let stack = gtk::Stack::new();
+        stack.set_widget_name(&format!("browse-tab-{id}"));
+        stack.set_hexpand(true);
+        stack.set_vexpand(true);
+        stack.add_named(
+            &adw::StatusPage::builder()
+                .icon_name("table-symbolic")
+                .title(gettext("Table"))
+                .description(gettext("Select the tab to load this table."))
+                .build(),
+            Some("placeholder"),
+        );
 
         let title = object.name.clone();
-        let page = widgets.query_tab_view.append(widget);
+        let page = widgets.query_tab_view.append(&stack);
         page.set_title(&title);
         page.set_tooltip(&format!("{}.{}", object.schema, object.name));
-        widgets.query_tab_view.set_selected_page(&page);
-
-        view.emit(TableViewMsg::Open {
-            pool,
-            object: object.clone(),
-        });
+        if load {
+            widgets.query_tab_view.set_selected_page(&page);
+        }
 
         self.browse_tabs.push(BrowseTab {
             id,
             page,
-            object,
-            view,
+            object: object.clone(),
+            stack,
+            view: None,
+            loaded: false,
         });
 
-        if let Some(tab) = self.browse_tabs.last() {
+        if load {
+            self.load_browse_tab_if_needed(id);
+        }
+
+        if load && let Some(tab) = self.browse_tabs.last() {
             self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
                 tab.object.clone(),
             )));
+        }
+    }
+
+    pub(super) fn load_browse_tab_if_needed(&mut self, tab_id: u64) {
+        let Some(pool) = self.active_pool.clone() else {
+            return;
+        };
+
+        let Some(tab) = self.browse_tabs.iter_mut().find(|tab| tab.id == tab_id) else {
+            return;
+        };
+
+        if tab.loaded {
+            return;
+        }
+
+        let view = TableView::builder().launch(()).detach();
+        tab.stack.add_named(view.widget(), Some("content"));
+        tab.stack.set_visible_child_name("content");
+        view.emit(TableViewMsg::Open {
+            pool,
+            object: tab.object.clone(),
+        });
+        tab.view = Some(view);
+        tab.loaded = true;
+    }
+
+    fn load_selected_browse_tab_if_needed(&mut self, widgets: &WindowContentWidgets) {
+        if let Some(tab_id) = selected_browse_tab_id(widgets) {
+            self.load_browse_tab_if_needed(tab_id);
         }
     }
 
@@ -527,7 +708,9 @@ impl WindowContent {
         for tab in &mut self.browse_tabs {
             if tab.object == *object {
                 tab.object = renamed.clone();
-                tab.view.emit(TableViewMsg::ObjectRenamed(renamed.clone()));
+                if let Some(view) = &tab.view {
+                    view.emit(TableViewMsg::ObjectRenamed(renamed.clone()));
+                }
                 tab.page.set_title(new_name);
                 tab.page
                     .set_tooltip(&format!("{}.{}", renamed.schema, renamed.name));
@@ -539,8 +722,10 @@ impl WindowContent {
 
     pub(super) fn reload_browse_tab(&self, object: &DatabaseObject) {
         for tab in &self.browse_tabs {
-            if tab.object == *object {
-                tab.view.emit(TableViewMsg::Refresh);
+            if tab.object == *object
+                && let Some(view) = &tab.view
+            {
+                view.emit(TableViewMsg::Refresh);
             }
         }
     }
@@ -559,10 +744,7 @@ impl WindowContent {
 
         self.browse_tabs.retain(|tab| tab.object != *object);
 
-        for page in pages {
-            widgets.query_tab_view.close_page(&page);
-            widgets.query_tab_view.close_page_finish(&page, true);
-        }
+        self.close_pages_immediately(widgets, pages);
 
         self.sync_sidebar_selection(widgets);
     }
@@ -577,6 +759,41 @@ impl WindowContent {
         } else {
             self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(None));
         }
+    }
+
+    fn active_session_tab_id(&self, widgets: &WindowContentWidgets) -> Option<SavedSessionTabId> {
+        let page = widgets.query_tab_view.selected_page()?;
+        let child = page.child();
+
+        query_tab_id_from_widget(&child)
+            .map(SavedSessionTabId::Query)
+            .or_else(|| browse_tab_id_from_widget(&child).map(SavedSessionTabId::Browse))
+    }
+
+    fn select_session_tab(
+        &mut self,
+        active_tab: Option<SavedSessionTabId>,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        match active_tab {
+            Some(SavedSessionTabId::Query(tab_id)) => {
+                if let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id) {
+                    self.active_query_tab_id = tab_id;
+                    widgets.query_tab_view.set_selected_page(&tab.page);
+                    return;
+                }
+            }
+            Some(SavedSessionTabId::Browse(tab_id)) => {
+                if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id) {
+                    widgets.query_tab_view.set_selected_page(&tab.page);
+                    return;
+                }
+            }
+            None => {}
+        }
+
+        self.select_active_query_tab(widgets, sender);
     }
 
     pub(super) fn select_active_query_tab(
@@ -595,10 +812,65 @@ impl WindowContent {
     }
 
     pub(super) fn clear_browse_tabs(&mut self, widgets: &WindowContentWidgets) {
-        for tab in self.browse_tabs.drain(..) {
-            widgets.query_tab_view.close_page(&tab.page);
-            widgets.query_tab_view.close_page_finish(&tab.page, true);
+        let pages = self
+            .browse_tabs
+            .drain(..)
+            .map(|tab| tab.page)
+            .collect::<Vec<_>>();
+        self.close_pages_immediately(widgets, pages);
+    }
+
+    fn clear_all_tabs(&mut self, widgets: &WindowContentWidgets) {
+        let mut pages = Vec::with_capacity(self.tab_count());
+
+        for mut tab in self.query_tabs.drain(..) {
+            if let Some(active_query) = tab.active_query.take() {
+                active_query.abort_handle.abort();
+            }
+
+            pages.push(tab.page);
         }
+
+        for tab in self.browse_tabs.drain(..) {
+            pages.push(tab.page);
+        }
+
+        self.close_pages_immediately(widgets, pages);
+        self.active_query_tab_id = 0;
+    }
+
+    fn close_pages_immediately(
+        &self,
+        widgets: &WindowContentWidgets,
+        pages: impl IntoIterator<Item = adw::TabPage>,
+    ) {
+        let tab_view_signals_blocked = self.tab_view_signals_blocked.clone();
+
+        with_tab_view_signals_blocked(&tab_view_signals_blocked, || {
+            for page in pages {
+                widgets.query_tab_view.close_page(&page);
+                widgets.query_tab_view.close_page_finish(&page, true);
+            }
+        });
+    }
+}
+
+fn with_tab_view_signals_blocked<R>(flag: &Rc<Cell<bool>>, f: impl FnOnce() -> R) -> R {
+    let previous = flag.get();
+    flag.set(true);
+    let _guard = TabViewSignalBlockGuard { flag, previous };
+
+    f()
+}
+
+struct TabViewSignalBlockGuard<'a> {
+    flag: &'a Rc<Cell<bool>>,
+    previous: bool,
+}
+
+impl Drop for TabViewSignalBlockGuard<'_> {
+    fn drop(&mut self) {
+        self.flag.set(self.previous);
     }
 }
 

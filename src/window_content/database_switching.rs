@@ -8,8 +8,8 @@ use crate::models::connection::SavedConnection;
 use crate::models::query_history::QueryHistoryEntry;
 use crate::state::{connection_store, query_history_store};
 use crate::ui::components::{
-    database_selector::DatabaseSelectorMsg, editor::SqlEditorMsg, results::QueryResultsMsg,
-    sidebar::ObjectSidebarMsg, start_screen::StartScreenMsg,
+    database_selector::DatabaseSelectorMsg, editor::SqlEditorMsg, sidebar::ObjectSidebarMsg,
+    start_screen::StartScreenMsg,
 };
 
 use super::{WindowContent, WindowContentCommandOutput, WindowContentWidgets};
@@ -58,6 +58,13 @@ impl WindowContent {
             )));
             return;
         };
+
+        if let Err(error) = self.save_current_session(widgets) {
+            widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                "{}: {error}",
+                gettext("Saving tabs failed")
+            )));
+        }
 
         let request_id = self.allocate_database_switch_request_id();
         self.active_database_switch_request_id = Some(request_id);
@@ -108,9 +115,6 @@ impl WindowContent {
         self.active_pool = Some(pool);
         self.state.active_database = Some(database.clone());
         self.state.objects.clear();
-        self.clear_browse_tabs(widgets);
-        self.select_active_query_tab(widgets, sender);
-
         let Some(mut details) = self.active_connection_details.clone() else {
             return;
         };
@@ -130,11 +134,8 @@ impl WindowContent {
         self.database_selector
             .emit(DatabaseSelectorMsg::SetLoading(false));
 
-        for tab in &self.query_tabs {
-            tab.results.emit(QueryResultsMsg::Clear);
-        }
-
         self.load_query_history(&connection);
+        self.restore_saved_session_or_default(widgets, sender);
         self.sidebar.emit(ObjectSidebarMsg::Loading);
         self.reload_schema(sender);
 

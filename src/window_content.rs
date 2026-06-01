@@ -8,7 +8,9 @@ use relm4::gtk;
 use relm4::gtk::glib;
 use relm4::prelude::*;
 use sqlx::PgPool;
+use std::cell::Cell;
 use std::collections::HashMap;
+use std::rc::Rc;
 use std::sync::{
     Mutex,
     atomic::{AtomicU64, Ordering},
@@ -20,9 +22,10 @@ use crate::models::connection::{ConnectionDetails, SavedConnection};
 use crate::models::database_object::DatabaseObject;
 use crate::models::query_history::QueryHistoryEntry;
 use crate::models::query_result::{DEFAULT_QUERY_RESULT_ROW_LIMIT, QueryExecutionResult};
+use crate::models::session::SavedSession;
 use crate::models::table_script::TableScriptKind;
 use crate::settings;
-use crate::state::{app_state::AppState, connection_store, credential_store};
+use crate::state::{app_state::AppState, connection_store, credential_store, session_store};
 use crate::ui::components::{
     connection_dialog::{ConnectionDialog, ConnectionDialogInit, ConnectionDialogOutput},
     database_selector::{DatabaseSelector, DatabaseSelectorMsg, DatabaseSelectorOutput},
@@ -70,6 +73,8 @@ pub struct WindowContent {
     next_query_id: u64,
     workspace_navigation: WorkspaceNavigation,
     sync_subscription_id: u64,
+    session_save_scheduled: bool,
+    tab_view_signals_blocked: Rc<Cell<bool>>,
 }
 
 struct QueryTab {
@@ -87,7 +92,9 @@ struct BrowseTab {
     id: u64,
     page: adw::TabPage,
     object: DatabaseObject,
-    view: Controller<TableView>,
+    stack: gtk::Stack,
+    view: Option<Controller<TableView>>,
+    loaded: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -165,6 +172,7 @@ pub enum WindowContentMsg {
         output: QueryResultsOutput,
     },
     WindowEvent(WindowContentEvent),
+    SaveSession,
 }
 
 #[derive(Debug, Clone)]
@@ -335,6 +343,7 @@ impl Component for WindowContent {
             WindowContentMsg::DatabaseSelectorOutput,
         );
 
+        let tab_view_signals_blocked = Rc::new(Cell::new(false));
         let mut model = WindowContent {
             state: AppState {
                 connections,
@@ -364,6 +373,8 @@ impl Component for WindowContent {
             next_query_id: 0,
             workspace_navigation: WorkspaceNavigation::Wide,
             sync_subscription_id: subscribe_window_content(sender.input_sender().clone()),
+            session_save_scheduled: false,
+            tab_view_signals_blocked: tab_view_signals_blocked.clone(),
         };
         let widgets = view_output!();
 
@@ -374,9 +385,14 @@ impl Component for WindowContent {
         workspace_split_view.set_show_content(true);
 
         let s = sender.clone();
+        let selected_page_signals_blocked = tab_view_signals_blocked.clone();
         widgets
             .query_tab_view
             .connect_selected_page_notify(move |tab_view| {
+                if selected_page_signals_blocked.get() {
+                    return;
+                }
+
                 let Some(page) = tab_view.selected_page() else {
                     return;
                 };
@@ -389,7 +405,12 @@ impl Component for WindowContent {
             });
 
         let s = sender.clone();
+        let close_page_signals_blocked = tab_view_signals_blocked.clone();
         widgets.query_tab_view.connect_close_page(move |_, page| {
+            if close_page_signals_blocked.get() {
+                return glib::Propagation::Stop;
+            }
+
             if let Some(tab_id) = query_tab_id_from_widget(&page.child()) {
                 s.input(WindowContentMsg::CloseQueryTab(tab_id));
             } else if let Some(tab_id) = browse_tab_id_from_widget(&page.child()) {
@@ -412,25 +433,35 @@ impl Component for WindowContent {
             WindowContentMsg::ShowStartScreen => self.show_start_screen(widgets),
             WindowContentMsg::NewQueryTab => {
                 self.add_query_tab_if_workspace_visible(widgets, &sender);
+                self.schedule_session_save(&sender);
             }
             WindowContentMsg::SelectQueryTab(tab_id) => {
                 if self.query_tabs.iter().any(|tab| tab.id == tab_id) {
                     self.active_query_tab_id = tab_id;
                     self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(None));
+                    self.schedule_session_save(&sender);
                 }
             }
             WindowContentMsg::SelectBrowseTab(tab_id) => {
-                if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id) {
-                    self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
-                        tab.object.clone(),
-                    )));
+                if let Some(object) = self
+                    .browse_tabs
+                    .iter()
+                    .find(|tab| tab.id == tab_id)
+                    .map(|tab| tab.object.clone())
+                {
+                    self.sidebar
+                        .emit(ObjectSidebarMsg::SetSelectedObject(Some(object)));
+                    self.load_browse_tab_if_needed(tab_id);
+                    self.schedule_session_save(&sender);
                 }
             }
             WindowContentMsg::CloseQueryTab(tab_id) => {
                 self.close_query_tab(tab_id, widgets);
+                self.schedule_session_save(&sender);
             }
             WindowContentMsg::CloseBrowseTab(tab_id) => {
                 self.close_browse_tab(tab_id, widgets);
+                self.schedule_session_save(&sender);
             }
             WindowContentMsg::CloseTabFromMenu(widget_name) => {
                 self.close_tab_from_widget_name(widget_name.as_deref(), widgets);
@@ -440,9 +471,11 @@ impl Component for WindowContent {
             }
             WindowContentMsg::CloseAllTabs => {
                 self.close_all_tabs(widgets, &sender);
+                self.schedule_session_save(&sender);
             }
             WindowContentMsg::QueryTabTitleChanged(tab_id) => {
                 self.update_query_tab_title(tab_id);
+                self.schedule_session_save(&sender);
             }
             WindowContentMsg::OpenConnectionDialog => {
                 if !self.shows_workspace() {
@@ -501,9 +534,19 @@ impl Component for WindowContent {
                 if let Some(tab) = self.query_tab_mut(tab_id) {
                     tab.row_limit = row_limit;
                 }
+                self.schedule_session_save(&sender);
             }
             WindowContentMsg::WindowEvent(event) => {
                 self.handle_window_event(event, widgets, &sender);
+            }
+            WindowContentMsg::SaveSession => {
+                self.session_save_scheduled = false;
+                if let Err(error) = self.save_current_session(widgets) {
+                    widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                        "{}: {error}",
+                        gettext("Saving tabs failed")
+                    )));
+                }
             }
             WindowContentMsg::FocusEditor => {
                 self.select_active_query_tab(widgets, &sender);
@@ -537,6 +580,7 @@ impl Component for WindowContent {
             }
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::OpenObject(object)) => {
                 self.open_table_browser(object, widgets);
+                self.schedule_session_save(&sender);
             }
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::CopyText { text, message }) => {
                 copy_text_to_clipboard(&text);
@@ -649,7 +693,8 @@ impl Component for WindowContent {
         self.update_view(widgets, sender);
     }
 
-    fn shutdown(&mut self, _widgets: &mut Self::Widgets, _output: Sender<Self::Output>) {
+    fn shutdown(&mut self, widgets: &mut Self::Widgets, _output: Sender<Self::Output>) {
+        let _ = self.save_current_session(widgets);
         unsubscribe_window_content(self.sync_subscription_id);
     }
 }
@@ -890,6 +935,13 @@ impl WindowContent {
     }
 
     fn show_start_screen(&mut self, widgets: &mut WindowContentWidgets) {
+        if let Err(error) = self.save_current_session(widgets) {
+            widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                "{}: {error}",
+                gettext("Saving tabs failed")
+            )));
+        }
+
         self.visible_page = VisiblePage::Start;
         self.database_selector
             .emit(DatabaseSelectorMsg::SetContext {
@@ -974,17 +1026,12 @@ impl WindowContent {
         self.active_connection_details = Some(details.clone());
         self.connection_dialog = None;
         self.visible_page = VisiblePage::Workspace;
-        self.clear_browse_tabs(widgets);
-
-        for tab in &self.query_tabs {
-            tab.editor_buffer.set_text("");
-            tab.results.emit(QueryResultsMsg::Clear);
-        }
         self.migrate_legacy_query_history(&connection, widgets);
         self.load_query_history(&connection);
         self.sidebar.emit(ObjectSidebarMsg::Loading);
 
         self.show_workspace(widgets, root, &connection);
+        self.restore_saved_session_or_default(widgets, sender);
 
         match connection_store::save_connection(&connection) {
             Ok(connections) => {
@@ -1053,6 +1100,48 @@ impl WindowContent {
         self.menu_button
             .set_menu_model(Some(&menus::workspace_menu()));
         widgets.content_stack.set_visible_child_name("workspace");
+    }
+
+    fn schedule_session_save(&mut self, sender: &ComponentSender<Self>) {
+        if !self.shows_workspace() || self.session_save_scheduled {
+            return;
+        }
+
+        self.session_save_scheduled = true;
+        let sender = sender.input_sender().clone();
+        glib::timeout_add_local_once(std::time::Duration::from_millis(500), move || {
+            let _ = sender.send(WindowContentMsg::SaveSession);
+        });
+    }
+
+    fn save_current_session(&self, widgets: &WindowContentWidgets) -> Result<(), String> {
+        let Some(session) = self.saved_session(widgets) else {
+            return Ok(());
+        };
+
+        session_store::save(&session).map_err(|error| error.to_string())
+    }
+
+    fn saved_session(&self, widgets: &WindowContentWidgets) -> Option<SavedSession> {
+        let connection_id = self.state.active_connection.as_ref()?.id.clone();
+        let database = self.state.active_database.clone()?;
+
+        Some(self.build_saved_session(connection_id, database, widgets))
+    }
+
+    fn restore_saved_session_or_default(
+        &mut self,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        let session = self
+            .state
+            .active_connection
+            .as_ref()
+            .zip(self.state.active_database.as_ref())
+            .and_then(|(connection, database)| session_store::load(&connection.id, database));
+
+        self.restore_session(session, widgets, sender);
     }
 
     fn disable_saved_password(&mut self, connection_id: &str, widgets: &WindowContentWidgets) {

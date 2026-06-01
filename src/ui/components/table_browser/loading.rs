@@ -3,6 +3,7 @@ use gettextrs::gettext;
 use relm4::prelude::*;
 
 use crate::db;
+use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::ui::components::table_browser::{
     TableBrowser, TableBrowserCommandOutput, TableBrowserWidgets,
 };
@@ -55,7 +56,7 @@ impl TableBrowser {
                     sort.as_ref(),
                 )
                 .await
-                .map_err(|error| error.to_string())
+                .map_err(|error| table_load_error_message(&object, &error))
             };
 
             let result = match Abortable::new(load, abort_registration).await {
@@ -91,7 +92,7 @@ impl TableBrowser {
                 db::browser::load_table_row_count(&pool, &object, &filters)
                     .await
                     .map(|row_count| last_page_offset(row_count, page_size))
-                    .map_err(|error| error.to_string())
+                    .map_err(|error| table_load_error_message(&object, &error))
             };
 
             let result = match Abortable::new(count, abort_registration).await {
@@ -107,6 +108,32 @@ impl TableBrowser {
         let id = self.request_id;
         self.request_id = self.request_id.wrapping_add(1);
         id
+    }
+}
+
+fn table_load_error_message(object: &DatabaseObject, error: &sqlx::Error) -> String {
+    if is_missing_relation(error) {
+        let name = format!("{}.{}", object.schema, object.name);
+
+        return match object.kind {
+            DatabaseObjectKind::Table => {
+                gettext("The table {name} could not be found. It may have been renamed or dropped.")
+                    .replace("{name}", &name)
+            }
+            DatabaseObjectKind::View => {
+                gettext("The view {name} could not be found. It may have been renamed or dropped.")
+                    .replace("{name}", &name)
+            }
+        };
+    }
+
+    error.to_string()
+}
+
+fn is_missing_relation(error: &sqlx::Error) -> bool {
+    match error {
+        sqlx::Error::Database(error) => matches!(error.code().as_deref(), Some("42P01" | "3F000")),
+        _ => false,
     }
 }
 
