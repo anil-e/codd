@@ -328,6 +328,8 @@ fn value_editor(
         }
     });
 
+    connect_apply_on_activate(&entry, state, sender);
+
     entry.upcast()
 }
 
@@ -356,7 +358,26 @@ fn custom_sql_editor(
         }
     });
 
+    connect_apply_on_activate(&entry, state, sender);
+
     entry.upcast()
+}
+
+fn connect_apply_on_activate(
+    entry: &gtk::Entry,
+    state: &Rc<RefCell<Vec<TableFilter>>>,
+    sender: &ComponentSender<TableBrowser>,
+) {
+    entry.connect_activate({
+        let sender = sender.clone();
+        let state = state.clone();
+
+        move |_| {
+            sender.input(TableBrowserMsg::FilterEvent(FilterEvent::Apply(
+                state.borrow().clone(),
+            )));
+        }
+    });
 }
 
 fn choice_editor(
