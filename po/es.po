@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-26 20:00+0200\n"
-"PO-Revision-Date: 2026-05-23 12:54-0400\n"
+"POT-Creation-Date: 2026-06-01 16:01-0400\n"
+"PO-Revision-Date: 2026-06-01 20:22-0400\n"
 "Last-Translator: Francisco <fvasquez>\n"
 "Language-Team: es_DO\n"
 "Language: es\n"
@@ -25,7 +25,7 @@ msgstr "_Nueva conexión"
 
 #: src/menus.rs:32
 msgid "_New Window"
-msgstr ""
+msgstr "_Nueva ventana"
 
 #: src/menus.rs:38
 msgid "_Keyboard Shortcuts"
@@ -35,105 +35,90 @@ msgstr "_Atajos de teclado"
 msgid "_Quit"
 msgstr "_Salir"
 
-#: src/window_content.rs:202
+#: src/window_content.rs:224
 msgid "Back to connections"
 msgstr "Volver a conexiones"
 
-#: src/window_content.rs:221
+#: src/window_content.rs:243
 msgid "Main Menu"
 msgstr "Menú principal"
 
-#: src/window_content.rs:228
+#: src/window_content.rs:250
 msgid "New Query Tab"
 msgstr "Nueva pestaña de consulta"
 
-#: src/window_content.rs:253
+#: src/window_content.rs:275
 msgid "Objects"
 msgstr "Objetos"
 
-#: src/window_content.rs:259
+#: src/window_content.rs:281
 msgid "Workspace"
 msgstr "Espacio de trabajo"
 
-#: src/window_content.rs:533
+#: src/window_content.rs:530 src/window_content.rs:920
+#: src/window_content/database_switching.rs:65
+msgid "Saving tabs failed"
+msgstr "No se pudo guardar las pestañas"
+
+#: src/window_content.rs:600
 msgid "Updating the saved password failed"
 msgstr "No se pudo actualizar la contraseña guardada"
 
-#: src/window_content.rs:664
+#: src/window_content.rs:766
 msgid "Hide Objects"
 msgstr "Ocultar objetos"
 
-#: src/window_content.rs:665
+#: src/window_content.rs:767
 msgid "Show Objects"
 msgstr "Mostrar objetos"
 
-#: src/window_content.rs:720 src/ui/components/sidebar.rs:150
+#: src/window_content.rs:955 src/ui/components/sidebar.rs:150
 #: src/ui/components/sidebar.rs:405 src/ui/components/sidebar.rs:419
 msgid "No connection"
 msgstr "Sin conexión"
 
-#: src/window_content.rs:791
+#: src/window_content.rs:1023
 msgid "Connected to PostgreSQL."
 msgstr "Conectado a PostgreSQL."
 
-#: src/window_content.rs:804
+#: src/window_content.rs:1036
 msgid "Connected, but saving the connection failed"
 msgstr "Conectado, pero no se pudo guardar la conexión"
 
-#: src/window_content.rs:877
+#: src/window_content.rs:1154
 msgid "Disabling saved password failed"
 msgstr "No se pudo desactivar la contraseña guardada"
 
-#: src/window_content.rs:898
+#: src/window_content.rs:1175
 msgid "Schema load failed"
 msgstr "No se pudo cargar el esquema"
 
 # script is an accepted anglocism in this context
-#: src/window_content.rs:931
+#: src/window_content.rs:1208
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "Debe conectarse a PostgreSQL antes de generar un script."
 
-#: src/window_content.rs:971
+#: src/window_content.rs:1248
 msgid "Generating the table script failed"
 msgstr "No se pudo generar el script de la tabla"
 
-#: src/window_content.rs:1003
-msgid "Row limit reached. Query execution stopped."
-msgstr "Se alcanzó el límite de filas. Se detuvo la ejecución de la consulta."
-
-#: src/window_content.rs:1012 src/ui/components/results.rs:249
-msgid "Query failed"
-msgstr "La consulta falló"
-
-#: src/window_content.rs:1082
-msgid "A query is already running."
-msgstr "Una consulta ya está en ejecución."
-
-#: src/window_content.rs:1088
-msgid "Connect to PostgreSQL before running a query."
-msgstr "Debe conectarse a PostgreSQL antes de ejecutar una consulta."
-
-#: src/window_content.rs:1096
-msgid "Enter SQL before running a query."
-msgstr "Ingrese SQL antes de ejecutar una consulta."
-
-#: src/window_content.rs:1190
+#: src/window_content.rs:1296
 msgid "CREATE script generated."
 msgstr "Script CREATE generado."
 
-#: src/window_content.rs:1191
+#: src/window_content.rs:1297
 msgid "SELECT script generated."
 msgstr "Script SELECT generado."
 
-#: src/window_content.rs:1192
+#: src/window_content.rs:1298
 msgid "INSERT script generated."
 msgstr "Script INSERT generado."
 
-#: src/window_content.rs:1193
+#: src/window_content.rs:1299
 msgid "UPDATE script generated."
 msgstr "Script UPDATE generado."
 
-#: src/window_content.rs:1194
+#: src/window_content.rs:1300
 msgid "DELETE script generated."
 msgstr "Script DELETE generado."
 
@@ -141,23 +126,23 @@ msgstr "Script DELETE generado."
 msgid "Connect to PostgreSQL before switching databases."
 msgstr "Debe conectarse a PostgreSQL antes de cambiar de base de datos."
 
-#: src/window_content/database_switching.rs:100
+#: src/window_content/database_switching.rs:107
 msgid "Database switch failed"
 msgstr "No se pudo cambiar de base de datos"
 
-#: src/window_content/database_switching.rs:150
+#: src/window_content/database_switching.rs:152
 msgid "Saving the selected database failed"
 msgstr "No se pudo guardar la base de datos seleccionada"
 
-#: src/window_content/database_switching.rs:191
+#: src/window_content/database_switching.rs:193
 msgid "Migrating query history failed"
 msgstr "No se pudo migrar el historial de consultas"
 
-#: src/window_content/database_switching.rs:219
+#: src/window_content/database_switching.rs:222
 msgid "Saving query history failed"
 msgstr "No se pudo guardar el historial de consultas"
 
-#: src/window_content/database_switching.rs:241
+#: src/window_content/database_switching.rs:245
 msgid "Clearing query history failed"
 msgstr "No se pudo limpiar el historial de consultas"
 
@@ -175,7 +160,7 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 #: src/window_content/object_actions.rs:66
-#: src/window_content/object_actions.rs:343
+#: src/window_content/object_actions.rs:344
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
 msgstr "Renombrar"
@@ -198,86 +183,95 @@ msgid "Also truncate tables that have foreign-key references to this table."
 msgstr ""
 "También truncar tablas que tengan referencias de clave foránea a esta tabla."
 
-#: src/window_content/object_actions.rs:312
+#: src/window_content/object_actions.rs:313
 msgid "Rename Table"
 msgstr "Renombrar tabla"
 
-#: src/window_content/object_actions.rs:313
+#: src/window_content/object_actions.rs:314
 msgid "Rename View"
 msgstr "Renombrar vista"
 
-#: src/window_content/object_actions.rs:315
+#: src/window_content/object_actions.rs:316
 msgid "Truncate Table"
 msgstr "Truncar tabla"
 
-#: src/window_content/object_actions.rs:317
+#: src/window_content/object_actions.rs:318
 msgid "Delete Table"
 msgstr "Eliminar tabla"
 
-#: src/window_content/object_actions.rs:318
+#: src/window_content/object_actions.rs:319
 msgid "Delete View"
 msgstr "Eliminar vista"
 
-#: src/window_content/object_actions.rs:328
+#: src/window_content/object_actions.rs:329
 msgid "Remove all rows from"
 msgstr "Eliminar todas las filas de"
 
-#: src/window_content/object_actions.rs:330
-#: src/window_content/object_actions.rs:336
+#: src/window_content/object_actions.rs:331
+#: src/window_content/object_actions.rs:337
 msgid "This cannot be undone."
 msgstr "Esta acción no puede deshacerse."
 
-#: src/window_content/object_actions.rs:334
-#: src/window_content/object_actions.rs:345
+#: src/window_content/object_actions.rs:335
+#: src/window_content/object_actions.rs:346
 msgid "Delete"
 msgstr "Eliminar"
 
-#: src/window_content/object_actions.rs:344
+#: src/window_content/object_actions.rs:345
 msgid "Truncate"
 msgstr "Truncar"
 
-#: src/window_content/object_actions.rs:351
+#: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
 msgstr "Objeto de base de datos renombrado."
 
-#: src/window_content/object_actions.rs:354
+#: src/window_content/object_actions.rs:355
 msgid "Table truncated:"
 msgstr "Tabla truncada:"
 
-#: src/window_content/object_actions.rs:357
+#: src/window_content/object_actions.rs:358
 msgid "Database object deleted."
 msgstr "Objeto de base de datos eliminado."
 
-#: src/window_content/object_actions.rs:363
+#: src/window_content/object_actions.rs:364
 msgid "Renaming failed"
 msgstr "No se pudo renombrar"
 
-#: src/window_content/object_actions.rs:364
+#: src/window_content/object_actions.rs:365
 msgid "Truncating failed"
 msgstr "No se pudo truncar"
 
-#: src/window_content/object_actions.rs:365
+#: src/window_content/object_actions.rs:366
 msgid "Deleting failed"
 msgstr "No se pudo eliminar"
 
-#: src/window_content/object_actions.rs:380
+#: src/window_content/object_actions.rs:381
 msgid "Enter a valid object name."
 msgstr "Ingrese un nombre de objeto válido."
 
-#: src/window_content/tabs.rs:45 src/ui/components/connection_dialog.rs:504
+#: src/window_content/tabs.rs:49 src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:775
 msgid "Close"
 msgstr "Cerrar"
 
-#: src/window_content/tabs.rs:47
+#: src/window_content/tabs.rs:51
 msgid "Close Other Tabs"
 msgstr "Cerrar las otras pestañas"
 
-#: src/window_content/tabs.rs:51
+#: src/window_content/tabs.rs:55
 msgid "Close All"
 msgstr "Cerrar todas"
 
-#: src/window_content/tabs.rs:634
+#: src/window_content/tabs.rs:635 src/ui/components/table_browser.rs:708
+#: src/ui/components/table_view.rs:252 src/ui/components/table_view.rs:267
+msgid "Table"
+msgstr "Tabla"
+
+#: src/window_content/tabs.rs:636
+msgid "Select the tab to load this table."
+msgstr "Selecciona la pestaña para cargar esta tabla."
+
+#: src/window_content/tabs.rs:908
 msgid "Query"
 msgstr "Consulta"
 
@@ -601,12 +595,12 @@ msgid "History"
 msgstr "Historial"
 
 #: src/ui/components/editor.rs:188
-#: src/ui/components/table_browser/filters.rs:417
+#: src/ui/components/table_browser/filters.rs:438
 msgid "Clear"
 msgstr "Limpiar"
 
 #: src/ui/components/editor.rs:201
-#: src/ui/components/table_browser/filters.rs:421
+#: src/ui/components/table_browser/filters.rs:442
 msgid "Apply"
 msgstr "Aplicar"
 
@@ -666,21 +660,25 @@ msgstr "Consulta cancelada"
 msgid "The query was cancelled."
 msgstr "La consulta fue cancelada."
 
-#: src/ui/components/results.rs:239
+#: src/ui/components/results.rs:228 src/ui/components/results.rs:293
+msgid "Query returned no rows."
+msgstr "La consulta no devolvió filas."
+
+#: src/ui/components/results.rs:243
 msgid "row affected"
 msgid_plural "rows affected"
 msgstr[0] "fila afectada"
 msgstr[1] "filas afectadas"
 
-#: src/ui/components/results.rs:241
+#: src/ui/components/results.rs:245
 msgid "The statement completed successfully."
 msgstr "La sentencia se completó correctamente."
 
-#: src/ui/components/results.rs:289
-msgid "Query returned no rows."
-msgstr "La consulta no devolvió filas."
+#: src/ui/components/results.rs:253
+msgid "Query failed"
+msgstr "La consulta falló"
 
-#: src/ui/components/results.rs:296 src/ui/components/table_browser.rs:740
+#: src/ui/components/results.rs:301 src/ui/components/table_browser.rs:740
 msgid "row"
 msgid_plural "rows"
 msgstr[0] "fila"
@@ -745,11 +743,6 @@ msgstr "El filtro no puede aplicarse"
 #: src/ui/components/table_browser.rs:699
 msgid "Table Browser"
 msgstr "Explorador de tablas"
-
-#: src/ui/components/table_browser.rs:708 src/ui/components/table_view.rs:252
-#: src/ui/components/table_view.rs:267
-msgid "Table"
-msgstr "Tabla"
 
 #: src/ui/components/table_browser.rs:709 src/ui/components/table_view.rs:268
 msgid "View"
@@ -841,31 +834,47 @@ msgstr "Falta el valor del filtro"
 msgid "Remove filter"
 msgstr "Eliminar filtro"
 
-#: src/ui/components/table_browser/filters.rs:342
+#: src/ui/components/table_browser/filters.rs:344
 msgid "SQL expression"
 msgstr "Expresión SQL"
 
-#: src/ui/components/table_browser/filters.rs:414
+#: src/ui/components/table_browser/filters.rs:435
 msgid "Add Filter"
 msgstr "Añadir filtro"
 
-#: src/ui/components/table_browser/filters.rs:580
+#: src/ui/components/table_browser/filters.rs:601
 msgid "Custom SQL"
 msgstr "SQL personalizado"
 
-#: src/ui/components/table_browser/loading.rs:32
+#: src/ui/components/table_browser/loading.rs:33
 msgid "Loading rows"
 msgstr "Cargando filas"
 
-#: src/ui/components/table_browser/loading.rs:33
+#: src/ui/components/table_browser/loading.rs:34
 msgid "Fetching the selected page from PostgreSQL."
 msgstr "Obteniendo la página seleccionada desde PostgreSQL."
 
-#: src/ui/components/table_browser/loading.rs:63
-#: src/ui/components/table_browser/loading.rs:99
+#: src/ui/components/table_browser/loading.rs:64
+#: src/ui/components/table_browser/loading.rs:100
 #: src/ui/components/table_structure.rs:258
 msgid "Loading cancelled"
 msgstr "Carga cancelada"
+
+#: src/ui/components/table_browser/loading.rs:120
+#, rust-format
+msgid ""
+"The table {name} could not be found. It may have been renamed or dropped."
+msgstr ""
+"La tabla {name} no pudo ser encontrada. Puede haber sido renombrada o "
+"borrada."
+
+#: src/ui/components/table_browser/loading.rs:124
+#, rust-format
+msgid ""
+"The view {name} could not be found. It may have been renamed or dropped."
+msgstr ""
+"La vista {name} no pudo ser encontrada. Puede haber sido renombrada o "
+"borrada."
 
 #: src/ui/components/table_structure.rs:123 src/ui/components/table_view.rs:157
 msgid "Structure"
@@ -1055,7 +1064,7 @@ msgstr "Atajos de teclado"
 #: data/ui/shortcuts-dialog.ui:15
 msgctxt "shortcut window"
 msgid "New Window"
-msgstr ""
+msgstr "Nueva ventana"
 
 #: data/ui/shortcuts-dialog.ui:21
 msgctxt "shortcut window"
@@ -1067,40 +1076,53 @@ msgctxt "shortcut window"
 msgid "Navigation"
 msgstr "Navegación"
 
-#: data/ui/shortcuts-dialog.ui:37
+#: data/ui/shortcuts-dialog.ui:32
 msgctxt "shortcut window"
 msgid "Search Database Objects"
 msgstr "Buscar objetos de base de datos"
 
-#: data/ui/shortcuts-dialog.ui:45
+#: data/ui/shortcuts-dialog.ui:40
 msgctxt "shortcut window"
 msgid "Table Browser"
 msgstr "Explorador de tablas"
 
-#: data/ui/shortcuts-dialog.ui:48
+#: data/ui/shortcuts-dialog.ui:43
 msgctxt "shortcut window"
 msgid "Refresh Table or View"
 msgstr "Actualizar tabla o vista"
 
-#: data/ui/shortcuts-dialog.ui:56
+#: data/ui/shortcuts-dialog.ui:51
 msgctxt "shortcut window"
 msgid "Query"
 msgstr "Consulta"
 
-#: data/ui/shortcuts-dialog.ui:59
+#: data/ui/shortcuts-dialog.ui:54
 msgctxt "shortcut window"
 msgid "New Query Tab"
 msgstr "Nueva pestaña de consulta"
 
-#: data/ui/shortcuts-dialog.ui:65
+#: data/ui/shortcuts-dialog.ui:60
 msgctxt "shortcut window"
 msgid "Execute"
 msgstr "Ejecutar"
 
-#: data/ui/shortcuts-dialog.ui:71
+#: data/ui/shortcuts-dialog.ui:66
 msgctxt "shortcut window"
 msgid "Focus SQL Editor"
 msgstr "Enfocar editor SQL"
+
+#~ msgid "Row limit reached. Query execution stopped."
+#~ msgstr ""
+#~ "Se alcanzó el límite de filas. Se detuvo la ejecución de la consulta."
+
+#~ msgid "A query is already running."
+#~ msgstr "Una consulta ya está en ejecución."
+
+#~ msgid "Connect to PostgreSQL before running a query."
+#~ msgstr "Debe conectarse a PostgreSQL antes de ejecutar una consulta."
+
+#~ msgid "Enter SQL before running a query."
+#~ msgstr "Ingrese SQL antes de ejecutar una consulta."
 
 #~ msgid "New"
 #~ msgstr "Nuevo"
