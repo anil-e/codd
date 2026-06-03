@@ -85,7 +85,8 @@ impl Component for QueryResults {
             gtk::Box {
                 set_orientation: gtk::Orientation::Horizontal,
                 set_spacing: 8,
-                set_halign: gtk::Align::Center,
+                set_halign: gtk::Align::Fill,
+                set_hexpand: true,
                 set_margin_top: 4,
                 set_margin_bottom: 10,
                 set_margin_start: 12,
@@ -100,6 +101,9 @@ impl Component for QueryResults {
                 },
 
                 gtk::Label {
+                    set_hexpand: true,
+                    set_halign: gtk::Align::End,
+                    set_ellipsize: gtk::pango::EllipsizeMode::End,
                     add_css_class: "caption",
                     add_css_class: "dim-label",
                     #[watch]
@@ -256,7 +260,7 @@ impl Component for QueryResults {
             }
         }
 
-        self.render_table(widgets);
+        self.render_table();
         set_results_stack_child(widgets, self.result.is_some());
         self.update_view(widgets, sender);
     }
@@ -303,7 +307,7 @@ fn result_status_text(result: &QueryResult) -> String {
 }
 
 impl QueryResults {
-    fn render_table(&mut self, widgets: &mut QueryResultsWidgets) {
+    fn render_table(&mut self) {
         let Some(result) = self.result.clone() else {
             self.table_rows.remove_all();
             clear_columns(&self.table_view);
@@ -311,7 +315,7 @@ impl QueryResults {
             return;
         };
 
-        self.sync_columns(&result, widgets);
+        self.sync_columns(&result);
         self.table_rows.remove_all();
         for row in &result.rows {
             self.table_rows
@@ -319,14 +323,13 @@ impl QueryResults {
         }
     }
 
-    fn sync_columns(&mut self, result: &QueryResult, widgets: &QueryResultsWidgets) {
+    fn sync_columns(&mut self, result: &QueryResult) {
         if self.rendered_columns == result.columns {
             return;
         }
 
         clear_columns(&self.table_view);
         self.rendered_columns.clone_from(&result.columns);
-        widgets.grid.set_min_content_width(480);
 
         for (index, column) in result.columns.iter().enumerate() {
             let factory = cell_factory(index);

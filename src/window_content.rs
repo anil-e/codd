@@ -106,8 +106,8 @@ enum VisiblePage {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum WorkspaceNavigation {
-    Wide,
-    Content,
+    SidebarVisible,
+    SidebarHidden,
 }
 
 #[derive(Debug)]
@@ -266,22 +266,23 @@ impl Component for WindowContent {
                 set_child = &gtk::Stack {
                     add_named[Some("start")] = model.start_screen.widget(),
 
-                    add_named[Some("workspace")] = &adw::NavigationSplitView {
-                        set_sidebar_width_fraction: 0.22,
-                        set_min_sidebar_width: 220.0,
-                        set_max_sidebar_width: 320.0,
-                        #[wrap(Some)]
-                        set_sidebar = &adw::NavigationPage::builder()
-                            .title(gettext("Objects"))
-                            .child(model.sidebar.widget())
-                            .build(),
+                    add_named[Some("workspace")] = &adw::BreakpointBin {
+                        set_width_request: 360,
+                        set_height_request: 320,
 
                         #[wrap(Some)]
-                        set_content = &adw::NavigationPage {
-                            set_title: &gettext("Workspace"),
+                        set_child = &adw::OverlaySplitView {
+                            set_sidebar_width_fraction: 0.22,
+                            set_min_sidebar_width: 220.0,
+                            set_max_sidebar_width: 320.0,
+                            set_pin_sidebar: true,
+                            set_enable_show_gesture: true,
+                            set_enable_hide_gesture: true,
+                            #[wrap(Some)]
+                            set_sidebar = model.sidebar.widget(),
 
                             #[wrap(Some)]
-                            set_child = &gtk::Box {
+                            set_content = &gtk::Box {
                                 set_orientation: gtk::Orientation::Vertical,
                                 set_spacing: 0,
 
@@ -354,7 +355,7 @@ impl Component for WindowContent {
             next_database_switch_request_id: 0,
             table_script_generation: 0,
             next_query_id: 0,
-            workspace_navigation: WorkspaceNavigation::Wide,
+            workspace_navigation: WorkspaceNavigation::SidebarVisible,
             sync_subscription_id: subscribe_window_content(sender.input_sender().clone()),
             session_save_scheduled: false,
             tab_view_signals_blocked: tab_view_signals_blocked.clone(),
@@ -364,8 +365,7 @@ impl Component for WindowContent {
         model.add_query_tab(&widgets, &sender);
         setup_tab_context_menu(&widgets.query_tab_view, &sender);
         widgets.content_stack.set_visible_child_name("start");
-        let workspace_split_view = workspace_split_view(&widgets);
-        workspace_split_view.set_show_content(true);
+        setup_workspace_breakpoint(&widgets);
 
         let s = sender.clone();
         let selected_page_signals_blocked = tab_view_signals_blocked.clone();
@@ -720,12 +720,37 @@ fn broadcast_window_content_event(event: WindowContentEvent, except: Option<u64>
     });
 }
 
-fn workspace_split_view(widgets: &WindowContentWidgets) -> adw::NavigationSplitView {
+pub(super) fn workspace_split_view(widgets: &WindowContentWidgets) -> adw::OverlaySplitView {
+    let breakpoint_bin = widgets
+        .content_stack
+        .child_by_name("workspace")
+        .and_downcast::<adw::BreakpointBin>()
+        .expect("workspace breakpoint bin to exist");
+
+    breakpoint_bin
+        .child()
+        .and_downcast::<adw::OverlaySplitView>()
+        .expect("workspace split view to exist")
+}
+
+fn setup_workspace_breakpoint(widgets: &WindowContentWidgets) {
+    let split_view = workspace_split_view(widgets);
+    let breakpoint = adw::Breakpoint::new(adw::BreakpointCondition::new_length(
+        adw::BreakpointConditionLengthType::MaxWidth,
+        700.0,
+        adw::LengthUnit::Sp,
+    ));
+    breakpoint.add_setters(&[
+        (&split_view, "collapsed", true),
+        (&split_view, "pin-sidebar", false),
+    ]);
+
     widgets
         .content_stack
         .child_by_name("workspace")
-        .and_downcast::<adw::NavigationSplitView>()
-        .expect("workspace split view to exist")
+        .and_downcast::<adw::BreakpointBin>()
+        .expect("workspace breakpoint bin to exist")
+        .add_breakpoint(breakpoint);
 }
 
 fn copy_text_to_clipboard(text: &str) {
@@ -753,18 +778,18 @@ async fn update_saved_password(details: ConnectionDetails) -> Result<(), String>
 }
 
 impl WorkspaceNavigation {
-    fn from_split_view(is_collapsed: bool) -> Self {
-        if !is_collapsed {
-            Self::Wide
+    fn from_sidebar_visibility(show_sidebar: bool) -> Self {
+        if show_sidebar {
+            Self::SidebarVisible
         } else {
-            Self::Content
+            Self::SidebarHidden
         }
     }
 
     fn sidebar_toggle_tooltip(self) -> String {
         match self {
-            Self::Wide => gettext("Hide Objects"),
-            Self::Content => gettext("Show Objects"),
+            Self::SidebarVisible => gettext("Hide Objects"),
+            Self::SidebarHidden => gettext("Show Objects"),
         }
     }
 }
@@ -959,11 +984,11 @@ impl WindowContent {
 
     fn toggle_sidebar(&mut self, widgets: &WindowContentWidgets, _root: &adw::ToolbarView) {
         let split_view = workspace_split_view(widgets);
-        let hide_sidebar = !split_view.is_collapsed();
-        split_view.set_collapsed(hide_sidebar);
-        split_view.set_show_content(true);
+        let show_sidebar = !split_view.shows_sidebar();
+        split_view.set_show_sidebar(show_sidebar);
+        let hide_sidebar = !show_sidebar;
         self.persist_sidebar_hidden(hide_sidebar);
-        self.workspace_navigation = WorkspaceNavigation::from_split_view(hide_sidebar);
+        self.workspace_navigation = WorkspaceNavigation::from_sidebar_visibility(show_sidebar);
     }
 
     fn focus_object_search(&mut self, widgets: &WindowContentWidgets) {
@@ -972,9 +997,8 @@ impl WindowContent {
         }
 
         let split_view = workspace_split_view(widgets);
-        split_view.set_collapsed(false);
-        split_view.set_show_content(true);
-        self.workspace_navigation = WorkspaceNavigation::from_split_view(false);
+        split_view.set_show_sidebar(true);
+        self.workspace_navigation = WorkspaceNavigation::from_sidebar_visibility(true);
         self.sidebar.emit(ObjectSidebarMsg::FocusSearch);
     }
 
@@ -1071,11 +1095,11 @@ impl WindowContent {
         connection: &SavedConnection,
     ) {
         let split_view = workspace_split_view(widgets);
-        split_view.set_show_content(true);
         let sidebar_hidden =
             settings::connection_state_settings(&connection.id).boolean("sidebar-hidden");
-        split_view.set_collapsed(sidebar_hidden);
-        self.workspace_navigation = WorkspaceNavigation::from_split_view(split_view.is_collapsed());
+        split_view.set_show_sidebar(!sidebar_hidden);
+        self.workspace_navigation =
+            WorkspaceNavigation::from_sidebar_visibility(split_view.shows_sidebar());
         self.menu_button
             .set_menu_model(Some(&menus::workspace_menu()));
         widgets.content_stack.set_visible_child_name("workspace");

@@ -41,6 +41,14 @@ pub(super) fn selected_browse_tab_id(widgets: &WindowContentWidgets) -> Option<u
         .and_then(|page| browse_tab_id_from_widget(&page.child()))
 }
 
+fn close_overlay_sidebar_if_needed(widgets: &WindowContentWidgets) {
+    let split_view = workspace_split_view(widgets);
+
+    if split_view.is_collapsed() {
+        split_view.set_show_sidebar(false);
+    }
+}
+
 pub(super) fn setup_tab_context_menu(
     tab_view: &adw::TabView,
     sender: &ComponentSender<WindowContent>,
@@ -221,9 +229,10 @@ impl WindowContent {
 
         self.update_query_tab_title(self.active_query_tab_id);
 
-        let split_view = workspace_split_view(widgets);
-        split_view.set_show_content(true);
-        self.workspace_navigation = WorkspaceNavigation::from_split_view(split_view.is_collapsed());
+        close_overlay_sidebar_if_needed(widgets);
+        self.workspace_navigation = WorkspaceNavigation::from_sidebar_visibility(
+            workspace_split_view(widgets).shows_sidebar(),
+        );
     }
 
     pub(super) fn build_saved_session(
@@ -592,9 +601,10 @@ impl WindowContent {
 
             self.sidebar
                 .emit(ObjectSidebarMsg::SetSelectedObject(Some(object)));
-            workspace_split_view(widgets).set_show_content(true);
-            self.workspace_navigation =
-                WorkspaceNavigation::from_split_view(workspace_split_view(widgets).is_collapsed());
+            close_overlay_sidebar_if_needed(widgets);
+            self.workspace_navigation = WorkspaceNavigation::from_sidebar_visibility(
+                workspace_split_view(widgets).shows_sidebar(),
+            );
             return;
         }
 
@@ -603,9 +613,10 @@ impl WindowContent {
         };
 
         self.add_browse_tab(object, widgets);
-        workspace_split_view(widgets).set_show_content(true);
-        self.workspace_navigation =
-            WorkspaceNavigation::from_split_view(workspace_split_view(widgets).is_collapsed());
+        close_overlay_sidebar_if_needed(widgets);
+        self.workspace_navigation = WorkspaceNavigation::from_sidebar_visibility(
+            workspace_split_view(widgets).shows_sidebar(),
+        );
     }
 
     pub(super) fn add_browse_tab(
