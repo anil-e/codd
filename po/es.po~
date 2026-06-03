@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-03 18:34-0400\n"
-"PO-Revision-Date: 2026-06-03 18:42-0400\n"
+"POT-Creation-Date: 2026-06-03 18:22-0400\n"
+"PO-Revision-Date: 2026-06-03 18:36-0400\n"
 "Last-Translator: Francisco <fvasquez>\n"
 "Language-Team: es_DO\n"
 "Language: es\n"
@@ -189,8 +189,6 @@ msgstr "Elija un nuevo nombre para este objeto de base de datos."
 #: src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
 #: src/window_content/object_actions.rs:174
-#: src/ui/components/csv_export_dialog.rs:55
-#: src/ui/components/csv_export_dialog.rs:91
 #: src/ui/components/start_screen.rs:320 src/ui/components/start_screen.rs:356
 #: src/ui/components/editor.rs:242
 #: src/ui/components/table_browser/cell_editor.rs:93
@@ -286,26 +284,6 @@ msgstr "No se pudo eliminar"
 #: src/window_content/object_actions.rs:381
 msgid "Enter a valid object name."
 msgstr "Ingrese un nombre de objeto válido."
-
-#: src/window_content/query_execution.rs:58
-msgid "Row limit reached. Query execution stopped."
-msgstr "Se alcanzó el límite de filas. Se detuvo la ejecución de la consulta."
-
-#: src/window_content/query_execution.rs:67 src/ui/components/results.rs:388
-msgid "Query failed"
-msgstr "La consulta falló"
-
-#: src/window_content/query_execution.rs:109
-msgid "A query is already running."
-msgstr "Una consulta ya está en ejecución."
-
-#: src/window_content/query_execution.rs:115
-msgid "Connect to PostgreSQL before running a query."
-msgstr "Debe conectarse a PostgreSQL antes de ejecutar una consulta."
-
-#: src/window_content/query_execution.rs:123
-msgid "Enter SQL before running a query."
-msgstr "Ingrese SQL antes de ejecutar una consulta."
 
 #: src/window_content/tabs.rs:59
 msgid "Close Other Tabs"
@@ -440,53 +418,6 @@ msgstr ""
 #: src/ui/components/connection_dialog.rs:499
 msgid "PostgreSQL returned the following error:"
 msgstr "PostgreSQL devolvió el siguiente error:"
-
-#: src/ui/components/csv_export_dialog.rs:17
-msgid "Comma"
-msgstr "Coma"
-
-#: src/ui/components/csv_export_dialog.rs:17
-msgid "Semicolon"
-msgstr "Punto y coma"
-
-#: src/ui/components/csv_export_dialog.rs:17
-msgid "Tab"
-msgstr "Pestaña"
-
-#: src/ui/components/csv_export_dialog.rs:19
-msgid "Delimiter"
-msgstr "Delimitador"
-
-#: src/ui/components/csv_export_dialog.rs:36 src/ui/components/results.rs:166
-msgid "Row limit"
-msgstr "Límite de filas"
-
-#: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:195
-#: src/ui/components/table_browser.rs:241 src/ui/components/table_view.rs:125
-msgid "Export CSV"
-msgstr "Exportar CSV"
-
-#: src/ui/components/csv_export_dialog.rs:49
-msgid "Choose how many rows to export and which delimiter to use."
-msgstr "Elija cuántas filas exportar y cuál delimitador usar."
-
-#: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:199
-#: src/ui/components/table_browser.rs:245 src/ui/components/table_view.rs:131
-msgid "Export"
-msgstr "Exportar"
-
-#: src/ui/components/csv_export_dialog.rs:87
-msgid "Save CSV"
-msgstr "Guardar archivo CSV"
-
-#: src/ui/components/csv_export_dialog.rs:90
-#: src/ui/components/table_browser/cell_editor.rs:99
-msgid "Save"
-msgstr "Guardar"
-
-#: src/ui/components/csv_export_dialog.rs:98
-msgid "CSV Files"
-msgstr "Archivos CSV"
 
 #: src/ui/components/cell_dialog.rs:29 src/ui/components/cell_dialog.rs:41
 msgid "Cell value"
@@ -724,6 +655,20 @@ msgstr "Sin historial de consultas."
 msgid "Unknown time"
 msgstr "Tiempo desconocido"
 
+#: src/ui/components/results.rs:166
+msgid "Row limit"
+msgstr "Límite de filas"
+
+#: src/ui/components/results.rs:195 src/ui/components/table_browser.rs:241
+#: src/ui/components/table_view.rs:125
+msgid "Export CSV"
+msgstr "Exportar CSV"
+
+#: src/ui/components/results.rs:199 src/ui/components/table_browser.rs:245
+#: src/ui/components/table_view.rs:131
+msgid "Export"
+msgstr "Exportar"
+
 #: src/ui/components/results.rs:241 src/ui/components/results.rs:274
 msgid "Run a query to see results"
 msgstr "Ejecute una consulta para ver resultados"
@@ -785,6 +730,10 @@ msgstr[1] "filas afectadas"
 #: src/ui/components/results.rs:379
 msgid "The statement completed successfully."
 msgstr "La sentencia se completó correctamente."
+
+#: src/ui/components/results.rs:388
+msgid "Query failed"
+msgstr "La consulta falló"
 
 #: src/ui/components/results.rs:468 src/ui/components/table_browser.rs:945
 msgid "row"
@@ -921,6 +870,10 @@ msgstr "Esta columna no puede contener NULL."
 #: src/ui/components/table_browser/cell_editor.rs:94
 msgid "Set NULL"
 msgstr "Asignar NULL"
+
+#: src/ui/components/table_browser/cell_editor.rs:99
+msgid "Save"
+msgstr "Guardar"
 
 #: src/ui/components/table_browser/editing.rs:38
 msgid "Cell cannot be edited"
@@ -1252,6 +1205,13 @@ msgstr "Enfocar editor SQL"
 
 #~ msgid "Workspace"
 #~ msgstr "Espacio de trabajo"
+
+#~ msgid "Row limit reached. Query execution stopped."
+#~ msgstr ""
+#~ "Se alcanzó el límite de filas. Se detuvo la ejecución de la consulta."
+
+#~ msgid "A query is already running."
+#~ msgstr "Una consulta ya está en ejecución."
 
 #~ msgid "New"
 #~ msgstr "Nuevo"
