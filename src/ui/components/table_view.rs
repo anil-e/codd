@@ -6,7 +6,7 @@ use sqlx::PgPool;
 
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::ui::components::{
-    table_browser::{TableBrowser, TableBrowserMsg},
+    table_browser::{TableBrowser, TableBrowserMsg, TableBrowserOutput},
     table_structure::{TableStructureMsg, TableStructureView},
 };
 
@@ -30,6 +30,12 @@ pub enum TableViewMsg {
     ShowContent,
     ShowStructure,
     ToggleFilters,
+    BrowserOutput(TableBrowserOutput),
+}
+
+#[derive(Debug)]
+pub enum TableViewOutput {
+    Copied(String),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -51,7 +57,7 @@ impl TableViewMode {
 impl Component for TableView {
     type Init = ();
     type Input = TableViewMsg;
-    type Output = ();
+    type Output = TableViewOutput;
     type CommandOutput = ();
 
     view! {
@@ -134,7 +140,9 @@ impl Component for TableView {
         _root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        let browser = TableBrowser::builder().launch(()).detach();
+        let browser = TableBrowser::builder()
+            .launch(())
+            .forward(sender.input_sender(), TableViewMsg::BrowserOutput);
         browser.emit(TableBrowserMsg::SetHeaderVisible(false));
         let structure = TableStructureView::builder().launch(()).detach();
 
@@ -223,6 +231,11 @@ impl Component for TableView {
 
             TableViewMsg::ToggleFilters => {
                 self.browser.emit(TableBrowserMsg::ToggleFilters);
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::Copied(message)) => {
+                let _ = sender.output(TableViewOutput::Copied(message));
+                return;
             }
         }
 

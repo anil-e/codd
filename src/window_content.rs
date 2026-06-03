@@ -32,7 +32,7 @@ use crate::ui::components::{
     results::{QueryResults, QueryResultsMsg, QueryResultsOutput},
     sidebar::{ObjectSidebar, ObjectSidebarMsg, ObjectSidebarOutput},
     start_screen::{StartScreen, StartScreenMsg, StartScreenOutput},
-    table_view::TableView,
+    table_view::{TableView, TableViewOutput},
 };
 
 mod database_switching;
@@ -153,6 +153,10 @@ pub enum WindowContentMsg {
     ResultsOutput {
         tab_id: u64,
         output: QueryResultsOutput,
+    },
+    BrowseTabOutput {
+        tab_id: u64,
+        output: TableViewOutput,
     },
     WindowEvent(WindowContentEvent),
     SaveSession,
@@ -434,7 +438,7 @@ impl Component for WindowContent {
                 {
                     self.sidebar
                         .emit(ObjectSidebarMsg::SetSelectedObject(Some(object)));
-                    self.load_browse_tab_if_needed(tab_id);
+                    self.load_browse_tab_if_needed(tab_id, &sender);
                     self.schedule_session_save(&sender);
                 }
             }
@@ -481,7 +485,7 @@ impl Component for WindowContent {
                 self.run_selected_query_tab(widgets, &sender);
             }
             WindowContentMsg::RefreshActiveBrowseTab => {
-                self.refresh_active_browse_tab(widgets);
+                self.refresh_active_browse_tab(widgets, &sender);
             }
             WindowContentMsg::EditorOutput {
                 tab_id,
@@ -518,6 +522,20 @@ impl Component for WindowContent {
                     tab.row_limit = row_limit;
                 }
                 self.schedule_session_save(&sender);
+            }
+            WindowContentMsg::ResultsOutput {
+                output: QueryResultsOutput::Copied(message),
+                ..
+            } => {
+                widgets.toast_overlay.add_toast(adw::Toast::new(&message));
+            }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
+                output: TableViewOutput::Copied(message),
+            } => {
+                if self.browse_tabs.iter().any(|tab| tab.id == tab_id) {
+                    widgets.toast_overlay.add_toast(adw::Toast::new(&message));
+                }
             }
             WindowContentMsg::WindowEvent(event) => {
                 self.handle_window_event(event, widgets, &sender);
@@ -562,7 +580,7 @@ impl Component for WindowContent {
                 self.connection_dialog = None;
             }
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::OpenObject(object)) => {
-                self.open_table_browser(object, widgets);
+                self.open_table_browser(object, widgets, &sender);
                 self.schedule_session_save(&sender);
             }
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::CopyText { text, message }) => {

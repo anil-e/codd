@@ -304,6 +304,7 @@ impl WindowContent {
                             object.to_database_object(),
                             widgets,
                             false,
+                            sender,
                         );
                     }
                 }
@@ -313,7 +314,7 @@ impl WindowContent {
         });
 
         self.select_session_tab(active_tab, widgets, sender);
-        self.load_selected_browse_tab_if_needed(widgets);
+        self.load_selected_browse_tab_if_needed(widgets, sender);
 
         if self.tab_count() == 0 {
             self.add_query_tab(widgets, sender);
@@ -531,12 +532,16 @@ impl WindowContent {
         self.run_query_for_tab(tab_id, widgets, sender);
     }
 
-    pub(super) fn refresh_active_browse_tab(&mut self, widgets: &WindowContentWidgets) {
+    pub(super) fn refresh_active_browse_tab(
+        &mut self,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
         let Some(tab_id) = selected_browse_tab_id(widgets) else {
             return;
         };
 
-        self.load_browse_tab_if_needed(tab_id);
+        self.load_browse_tab_if_needed(tab_id, sender);
 
         if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
             && let Some(view) = &tab.view
@@ -577,6 +582,7 @@ impl WindowContent {
         &mut self,
         object: DatabaseObject,
         widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
     ) {
         if let Some((tab_id, page, object)) = self
             .browse_tabs
@@ -590,7 +596,7 @@ impl WindowContent {
                 .find(|tab| tab.id == tab_id)
                 .is_some_and(|tab| tab.loaded);
             widgets.query_tab_view.set_selected_page(&page);
-            self.load_browse_tab_if_needed(tab_id);
+            self.load_browse_tab_if_needed(tab_id, sender);
 
             if was_loaded
                 && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
@@ -612,7 +618,7 @@ impl WindowContent {
             return;
         };
 
-        self.add_browse_tab(object, widgets);
+        self.add_browse_tab(object, widgets, sender);
         close_overlay_sidebar_if_needed(widgets);
         self.workspace_navigation = WorkspaceNavigation::from_sidebar_visibility(
             workspace_split_view(widgets).shows_sidebar(),
@@ -623,9 +629,10 @@ impl WindowContent {
         &mut self,
         object: DatabaseObject,
         widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
     ) {
         let id = self.next_browse_tab_id;
-        self.add_browse_tab_with_id(id, object, widgets, true);
+        self.add_browse_tab_with_id(id, object, widgets, true, sender);
     }
 
     fn add_browse_tab_with_id(
@@ -634,6 +641,7 @@ impl WindowContent {
         object: DatabaseObject,
         widgets: &WindowContentWidgets,
         load: bool,
+        sender: &ComponentSender<Self>,
     ) {
         self.next_browse_tab_id = self.next_browse_tab_id.max(id.wrapping_add(1));
         let stack = gtk::Stack::new();
@@ -667,7 +675,7 @@ impl WindowContent {
         });
 
         if load {
-            self.load_browse_tab_if_needed(id);
+            self.load_browse_tab_if_needed(id, sender);
         }
 
         if load && let Some(tab) = self.browse_tabs.last() {
@@ -677,7 +685,11 @@ impl WindowContent {
         }
     }
 
-    pub(super) fn load_browse_tab_if_needed(&mut self, tab_id: u64) {
+    pub(super) fn load_browse_tab_if_needed(
+        &mut self,
+        tab_id: u64,
+        sender: &ComponentSender<Self>,
+    ) {
         let Some(pool) = self.active_pool.clone() else {
             return;
         };
@@ -690,7 +702,11 @@ impl WindowContent {
             return;
         }
 
-        let view = TableView::builder().launch(()).detach();
+        let view = TableView::builder()
+            .launch(())
+            .forward(sender.input_sender(), move |output| {
+                WindowContentMsg::BrowseTabOutput { tab_id, output }
+            });
         tab.stack.add_named(view.widget(), Some("content"));
         tab.stack.set_visible_child_name("content");
         view.emit(TableViewMsg::Open {
@@ -701,9 +717,13 @@ impl WindowContent {
         tab.loaded = true;
     }
 
-    fn load_selected_browse_tab_if_needed(&mut self, widgets: &WindowContentWidgets) {
+    fn load_selected_browse_tab_if_needed(
+        &mut self,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
         if let Some(tab_id) = selected_browse_tab_id(widgets) {
-            self.load_browse_tab_if_needed(tab_id);
+            self.load_browse_tab_if_needed(tab_id, sender);
         }
     }
 

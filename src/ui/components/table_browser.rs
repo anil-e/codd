@@ -6,8 +6,11 @@ use relm4::gtk;
 use relm4::gtk::{gio, glib};
 use relm4::prelude::*;
 use sqlx::PgPool;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
 
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
+use crate::models::result_copy;
 use crate::models::table_browser::{
     DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TableFilter, TablePage, TableSort,
 };
@@ -48,8 +51,42 @@ pub struct TableBrowser {
     filter_panel: gtk::Box,
     edit_popover: Option<gtk::Popover>,
     rendered_columns: Vec<String>,
+    copy_target: Rc<Cell<Option<CopyTarget>>>,
+    edit_target: Rc<RefCell<Option<EditTarget>>>,
+    edit_action: gio::SimpleAction,
+    copy_popover: gtk::PopoverMenu,
     style_manager: adw::StyleManager,
     dark_notify_handler: Option<glib::SignalHandlerId>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(super) struct CopyTarget {
+    pub(super) row_index: usize,
+    pub(super) column_index: usize,
+}
+
+#[derive(Debug, Clone)]
+pub(super) struct EditTarget {
+    pub(super) anchor: gtk::Label,
+    pub(super) row_index: usize,
+    pub(super) column_index: usize,
+}
+
+impl CopyTarget {
+    fn cell_message(self) -> TableBrowserMsg {
+        TableBrowserMsg::CopyCell {
+            row_index: self.row_index,
+            column_index: self.column_index,
+        }
+    }
+
+    fn row_message(self) -> TableBrowserMsg {
+        TableBrowserMsg::CopyRow(self.row_index)
+    }
+
+    fn column_message(self) -> TableBrowserMsg {
+        TableBrowserMsg::CopyColumn(self.column_index)
+    }
 }
 
 #[derive(Debug)]
@@ -94,7 +131,24 @@ pub enum TableBrowserMsg {
         column_index: usize,
         result: Result<TableCell, String>,
     },
+    CopyCell {
+        row_index: usize,
+        column_index: usize,
+    },
+    CopyRow(usize),
+    CopyColumn(usize),
+    CopyPage,
+    EditCellFromMenu {
+        anchor: gtk::Label,
+        row_index: usize,
+        column_index: usize,
+    },
     AppearanceChanged,
+}
+
+#[derive(Debug)]
+pub enum TableBrowserOutput {
+    Copied(String),
 }
 
 #[derive(Debug)]
@@ -119,7 +173,7 @@ pub enum TableBrowserCommandOutput {
 impl Component for TableBrowser {
     type Init = ();
     type Input = TableBrowserMsg;
-    type Output = ();
+    type Output = TableBrowserOutput;
     type CommandOutput = TableBrowserCommandOutput;
 
     view! {
@@ -322,11 +376,25 @@ impl Component for TableBrowser {
         let table_view = gtk::ColumnView::new(Some(gtk::NoSelection::new(Some(
             table_rows.clone().upcast::<gio::ListModel>(),
         ))));
+
         table_view.set_vexpand(true);
         table_view.set_hexpand(true);
         table_view.set_show_row_separators(true);
         table_view.set_show_column_separators(true);
         table_view.add_css_class("data-table");
+
+        let copy_target = Rc::new(Cell::new(None));
+        let edit_target = Rc::new(RefCell::new(None));
+
+        let copy_popover = gtk::PopoverMenu::from_model(Some(&copy_menu()));
+        copy_popover.set_has_arrow(false);
+        copy_popover.set_parent(&root);
+
+        let (copy_action_group, edit_action) =
+            copy_action_group(copy_target.clone(), edit_target.clone(), sender.clone());
+
+        root.insert_action_group("browser", Some(&copy_action_group));
+
         let style_manager = adw::StyleManager::default();
         let dark_notify_handler = {
             let sender = sender.clone();
@@ -363,6 +431,10 @@ impl Component for TableBrowser {
             filter_panel,
             edit_popover: None,
             rendered_columns: Vec::new(),
+            copy_target,
+            edit_target,
+            edit_action,
+            copy_popover,
             style_manager,
             dark_notify_handler: Some(dark_notify_handler),
         };
@@ -392,6 +464,7 @@ impl Component for TableBrowser {
     ) {
         match msg {
             TableBrowserMsg::Open { pool, object } => {
+                self.close_copy_menu();
                 self.pool = Some(pool);
                 self.object = Some(object);
                 self.offset = 0;
@@ -404,12 +477,14 @@ impl Component for TableBrowser {
             }
 
             TableBrowserMsg::ObjectRenamed(object) => {
+                self.close_copy_menu();
                 self.object = Some(object);
                 self.offset = 0;
                 self.load_page(widgets, &sender);
             }
 
             TableBrowserMsg::Refresh => {
+                self.close_copy_menu();
                 self.load_page(widgets, &sender);
             }
 
@@ -447,6 +522,7 @@ impl Component for TableBrowser {
                     return;
                 }
 
+                self.close_copy_menu();
                 self.page_size = page_size;
                 self.offset = 0;
                 self.load_page(widgets, &sender);
@@ -477,6 +553,7 @@ impl Component for TableBrowser {
                 }
 
                 self.sort = next_sort;
+                self.close_copy_menu();
                 self.offset = 0;
                 sync_sort_indicator(&self.table_view, self.sort.as_ref());
                 self.load_page(widgets, &sender);
@@ -487,6 +564,7 @@ impl Component for TableBrowser {
                     return;
                 }
 
+                self.close_copy_menu();
                 self.active_request_id = None;
                 self.active_abort_handle = None;
                 self.is_loading = false;
@@ -576,7 +654,61 @@ impl Component for TableBrowser {
                 render_table(self, &sender);
             }
 
+            TableBrowserMsg::CopyCell {
+                row_index,
+                column_index,
+            } => {
+                self.copy_text(
+                    self.page
+                        .as_ref()
+                        .and_then(|page| result_copy::page_cell(page, row_index, column_index)),
+                    gettext("Cell copied."),
+                    &sender,
+                );
+                return;
+            }
+
+            TableBrowserMsg::CopyRow(row_index) => {
+                self.copy_text(
+                    self.page
+                        .as_ref()
+                        .and_then(|page| result_copy::page_row(page, row_index)),
+                    gettext("Row copied."),
+                    &sender,
+                );
+                return;
+            }
+
+            TableBrowserMsg::CopyColumn(column_index) => {
+                self.copy_text(
+                    self.page
+                        .as_ref()
+                        .and_then(|page| result_copy::page_column(page, column_index)),
+                    gettext("Column copied."),
+                    &sender,
+                );
+                return;
+            }
+
+            TableBrowserMsg::CopyPage => {
+                self.copy_text(
+                    self.page.as_ref().map(result_copy::page),
+                    gettext("Page copied."),
+                    &sender,
+                );
+                return;
+            }
+
+            TableBrowserMsg::EditCellFromMenu {
+                anchor,
+                row_index,
+                column_index,
+            } => {
+                self.open_edit_popover(&anchor, row_index, column_index, &sender, root);
+            }
+
             TableBrowserMsg::AppearanceChanged => {
+                self.close_copy_menu();
                 close_popover(&mut self.edit_popover);
                 self.rendered_columns.clear();
                 render_table(self, &sender);
@@ -623,6 +755,11 @@ impl Component for TableBrowser {
         }
 
         close_popover(&mut self.edit_popover);
+        self.close_copy_menu();
+
+        if self.copy_popover.parent().is_some() {
+            self.copy_popover.unparent();
+        }
     }
 }
 
@@ -643,6 +780,27 @@ impl TableBrowser {
         } else {
             Some(&self.available_columns)
         }
+    }
+
+    fn copy_text(
+        &self,
+        text: Option<String>,
+        message: String,
+        sender: &ComponentSender<TableBrowser>,
+    ) {
+        let Some(text) = text else {
+            return;
+        };
+
+        copy_text_to_clipboard(&text);
+        let _ = sender.output(TableBrowserOutput::Copied(message));
+    }
+
+    fn close_copy_menu(&self) {
+        self.copy_popover.popdown();
+        self.copy_target.set(None);
+        self.edit_target.borrow_mut().take();
+        self.edit_action.set_enabled(false);
     }
 
     fn handle_filter_event(
@@ -785,6 +943,79 @@ fn close_popover(popover: &mut Option<gtk::Popover>) {
             popover.unparent();
         }
     }
+}
+
+fn copy_text_to_clipboard(text: &str) {
+    if let Some(display) = gtk::gdk::Display::default() {
+        display.clipboard().set_text(text);
+    }
+}
+
+fn copy_menu() -> gio::Menu {
+    let menu = gio::Menu::new();
+    menu.append(Some(&gettext("Edit Value")), Some("browser.edit-cell"));
+    menu.append(Some(&gettext("Copy Cell")), Some("browser.copy-cell"));
+    menu.append(Some(&gettext("Copy Row")), Some("browser.copy-row"));
+    menu.append(Some(&gettext("Copy Column")), Some("browser.copy-column"));
+    menu.append(
+        Some(&gettext("Copy Displayed Page")),
+        Some("browser.copy-page"),
+    );
+
+    menu
+}
+
+fn copy_action_group(
+    copy_target: Rc<Cell<Option<CopyTarget>>>,
+    edit_target: Rc<RefCell<Option<EditTarget>>>,
+    sender: ComponentSender<TableBrowser>,
+) -> (gio::SimpleActionGroup, gio::SimpleAction) {
+    let action_group = gio::SimpleActionGroup::new();
+    let edit_action = gio::SimpleAction::new("edit-cell", None);
+    edit_action.set_enabled(false);
+    edit_action.connect_activate({
+        let edit_target = edit_target.clone();
+        let sender = sender.clone();
+
+        move |_, _| {
+            let Some(target) = edit_target.borrow().clone() else {
+                return;
+            };
+
+            sender.input(TableBrowserMsg::EditCellFromMenu {
+                anchor: target.anchor,
+                row_index: target.row_index,
+                column_index: target.column_index,
+            });
+        }
+    });
+    action_group.add_action(&edit_action);
+
+    let actions = ["copy-cell", "copy-row", "copy-column", "copy-page"];
+
+    for name in actions {
+        let simple_action = gio::SimpleAction::new(name, None);
+        let sender = sender.clone();
+        let copy_target = copy_target.clone();
+
+        simple_action.connect_activate(move |_, _| {
+            let Some(target) = copy_target.get() else {
+                return;
+            };
+
+            sender.input(match name {
+                "copy-cell" => target.cell_message(),
+                "copy-row" => target.row_message(),
+                "copy-column" => target.column_message(),
+                "copy-page" => TableBrowserMsg::CopyPage,
+                _ => return,
+            });
+        });
+
+        action_group.add_action(&simple_action);
+    }
+
+    (action_group, edit_action)
 }
 
 fn icon_label_widget(icon_name: &str, label: &str) -> gtk::Box {
