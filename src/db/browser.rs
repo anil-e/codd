@@ -1,4 +1,5 @@
 use crate::db::query;
+use crate::models::csv_export::CsvExportOptions;
 use crate::models::database_object::DatabaseObject;
 use crate::models::table_browser::{TableCell, TableColumn, TableFilter, TablePage, TableSort};
 use sqlx::{Column, PgPool, Row, TypeInfo};
@@ -53,6 +54,27 @@ pub async fn load_table_row_count(
     sqlx_query.fetch_one(pool).await
 }
 
+pub async fn export_table_page(
+    pool: &PgPool,
+    object: &DatabaseObject,
+    filters: &[TableFilter],
+    sort: Option<&TableSort>,
+    options: CsvExportOptions,
+) -> Result<TablePage, sqlx::Error> {
+    let page_size = u32::try_from(options.row_limit).unwrap_or(u32::MAX);
+    let columns = load_table_columns(pool, object).await?;
+    let rows = load_export_rows(pool, object, &columns, page_size, filters, sort).await?;
+
+    Ok(TablePage {
+        object: object.clone(),
+        columns,
+        rows,
+        offset: 0,
+        page_size,
+        has_next_page: false,
+    })
+}
+
 async fn load_page_rows(
     pool: &PgPool,
     object: &DatabaseObject,
@@ -73,7 +95,7 @@ async fn load_page_rows(
 
     let rows = sqlx_query.fetch_all(pool).await?;
 
-    Ok(rows
+    let rows = rows
         .iter()
         .map(|row| {
             row.columns()
@@ -82,7 +104,43 @@ async fn load_page_rows(
                 .map(|(index, column)| query::value_to_cell(row, index, column.type_info().name()))
                 .collect()
         })
-        .collect())
+        .collect();
+
+    Ok(rows)
+}
+
+async fn load_export_rows(
+    pool: &PgPool,
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    page_size: u32,
+    filters: &[TableFilter],
+    sort: Option<&TableSort>,
+) -> Result<Vec<Vec<TableCell>>, sqlx::Error> {
+    let query = page_sql::table_export_sql_with_filters(object, columns, page_size, filters, sort)
+        .map_err(|error| sqlx::Error::Protocol(error.to_string()))?;
+    let mut sqlx_query = sqlx::query(&query.sql);
+
+    for value in query.filter_values {
+        sqlx_query = sqlx_query.bind(value);
+    }
+
+    let rows = sqlx_query.fetch_all(pool).await?;
+
+    let rows = rows
+        .iter()
+        .map(|row| {
+            row.columns()
+                .iter()
+                .enumerate()
+                .map(|(index, column)| {
+                    query::value_to_export_cell(row, index, column.type_info().name())
+                })
+                .collect()
+        })
+        .collect();
+
+    Ok(rows)
 }
 
 #[cfg(test)]
@@ -90,8 +148,8 @@ mod tests {
     use super::{
         editing::{TableCellUpdateError, update_cell_sql, validate_update_input},
         page_sql::{
-            TableFilterError, order_by_clause, table_count_sql_with_filters, table_page_sql,
-            table_page_sql_with_filters,
+            TableFilterError, order_by_clause, table_count_sql_with_filters,
+            table_export_sql_with_filters, table_page_sql, table_page_sql_with_filters,
         },
     };
     use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
@@ -125,6 +183,22 @@ mod tests {
         assert_eq!(
             table_page_sql(&object, &[], 0, 100).unwrap(),
             "SELECT * FROM \"public\".\"users\" ORDER BY ctid LIMIT 101 OFFSET 0"
+        );
+    }
+
+    #[test]
+    fn export_query_uses_exact_limit() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "users".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+
+        assert_eq!(
+            table_export_sql_with_filters(&object, &[], 100, &[], None)
+                .unwrap()
+                .sql,
+            "SELECT * FROM \"public\".\"users\" ORDER BY ctid LIMIT 100 OFFSET 0"
         );
     }
 

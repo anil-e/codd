@@ -201,6 +201,27 @@ pub(super) fn table_page_sql_with_filters(
     })
 }
 
+pub(super) fn table_export_sql_with_filters(
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    limit: u32,
+    filters: &[TableFilter],
+    sort: Option<&TableSort>,
+) -> Result<TableBrowserSql, TableFilterError> {
+    let select_columns = select_columns_clause(columns);
+    let where_clause = where_clause(columns, filters)?;
+    let order_by = order_by_clause(object, columns, sort);
+
+    Ok(TableBrowserSql {
+        sql: format!(
+            "SELECT {select_columns} FROM {}{}{order_by} LIMIT {limit} OFFSET 0",
+            object.qualified_name(),
+            where_clause.sql,
+        ),
+        filter_values: where_clause.values,
+    })
+}
+
 pub(super) fn table_count_sql_with_filters(
     object: &DatabaseObject,
     columns: &[TableColumn],

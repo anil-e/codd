@@ -78,6 +78,7 @@ pub enum QueryResultsMsg {
 pub enum QueryResultsOutput {
     RowLimitChanged(usize),
     Copied(String),
+    ExportCsvRequested,
 }
 
 #[relm4::component(pub)]
@@ -188,6 +189,23 @@ impl Component for QueryResults {
 
                 gtk::Box {
                     set_hexpand: true,
+                },
+
+                gtk::Button {
+                    set_tooltip_text: Some(&gettext("Export CSV")),
+                    add_css_class: "flat",
+                    set_child: Some(&adw::ButtonContent::builder()
+                        .icon_name("document-save-symbolic")
+                        .label(gettext("Export"))
+                        .build()
+                    ),
+                    #[watch]
+                    set_visible: model.result.is_some(),
+                    #[watch]
+                    set_sensitive: !model.is_loading,
+                    connect_clicked[sender] => move |_| {
+                        let _ = sender.output(QueryResultsOutput::ExportCsvRequested);
+                    },
                 },
             },
         }
@@ -627,6 +645,7 @@ fn copy_menu() -> gio::Menu {
         Some(&gettext("Copy Displayed Results")),
         Some("result.copy-results"),
     );
+    menu.append(Some(&gettext("Export CSV...")), Some("result.export-csv"));
 
     menu
 }
@@ -636,7 +655,13 @@ fn copy_action_group(
     sender: ComponentSender<QueryResults>,
 ) -> gio::SimpleActionGroup {
     let action_group = gio::SimpleActionGroup::new();
-    let actions = ["copy-cell", "copy-row", "copy-column", "copy-results"];
+    let actions = [
+        "copy-cell",
+        "copy-row",
+        "copy-column",
+        "copy-results",
+        "export-csv",
+    ];
 
     for name in actions {
         let simple_action = gio::SimpleAction::new(name, None);
@@ -644,6 +669,11 @@ fn copy_action_group(
         let copy_target = copy_target.clone();
 
         simple_action.connect_activate(move |_, _| {
+            if name == "export-csv" {
+                let _ = sender.output(QueryResultsOutput::ExportCsvRequested);
+                return;
+            }
+
             let Some(target) = copy_target.get() else {
                 return;
             };

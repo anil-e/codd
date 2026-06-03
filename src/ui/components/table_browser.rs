@@ -7,12 +7,17 @@ use relm4::gtk::{gio, glib};
 use relm4::prelude::*;
 use sqlx::PgPool;
 use std::cell::{Cell, RefCell};
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::result_copy;
 use crate::models::table_browser::{
     DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TableFilter, TablePage, TableSort,
+};
+use crate::models::{csv_export, csv_export::CsvExportOptions};
+use crate::ui::components::csv_export_dialog::{
+    show_csv_export_options_dialog, show_csv_save_dialog,
 };
 use filters::{FilterEvent, FilterPanel, initial_filter, validate_filter_values};
 use grid::render_table;
@@ -138,6 +143,12 @@ pub enum TableBrowserMsg {
     CopyRow(usize),
     CopyColumn(usize),
     CopyPage,
+    ExportCsvRequested,
+    ExportCsvConfirmed {
+        options: CsvExportOptions,
+        path: PathBuf,
+    },
+    CsvExported(Result<(), String>),
     EditCellFromMenu {
         anchor: gtk::Label,
         row_index: usize,
@@ -149,6 +160,7 @@ pub enum TableBrowserMsg {
 #[derive(Debug)]
 pub enum TableBrowserOutput {
     Copied(String),
+    Exported(String),
 }
 
 #[derive(Debug)]
@@ -167,6 +179,7 @@ pub enum TableBrowserCommandOutput {
         column_index: usize,
         result: Result<TableCell, String>,
     },
+    CsvExported(Result<(), String>),
 }
 
 #[relm4::component(pub)]
@@ -222,6 +235,15 @@ impl Component for TableBrowser {
                     #[watch]
                     set_visible: model.object.is_some(),
                     connect_clicked => TableBrowserMsg::ToggleFilters,
+                },
+
+                gtk::Button {
+                    set_tooltip_text: Some(&gettext("Export CSV")),
+                    add_css_class: "flat",
+                    #[watch]
+                    set_sensitive: model.object.is_some() && !model.is_loading,
+                    set_child: Some(&icon_label_widget("document-save-symbolic", &gettext("Export"))),
+                    connect_clicked => TableBrowserMsg::ExportCsvRequested,
                 },
 
                 gtk::Button {
@@ -699,6 +721,30 @@ impl Component for TableBrowser {
                 return;
             }
 
+            TableBrowserMsg::ExportCsvRequested => {
+                self.open_export_dialog(root, &sender);
+                return;
+            }
+
+            TableBrowserMsg::ExportCsvConfirmed { options, path } => {
+                self.export_csv(options, path, &sender);
+                return;
+            }
+
+            TableBrowserMsg::CsvExported(result) => {
+                match result {
+                    Ok(()) => {
+                        let _ =
+                            sender.output(TableBrowserOutput::Exported(gettext("CSV exported.")));
+                    }
+                    Err(error) => {
+                        self.show_warning(root, &gettext("Export failed"), &error);
+                    }
+                }
+
+                return;
+            }
+
             TableBrowserMsg::EditCellFromMenu {
                 anchor,
                 row_index,
@@ -742,6 +788,7 @@ impl Component for TableBrowser {
                 column_index,
                 result,
             },
+            TableBrowserCommandOutput::CsvExported(result) => TableBrowserMsg::CsvExported(result),
         });
     }
 
@@ -933,6 +980,61 @@ impl TableBrowser {
         dialog.add_response("close", &gettext("Close"));
         dialog.present(root.root().and_downcast::<gtk::Window>().as_ref());
     }
+
+    fn open_export_dialog(&self, root: &gtk::Box, sender: &ComponentSender<Self>) {
+        if self.pool.is_none() || self.object.is_none() {
+            return;
+        }
+
+        let parent = root.root().and_downcast::<gtk::Window>();
+        let initial_name = self
+            .object
+            .as_ref()
+            .map(csv_filename_for_object)
+            .unwrap_or_else(|| "table.csv".to_string());
+        let sender = sender.clone();
+
+        show_csv_export_options_dialog(parent.clone().as_ref(), move |options| {
+            let parent = parent.clone();
+            let sender = sender.clone();
+
+            show_csv_save_dialog(parent.as_ref(), initial_name, move |path| {
+                sender.input(TableBrowserMsg::ExportCsvConfirmed { options, path });
+            });
+        });
+    }
+
+    fn export_csv(&self, options: CsvExportOptions, path: PathBuf, sender: &ComponentSender<Self>) {
+        let Some(pool) = self.pool.clone() else {
+            return;
+        };
+        let Some(object) = self.object.clone() else {
+            return;
+        };
+
+        let filters = self.active_filters.clone();
+        let sort = self.sort.clone();
+
+        sender.oneshot_command(async move {
+            let result = async {
+                let page = crate::db::browser::export_table_page(
+                    &pool,
+                    &object,
+                    &filters,
+                    sort.as_ref(),
+                    options,
+                )
+                .await
+                .map_err(|error| error.to_string())?;
+                let csv = csv_export::table_page(&page, options);
+
+                std::fs::write(path, csv).map_err(|error| error.to_string())
+            }
+            .await;
+
+            TableBrowserCommandOutput::CsvExported(result)
+        });
+    }
 }
 
 fn close_popover(popover: &mut Option<gtk::Popover>) {
@@ -961,6 +1063,7 @@ fn copy_menu() -> gio::Menu {
         Some(&gettext("Copy Displayed Page")),
         Some("browser.copy-page"),
     );
+    menu.append(Some(&gettext("Export CSV...")), Some("browser.export-csv"));
 
     menu
 }
@@ -991,7 +1094,13 @@ fn copy_action_group(
     });
     action_group.add_action(&edit_action);
 
-    let actions = ["copy-cell", "copy-row", "copy-column", "copy-page"];
+    let actions = [
+        "copy-cell",
+        "copy-row",
+        "copy-column",
+        "copy-page",
+        "export-csv",
+    ];
 
     for name in actions {
         let simple_action = gio::SimpleAction::new(name, None);
@@ -999,6 +1108,11 @@ fn copy_action_group(
         let copy_target = copy_target.clone();
 
         simple_action.connect_activate(move |_, _| {
+            if name == "export-csv" {
+                sender.input(TableBrowserMsg::ExportCsvRequested);
+                return;
+            }
+
             let Some(target) = copy_target.get() else {
                 return;
             };
@@ -1016,6 +1130,29 @@ fn copy_action_group(
     }
 
     (action_group, edit_action)
+}
+
+fn csv_filename_for_object(object: &DatabaseObject) -> String {
+    let schema = sanitize_filename_part(&object.schema);
+    let name = sanitize_filename_part(&object.name);
+
+    format!("{schema}.{name}.csv")
+}
+
+fn sanitize_filename_part(value: &str) -> String {
+    let sanitized = value
+        .chars()
+        .map(|character| match character {
+            '/' | '\\' | ':' | '*' | '?' | '"' | '<' | '>' | '|' => '_',
+            character => character,
+        })
+        .collect::<String>();
+
+    if sanitized.is_empty() {
+        "_".to_string()
+    } else {
+        sanitized
+    }
 }
 
 fn icon_label_widget(icon_name: &str, label: &str) -> gtk::Box {

@@ -27,6 +27,7 @@ pub enum TableViewMsg {
     },
     ObjectRenamed(DatabaseObject),
     Refresh,
+    ExportCsv,
     ShowContent,
     ShowStructure,
     ToggleFilters,
@@ -36,6 +37,7 @@ pub enum TableViewMsg {
 #[derive(Debug)]
 pub enum TableViewOutput {
     Copied(String),
+    Exported(String),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -117,6 +119,17 @@ impl Component for TableView {
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     set_child: Some(&icon_label_widget("filter-symbolic", &gettext("Filters"))),
                     connect_clicked => TableViewMsg::ToggleFilters,
+                },
+
+                gtk::Button {
+                    set_tooltip_text: Some(&gettext("Export CSV")),
+                    add_css_class: "flat",
+                    #[watch]
+                    set_sensitive: model.mode == TableViewMode::Content,
+                    #[watch]
+                    set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
+                    set_child: Some(&icon_label_widget("document-save-symbolic", &gettext("Export"))),
+                    connect_clicked => TableViewMsg::ExportCsv,
                 },
 
                 gtk::Button {
@@ -213,6 +226,12 @@ impl Component for TableView {
                 TableViewMode::Structure => self.structure.emit(TableStructureMsg::Refresh),
             },
 
+            TableViewMsg::ExportCsv => {
+                if self.mode == TableViewMode::Content {
+                    self.browser.emit(TableBrowserMsg::ExportCsvRequested);
+                }
+            }
+
             TableViewMsg::ShowContent => {
                 self.mode = TableViewMode::Content;
                 widgets.mode_stack.set_visible_child_name("content");
@@ -235,6 +254,11 @@ impl Component for TableView {
 
             TableViewMsg::BrowserOutput(TableBrowserOutput::Copied(message)) => {
                 let _ = sender.output(TableViewOutput::Copied(message));
+                return;
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::Exported(message)) => {
+                let _ = sender.output(TableViewOutput::Exported(message));
                 return;
             }
         }

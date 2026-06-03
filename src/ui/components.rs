@@ -1,6 +1,7 @@
 pub mod cell_dialog;
 pub mod cell_style;
 pub mod connection_dialog;
+pub mod csv_export_dialog;
 pub mod database_selector;
 pub mod editor;
 pub mod results;

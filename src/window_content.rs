@@ -9,6 +9,7 @@ use relm4::prelude::*;
 use sqlx::PgPool;
 use std::cell::Cell;
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::{
     Mutex,
@@ -18,6 +19,7 @@ use std::sync::{
 use crate::db;
 use crate::menus;
 use crate::models::connection::{ConnectionDetails, SavedConnection};
+use crate::models::csv_export::{self, CsvExportOptions};
 use crate::models::database_object::DatabaseObject;
 use crate::models::query_history::QueryHistoryEntry;
 use crate::models::query_result::QueryExecutionResult;
@@ -25,6 +27,9 @@ use crate::models::session::SavedSession;
 use crate::models::table_script::TableScriptKind;
 use crate::settings;
 use crate::state::{app_state::AppState, connection_store, credential_store, session_store};
+use crate::ui::components::csv_export_dialog::{
+    show_csv_export_options_dialog, show_csv_save_dialog,
+};
 use crate::ui::components::{
     connection_dialog::{ConnectionDialog, ConnectionDialogInit, ConnectionDialogOutput},
     database_selector::{DatabaseSelector, DatabaseSelectorMsg, DatabaseSelectorOutput},
@@ -154,6 +159,12 @@ pub enum WindowContentMsg {
         tab_id: u64,
         output: QueryResultsOutput,
     },
+    QueryCsvExportConfirmed {
+        pool: PgPool,
+        sql: String,
+        options: CsvExportOptions,
+        path: PathBuf,
+    },
     BrowseTabOutput {
         tab_id: u64,
         output: TableViewOutput,
@@ -200,6 +211,7 @@ pub enum WindowContentCommandOutput {
         tab_id: u64,
         id: u64,
     },
+    QueryCsvExported(Result<(), String>),
     ObjectActionFinished(ObjectActionRequest, Result<(), String>),
     TableScriptGenerated {
         generation: u64,
@@ -529,9 +541,31 @@ impl Component for WindowContent {
             } => {
                 widgets.toast_overlay.add_toast(adw::Toast::new(&message));
             }
+            WindowContentMsg::ResultsOutput {
+                tab_id,
+                output: QueryResultsOutput::ExportCsvRequested,
+            } => {
+                self.open_query_export_dialog(tab_id, root, widgets, &sender);
+            }
+            WindowContentMsg::QueryCsvExportConfirmed {
+                pool,
+                sql,
+                options,
+                path,
+            } => {
+                self.export_query_csv(pool, sql, options, path, &sender);
+            }
             WindowContentMsg::BrowseTabOutput {
                 tab_id,
                 output: TableViewOutput::Copied(message),
+            } => {
+                if self.browse_tabs.iter().any(|tab| tab.id == tab_id) {
+                    widgets.toast_overlay.add_toast(adw::Toast::new(&message));
+                }
+            }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
+                output: TableViewOutput::Exported(message),
             } => {
                 if self.browse_tabs.iter().any(|tab| tab.id == tab_id) {
                     widgets.toast_overlay.add_toast(adw::Toast::new(&message));
@@ -662,6 +696,16 @@ impl Component for WindowContent {
             WindowContentCommandOutput::QueryCancelled { tab_id, id } => {
                 self.handle_query_cancelled(tab_id, id);
             }
+            WindowContentCommandOutput::QueryCsvExported(result) => match result {
+                Ok(()) => {
+                    widgets
+                        .toast_overlay
+                        .add_toast(adw::Toast::new(&gettext("CSV exported.")));
+                }
+                Err(error) => {
+                    show_export_error_dialog(widgets, &error);
+                }
+            },
             WindowContentCommandOutput::ObjectActionFinished(request, result) => {
                 sender.input(WindowContentMsg::ObjectActionCompleted(request, result));
             }
@@ -1199,6 +1243,80 @@ impl WindowContent {
         }
     }
 
+    fn open_query_export_dialog(
+        &self,
+        tab_id: u64,
+        root: &adw::ToolbarView,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        let Some(pool) = self.active_pool.clone() else {
+            widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                "Connect to PostgreSQL before exporting query results.",
+            )));
+            return;
+        };
+
+        let sql = self.query_tab_execution_sql(tab_id).unwrap_or_default();
+        if sql.trim().is_empty() {
+            widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                "Enter SQL before exporting query results.",
+            )));
+            return;
+        }
+
+        let parent = root.root().and_downcast::<gtk::Window>();
+        let sender = sender.clone();
+
+        show_csv_export_options_dialog(parent.clone().as_ref(), move |options| {
+            let parent = parent.clone();
+            let sender = sender.clone();
+            let pool = pool.clone();
+            let sql = sql.clone();
+
+            show_csv_save_dialog(
+                parent.as_ref(),
+                "query-results.csv".to_string(),
+                move |path| {
+                    sender.input(WindowContentMsg::QueryCsvExportConfirmed {
+                        pool,
+                        sql,
+                        options,
+                        path,
+                    });
+                },
+            );
+        });
+    }
+
+    fn export_query_csv(
+        &self,
+        pool: PgPool,
+        sql: String,
+        options: CsvExportOptions,
+        path: PathBuf,
+        sender: &ComponentSender<Self>,
+    ) {
+        sender.oneshot_command(async move {
+            let result = async {
+                let result = db::query::execute_read_only(&pool, &sql, options.row_limit)
+                    .await
+                    .map_err(|error| query_export_error_message(&error.to_string()))?;
+
+                let QueryExecutionResult::Rows(result) = result else {
+                    return Err(gettext("The query did not return rows."));
+                };
+
+                let csv = csv_export::query_result(&result, options);
+
+                std::fs::write(path, csv).map_err(|error| error.to_string())
+            }
+            .await;
+
+            WindowContentCommandOutput::QueryCsvExported(result)
+        });
+    }
+
     fn handle_schema_loaded(&mut self, id: u64, result: Result<Vec<DatabaseObject>, String>) {
         if self.active_schema_request_id != Some(id) {
             return;
@@ -1331,6 +1449,36 @@ impl WindowContent {
     fn advance_table_script_generation(&mut self) {
         self.table_script_generation = self.table_script_generation.wrapping_add(1);
     }
+}
+
+fn show_export_error_dialog(widgets: &WindowContentWidgets, error: &str) {
+    let dialog = adw::AlertDialog::builder()
+        .heading(gettext("Export failed"))
+        .body(error)
+        .close_response("close")
+        .build();
+
+    dialog.add_response("close", &gettext("Close"));
+    dialog.present(widgets.toast_overlay.root().as_ref());
+}
+
+fn query_export_error_message(error: &str) -> String {
+    let lower = error.to_ascii_lowercase();
+
+    if lower.contains("read-only transaction")
+        || lower.contains("cannot execute")
+        || lower.contains("transaction control statements cannot be exported")
+    {
+        return format!(
+            "{}\n\n{}",
+            gettext("CSV export runs queries in a read-only transaction."),
+            gettext(
+                "Use a SELECT query for export. Statements that write or change transaction state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot be exported."
+            )
+        );
+    }
+
+    error.to_string()
 }
 
 fn table_script_generated_message(kind: TableScriptKind) -> String {
