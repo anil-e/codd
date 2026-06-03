@@ -135,6 +135,10 @@ impl Component for QueryResults {
                 set_margin_end: 12,
                 add_css_class: "results-footer",
 
+                gtk::Box {
+                    set_hexpand: true,
+                },
+
                 gtk::Spinner {
                     #[watch]
                     set_visible: model.is_loading,
@@ -143,8 +147,7 @@ impl Component for QueryResults {
                 },
 
                 gtk::Label {
-                    set_hexpand: true,
-                    set_halign: gtk::Align::End,
+                    set_halign: gtk::Align::Center,
                     set_ellipsize: gtk::pango::EllipsizeMode::End,
                     add_css_class: "caption",
                     add_css_class: "dim-label",
@@ -181,6 +184,10 @@ impl Component for QueryResults {
                             spin_button.value_as_int().try_into().unwrap_or_default(),
                         ));
                     },
+                },
+
+                gtk::Box {
+                    set_hexpand: true,
                 },
             },
         }
