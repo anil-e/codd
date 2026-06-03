@@ -4,9 +4,11 @@ src/window.rs
 src/window_content.rs
 src/window_content/database_switching.rs
 src/window_content/object_actions.rs
+src/window_content/query_execution.rs
 src/window_content/tabs.rs
 src/models/connection.rs
 src/ui/components/connection_dialog.rs
+src/ui/components/csv_export_dialog.rs
 src/ui/components/cell_dialog.rs
 src/ui/components/database_selector.rs
 src/ui/components/start_screen.rs
