@@ -532,6 +532,14 @@ impl WindowContent {
         self.run_query_for_tab(tab_id, widgets, sender);
     }
 
+    pub(super) fn cancel_active_query(&mut self, widgets: &WindowContentWidgets) {
+        let Some(tab_id) = selected_query_tab_id(widgets) else {
+            return;
+        };
+
+        self.cancel_query(tab_id);
+    }
+
     pub(super) fn refresh_active_browse_tab(
         &mut self,
         widgets: &WindowContentWidgets,

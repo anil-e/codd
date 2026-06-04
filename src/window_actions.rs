@@ -7,6 +7,7 @@ pub enum WindowAction {
     OpenConnectionDialog,
     NewQueryTab,
     RunQuery,
+    CancelQuery,
     RefreshTableBrowser,
     FocusEditor,
     FocusObjectSearch,
@@ -29,6 +30,12 @@ pub fn setup_window_actions(
         emit.clone(),
     );
     add_window_action(root, "run-query", WindowAction::RunQuery, emit.clone());
+    add_window_action(
+        root,
+        "cancel-query",
+        WindowAction::CancelQuery,
+        emit.clone(),
+    );
     add_window_action(
         root,
         "refresh-table-browser",

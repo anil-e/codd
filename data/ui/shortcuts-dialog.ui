@@ -63,6 +63,12 @@
         </child>
         <child>
           <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Cancel Running Query</property>
+            <property name="accelerator">Escape</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwShortcutsItem">
             <property name="title" translatable="yes" context="shortcut window">Focus SQL Editor</property>
             <property name="accelerator">&lt;Control&gt;e</property>
           </object>

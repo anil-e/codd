@@ -129,6 +129,7 @@ pub enum WindowContentMsg {
     CloseAllTabs,
     QueryTabTitleChanged(u64),
     RunQuery,
+    CancelQuery,
     RefreshActiveBrowseTab,
     FocusEditor,
     FocusObjectSearch,
@@ -495,6 +496,9 @@ impl Component for WindowContent {
             }
             WindowContentMsg::RunQuery => {
                 self.run_selected_query_tab(widgets, &sender);
+            }
+            WindowContentMsg::CancelQuery => {
+                self.cancel_active_query(widgets);
             }
             WindowContentMsg::RefreshActiveBrowseTab => {
                 self.refresh_active_browse_tab(widgets, &sender);

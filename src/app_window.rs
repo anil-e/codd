@@ -21,6 +21,7 @@ pub enum AppWindowMsg {
     OpenConnectionDialog,
     NewQueryTab,
     RunQuery,
+    CancelQuery,
     RefreshTableBrowser,
     FocusEditor,
     FocusObjectSearch,
@@ -104,6 +105,9 @@ impl Component for AppWindow {
             AppWindowMsg::RunQuery => {
                 self.content.emit(WindowContentMsg::RunQuery);
             }
+            AppWindowMsg::CancelQuery => {
+                self.content.emit(WindowContentMsg::CancelQuery);
+            }
             AppWindowMsg::RefreshTableBrowser => {
                 self.content.emit(WindowContentMsg::RefreshActiveBrowseTab);
             }
@@ -123,6 +127,7 @@ impl From<WindowAction> for AppWindowMsg {
             WindowAction::OpenConnectionDialog => Self::OpenConnectionDialog,
             WindowAction::NewQueryTab => Self::NewQueryTab,
             WindowAction::RunQuery => Self::RunQuery,
+            WindowAction::CancelQuery => Self::CancelQuery,
             WindowAction::RefreshTableBrowser => Self::RefreshTableBrowser,
             WindowAction::FocusEditor => Self::FocusEditor,
             WindowAction::FocusObjectSearch => Self::FocusObjectSearch,

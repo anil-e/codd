@@ -23,6 +23,7 @@ pub enum AppWindowMsg {
     OpenConnectionDialog,
     NewQueryTab,
     RunQuery,
+    CancelQuery,
     RefreshTableBrowser,
     FocusEditor,
     FocusObjectSearch,
@@ -101,6 +102,9 @@ impl Component for AppWindow {
             AppWindowMsg::RunQuery => {
                 self.content.emit(WindowContentMsg::RunQuery);
             }
+            AppWindowMsg::CancelQuery => {
+                self.content.emit(WindowContentMsg::CancelQuery);
+            }
             AppWindowMsg::RefreshTableBrowser => {
                 self.content.emit(WindowContentMsg::RefreshActiveBrowseTab);
             }
@@ -163,6 +167,7 @@ fn setup_app_actions(sender: &ComponentSender<AppWindow>) {
     app.set_accels_for_action("win.new-query-tab", &["<Control>n"]);
     app.set_accels_for_action("app.new-window", &["<Control><Shift>n"]);
     app.set_accels_for_action("win.run-query", &["<Control>Return"]);
+    app.set_accels_for_action("win.cancel-query", &["Escape"]);
     app.set_accels_for_action("win.refresh-table-browser", &["<Control>r"]);
     app.set_accels_for_action("win.focus-editor", &["<Control>e"]);
     app.set_accels_for_action("win.search", &["<Control>f"]);
@@ -214,6 +219,7 @@ impl From<WindowAction> for AppWindowMsg {
             WindowAction::OpenConnectionDialog => Self::OpenConnectionDialog,
             WindowAction::NewQueryTab => Self::NewQueryTab,
             WindowAction::RunQuery => Self::RunQuery,
+            WindowAction::CancelQuery => Self::CancelQuery,
             WindowAction::RefreshTableBrowser => Self::RefreshTableBrowser,
             WindowAction::FocusEditor => Self::FocusEditor,
             WindowAction::FocusObjectSearch => Self::FocusObjectSearch,
