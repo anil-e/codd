@@ -36,6 +36,7 @@ fn window_menu_section() -> gtk::gio::Menu {
 fn app_menu_section() -> gtk::gio::Menu {
     let section = gtk::gio::Menu::new();
     section.append(Some(&gettext("_Keyboard Shortcuts")), Some("app.shortcuts"));
+    section.append(Some(&gettext("_About Codd")), Some("app.about"));
     section.append(Some(&gettext("_Quit")), Some("app.quit"));
     section
 }

@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
+use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk::glib;
 use relm4::prelude::*;
 
 use crate::app_window::{AppWindow as ExtraAppWindow, AppWindowInit, AppWindowOutput};
-use crate::config::RESOURCE_PREFIX;
+use crate::config::{APP_ID, RESOURCE_PREFIX};
 use crate::settings;
 use crate::window_actions::{self, WindowAction};
 use crate::window_content::{WindowContent, WindowContentMsg};
@@ -28,6 +29,7 @@ pub enum AppWindowMsg {
     NewWindow,
     ExtraWindowClosed(u64),
     Shortcuts,
+    About,
     Quit,
 }
 
@@ -117,6 +119,9 @@ impl Component for AppWindow {
             AppWindowMsg::Shortcuts => {
                 show_shortcuts_dialog(root);
             }
+            AppWindowMsg::About => {
+                show_about_dialog(root);
+            }
             AppWindowMsg::Quit => {
                 relm4::main_adw_application().quit();
             }
@@ -138,6 +143,13 @@ fn setup_app_actions(sender: &ComponentSender<AppWindow>) {
     let s = sender.clone();
     action.connect_activate(move |_, _| {
         s.input(AppWindowMsg::Shortcuts);
+    });
+    app.add_action(&action);
+
+    let action = gtk::gio::SimpleAction::new("about", None);
+    let s = sender.clone();
+    action.connect_activate(move |_, _| {
+        s.input(AppWindowMsg::About);
     });
     app.add_action(&action);
 
@@ -170,6 +182,29 @@ fn show_shortcuts_dialog(root: &adw::ApplicationWindow) {
         dialog.present(Some(&window));
     } else {
         dialog.present(Some(root));
+    }
+}
+
+fn show_about_dialog(root: &adw::ApplicationWindow) {
+    let about = adw::AboutDialog::builder()
+        .application_name("Codd")
+        .application_icon(APP_ID)
+        .developer_name("Anil Erdogan")
+        .version(env!("CARGO_PKG_VERSION"))
+        .developers(vec!["Anil Erdogan"])
+        .translator_credits(gettext("translator-credits"))
+        .copyright("© 2026 Anil Erdogan")
+        .comments(gettext("Lightweight PostgreSQL client"))
+        .website("https://github.com/anil-e/codd")
+        .issue_url("https://github.com/anil-e/codd/issues")
+        .license_type(gtk::License::Agpl30)
+        .build();
+
+    let app = relm4::main_adw_application();
+    if let Some(window) = app.active_window() {
+        about.present(Some(&window));
+    } else {
+        about.present(Some(root));
     }
 }
 
