@@ -900,7 +900,6 @@ impl WindowContent {
         with_tab_view_signals_blocked(&tab_view_signals_blocked, || {
             for page in pages {
                 widgets.query_tab_view.close_page(&page);
-                widgets.query_tab_view.close_page_finish(&page, true);
             }
         });
     }

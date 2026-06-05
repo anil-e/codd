@@ -409,7 +409,7 @@ impl Component for WindowContent {
         let close_page_signals_blocked = tab_view_signals_blocked.clone();
         widgets.query_tab_view.connect_close_page(move |_, page| {
             if close_page_signals_blocked.get() {
-                return glib::Propagation::Stop;
+                return glib::Propagation::Proceed;
             }
 
             if let Some(tab_id) = query_tab_id_from_widget(&page.child()) {
