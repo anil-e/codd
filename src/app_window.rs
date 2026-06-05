@@ -20,6 +20,7 @@ pub struct AppWindow {
 pub enum AppWindowMsg {
     OpenConnectionDialog,
     NewQueryTab,
+    CloseActiveTab,
     RunQuery,
     CancelQuery,
     RefreshTableBrowser,
@@ -102,6 +103,9 @@ impl Component for AppWindow {
             AppWindowMsg::NewQueryTab => {
                 self.content.emit(WindowContentMsg::NewQueryTab);
             }
+            AppWindowMsg::CloseActiveTab => {
+                self.content.emit(WindowContentMsg::CloseActiveTab);
+            }
             AppWindowMsg::RunQuery => {
                 self.content.emit(WindowContentMsg::RunQuery);
             }
@@ -126,6 +130,7 @@ impl From<WindowAction> for AppWindowMsg {
         match action {
             WindowAction::OpenConnectionDialog => Self::OpenConnectionDialog,
             WindowAction::NewQueryTab => Self::NewQueryTab,
+            WindowAction::CloseActiveTab => Self::CloseActiveTab,
             WindowAction::RunQuery => Self::RunQuery,
             WindowAction::CancelQuery => Self::CancelQuery,
             WindowAction::RefreshTableBrowser => Self::RefreshTableBrowser,

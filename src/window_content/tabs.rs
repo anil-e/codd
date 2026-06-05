@@ -381,6 +381,18 @@ impl WindowContent {
             .close_page_finish(&removed.page, true);
     }
 
+    pub(super) fn close_active_tab(&mut self, widgets: &WindowContentWidgets) {
+        if !self.shows_workspace() || self.tab_count() <= 1 {
+            return;
+        }
+
+        let Some(page) = widgets.query_tab_view.selected_page() else {
+            return;
+        };
+
+        widgets.query_tab_view.close_page(&page);
+    }
+
     pub(super) fn close_tab_from_widget_name(
         &mut self,
         widget_name: Option<&str>,

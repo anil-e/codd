@@ -6,6 +6,7 @@ use relm4::gtk;
 pub enum WindowAction {
     OpenConnectionDialog,
     NewQueryTab,
+    CloseActiveTab,
     RunQuery,
     CancelQuery,
     RefreshTableBrowser,
@@ -27,6 +28,12 @@ pub fn setup_window_actions(
         root,
         "new-query-tab",
         WindowAction::NewQueryTab,
+        emit.clone(),
+    );
+    add_window_action(
+        root,
+        "close-active-tab",
+        WindowAction::CloseActiveTab,
         emit.clone(),
     );
     add_window_action(root, "run-query", WindowAction::RunQuery, emit.clone());

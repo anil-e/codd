@@ -22,6 +22,7 @@ pub struct AppWindow {
 pub enum AppWindowMsg {
     OpenConnectionDialog,
     NewQueryTab,
+    CloseActiveTab,
     RunQuery,
     CancelQuery,
     RefreshTableBrowser,
@@ -99,6 +100,9 @@ impl Component for AppWindow {
             AppWindowMsg::NewQueryTab => {
                 self.content.emit(WindowContentMsg::NewQueryTab);
             }
+            AppWindowMsg::CloseActiveTab => {
+                self.content.emit(WindowContentMsg::CloseActiveTab);
+            }
             AppWindowMsg::RunQuery => {
                 self.content.emit(WindowContentMsg::RunQuery);
             }
@@ -165,6 +169,7 @@ fn setup_app_actions(sender: &ComponentSender<AppWindow>) {
     app.add_action(&action);
 
     app.set_accels_for_action("win.new-query-tab", &["<Control>n"]);
+    app.set_accels_for_action("win.close-active-tab", &["<Control>w"]);
     app.set_accels_for_action("app.new-window", &["<Control><Shift>n"]);
     app.set_accels_for_action("win.run-query", &["<Control>Return"]);
     app.set_accels_for_action("win.cancel-query", &["Escape"]);
@@ -218,6 +223,7 @@ impl From<WindowAction> for AppWindowMsg {
         match action {
             WindowAction::OpenConnectionDialog => Self::OpenConnectionDialog,
             WindowAction::NewQueryTab => Self::NewQueryTab,
+            WindowAction::CloseActiveTab => Self::CloseActiveTab,
             WindowAction::RunQuery => Self::RunQuery,
             WindowAction::CancelQuery => Self::CancelQuery,
             WindowAction::RefreshTableBrowser => Self::RefreshTableBrowser,

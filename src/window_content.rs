@@ -124,6 +124,7 @@ pub enum WindowContentMsg {
     SelectBrowseTab(u64),
     CloseQueryTab(u64),
     CloseBrowseTab(u64),
+    CloseActiveTab,
     CloseTabFromMenu(Option<String>),
     CloseOtherTabsFromMenu(Option<String>),
     CloseAllTabs,
@@ -462,6 +463,9 @@ impl Component for WindowContent {
             WindowContentMsg::CloseBrowseTab(tab_id) => {
                 self.close_browse_tab(tab_id, widgets);
                 self.schedule_session_save(&sender);
+            }
+            WindowContentMsg::CloseActiveTab => {
+                self.close_active_tab(widgets);
             }
             WindowContentMsg::CloseTabFromMenu(widget_name) => {
                 self.close_tab_from_widget_name(widget_name.as_deref(), widgets);

@@ -48,13 +48,24 @@
     </child>
     <child>
       <object class="AdwShortcutsSection">
-        <property name="title" translatable="yes" context="shortcut window">Query</property>
+        <property name="title" translatable="yes" context="shortcut window">Tabs</property>
         <child>
           <object class="AdwShortcutsItem">
             <property name="title" translatable="yes" context="shortcut window">New Query Tab</property>
             <property name="accelerator">&lt;Control&gt;n</property>
           </object>
         </child>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Close Current Tab</property>
+            <property name="accelerator">&lt;Control&gt;w</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwShortcutsSection">
+        <property name="title" translatable="yes" context="shortcut window">Query</property>
         <child>
           <object class="AdwShortcutsItem">
             <property name="title" translatable="yes" context="shortcut window">Execute</property>
