@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-03 18:34-0400\n"
+"POT-Creation-Date: 2026-06-06 14:13+0200\n"
 "PO-Revision-Date: 2026-06-03 18:42-0400\n"
 "Last-Translator: Francisco <fvasquez>\n"
 "Language-Team: es_DO\n"
@@ -32,103 +32,116 @@ msgid "_Keyboard Shortcuts"
 msgstr "_Atajos de teclado"
 
 #: src/menus.rs:39
+msgid "_About Codd"
+msgstr ""
+
+#: src/menus.rs:40
 msgid "_Quit"
 msgstr "_Salir"
 
-#: src/window_content.rs:240
+#: src/window.rs:205
+msgid "translator-credits"
+msgstr "Francisco Vásquez https://www.fvtronics.com/"
+
+#: src/window.rs:207 data/io.github.anil_e.Codd.desktop.in:4
+#: data/io.github.anil_e.Codd.metainfo.xml.in:8
+msgid "Lightweight PostgreSQL client"
+msgstr "Cliente ligero de PostgreSQL"
+
+#: src/window_content.rs:242
 msgid "Back to connections"
 msgstr "Volver a conexiones"
 
-#: src/window_content.rs:259
+#: src/window_content.rs:261
 msgid "Main Menu"
 msgstr "Menú principal"
 
-#: src/window_content.rs:266
+#: src/window_content.rs:268
 msgid "New Query Tab"
 msgstr "Nueva pestaña de consulta"
 
-#: src/window_content.rs:582 src/window_content.rs:1007
+#: src/window_content.rs:590 src/window_content.rs:1015
 #: src/window_content/database_switching.rs:65
 msgid "Saving tabs failed"
 msgstr "No se pudo guardar las pestañas"
 
-#: src/window_content.rs:652
+#: src/window_content.rs:660
 msgid "Updating the saved password failed"
 msgstr "No se pudo actualizar la contraseña guardada"
 
-#: src/window_content.rs:703 src/ui/components/table_browser.rs:738
+#: src/window_content.rs:711 src/ui/components/table_browser.rs:738
 msgid "CSV exported."
 msgstr "Archivo CSV exportado."
 
-#: src/window_content.rs:853
+#: src/window_content.rs:861
 msgid "Hide Objects"
 msgstr "Ocultar objetos"
 
-#: src/window_content.rs:854
+#: src/window_content.rs:862
 msgid "Show Objects"
 msgstr "Mostrar objetos"
 
-#: src/window_content.rs:1042 src/ui/components/sidebar.rs:150
+#: src/window_content.rs:1050 src/ui/components/sidebar.rs:150
 #: src/ui/components/sidebar.rs:405 src/ui/components/sidebar.rs:419
 msgid "No connection"
 msgstr "Sin conexión"
 
-#: src/window_content.rs:1109
+#: src/window_content.rs:1117
 msgid "Connected to PostgreSQL."
 msgstr "Conectado a PostgreSQL."
 
-#: src/window_content.rs:1122
+#: src/window_content.rs:1130
 msgid "Connected, but saving the connection failed"
 msgstr "Conectado, pero no se pudo guardar la conexión"
 
-#: src/window_content.rs:1240
+#: src/window_content.rs:1248
 msgid "Disabling saved password failed"
 msgstr "No se pudo desactivar la contraseña guardada"
 
-#: src/window_content.rs:1255
+#: src/window_content.rs:1263
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr ""
 "Debe conectarse a PostgreSQL antes de exportar los resultados de una "
 "consulta."
 
-#: src/window_content.rs:1263
+#: src/window_content.rs:1271
 msgid "Enter SQL before exporting query results."
 msgstr "Ingrese SQL antes de exportar los resultados de una consulta."
 
-#: src/window_content.rs:1307
+#: src/window_content.rs:1315
 msgid "The query did not return rows."
 msgstr "La consulta no devolvió filas."
 
-#: src/window_content.rs:1335
+#: src/window_content.rs:1343
 msgid "Schema load failed"
 msgstr "No se pudo cargar el esquema"
 
 # script is an accepted anglocism in this context
-#: src/window_content.rs:1368
+#: src/window_content.rs:1376
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "Debe conectarse a PostgreSQL antes de generar un script."
 
-#: src/window_content.rs:1408
+#: src/window_content.rs:1416
 msgid "Generating the table script failed"
 msgstr "No se pudo generar el script de la tabla"
 
-#: src/window_content.rs:1456 src/ui/components/table_browser.rs:741
+#: src/window_content.rs:1464 src/ui/components/table_browser.rs:741
 msgid "Export failed"
 msgstr "La exportación falló"
 
-#: src/window_content.rs:1461 src/window_content/tabs.rs:57
+#: src/window_content.rs:1469 src/window_content/tabs.rs:57
 #: src/ui/components/connection_dialog.rs:504
-#: src/ui/components/table_browser.rs:980
+#: src/ui/components/table_browser.rs:982
 msgid "Close"
 msgstr "Cerrar"
 
-#: src/window_content.rs:1474
+#: src/window_content.rs:1482
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
 "La exportación a CSV ejecuta las consultas en una transacción de solo "
 "lectura."
 
-#: src/window_content.rs:1476
+#: src/window_content.rs:1484
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
@@ -138,23 +151,23 @@ msgstr ""
 "datos o cambian el estado de la transacción, como UPDATE, INSERT, DELETE, "
 "CREATE, COMMIT o ROLLBACK, no se pueden exportar."
 
-#: src/window_content.rs:1486
+#: src/window_content.rs:1494
 msgid "CREATE script generated."
 msgstr "Script CREATE generado."
 
-#: src/window_content.rs:1487
+#: src/window_content.rs:1495
 msgid "SELECT script generated."
 msgstr "Script SELECT generado."
 
-#: src/window_content.rs:1488
+#: src/window_content.rs:1496
 msgid "INSERT script generated."
 msgstr "Script INSERT generado."
 
-#: src/window_content.rs:1489
+#: src/window_content.rs:1497
 msgid "UPDATE script generated."
 msgstr "Script UPDATE generado."
 
-#: src/window_content.rs:1490
+#: src/window_content.rs:1498
 msgid "DELETE script generated."
 msgstr "Script DELETE generado."
 
@@ -315,16 +328,16 @@ msgstr "Cerrar las otras pestañas"
 msgid "Close All"
 msgstr "Cerrar todas"
 
-#: src/window_content/tabs.rs:654 src/ui/components/table_browser.rs:913
+#: src/window_content/tabs.rs:674 src/ui/components/table_browser.rs:913
 #: src/ui/components/table_view.rs:289 src/ui/components/table_view.rs:304
 msgid "Table"
 msgstr "Tabla"
 
-#: src/window_content/tabs.rs:655
+#: src/window_content/tabs.rs:675
 msgid "Select the tab to load this table."
 msgstr "Selecciona la pestaña para cargar esta tabla."
 
-#: src/window_content/tabs.rs:939
+#: src/window_content/tabs.rs:958
 msgid "Query"
 msgstr "Consulta"
 
@@ -786,21 +799,21 @@ msgstr[1] "filas afectadas"
 msgid "The statement completed successfully."
 msgstr "La sentencia se completó correctamente."
 
-#: src/ui/components/results.rs:468 src/ui/components/table_browser.rs:945
+#: src/ui/components/results.rs:468
 msgid "row"
 msgid_plural "rows"
 msgstr[0] "fila"
 msgstr[1] "filas"
 
-#: src/ui/components/results.rs:641 src/ui/components/table_browser.rs:1059
+#: src/ui/components/results.rs:641 src/ui/components/table_browser.rs:1061
 msgid "Copy Cell"
 msgstr "Copiar celda"
 
-#: src/ui/components/results.rs:642 src/ui/components/table_browser.rs:1060
+#: src/ui/components/results.rs:642 src/ui/components/table_browser.rs:1062
 msgid "Copy Row"
 msgstr "Copiar fila"
 
-#: src/ui/components/results.rs:643 src/ui/components/table_browser.rs:1061
+#: src/ui/components/results.rs:643 src/ui/components/table_browser.rs:1063
 msgid "Copy Column"
 msgstr "Copiar columna"
 
@@ -808,7 +821,7 @@ msgstr "Copiar columna"
 msgid "Copy Displayed Results"
 msgstr "Copiar resultados mostrados"
 
-#: src/ui/components/results.rs:648 src/ui/components/table_browser.rs:1066
+#: src/ui/components/results.rs:648 src/ui/components/table_browser.rs:1068
 msgid "Export CSV..."
 msgstr "Exportar CSV..."
 
@@ -889,11 +902,16 @@ msgstr "Filtros"
 msgid "No rows"
 msgstr "Sin filas"
 
-#: src/ui/components/table_browser.rs:1058
+#: src/ui/components/table_browser.rs:945
+#, rust-format
+msgid "{first}-{last} rows"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:1060
 msgid "Edit Value"
 msgstr "Editar valor"
 
-#: src/ui/components/table_browser.rs:1063
+#: src/ui/components/table_browser.rs:1065
 msgid "Copy Displayed Page"
 msgstr "Copiar página mostrada"
 
@@ -1125,11 +1143,6 @@ msgstr "Diferible"
 msgid "Content"
 msgstr "Contenido"
 
-#: data/io.github.anil_e.Codd.desktop.in:4
-#: data/io.github.anil_e.Codd.metainfo.xml.in:8
-msgid "Lightweight PostgreSQL client"
-msgstr "Cliente ligero de PostgreSQL"
-
 #: data/io.github.anil_e.Codd.desktop.in:10
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
 msgstr "PostgreSQL;SQL;Base de datos;Consulta;GNOME;"
@@ -1229,8 +1242,8 @@ msgstr "Actualizar tabla o vista"
 
 #: data/ui/shortcuts-dialog.ui:51
 msgctxt "shortcut window"
-msgid "Query"
-msgstr "Consulta"
+msgid "Tabs"
+msgstr ""
 
 #: data/ui/shortcuts-dialog.ui:54
 msgctxt "shortcut window"
@@ -1239,10 +1252,25 @@ msgstr "Nueva pestaña de consulta"
 
 #: data/ui/shortcuts-dialog.ui:60
 msgctxt "shortcut window"
+msgid "Close Current Tab"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:68
+msgctxt "shortcut window"
+msgid "Query"
+msgstr "Consulta"
+
+#: data/ui/shortcuts-dialog.ui:71
+msgctxt "shortcut window"
 msgid "Execute"
 msgstr "Ejecutar"
 
-#: data/ui/shortcuts-dialog.ui:66
+#: data/ui/shortcuts-dialog.ui:77
+msgctxt "shortcut window"
+msgid "Cancel Running Query"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:83
 msgctxt "shortcut window"
 msgid "Focus SQL Editor"
 msgstr "Enfocar editor SQL"

@@ -1,84 +1,83 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# German translations for codd package.
+# Copyright (C) 2026 THE codd'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the codd package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Automatically generated, 2026.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-06 14:13+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2026-06-06 00:00+0200\n"
+"Last-Translator: Anil Erdogan <anil.erdogan@mailbox.org>\n"
+"Language-Team: German\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
-msgstr ""
+msgstr "_Neue Verbindung"
 
 #: src/menus.rs:32
 msgid "_New Window"
-msgstr ""
+msgstr "_Neues Fenster"
 
 #: src/menus.rs:38
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "_Tastenkürzel"
 
 #: src/menus.rs:39
 msgid "_About Codd"
-msgstr ""
+msgstr "_Info zu Codd"
 
 #: src/menus.rs:40
 msgid "_Quit"
-msgstr ""
+msgstr "_Beenden"
 
 #: src/window.rs:205
 msgid "translator-credits"
-msgstr ""
+msgstr "Anil Erdogan <anil.erdogan@mailbox.org>"
 
 #: src/window.rs:207 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
-msgstr ""
+msgstr "Leichtgewichtiger PostgreSQL-Client"
 
 #: src/window_content.rs:242
 msgid "Back to connections"
-msgstr ""
+msgstr "Zurück zu Verbindungen"
 
 #: src/window_content.rs:261
 msgid "Main Menu"
-msgstr ""
+msgstr "Hauptmenü"
 
 #: src/window_content.rs:268
 msgid "New Query Tab"
-msgstr ""
+msgstr "Neuer Query-Tab"
 
 #: src/window_content.rs:590 src/window_content.rs:1015
 #: src/window_content/database_switching.rs:65
 msgid "Saving tabs failed"
-msgstr ""
+msgstr "Speichern der Tabs fehlgeschlagen"
 
 #: src/window_content.rs:660
 msgid "Updating the saved password failed"
-msgstr ""
+msgstr "Aktualisieren des gespeicherten Passworts fehlgeschlagen"
 
 #: src/window_content.rs:711 src/ui/components/table_browser.rs:738
 msgid "CSV exported."
-msgstr ""
+msgstr "CSV exportiert."
 
 #: src/window_content.rs:861
 msgid "Hide Objects"
-msgstr ""
+msgstr "Objekte ausblenden"
 
 #: src/window_content.rs:862
 msgid "Show Objects"
-msgstr ""
+msgstr "Objekte anzeigen"
 
 #: src/window_content.rs:1050 src/ui/components/sidebar.rs:150
 #: src/ui/components/sidebar.rs:405 src/ui/components/sidebar.rs:419
@@ -87,53 +86,55 @@ msgstr ""
 
 #: src/window_content.rs:1117
 msgid "Connected to PostgreSQL."
-msgstr ""
+msgstr "Mit PostgreSQL verbunden."
 
 #: src/window_content.rs:1130
 msgid "Connected, but saving the connection failed"
-msgstr ""
+msgstr "Verbunden, aber Speichern der Verbindung fehlgeschlagen"
 
 #: src/window_content.rs:1248
 msgid "Disabling saved password failed"
-msgstr ""
+msgstr "Deaktivieren des gespeicherten Passworts fehlgeschlagen"
 
 #: src/window_content.rs:1263
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr ""
+"Verbinden Sie sich mit PostgreSQL, bevor Sie Query-Ergebnisse exportieren."
 
 #: src/window_content.rs:1271
 msgid "Enter SQL before exporting query results."
-msgstr ""
+msgstr "Geben Sie SQL ein, bevor Sie Query-Ergebnisse exportieren."
 
 #: src/window_content.rs:1315
 msgid "The query did not return rows."
-msgstr ""
+msgstr "Die Query hat keine Zeilen zurückgegeben."
 
 #: src/window_content.rs:1343
 msgid "Schema load failed"
-msgstr ""
+msgstr "Laden des Schema fehlgeschlagen"
 
 #: src/window_content.rs:1376
 msgid "Connect to PostgreSQL before generating a script."
-msgstr ""
+msgstr "Verbinden Sie sich mit PostgreSQL, bevor Sie ein Script generieren."
 
 #: src/window_content.rs:1416
 msgid "Generating the table script failed"
-msgstr ""
+msgstr "Generieren des Table-Scripts fehlgeschlagen"
 
 #: src/window_content.rs:1464 src/ui/components/table_browser.rs:741
 msgid "Export failed"
-msgstr ""
+msgstr "Export fehlgeschlagen"
 
 #: src/window_content.rs:1469 src/window_content/tabs.rs:57
 #: src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:982
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 #: src/window_content.rs:1482
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
+"Der CSV-Export führt Queries in einer schreibgeschützten Transaktion aus."
 
 #: src/window_content.rs:1484
 msgid ""
@@ -141,54 +142,57 @@ msgid ""
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
 "be exported."
 msgstr ""
+"Verwenden Sie für den Export eine SELECT Query. Statements, die schreiben "
+"oder den Transaktionsstatus ändern, wie UPDATE, INSERT, DELETE, CREATE, "
+"COMMIT oder ROLLBACK, können nicht exportiert werden."
 
 #: src/window_content.rs:1494
 msgid "CREATE script generated."
-msgstr ""
+msgstr "CREATE Script generiert."
 
 #: src/window_content.rs:1495
 msgid "SELECT script generated."
-msgstr ""
+msgstr "SELECT Script generiert."
 
 #: src/window_content.rs:1496
 msgid "INSERT script generated."
-msgstr ""
+msgstr "INSERT Script generiert."
 
 #: src/window_content.rs:1497
 msgid "UPDATE script generated."
-msgstr ""
+msgstr "UPDATE Script generiert."
 
 #: src/window_content.rs:1498
 msgid "DELETE script generated."
-msgstr ""
+msgstr "DELETE Script generiert."
 
 #: src/window_content/database_switching.rs:57
 msgid "Connect to PostgreSQL before switching databases."
-msgstr ""
+msgstr "Verbinden Sie sich mit PostgreSQL, bevor Sie die Datenbank wechseln."
 
 #: src/window_content/database_switching.rs:107
 msgid "Database switch failed"
-msgstr ""
+msgstr "Datenbankwechsel fehlgeschlagen"
 
 #: src/window_content/database_switching.rs:152
 msgid "Saving the selected database failed"
-msgstr ""
+msgstr "Speichern der ausgewählten Datenbank fehlgeschlagen"
 
 #: src/window_content/database_switching.rs:193
 msgid "Migrating query history failed"
-msgstr ""
+msgstr "Migrieren des Query-Verlaufs fehlgeschlagen"
 
 #: src/window_content/database_switching.rs:222
 msgid "Saving query history failed"
-msgstr ""
+msgstr "Speichern des Query-Verlaufs fehlgeschlagen"
 
 #: src/window_content/database_switching.rs:245
 msgid "Clearing query history failed"
-msgstr ""
+msgstr "Leeren des Query-Verlaufs fehlgeschlagen"
 
 #: src/window_content/object_actions.rs:60
 msgid "Choose a new name for this database object."
-msgstr ""
+msgstr "Wählen Sie einen neuen Namen für dieses Datenbankobjekt."
 
 #: src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
@@ -199,1044 +203,1065 @@ msgstr ""
 #: src/ui/components/editor.rs:242
 #: src/ui/components/table_browser/cell_editor.rs:93
 msgid "Cancel"
-msgstr ""
+msgstr "Abbrechen"
 
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
-msgstr ""
+msgstr "Umbenennen"
 
 #: src/window_content/object_actions.rs:149
 msgid "Restart identity"
-msgstr ""
+msgstr "Identity neu starten"
 
 #: src/window_content/object_actions.rs:151
 msgid "Reset sequences owned by columns of the truncated table."
-msgstr ""
+msgstr "Setzt Sequences zurück, die Columns der geleerten Table gehören."
 
 #: src/window_content/object_actions.rs:156
 msgid "Cascade"
-msgstr ""
+msgstr "Cascade"
 
 #: src/window_content/object_actions.rs:158
 msgid "Also truncate tables that have foreign-key references to this table."
-msgstr ""
+msgstr "Auch Tables leeren, die Foreign-Key-Referenzen auf diese Table haben."
 
 #: src/window_content/object_actions.rs:313
 msgid "Rename Table"
-msgstr ""
+msgstr "Table umbenennen"
 
 #: src/window_content/object_actions.rs:314
 msgid "Rename View"
-msgstr ""
+msgstr "View umbenennen"
 
 #: src/window_content/object_actions.rs:316
 msgid "Truncate Table"
-msgstr ""
+msgstr "Table leeren"
 
 #: src/window_content/object_actions.rs:318
 msgid "Delete Table"
-msgstr ""
+msgstr "Table löschen"
 
 #: src/window_content/object_actions.rs:319
 msgid "Delete View"
-msgstr ""
+msgstr "View löschen"
 
 #: src/window_content/object_actions.rs:329
 msgid "Remove all rows from"
-msgstr ""
+msgstr "Alle Zeilen entfernen aus"
 
 #: src/window_content/object_actions.rs:331
 #: src/window_content/object_actions.rs:337
 msgid "This cannot be undone."
-msgstr ""
+msgstr "Dies kann nicht rückgängig gemacht werden."
 
 #: src/window_content/object_actions.rs:335
 #: src/window_content/object_actions.rs:346
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
-msgstr ""
+msgstr "Leeren"
 
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
-msgstr ""
+msgstr "Datenbankobjekt umbenannt."
 
 #: src/window_content/object_actions.rs:355
 msgid "Table truncated:"
-msgstr ""
+msgstr "Table geleert:"
 
 #: src/window_content/object_actions.rs:358
 msgid "Database object deleted."
-msgstr ""
+msgstr "Datenbankobjekt gelöscht."
 
 #: src/window_content/object_actions.rs:364
 msgid "Renaming failed"
-msgstr ""
+msgstr "Umbenennen fehlgeschlagen"
 
 #: src/window_content/object_actions.rs:365
 msgid "Truncating failed"
-msgstr ""
+msgstr "Leeren fehlgeschlagen"
 
 #: src/window_content/object_actions.rs:366
 msgid "Deleting failed"
-msgstr ""
+msgstr "Löschen fehlgeschlagen"
 
 #: src/window_content/object_actions.rs:381
 msgid "Enter a valid object name."
-msgstr ""
+msgstr "Geben Sie einen gültigen Objektnamen ein."
 
 #: src/window_content/query_execution.rs:58
 msgid "Row limit reached. Query execution stopped."
-msgstr ""
+msgstr "Zeilenlimit erreicht. Query-Ausführung gestoppt."
 
 #: src/window_content/query_execution.rs:67 src/ui/components/results.rs:388
 msgid "Query failed"
-msgstr ""
+msgstr "Query fehlgeschlagen"
 
 #: src/window_content/query_execution.rs:109
 msgid "A query is already running."
-msgstr ""
+msgstr "Es wird bereits eine Query ausgeführt."
 
 #: src/window_content/query_execution.rs:115
 msgid "Connect to PostgreSQL before running a query."
-msgstr ""
+msgstr "Verbinden Sie sich mit PostgreSQL, bevor Sie eine Query ausführen."
 
 #: src/window_content/query_execution.rs:123
 msgid "Enter SQL before running a query."
-msgstr ""
+msgstr "Geben Sie SQL ein, bevor Sie eine Query ausführen."
 
 #: src/window_content/tabs.rs:59
 msgid "Close Other Tabs"
-msgstr ""
+msgstr "Andere Tabs schließen"
 
 #: src/window_content/tabs.rs:63
 msgid "Close All"
-msgstr ""
+msgstr "Alle schließen"
 
 #: src/window_content/tabs.rs:674 src/ui/components/table_browser.rs:913
 #: src/ui/components/table_view.rs:289 src/ui/components/table_view.rs:304
 msgid "Table"
-msgstr ""
+msgstr "Table"
 
 #: src/window_content/tabs.rs:675
 msgid "Select the tab to load this table."
-msgstr ""
+msgstr "Wählen Sie den Tab aus, um diese Table zu laden."
 
 #: src/window_content/tabs.rs:958
 msgid "Query"
-msgstr ""
+msgstr "Query"
 
 #: src/models/connection.rs:80
 msgid "Connection name is required."
-msgstr ""
+msgstr "Verbindungsname ist erforderlich."
 
 #: src/models/connection.rs:84
 msgid "Host is required."
-msgstr ""
+msgstr "Host ist erforderlich."
 
 #: src/models/connection.rs:89
 msgid "Port must be a number between 1 and 65535."
-msgstr ""
+msgstr "Port muss eine Zahl zwischen 1 und 65535 sein."
 
 #: src/models/connection.rs:92
 msgid "Default database is required."
-msgstr ""
+msgstr "Standarddatenbank ist erforderlich."
 
 #: src/models/connection.rs:96
 msgid "Username is required."
-msgstr ""
+msgstr "Benutzername ist erforderlich."
 
 #: src/ui/components/connection_dialog.rs:78
 #: src/ui/components/connection_dialog.rs:93
 msgid "PostgreSQL Connection"
-msgstr ""
+msgstr "PostgreSQL-Verbindung"
 
 #: src/ui/components/connection_dialog.rs:106
 msgid "Connection"
-msgstr ""
+msgstr "Verbindung"
 
 #: src/ui/components/connection_dialog.rs:109
 #: src/ui/components/table_structure/columns.rs:43
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: src/ui/components/connection_dialog.rs:119
 msgid "Host"
-msgstr ""
+msgstr "Host"
 
 #: src/ui/components/connection_dialog.rs:129
 msgid "Port"
-msgstr ""
+msgstr "Port"
 
 #: src/ui/components/connection_dialog.rs:140
 msgid "Default Database"
-msgstr ""
+msgstr "Standarddatenbank"
 
 #: src/ui/components/connection_dialog.rs:150
 msgid "Username"
-msgstr ""
+msgstr "Benutzername"
 
 #: src/ui/components/connection_dialog.rs:160
 msgid "Password"
-msgstr ""
+msgstr "Passwort"
 
 #: src/ui/components/connection_dialog.rs:195
 msgid "Save Password"
-msgstr ""
+msgstr "Passwort speichern"
 
 #: src/ui/components/connection_dialog.rs:221
 msgid "Test Connection"
-msgstr ""
+msgstr "Verbindung testen"
 
 #: src/ui/components/connection_dialog.rs:228
 msgid "Connect"
-msgstr ""
+msgstr "Verbinden"
 
 #: src/ui/components/connection_dialog.rs:358
 #: src/ui/components/connection_dialog.rs:473
 msgid "Reading the saved password failed"
-msgstr ""
+msgstr "Lesen des gespeicherten Passworts fehlgeschlagen"
 
 #: src/ui/components/connection_dialog.rs:364
 msgid "Connection test succeeded."
-msgstr ""
+msgstr "Verbindungstest erfolgreich."
 
 #: src/ui/components/connection_dialog.rs:369
 msgid "Connection test failed"
-msgstr ""
+msgstr "Verbindungstest fehlgeschlagen"
 
 #: src/ui/components/connection_dialog.rs:378
 msgid "Connection failed"
-msgstr ""
+msgstr "Verbindung fehlgeschlagen"
 
 #: src/ui/components/connection_dialog.rs:405
 msgid "Checking password storage availability."
-msgstr ""
+msgstr "Verfügbarkeit des Passwortspeichers wird geprüft."
 
 #: src/ui/components/connection_dialog.rs:406
 msgid "Store this password in Keyring."
-msgstr ""
+msgstr "Dieses Passwort im Keyring speichern."
 
 #: src/ui/components/connection_dialog.rs:407
 msgid "Password storage is not available."
-msgstr ""
+msgstr "Passwortspeicher ist nicht verfügbar."
 
 #: src/ui/components/connection_dialog.rs:424
 msgid "Saved in Keyring. Enter a new password to replace it."
 msgstr ""
+"Im Keyring gespeichert. Geben Sie ein neues Passwort ein, um es zu ersetzen."
 
 #: src/ui/components/connection_dialog.rs:427
 msgid "No saved password was found. Enter a password to save it."
 msgstr ""
+"Kein gespeichertes Passwort gefunden. Geben Sie ein Passwort ein, um es zu "
+"speichern."
 
 #: src/ui/components/connection_dialog.rs:499
 msgid "PostgreSQL returned the following error:"
-msgstr ""
+msgstr "PostgreSQL hat den folgenden Fehler zurückgegeben:"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Comma"
-msgstr ""
+msgstr "Komma"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Semicolon"
-msgstr ""
+msgstr "Semikolon"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Tab"
-msgstr ""
+msgstr "Tab"
 
 #: src/ui/components/csv_export_dialog.rs:19
 msgid "Delimiter"
-msgstr ""
+msgstr "Trennzeichen"
 
 #: src/ui/components/csv_export_dialog.rs:36 src/ui/components/results.rs:166
 msgid "Row limit"
-msgstr ""
+msgstr "Zeilenlimit"
 
 #: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:195
 #: src/ui/components/table_browser.rs:241 src/ui/components/table_view.rs:125
 msgid "Export CSV"
-msgstr ""
+msgstr "CSV exportieren"
 
 #: src/ui/components/csv_export_dialog.rs:49
 msgid "Choose how many rows to export and which delimiter to use."
 msgstr ""
+"Wählen Sie, wie viele Zeilen exportiert werden und welches Trennzeichen "
+"verwendet wird."
 
 #: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:199
 #: src/ui/components/table_browser.rs:245 src/ui/components/table_view.rs:131
 msgid "Export"
-msgstr ""
+msgstr "Exportieren"
 
 #: src/ui/components/csv_export_dialog.rs:87
 msgid "Save CSV"
-msgstr ""
+msgstr "CSV speichern"
 
 #: src/ui/components/csv_export_dialog.rs:90
 #: src/ui/components/table_browser/cell_editor.rs:99
 msgid "Save"
-msgstr ""
+msgstr "Speichern"
 
 #: src/ui/components/csv_export_dialog.rs:98
 msgid "CSV Files"
-msgstr ""
+msgstr "CSV-Dateien"
 
 #: src/ui/components/cell_dialog.rs:29 src/ui/components/cell_dialog.rs:41
 msgid "Cell value"
-msgstr ""
+msgstr "Zellwert"
 
 #: src/ui/components/database_selector.rs:43
 #: data/io.github.anil_e.Codd.desktop.in:3
 #: data/io.github.anil_e.Codd.metainfo.xml.in:7
 msgid "Codd"
-msgstr ""
+msgstr "Codd"
 
 #: src/ui/components/database_selector.rs:48
 msgid "Switch database"
-msgstr ""
+msgstr "Datenbank wechseln"
 
 #: src/ui/components/database_selector.rs:96
 msgid "Search databases"
-msgstr ""
+msgstr "Datenbanken suchen"
 
 #: src/ui/components/database_selector.rs:119
 msgid "No databases match your search."
-msgstr ""
+msgstr "Keine Datenbanken entsprechen Ihrer Suche."
 
 #: src/ui/components/database_selector.rs:214
 #: src/ui/components/table_browser.rs:930
 msgid "Loading..."
-msgstr ""
+msgstr "Laden..."
 
 #: src/ui/components/start_screen.rs:45
 msgid "Welcome to Codd"
-msgstr ""
+msgstr "Willkommen bei Codd"
 
 #: src/ui/components/start_screen.rs:46
 msgid "Add a PostgreSQL connection to get started"
-msgstr ""
+msgstr "Fügen Sie eine PostgreSQL-Verbindung hinzu, um loszulegen"
 
 #: src/ui/components/start_screen.rs:50 src/ui/components/start_screen.rs:84
 msgid "Add Connection..."
-msgstr ""
+msgstr "Verbindung hinzufügen..."
 
 #: src/ui/components/start_screen.rs:76
 msgid "Connections"
-msgstr ""
+msgstr "Verbindungen"
 
 #: src/ui/components/start_screen.rs:160
 msgid "Renaming the connection failed"
-msgstr ""
+msgstr "Umbenennen der Verbindung fehlgeschlagen"
 
 #: src/ui/components/start_screen.rs:186
 msgid "Removing the connection failed"
-msgstr ""
+msgstr "Entfernen der Verbindung fehlgeschlagen"
 
 #: src/ui/components/start_screen.rs:207
 msgid "Removing the saved password failed"
-msgstr ""
+msgstr "Entfernen des gespeicherten Passworts fehlgeschlagen"
 
 #: src/ui/components/start_screen.rs:239
 msgid "Default database"
-msgstr ""
+msgstr "Standarddatenbank"
 
 #: src/ui/components/start_screen.rs:254
 msgid "Rename connection"
-msgstr ""
+msgstr "Verbindung umbenennen"
 
 #: src/ui/components/start_screen.rs:260
 msgid "Remove connection"
-msgstr ""
+msgstr "Verbindung entfernen"
 
 #: src/ui/components/start_screen.rs:315
 msgid "Rename Connection"
-msgstr ""
+msgstr "Verbindung umbenennen"
 
 #: src/ui/components/start_screen.rs:316
 msgid "Choose a new name for this connection."
-msgstr ""
+msgstr "Wählen Sie einen neuen Namen für diese Verbindung."
 
 #: src/ui/components/start_screen.rs:348
 msgid "Remove Connection"
-msgstr ""
+msgstr "Verbindung entfernen"
 
 #: src/ui/components/start_screen.rs:351
 msgid "Remove the saved connection"
-msgstr ""
+msgstr "Gespeicherte Verbindung entfernen"
 
 #: src/ui/components/start_screen.rs:357
 msgid "Remove"
-msgstr ""
+msgstr "Entfernen"
 
 #: src/ui/components/sidebar.rs:95
 msgid "Search objects"
-msgstr ""
+msgstr "Objekte suchen"
 
 #: src/ui/components/sidebar.rs:119
 msgid "No objects match your search."
-msgstr ""
+msgstr "Keine Objekte entsprechen Ihrer Suche."
 
 #: src/ui/components/sidebar.rs:172
 msgid "Loading schema..."
-msgstr ""
+msgstr "Schema wird geladen..."
 
 #: src/ui/components/sidebar.rs:183 src/ui/components/sidebar.rs:407
 #: src/ui/components/sidebar.rs:421
 msgid "No tables or views found"
-msgstr ""
+msgstr "Keine Tables oder Views gefunden"
 
 #: src/ui/components/sidebar.rs:335
 msgid "object"
 msgid_plural "objects"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Objekt"
+msgstr[1] "Objekte"
 
 #: src/ui/components/sidebar.rs:392
 msgid "Loading schema"
-msgstr ""
+msgstr "Schema wird geladen"
 
 #: src/ui/components/sidebar.rs:394
 msgid "No objects available"
-msgstr ""
+msgstr "Keine Objekte verfügbar"
 
 #: src/ui/components/sidebar.rs:403
 msgid "Fetching tables and views for the current connection."
-msgstr ""
+msgstr "Tables und Views für die aktuelle Verbindung werden abgerufen."
 
 #: src/ui/components/sidebar.rs:406
 msgid "Connect to PostgreSQL to browse database objects."
-msgstr ""
+msgstr "Verbinden Sie sich mit PostgreSQL, um Datenbankobjekte zu durchsuchen."
 
 #: src/ui/components/sidebar.rs:409
 msgid "The selected database does not currently expose tables or views."
 msgstr ""
+"Die ausgewählte Datenbank stellt derzeit keine Tables oder Views bereit."
 
 #: src/ui/components/sidebar.rs:591
 msgid "Scripts"
-msgstr ""
+msgstr "Scripts"
 
 #: src/ui/components/sidebar.rs:595
 msgid "Rename..."
-msgstr ""
+msgstr "Umbenennen..."
 
 #: src/ui/components/sidebar.rs:600
 msgid "Truncate..."
-msgstr ""
+msgstr "Leeren..."
 
 #: src/ui/components/sidebar.rs:603
 msgid "Delete..."
-msgstr ""
+msgstr "Löschen..."
 
 #: src/ui/components/sidebar.rs:612
 msgid "CREATE Script"
-msgstr ""
+msgstr "CREATE Script"
 
 #: src/ui/components/sidebar.rs:616
 msgid "SELECT Script"
-msgstr ""
+msgstr "SELECT Script"
 
 #: src/ui/components/sidebar.rs:620
 msgid "INSERT Script"
-msgstr ""
+msgstr "INSERT Script"
 
 #: src/ui/components/sidebar.rs:624
 msgid "UPDATE Script"
-msgstr ""
+msgstr "UPDATE Script"
 
 #: src/ui/components/sidebar.rs:628
 msgid "DELETE Script"
-msgstr ""
+msgstr "DELETE Script"
 
 #: src/ui/components/sidebar.rs:636
 msgid "Copy Table Name"
-msgstr ""
+msgstr "Table-Namen kopieren"
 
 #: src/ui/components/sidebar.rs:637
 msgid "Copy Qualified Table Name"
-msgstr ""
+msgstr "Qualifizierten Table-Namen kopieren"
 
 #: src/ui/components/sidebar.rs:638
 msgid "Copy View Name"
-msgstr ""
+msgstr "View-Namen kopieren"
 
 #: src/ui/components/sidebar.rs:639
 msgid "Copy Qualified View Name"
-msgstr ""
+msgstr "Qualifizierten View-Namen kopieren"
 
 #: src/ui/components/sidebar.rs:645
 msgid "Table name copied."
-msgstr ""
+msgstr "Table-Name kopiert."
 
 #: src/ui/components/sidebar.rs:646
 msgid "Qualified table name copied."
-msgstr ""
+msgstr "Qualifizierter Table-Name kopiert."
 
 #: src/ui/components/sidebar.rs:647
 msgid "View name copied."
-msgstr ""
+msgstr "View-Name kopiert."
 
 #: src/ui/components/sidebar.rs:648
 msgid "Qualified view name copied."
-msgstr ""
+msgstr "Qualifizierter View-Name kopiert."
 
 #: src/ui/components/editor.rs:104
 msgid "Query History"
-msgstr ""
+msgstr "Query-Verlauf"
 
 #: src/ui/components/editor.rs:108
 msgid "History"
-msgstr ""
+msgstr "Verlauf"
 
 #: src/ui/components/editor.rs:188
 #: src/ui/components/table_browser/filters.rs:438
 msgid "Clear"
-msgstr ""
+msgstr "Leeren"
 
 #: src/ui/components/editor.rs:201
 #: src/ui/components/table_browser/filters.rs:442
 msgid "Apply"
-msgstr ""
+msgstr "Anwenden"
 
 #: src/ui/components/editor.rs:217
 msgid "Selection will be executed"
-msgstr ""
+msgstr "Auswahl wird ausgeführt"
 
 #: src/ui/components/editor.rs:227
 msgid "Execute selection or statement"
-msgstr ""
+msgstr "Auswahl oder Statement ausführen"
 
 #: src/ui/components/editor.rs:231
 msgid "Execute"
-msgstr ""
+msgstr "Ausführen"
 
 #: src/ui/components/editor.rs:372
 msgid "No query history yet."
-msgstr ""
+msgstr "Noch kein Query-Verlauf vorhanden."
 
 #: src/ui/components/editor.rs:477
 msgid "Unknown time"
-msgstr ""
+msgstr "Unbekannte Zeit"
 
 #: src/ui/components/results.rs:241 src/ui/components/results.rs:274
 msgid "Run a query to see results"
-msgstr ""
+msgstr "Führen Sie eine Query aus, um Ergebnisse zu sehen"
 
 #: src/ui/components/results.rs:245 src/ui/components/results.rs:276
 msgid "Run a query"
-msgstr ""
+msgstr "Query ausführen"
 
 #: src/ui/components/results.rs:246 src/ui/components/results.rs:278
 msgid "Results will appear here after execution."
-msgstr ""
+msgstr "Ergebnisse werden hier nach der Ausführung angezeigt."
 
 #: src/ui/components/results.rs:285
 msgid "Running query..."
-msgstr ""
+msgstr "Query wird ausgeführt..."
 
 #: src/ui/components/results.rs:287
 msgid "Running query"
-msgstr ""
+msgstr "Query wird ausgeführt"
 
 #: src/ui/components/results.rs:289
 msgid "Waiting for PostgreSQL to return results."
-msgstr ""
+msgstr "Warten auf Ergebnisse von PostgreSQL."
 
 #: src/ui/components/results.rs:298
 msgid "Query cancelled"
-msgstr ""
+msgstr "Query abgebrochen"
 
 #: src/ui/components/results.rs:299
 msgid "The query was cancelled."
-msgstr ""
+msgstr "Die Query wurde abgebrochen."
 
 #: src/ui/components/results.rs:318 src/ui/components/table_browser.rs:687
 msgid "Cell copied."
-msgstr ""
+msgstr "Zelle kopiert."
 
 #: src/ui/components/results.rs:329 src/ui/components/table_browser.rs:698
 msgid "Row copied."
-msgstr ""
+msgstr "Zeile kopiert."
 
 #: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:709
 msgid "Column copied."
-msgstr ""
+msgstr "Spalte kopiert."
 
 #: src/ui/components/results.rs:349
 msgid "Results copied."
-msgstr ""
+msgstr "Ergebnisse kopiert."
 
 #: src/ui/components/results.rs:361 src/ui/components/results.rs:460
 msgid "Query returned no rows."
-msgstr ""
+msgstr "Query hat keine Zeilen zurückgegeben."
 
 #: src/ui/components/results.rs:377
 msgid "row affected"
 msgid_plural "rows affected"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Zeile betroffen"
+msgstr[1] "Zeilen betroffen"
 
 #: src/ui/components/results.rs:379
 msgid "The statement completed successfully."
-msgstr ""
+msgstr "Das Statement wurde erfolgreich abgeschlossen."
 
 #: src/ui/components/results.rs:468
 msgid "row"
 msgid_plural "rows"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Zeile"
+msgstr[1] "Zeilen"
 
 #: src/ui/components/results.rs:641 src/ui/components/table_browser.rs:1061
 msgid "Copy Cell"
-msgstr ""
+msgstr "Zelle kopieren"
 
 #: src/ui/components/results.rs:642 src/ui/components/table_browser.rs:1062
 msgid "Copy Row"
-msgstr ""
+msgstr "Zeile kopieren"
 
 #: src/ui/components/results.rs:643 src/ui/components/table_browser.rs:1063
 msgid "Copy Column"
-msgstr ""
+msgstr "Spalte kopieren"
 
 #: src/ui/components/results.rs:645
 msgid "Copy Displayed Results"
-msgstr ""
+msgstr "Angezeigte Ergebnisse kopieren"
 
 #: src/ui/components/results.rs:648 src/ui/components/table_browser.rs:1068
 msgid "Export CSV..."
-msgstr ""
+msgstr "CSV exportieren..."
 
 #: src/ui/components/table_browser.rs:233 src/ui/components/table_view.rs:114
 msgid "Show or edit filters"
-msgstr ""
+msgstr "Filter anzeigen oder bearbeiten"
 
 #: src/ui/components/table_browser.rs:251 src/ui/components/table_view.rs:137
 msgid "Refresh"
-msgstr ""
+msgstr "Aktualisieren"
 
 #: src/ui/components/table_browser.rs:311
 msgid "First page"
-msgstr ""
+msgstr "Erste Seite"
 
 #: src/ui/components/table_browser.rs:320
 msgid "Previous page"
-msgstr ""
+msgstr "Vorherige Seite"
 
 #: src/ui/components/table_browser.rs:351
 msgid "Next page"
-msgstr ""
+msgstr "Nächste Seite"
 
 #: src/ui/components/table_browser.rs:360
 msgid "Last page"
-msgstr ""
+msgstr "Letzte Seite"
 
 #: src/ui/components/table_browser.rs:370
 msgid "Rows"
-msgstr ""
+msgstr "Zeilen"
 
 #: src/ui/components/table_browser.rs:375
 msgid "Rows per page"
-msgstr ""
+msgstr "Zeilen pro Seite"
 
 #: src/ui/components/table_browser.rs:434
 msgid "Select a table"
-msgstr ""
+msgstr "Table auswählen"
 
 #: src/ui/components/table_browser.rs:436
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr ""
+"Wählen Sie eine Table oder View in der Seitenleiste aus, um die Zeilen zu "
+"durchsuchen."
 
 #: src/ui/components/table_browser.rs:615
 msgid "Loading table failed"
-msgstr ""
+msgstr "Laden der Table fehlgeschlagen"
 
 #: src/ui/components/table_browser.rs:642
 msgid "Loading last page failed"
-msgstr ""
+msgstr "Laden der letzten Seite fehlgeschlagen"
 
 #: src/ui/components/table_browser.rs:673
 msgid "Saving cell failed"
-msgstr ""
+msgstr "Speichern der Zelle fehlgeschlagen"
 
 #: src/ui/components/table_browser.rs:718
 msgid "Page copied."
-msgstr ""
+msgstr "Seite kopiert."
 
 #: src/ui/components/table_browser.rs:889
 msgid "Filter cannot be applied"
-msgstr ""
+msgstr "Filter kann nicht angewendet werden"
 
 #: src/ui/components/table_browser.rs:904
 msgid "Table Browser"
-msgstr ""
+msgstr "Table Browser"
 
 #: src/ui/components/table_browser.rs:914 src/ui/components/table_view.rs:305
 msgid "View"
-msgstr ""
+msgstr "View"
 
 #: src/ui/components/table_browser.rs:922
 #: src/ui/components/table_browser.rs:924 src/ui/components/table_view.rs:120
 msgid "Filters"
-msgstr ""
+msgstr "Filter"
 
 #: src/ui/components/table_browser.rs:938
 msgid "No rows"
-msgstr ""
+msgstr "Keine Zeilen"
 
 #: src/ui/components/table_browser.rs:945
 #, rust-format
 msgid "{first}-{last} rows"
-msgstr ""
+msgstr "Zeilen {first}-{last}"
 
 #: src/ui/components/table_browser.rs:1060
 msgid "Edit Value"
-msgstr ""
+msgstr "Wert bearbeiten"
 
 #: src/ui/components/table_browser.rs:1065
 msgid "Copy Displayed Page"
-msgstr ""
+msgstr "Angezeigte Seite kopieren"
 
 #: src/ui/components/table_browser/cell_editor.rs:32
 #: src/ui/components/table_structure/columns.rs:50
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
 msgid "Value"
-msgstr ""
+msgstr "Wert"
 
 #: src/ui/components/table_browser/cell_editor.rs:49
 msgid ""
 "Use Set NULL to store a database NULL. Empty text is saved as empty text."
 msgstr ""
+"Verwenden Sie Set NULL, um ein Datenbank-NULL zu speichern. Leerer Text wird "
+"als leerer Text gespeichert."
 
 #: src/ui/components/table_browser/cell_editor.rs:51
 msgid "This column is not nullable."
-msgstr ""
+msgstr "Diese Column ist nicht Nullable."
 
 #: src/ui/components/table_browser/cell_editor.rs:94
 msgid "Set NULL"
-msgstr ""
+msgstr "Set NULL"
 
 #: src/ui/components/table_browser/editing.rs:38
 msgid "Cell cannot be edited"
-msgstr ""
+msgstr "Zelle kann nicht bearbeitet werden"
 
 #: src/ui/components/table_browser/editing.rs:134
 msgid "Only tables can be edited."
-msgstr ""
+msgstr "Nur Tables können bearbeitet werden."
 
 #: src/ui/components/table_browser/editing.rs:138
 msgid "The selected cell is no longer available."
-msgstr ""
+msgstr "Die ausgewählte Zelle ist nicht mehr verfügbar."
 
 #: src/ui/components/table_browser/editing.rs:142
 msgid "Primary key columns are read-only for now."
-msgstr ""
+msgstr "Primary-Key-Columns sind vorerst schreibgeschützt."
 
 #: src/ui/components/table_browser/editing.rs:146
 msgid "This column type is not editable yet."
-msgstr ""
+msgstr "Dieser Column-Typ kann noch nicht bearbeitet werden."
 
 #: src/ui/components/table_browser/editing.rs:150
 msgid "Editing requires a primary key."
-msgstr ""
+msgstr "Bearbeiten erfordert einen Primary Key."
 
 #: src/ui/components/table_browser/filters.rs:52
 msgid "Load the table before adding filters."
-msgstr ""
+msgstr "Laden Sie die Table, bevor Sie Filter hinzufügen."
 
 #: src/ui/components/table_browser/filters.rs:57
 msgid "This table has no filterable columns."
-msgstr ""
+msgstr "Diese Table hat keine filterbaren Columns."
 
 #: src/ui/components/table_browser/filters.rs:64
 msgid "No filters applied."
-msgstr ""
+msgstr "Keine Filter angewendet."
 
 #: src/ui/components/table_browser/filters.rs:86
 msgid "Missing custom SQL filter"
-msgstr ""
+msgstr "Custom SQL-Filter fehlt"
 
 #: src/ui/components/table_browser/filters.rs:100
 msgid "Missing value for filter"
-msgstr ""
+msgstr "Wert für Filter fehlt"
 
 #: src/ui/components/table_browser/filters.rs:239
 msgid "Remove filter"
-msgstr ""
+msgstr "Filter entfernen"
 
 #: src/ui/components/table_browser/filters.rs:344
 msgid "SQL expression"
-msgstr ""
+msgstr "SQL Expression"
 
 #: src/ui/components/table_browser/filters.rs:435
 msgid "Add Filter"
-msgstr ""
+msgstr "Filter hinzufügen"
 
 #: src/ui/components/table_browser/filters.rs:601
 msgid "Custom SQL"
-msgstr ""
+msgstr "Custom SQL"
 
 #: src/ui/components/table_browser/loading.rs:33
 msgid "Loading rows"
-msgstr ""
+msgstr "Zeilen werden geladen"
 
 #: src/ui/components/table_browser/loading.rs:34
 msgid "Fetching the selected page from PostgreSQL."
-msgstr ""
+msgstr "Ausgewählte Seite wird von PostgreSQL abgerufen."
 
 #: src/ui/components/table_browser/loading.rs:64
 #: src/ui/components/table_browser/loading.rs:100
 #: src/ui/components/table_structure.rs:258
 msgid "Loading cancelled"
-msgstr ""
+msgstr "Laden abgebrochen"
 
 #: src/ui/components/table_browser/loading.rs:120
 #, rust-format
 msgid ""
 "The table {name} could not be found. It may have been renamed or dropped."
 msgstr ""
+"Die Table {name} konnte nicht gefunden werden. Sie wurde möglicherweise "
+"umbenannt oder gedroppt."
 
 #: src/ui/components/table_browser/loading.rs:124
 #, rust-format
 msgid ""
 "The view {name} could not be found. It may have been renamed or dropped."
 msgstr ""
+"Die View {name} konnte nicht gefunden werden. Sie wurde möglicherweise "
+"umbenannt oder gedroppt."
 
 #: src/ui/components/table_structure.rs:123 src/ui/components/table_view.rs:178
 msgid "Structure"
-msgstr ""
+msgstr "Struktur"
 
 #: src/ui/components/table_structure.rs:124
 msgid "Open a table to inspect its columns."
-msgstr ""
+msgstr "Öffnen Sie eine Table, um ihre Columns zu prüfen."
 
 #: src/ui/components/table_structure.rs:179
 msgid "Loading structure failed"
-msgstr ""
+msgstr "Laden der Struktur fehlgeschlagen"
 
 #: src/ui/components/table_structure.rs:237
 msgid "Loading structure"
-msgstr ""
+msgstr "Struktur wird geladen"
 
 #: src/ui/components/table_structure.rs:238
 msgid "Fetching table structure from PostgreSQL."
-msgstr ""
+msgstr "Table-Struktur wird von PostgreSQL abgerufen."
 
 #: src/ui/components/table_structure/columns.rs:17
 msgid "Columns"
-msgstr ""
+msgstr "Columns"
 
 #: src/ui/components/table_structure/columns.rs:57
 msgid "Nullable"
-msgstr ""
+msgstr "Nullable"
 
 #: src/ui/components/table_structure/columns.rs:60
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 #: src/ui/components/table_structure/columns.rs:62
 msgid "No"
-msgstr ""
+msgstr "Nein"
 
 #: src/ui/components/table_structure/columns.rs:69
 msgid "Default"
-msgstr ""
+msgstr "Default"
 
 #: src/ui/components/table_structure/columns.rs:70
 msgid "Key"
-msgstr ""
+msgstr "Key"
 
 #: src/ui/components/table_structure/columns.rs:146
 msgid "Generated"
-msgstr ""
+msgstr "Generated"
 
 #: src/ui/components/table_structure/columns.rs:154
 #: src/ui/components/table_structure/sections.rs:180
 msgid "Primary"
-msgstr ""
+msgstr "Primary"
 
 #: src/ui/components/table_structure/sections.rs:11
 msgid "Indexes"
-msgstr ""
+msgstr "Indexes"
 
 #: src/ui/components/table_structure/sections.rs:12
 msgid "No indexes"
-msgstr ""
+msgstr "Keine Indexes"
 
 #: src/ui/components/table_structure/sections.rs:22
 msgid "Constraints"
-msgstr ""
+msgstr "Constraints"
 
 #: src/ui/components/table_structure/sections.rs:24
 msgid "No constraints"
-msgstr ""
+msgstr "Keine Constraints"
 
 #: src/ui/components/table_structure/sections.rs:34
 msgid "Foreign Keys"
-msgstr ""
+msgstr "Foreign Keys"
 
 #: src/ui/components/table_structure/sections.rs:37
 msgid "No foreign keys"
-msgstr ""
+msgstr "Keine Foreign Keys"
 
 #: src/ui/components/table_structure/sections.rs:49
 msgid "Triggers"
-msgstr ""
+msgstr "Triggers"
 
 #: src/ui/components/table_structure/sections.rs:50
 msgid "No triggers"
-msgstr ""
+msgstr "Keine Triggers"
 
 #: src/ui/components/table_structure/sections.rs:182
 msgid "Unique"
-msgstr ""
+msgstr "Unique"
 
 #: src/ui/components/table_structure/sections.rs:186
 msgid "Invalid"
-msgstr ""
+msgstr "Ungültig"
 
 #: src/ui/components/table_structure/sections.rs:190
 msgid "Partial"
-msgstr ""
+msgstr "Partial"
 
 #: src/ui/components/table_structure/sections.rs:200
 msgid "Not validated"
-msgstr ""
+msgstr "Nicht validiert"
 
 #: src/ui/components/table_structure/sections.rs:213
 msgid "Deferred"
-msgstr ""
+msgstr "Deferred"
 
 #: src/ui/components/table_structure/sections.rs:214
 msgid "Deferrable"
-msgstr ""
+msgstr "Deferrable"
 
 #: src/ui/components/table_view.rs:174
 msgid "Content"
-msgstr ""
+msgstr "Inhalt"
 
 #: data/io.github.anil_e.Codd.desktop.in:10
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
-msgstr ""
+msgstr "PostgreSQL;SQL;Database;Query;GNOME;Datenbank;"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:10
 msgid ""
 "Codd is a lightweight PostgreSQL query app for GNOME built with Rust, GTK4, "
 "and libadwaita."
 msgstr ""
+"Codd ist eine leichtgewichtige PostgreSQL-Query-App für GNOME, gebaut mit "
+"Rust, GTK4 und libadwaita."
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:14
 msgid ""
 "It focuses on saved connections, database browsing, SQL execution, and "
 "native result previews without trying to become a multi-database suite."
 msgstr ""
+"Der Fokus liegt auf gespeicherten Verbindungen, Database Browsing, SQL-"
+"Ausführung und nativen Ergebnisvorschauen, ohne eine Multi-Database-Suite "
+"werden zu wollen."
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:24
 msgid "Anil Erdogan"
-msgstr ""
+msgstr "Anil Erdogan"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:36
 msgid "Run SQL queries with syntax highlighting and result previews"
-msgstr ""
+msgstr "SQL Queries mit Syntaxhervorhebung und Ergebnisvorschauen ausführen"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:40
 msgid "Browse PostgreSQL table data with pagination and filters"
-msgstr ""
+msgstr "PostgreSQL-Table-Daten mit Pagination und Filtern durchsuchen"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:44
 msgid ""
 "Inspect table columns, data types, nullability, defaults and primary keys"
 msgstr ""
+"Table-Columns, Datentypen, Nullable-Status, Defaults und Primary Keys prüfen"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:48
 msgid ""
 "Review indexes, constraints, foreign keys and triggers in the structure view"
 msgstr ""
+"Indexes, Constraints, Foreign Keys und Triggers in der Strukturansicht prüfen"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:52
 msgid "Use table actions like rename, truncate and delete"
-msgstr ""
+msgstr "Table-Aktionen wie Umbenennen, Leeren und Löschen verwenden"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:56
 msgid "Manage saved PostgreSQL connections"
-msgstr ""
+msgstr "Gespeicherte PostgreSQL-Verbindungen verwalten"
 
 #: data/ui/shortcuts-dialog.ui:6
 msgctxt "shortcut window"
 msgid "General"
-msgstr ""
+msgstr "Allgemein"
 
 #: data/ui/shortcuts-dialog.ui:9
 msgctxt "shortcut window"
 msgid "Keyboard Shortcuts"
-msgstr ""
+msgstr "Tastenkürzel"
 
 #: data/ui/shortcuts-dialog.ui:15
 msgctxt "shortcut window"
 msgid "New Window"
-msgstr ""
+msgstr "Neues Fenster"
 
 #: data/ui/shortcuts-dialog.ui:21
 msgctxt "shortcut window"
 msgid "Quit"
-msgstr ""
+msgstr "Beenden"
 
 #: data/ui/shortcuts-dialog.ui:29
 msgctxt "shortcut window"
 msgid "Navigation"
-msgstr ""
+msgstr "Navigation"
 
 #: data/ui/shortcuts-dialog.ui:32
 msgctxt "shortcut window"
 msgid "Search Database Objects"
-msgstr ""
+msgstr "Datenbankobjekte suchen"
 
 #: data/ui/shortcuts-dialog.ui:40
 msgctxt "shortcut window"
 msgid "Table Browser"
-msgstr ""
+msgstr "Table Browser"
 
 #: data/ui/shortcuts-dialog.ui:43
 msgctxt "shortcut window"
 msgid "Refresh Table or View"
-msgstr ""
+msgstr "Table oder View aktualisieren"
 
 #: data/ui/shortcuts-dialog.ui:51
 msgctxt "shortcut window"
 msgid "Tabs"
-msgstr ""
+msgstr "Tabs"
 
 #: data/ui/shortcuts-dialog.ui:54
 msgctxt "shortcut window"
 msgid "New Query Tab"
-msgstr ""
+msgstr "Neuer Query-Tab"
 
 #: data/ui/shortcuts-dialog.ui:60
 msgctxt "shortcut window"
 msgid "Close Current Tab"
-msgstr ""
+msgstr "Aktuellen Tab schließen"
 
 #: data/ui/shortcuts-dialog.ui:68
 msgctxt "shortcut window"
 msgid "Query"
-msgstr ""
+msgstr "Query"
 
 #: data/ui/shortcuts-dialog.ui:71
 msgctxt "shortcut window"
 msgid "Execute"
-msgstr ""
+msgstr "Ausführen"
 
 #: data/ui/shortcuts-dialog.ui:77
 msgctxt "shortcut window"
 msgid "Cancel Running Query"
-msgstr ""
+msgstr "Laufende Query abbrechen"
 
 #: data/ui/shortcuts-dialog.ui:83
 msgctxt "shortcut window"
 msgid "Focus SQL Editor"
-msgstr ""
+msgstr "SQL-Editor fokussieren"

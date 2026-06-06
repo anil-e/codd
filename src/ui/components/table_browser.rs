@@ -1,5 +1,5 @@
 use futures_util::future::AbortHandle;
-use gettextrs::{gettext, ngettext};
+use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk;
@@ -940,9 +940,10 @@ impl TableBrowser {
 
         let first = page.offset + 1;
         let last = page.offset + u32::try_from(page.rows.len()).unwrap_or(u32::MAX);
-        let row_count = u32::try_from(page.rows.len()).unwrap_or(u32::MAX);
 
-        format!("{first}-{last} {}", ngettext("row", "rows", row_count))
+        gettext("{first}-{last} rows")
+            .replace("{first}", &first.to_string())
+            .replace("{last}", &last.to_string())
     }
 
     fn selected_page_size_index(&self) -> u32 {
