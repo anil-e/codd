@@ -5,6 +5,7 @@ pub mod query_history;
 pub mod query_result;
 pub mod result_copy;
 pub mod session;
+pub mod structure_action;
 pub mod table_browser;
 pub mod table_script;
 pub mod table_structure;

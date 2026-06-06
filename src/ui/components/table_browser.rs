@@ -102,6 +102,7 @@ pub enum TableBrowserMsg {
     },
     ObjectRenamed(DatabaseObject),
     Refresh,
+    SchemaChanged,
     SetHeaderVisible(bool),
     FirstPage,
     PreviousPage,
@@ -507,6 +508,19 @@ impl Component for TableBrowser {
 
             TableBrowserMsg::Refresh => {
                 self.close_copy_menu();
+                self.load_page(widgets, &sender);
+            }
+
+            TableBrowserMsg::SchemaChanged => {
+                self.close_copy_menu();
+                close_popover(&mut self.edit_popover);
+                self.offset = 0;
+                self.available_columns.clear();
+                self.draft_filters.clear();
+                self.active_filters.clear();
+                self.sort = None;
+                self.filters_expanded = false;
+                sync_sort_indicator(&self.table_view, self.sort.as_ref());
                 self.load_page(widgets, &sender);
             }
 

@@ -24,6 +24,7 @@ use crate::models::database_object::DatabaseObject;
 use crate::models::query_history::QueryHistoryEntry;
 use crate::models::query_result::QueryExecutionResult;
 use crate::models::session::SavedSession;
+use crate::models::structure_action::StructureActionTarget;
 use crate::models::table_script::TableScriptKind;
 use crate::settings;
 use crate::state::{app_state::AppState, connection_store, credential_store, session_store};
@@ -43,10 +44,12 @@ use crate::ui::components::{
 mod database_switching;
 mod object_actions;
 mod query_execution;
+mod structure_actions;
 mod tabs;
 
 use object_actions::ObjectActionRequest;
 use query_execution::{QueryExecutionContext, QueryState, RunningQuery};
+use structure_actions::{StructureActionError, StructureActionRequest, StructureActionScope};
 use tabs::{browse_tab_id_from_widget, query_tab_id_from_widget, setup_tab_context_menu};
 
 static WINDOW_CONTENT_SUBSCRIBERS: Mutex<Option<HashMap<u64, Sender<WindowContentMsg>>>> =
@@ -97,6 +100,8 @@ struct QueryTab {
 struct BrowseTab {
     id: u64,
     page: adw::TabPage,
+    scope: StructureActionScope,
+    pool: PgPool,
     object: DatabaseObject,
     stack: gtk::Stack,
     view: Option<Controller<TableView>>,
@@ -146,6 +151,8 @@ pub enum WindowContentMsg {
     SidebarOutput(ObjectSidebarOutput),
     ObjectActionConfirmed(ObjectActionRequest),
     ObjectActionCompleted(ObjectActionRequest, Result<(), String>),
+    StructureActionConfirmed(StructureActionRequest),
+    StructureActionCompleted(StructureActionRequest, Result<(), StructureActionError>),
     TableScriptGenerated {
         generation: u64,
         kind: TableScriptKind,
@@ -186,6 +193,11 @@ pub enum WindowContentEvent {
         connection_id: String,
         database: String,
     },
+    StructureChanged {
+        connection_id: String,
+        database: String,
+        target: StructureActionTarget,
+    },
 }
 
 #[derive(Debug)]
@@ -215,6 +227,7 @@ pub enum WindowContentCommandOutput {
     },
     QueryCsvExported(Result<(), String>),
     ObjectActionFinished(ObjectActionRequest, Result<(), String>),
+    StructureActionFinished(StructureActionRequest, Result<(), StructureActionError>),
     TableScriptGenerated {
         generation: u64,
         kind: TableScriptKind,
@@ -573,6 +586,53 @@ impl Component for WindowContent {
             }
             WindowContentMsg::BrowseTabOutput {
                 tab_id,
+                output: TableViewOutput::StructureCopied { text, message },
+            } => {
+                if self.browse_tabs.iter().any(|tab| tab.id == tab_id) {
+                    copy_text_to_clipboard(&text);
+                    widgets.toast_overlay.add_toast(adw::Toast::new(&message));
+                }
+            }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
+                output: TableViewOutput::StructureRenameRequested { pool, target },
+            } => {
+                if let Some(scope) = self
+                    .browse_tabs
+                    .iter()
+                    .find(|tab| tab.id == tab_id)
+                    .map(|tab| tab.scope.clone())
+                {
+                    structure_actions::show_rename_structure_item_dialog(
+                        &widgets.toast_overlay,
+                        &sender,
+                        scope,
+                        pool,
+                        target,
+                    );
+                }
+            }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
+                output: TableViewOutput::StructureDropRequested { pool, target },
+            } => {
+                if let Some(scope) = self
+                    .browse_tabs
+                    .iter()
+                    .find(|tab| tab.id == tab_id)
+                    .map(|tab| tab.scope.clone())
+                {
+                    structure_actions::show_drop_structure_item_dialog(
+                        &widgets.toast_overlay,
+                        &sender,
+                        scope,
+                        pool,
+                        target,
+                    );
+                }
+            }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
                 output: TableViewOutput::Exported(message),
             } => {
                 if self.browse_tabs.iter().any(|tab| tab.id == tab_id) {
@@ -647,6 +707,12 @@ impl Component for WindowContent {
             WindowContentMsg::ObjectActionCompleted(request, result) => {
                 self.handle_object_action_completed(request, result, widgets, &sender);
             }
+            WindowContentMsg::StructureActionConfirmed(request) => {
+                self.run_structure_action(request, widgets, &sender);
+            }
+            WindowContentMsg::StructureActionCompleted(request, result) => {
+                self.handle_structure_action_completed(request, result, widgets, &sender);
+            }
             WindowContentMsg::TableScriptGenerated {
                 generation,
                 kind,
@@ -716,6 +782,9 @@ impl Component for WindowContent {
             },
             WindowContentCommandOutput::ObjectActionFinished(request, result) => {
                 sender.input(WindowContentMsg::ObjectActionCompleted(request, result));
+            }
+            WindowContentCommandOutput::StructureActionFinished(request, result) => {
+                sender.input(WindowContentMsg::StructureActionCompleted(request, result));
             }
             WindowContentCommandOutput::TableScriptGenerated {
                 generation,
@@ -889,6 +958,16 @@ impl WindowContent {
                     self.reload_schema(sender);
                 }
             }
+            WindowContentEvent::StructureChanged {
+                connection_id,
+                database,
+                target,
+            } => {
+                if self.matches_active_database(&connection_id, &database) {
+                    self.reload_schema(sender);
+                    self.reload_browse_tab_after_structure_change(&target);
+                }
+            }
         }
     }
 
@@ -971,6 +1050,21 @@ impl WindowContent {
             WindowContentEvent::Schema {
                 connection_id,
                 database,
+            },
+            Some(self.sync_subscription_id),
+        );
+    }
+
+    pub(super) fn broadcast_structure_changed(
+        &self,
+        scope: StructureActionScope,
+        target: StructureActionTarget,
+    ) {
+        broadcast_window_content_event(
+            WindowContentEvent::StructureChanged {
+                connection_id: scope.connection_id,
+                database: scope.database,
+                target,
             },
             Some(self.sync_subscription_id),
         );

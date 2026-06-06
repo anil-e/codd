@@ -3,16 +3,18 @@ use libadwaita::prelude::*;
 use relm4::gtk;
 use relm4::gtk::{gio, glib};
 
+use crate::models::structure_action::{StructureActionKind, StructureActionTarget};
 use crate::models::table_browser::ColumnTypeGroup;
 use crate::models::table_structure::{TableStructure, TableStructureColumn};
 use crate::ui::components::cell_style;
 
-use super::sections::section_box;
+use super::{StructureContextMenu, sections::section_box};
 
 pub(super) fn append_columns_section(
     container: &gtk::Box,
     structure: &TableStructure,
     is_dark: bool,
+    context: StructureContextMenu,
 ) {
     let section = section_box(&gettext("Columns"), structure.columns.len());
 
@@ -29,7 +31,7 @@ pub(super) fn append_columns_section(
     columns_view.set_show_column_separators(true);
     columns_view.add_css_class("data-table");
 
-    for column in structure_columns(is_dark) {
+    for column in structure_columns(structure, is_dark, context) {
         columns_view.append_column(&column);
     }
 
@@ -37,23 +39,32 @@ pub(super) fn append_columns_section(
     container.append(&section);
 }
 
-fn structure_columns(is_dark: bool) -> [gtk::ColumnViewColumn; 5] {
+fn structure_columns(
+    structure: &TableStructure,
+    is_dark: bool,
+    context: StructureContextMenu,
+) -> [gtk::ColumnViewColumn; 5] {
     [
         text_column(
+            structure,
             &gettext("Name"),
             |column| column.name.clone(),
             true,
             false,
             is_dark,
+            context.clone(),
         ),
         text_column(
+            structure,
             &gettext("Type"),
             |column| column.data_type.clone(),
             true,
             true,
             is_dark,
+            context.clone(),
         ),
         text_column(
+            structure,
             &gettext("Nullable"),
             |column| {
                 if column.is_nullable {
@@ -65,25 +76,48 @@ fn structure_columns(is_dark: bool) -> [gtk::ColumnViewColumn; 5] {
             false,
             false,
             is_dark,
+            context.clone(),
         ),
-        text_column(&gettext("Default"), default_label, true, false, is_dark),
-        text_column(&gettext("Key"), key_label, false, false, is_dark),
+        text_column(
+            structure,
+            &gettext("Default"),
+            default_label,
+            true,
+            false,
+            is_dark,
+            context.clone(),
+        ),
+        text_column(
+            structure,
+            &gettext("Key"),
+            key_label,
+            false,
+            false,
+            is_dark,
+            context,
+        ),
     ]
 }
 
 fn text_column(
+    structure: &TableStructure,
     title: &str,
     value: fn(&TableStructureColumn) -> String,
     expand: bool,
     style_type: bool,
     is_dark: bool,
+    context: StructureContextMenu,
 ) -> gtk::ColumnViewColumn {
     let factory = gtk::SignalListItemFactory::new();
+    let table = structure.object.clone();
 
-    factory.connect_setup(|_, list_item| {
+    factory.connect_setup(move |_, list_item| {
         let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
             return;
         };
+        let list_item = list_item.clone();
+        let table = table.clone();
+        let context = context.clone();
 
         let label = gtk::Label::builder()
             .xalign(0.0)
@@ -97,6 +131,35 @@ fn text_column(
             .margin_end(8)
             .build();
         label.add_css_class("query-cell");
+        label.add_controller({
+            let gesture = gtk::GestureClick::new();
+            let label = label.clone();
+            let list_item = list_item.clone();
+
+            gesture.set_button(gtk::gdk::BUTTON_SECONDARY);
+            gesture.set_propagation_phase(gtk::PropagationPhase::Capture);
+            gesture.connect_pressed(move |gesture, _, x, y| {
+                gesture.set_state(gtk::EventSequenceState::Claimed);
+
+                if let Some(item) = list_item.item()
+                    && let Ok(row) = item.downcast::<glib::BoxedAnyObject>()
+                {
+                    let row = row.borrow::<TableStructureColumn>();
+                    let target = StructureActionTarget::new(
+                        table.clone(),
+                        StructureActionKind::Column,
+                        row.name.clone(),
+                        true,
+                    );
+                    context.rename_action.set_enabled(target.editable);
+                    context.drop_action.set_enabled(target.editable);
+                    *context.target.borrow_mut() = Some(target);
+                    super::show_context_menu(&label, &context.popover, x, y);
+                }
+            });
+
+            gesture
+        });
 
         list_item.set_child(Some(&label));
     });

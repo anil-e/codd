@@ -30,6 +30,7 @@ pub enum TableColumnIdentity {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TableIndex {
+    pub schema: String,
     pub name: String,
     pub method: String,
     pub definition: String,
@@ -37,6 +38,7 @@ pub struct TableIndex {
     pub is_unique: bool,
     pub is_primary: bool,
     pub is_valid: bool,
+    pub is_constraint_backed: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

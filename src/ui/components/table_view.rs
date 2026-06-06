@@ -5,9 +5,10 @@ use relm4::prelude::*;
 use sqlx::PgPool;
 
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
+use crate::models::structure_action::StructureActionTarget;
 use crate::ui::components::{
     table_browser::{TableBrowser, TableBrowserMsg, TableBrowserOutput},
-    table_structure::{TableStructureMsg, TableStructureView},
+    table_structure::{TableStructureMsg, TableStructureOutput, TableStructureView},
 };
 
 pub struct TableView {
@@ -27,17 +28,34 @@ pub enum TableViewMsg {
     },
     ObjectRenamed(DatabaseObject),
     Refresh,
+    ReloadContent,
+    StructureChanged {
+        reset_browser_state: bool,
+    },
     ExportCsv,
     ShowContent,
     ShowStructure,
     ToggleFilters,
     BrowserOutput(TableBrowserOutput),
+    StructureOutput(TableStructureOutput),
 }
 
 #[derive(Debug)]
 pub enum TableViewOutput {
     Copied(String),
     Exported(String),
+    StructureCopied {
+        text: String,
+        message: String,
+    },
+    StructureRenameRequested {
+        pool: PgPool,
+        target: StructureActionTarget,
+    },
+    StructureDropRequested {
+        pool: PgPool,
+        target: StructureActionTarget,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -157,7 +175,9 @@ impl Component for TableView {
             .launch(())
             .forward(sender.input_sender(), TableViewMsg::BrowserOutput);
         browser.emit(TableBrowserMsg::SetHeaderVisible(false));
-        let structure = TableStructureView::builder().launch(()).detach();
+        let structure = TableStructureView::builder()
+            .launch(())
+            .forward(sender.input_sender(), TableViewMsg::StructureOutput);
 
         let model = TableView {
             pool: None,
@@ -226,6 +246,24 @@ impl Component for TableView {
                 TableViewMode::Structure => self.structure.emit(TableStructureMsg::Refresh),
             },
 
+            TableViewMsg::ReloadContent => {
+                self.browser.emit(TableBrowserMsg::Refresh);
+            }
+
+            TableViewMsg::StructureChanged {
+                reset_browser_state,
+            } => {
+                if reset_browser_state {
+                    self.browser.emit(TableBrowserMsg::SchemaChanged);
+                } else {
+                    self.browser.emit(TableBrowserMsg::Refresh);
+                }
+
+                if self.structure_loaded && self.can_show_structure() {
+                    self.structure.emit(TableStructureMsg::Refresh);
+                }
+            }
+
             TableViewMsg::ExportCsv => {
                 if self.mode == TableViewMode::Content {
                     self.browser.emit(TableBrowserMsg::ExportCsvRequested);
@@ -259,6 +297,26 @@ impl Component for TableView {
 
             TableViewMsg::BrowserOutput(TableBrowserOutput::Exported(message)) => {
                 let _ = sender.output(TableViewOutput::Exported(message));
+                return;
+            }
+
+            TableViewMsg::StructureOutput(TableStructureOutput::Copied { text, message }) => {
+                let _ = sender.output(TableViewOutput::StructureCopied { text, message });
+                return;
+            }
+
+            TableViewMsg::StructureOutput(TableStructureOutput::RenameRequested(target)) => {
+                if let Some(pool) = self.pool.clone() {
+                    let _ =
+                        sender.output(TableViewOutput::StructureRenameRequested { pool, target });
+                }
+                return;
+            }
+
+            TableViewMsg::StructureOutput(TableStructureOutput::DropRequested(target)) => {
+                if let Some(pool) = self.pool.clone() {
+                    let _ = sender.output(TableViewOutput::StructureDropRequested { pool, target });
+                }
                 return;
             }
         }

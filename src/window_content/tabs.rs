@@ -15,6 +15,7 @@ use crate::models::query_result::{
 use crate::models::session::{
     SavedSession, SavedSessionObject, SavedSessionTab, SavedSessionTabId,
 };
+use crate::models::structure_action::{StructureActionKind, StructureActionTarget};
 use crate::ui::components::{
     editor::{SqlEditor, SqlEditorMsg},
     results::QueryResults,
@@ -23,8 +24,8 @@ use crate::ui::components::{
 };
 
 use super::{
-    BrowseTab, QueryResultsMsg, QueryState, QueryTab, WindowContent, WindowContentMsg,
-    WindowContentWidgets, WorkspaceNavigation, workspace_split_view,
+    BrowseTab, QueryResultsMsg, QueryState, QueryTab, StructureActionScope, WindowContent,
+    WindowContentMsg, WindowContentWidgets, WorkspaceNavigation, workspace_split_view,
 };
 
 pub(super) fn selected_query_tab_id(widgets: &WindowContentWidgets) -> Option<u64> {
@@ -663,6 +664,17 @@ impl WindowContent {
         load: bool,
         sender: &ComponentSender<Self>,
     ) {
+        let Some(pool) = self.active_pool.clone() else {
+            return;
+        };
+        let Some((connection_id, database)) = self.active_database_scope() else {
+            return;
+        };
+        let scope = StructureActionScope {
+            connection_id,
+            database,
+        };
+
         self.next_browse_tab_id = self.next_browse_tab_id.max(id.wrapping_add(1));
         let stack = gtk::Stack::new();
         stack.set_widget_name(&format!("browse-tab-{id}"));
@@ -688,6 +700,8 @@ impl WindowContent {
         self.browse_tabs.push(BrowseTab {
             id,
             page,
+            scope,
+            pool,
             object: object.clone(),
             stack,
             view: None,
@@ -710,10 +724,6 @@ impl WindowContent {
         tab_id: u64,
         sender: &ComponentSender<Self>,
     ) {
-        let Some(pool) = self.active_pool.clone() else {
-            return;
-        };
-
         let Some(tab) = self.browse_tabs.iter_mut().find(|tab| tab.id == tab_id) else {
             return;
         };
@@ -730,7 +740,7 @@ impl WindowContent {
         tab.stack.add_named(view.widget(), Some("content"));
         tab.stack.set_visible_child_name("content");
         view.emit(TableViewMsg::Open {
-            pool,
+            pool: tab.pool.clone(),
             object: tab.object.clone(),
         });
         tab.view = Some(view);
@@ -776,7 +786,19 @@ impl WindowContent {
             if tab.object == *object
                 && let Some(view) = &tab.view
             {
-                view.emit(TableViewMsg::Refresh);
+                view.emit(TableViewMsg::ReloadContent);
+            }
+        }
+    }
+
+    pub(super) fn reload_browse_tab_after_structure_change(&self, target: &StructureActionTarget) {
+        for tab in &self.browse_tabs {
+            if tab.object == target.table
+                && let Some(view) = &tab.view
+            {
+                view.emit(TableViewMsg::StructureChanged {
+                    reset_browser_state: target.kind == StructureActionKind::Column,
+                });
             }
         }
     }

@@ -6,12 +6,15 @@ use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk;
-use relm4::gtk::glib;
+use relm4::gtk::{gio, glib};
 use relm4::prelude::*;
 use sqlx::PgPool;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use crate::db;
 use crate::models::database_object::DatabaseObject;
+use crate::models::structure_action::{StructureActionKind, StructureActionTarget};
 use crate::models::table_structure::TableStructure;
 
 use columns::append_columns_section;
@@ -32,6 +35,10 @@ pub struct TableStructureView {
     active_request_id: Option<u64>,
     active_abort_handle: Option<AbortHandle>,
     structure_box: gtk::Box,
+    context_target: Rc<RefCell<Option<StructureActionTarget>>>,
+    context_popover: gtk::PopoverMenu,
+    rename_action: gio::SimpleAction,
+    drop_action: gio::SimpleAction,
     style_manager: adw::StyleManager,
     dark_notify_handler: Option<glib::SignalHandlerId>,
 }
@@ -48,6 +55,16 @@ pub enum TableStructureMsg {
         result: Result<TableStructure, String>,
     },
     AppearanceChanged,
+    CopyNameRequested,
+    RenameRequested,
+    DropRequested,
+}
+
+#[derive(Debug)]
+pub enum TableStructureOutput {
+    Copied { text: String, message: String },
+    RenameRequested(StructureActionTarget),
+    DropRequested(StructureActionTarget),
 }
 
 #[derive(Debug)]
@@ -62,7 +79,7 @@ pub enum TableStructureCommandOutput {
 impl Component for TableStructureView {
     type Init = ();
     type Input = TableStructureMsg;
-    type Output = ();
+    type Output = TableStructureOutput;
     type CommandOutput = TableStructureCommandOutput;
 
     view! {
@@ -114,6 +131,12 @@ impl Component for TableStructureView {
             })
         };
 
+        let context_target = Rc::new(RefCell::new(None));
+        let rename_action = gio::SimpleAction::new("rename", None);
+        let drop_action = gio::SimpleAction::new("drop", None);
+        let context_popover = gtk::PopoverMenu::from_model(Some(&structure_context_menu()));
+        context_popover.set_has_arrow(false);
+
         let model = TableStructureView {
             pool: None,
             object: None,
@@ -126,11 +149,19 @@ impl Component for TableStructureView {
             active_request_id: None,
             active_abort_handle: None,
             structure_box,
+            context_target: context_target.clone(),
+            context_popover,
+            rename_action,
+            drop_action,
             style_manager,
             dark_notify_handler: Some(dark_notify_handler),
         };
 
         let widgets = view_output!();
+        model.context_popover.set_parent(&widgets.stack);
+        widgets
+            .stack
+            .insert_action_group("structure", Some(&context_action_group(&model, &sender)));
         widgets
             .structure_scroller
             .set_child(Some(&model.structure_box));
@@ -189,6 +220,34 @@ impl Component for TableStructureView {
             TableStructureMsg::AppearanceChanged => {
                 self.render_structure();
             }
+
+            TableStructureMsg::CopyNameRequested => {
+                if let Some(target) = self.context_target.borrow().clone() {
+                    let _ = sender.output(TableStructureOutput::Copied {
+                        text: target.name.clone(),
+                        message: copied_message(target.kind),
+                    });
+                }
+                self.close_context_menu();
+            }
+
+            TableStructureMsg::RenameRequested => {
+                if let Some(target) = self.context_target.borrow().clone()
+                    && target.editable
+                {
+                    let _ = sender.output(TableStructureOutput::RenameRequested(target));
+                }
+                self.close_context_menu();
+            }
+
+            TableStructureMsg::DropRequested => {
+                if let Some(target) = self.context_target.borrow().clone()
+                    && target.editable
+                {
+                    let _ = sender.output(TableStructureOutput::DropRequested(target));
+                }
+                self.close_context_menu();
+            }
         }
 
         self.update_view(widgets, sender);
@@ -214,6 +273,10 @@ impl Component for TableStructureView {
 
         if let Some(handler) = self.dark_notify_handler.take() {
             self.style_manager.disconnect(handler);
+        }
+
+        if self.context_popover.parent().is_some() {
+            self.context_popover.unparent();
         }
     }
 }
@@ -266,12 +329,29 @@ impl TableStructureView {
         clear_box(&self.structure_box);
 
         if let Some(structure) = &self.structure {
-            append_columns_section(&self.structure_box, structure, self.style_manager.is_dark());
-            append_indexes_section(&self.structure_box, structure);
-            append_constraints_section(&self.structure_box, structure);
-            append_foreign_keys_section(&self.structure_box, structure);
-            append_triggers_section(&self.structure_box, structure);
+            let context = StructureContextMenu {
+                popover: self.context_popover.clone(),
+                target: self.context_target.clone(),
+                rename_action: self.rename_action.clone(),
+                drop_action: self.drop_action.clone(),
+            };
+
+            append_columns_section(
+                &self.structure_box,
+                structure,
+                self.style_manager.is_dark(),
+                context.clone(),
+            );
+            append_indexes_section(&self.structure_box, structure, context.clone());
+            append_constraints_section(&self.structure_box, structure, context.clone());
+            append_foreign_keys_section(&self.structure_box, structure, context.clone());
+            append_triggers_section(&self.structure_box, structure, context);
         }
+    }
+
+    fn close_context_menu(&self) {
+        self.context_popover.popdown();
+        *self.context_target.borrow_mut() = None;
     }
 
     fn status_icon_name(&self) -> &'static str {
@@ -283,6 +363,100 @@ impl TableStructureView {
             "table-symbolic"
         }
     }
+}
+
+#[derive(Clone)]
+pub(super) struct StructureContextMenu {
+    popover: gtk::PopoverMenu,
+    target: Rc<RefCell<Option<StructureActionTarget>>>,
+    rename_action: gio::SimpleAction,
+    drop_action: gio::SimpleAction,
+}
+
+impl StructureContextMenu {
+    pub(super) fn attach<W>(&self, widget: &W, target: StructureActionTarget)
+    where
+        W: IsA<gtk::Widget> + Clone + 'static,
+    {
+        let context_click = gtk::GestureClick::new();
+        context_click.set_button(gtk::gdk::BUTTON_SECONDARY);
+        context_click.set_propagation_phase(gtk::PropagationPhase::Capture);
+
+        let anchor = widget.clone();
+        let context = self.clone();
+        context_click.connect_pressed(move |gesture, _, x, y| {
+            gesture.set_state(gtk::EventSequenceState::Claimed);
+
+            context.rename_action.set_enabled(target.editable);
+            context.drop_action.set_enabled(target.editable);
+            *context.target.borrow_mut() = Some(target.clone());
+            show_context_menu(&anchor, &context.popover, x, y);
+        });
+
+        widget.add_controller(context_click);
+    }
+}
+
+fn structure_context_menu() -> gio::Menu {
+    let menu = gio::Menu::new();
+    menu.append(Some(&gettext("Copy Name")), Some("structure.copy-name"));
+    menu.append(Some(&gettext("Rename...")), Some("structure.rename"));
+    menu.append(Some(&gettext("Drop...")), Some("structure.drop"));
+    menu
+}
+
+fn copied_message(kind: StructureActionKind) -> String {
+    match kind {
+        StructureActionKind::Column => gettext("Column name copied."),
+        StructureActionKind::Index => gettext("Index name copied."),
+        StructureActionKind::Constraint => gettext("Constraint name copied."),
+        StructureActionKind::ForeignKey => gettext("Foreign key name copied."),
+        StructureActionKind::Trigger => gettext("Trigger name copied."),
+    }
+}
+
+fn context_action_group(
+    model: &TableStructureView,
+    sender: &ComponentSender<TableStructureView>,
+) -> gio::SimpleActionGroup {
+    let action_group = gio::SimpleActionGroup::new();
+
+    for name in ["copy-name", "rename", "drop"] {
+        let action = match name {
+            "rename" => model.rename_action.clone(),
+            "drop" => model.drop_action.clone(),
+            _ => gio::SimpleAction::new(name, None),
+        };
+        let sender = sender.clone();
+
+        action.connect_activate(move |_, _| {
+            sender.input(match name {
+                "copy-name" => TableStructureMsg::CopyNameRequested,
+                "rename" => TableStructureMsg::RenameRequested,
+                "drop" => TableStructureMsg::DropRequested,
+                _ => unreachable!(),
+            });
+        });
+
+        action_group.add_action(&action);
+    }
+
+    action_group
+}
+
+fn show_context_menu<W>(anchor: &W, popover: &gtk::PopoverMenu, x: f64, y: f64)
+where
+    W: IsA<gtk::Widget>,
+{
+    if let Some(parent) = popover.parent()
+        && let Some(point) =
+            anchor.compute_point(&parent, &gtk::graphene::Point::new(x as f32, y as f32))
+    {
+        let rect = gtk::gdk::Rectangle::new(point.x() as i32, point.y() as i32, 1, 1);
+        popover.set_pointing_to(Some(&rect));
+    }
+
+    popover.popup();
 }
 
 fn set_stack_child(widgets: &TableStructureViewWidgets, has_structure: bool) {

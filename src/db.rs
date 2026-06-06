@@ -4,4 +4,5 @@ pub mod postgres;
 pub mod query;
 pub mod schema;
 pub mod structure;
+pub mod structure_actions;
 pub mod table_scripts;

@@ -6,31 +6,69 @@ use relm4::gtk::{self, glib};
 use crate::models::table_structure::{
     TableConstraint, TableForeignKey, TableIndex, TableStructure, TableTrigger,
 };
+use crate::models::{
+    database_object::DatabaseObject,
+    structure_action::{StructureActionKind, StructureActionTarget},
+};
 
-pub(super) fn append_indexes_section(container: &gtk::Box, structure: &TableStructure) {
+use super::StructureContextMenu;
+
+pub(super) fn append_indexes_section(
+    container: &gtk::Box,
+    structure: &TableStructure,
+    context: StructureContextMenu,
+) {
     let section = section_box(&gettext("Indexes"), structure.indexes.len());
     let list = list_box(&gettext("No indexes"), structure.indexes.is_empty());
     for index in &structure.indexes {
-        list.append(&index_row(index));
+        let row = index_row(index);
+        let mut table = structure.object.clone();
+        table.schema.clone_from(&index.schema);
+        context.attach(
+            &row,
+            StructureActionTarget::new(
+                table,
+                StructureActionKind::Index,
+                index.name.clone(),
+                !index.is_constraint_backed,
+            ),
+        );
+        list.append(&row);
     }
 
     section.append(&list);
     container.append(&section);
 }
 
-pub(super) fn append_constraints_section(container: &gtk::Box, structure: &TableStructure) {
+pub(super) fn append_constraints_section(
+    container: &gtk::Box,
+    structure: &TableStructure,
+    context: StructureContextMenu,
+) {
     let section = section_box(&gettext("Constraints"), structure.constraints.len());
 
     let list = list_box(&gettext("No constraints"), structure.constraints.is_empty());
     for constraint in &structure.constraints {
-        list.append(&constraint_row(constraint));
+        let row = constraint_row(constraint);
+        attach_table_target(
+            &context,
+            &row,
+            &structure.object,
+            StructureActionKind::Constraint,
+            &constraint.name,
+        );
+        list.append(&row);
     }
 
     section.append(&list);
     container.append(&section);
 }
 
-pub(super) fn append_foreign_keys_section(container: &gtk::Box, structure: &TableStructure) {
+pub(super) fn append_foreign_keys_section(
+    container: &gtk::Box,
+    structure: &TableStructure,
+    context: StructureContextMenu,
+) {
     let section = section_box(&gettext("Foreign Keys"), structure.foreign_keys.len());
 
     let list = list_box(
@@ -38,18 +76,38 @@ pub(super) fn append_foreign_keys_section(container: &gtk::Box, structure: &Tabl
         structure.foreign_keys.is_empty(),
     );
     for foreign_key in &structure.foreign_keys {
-        list.append(&foreign_key_row(foreign_key));
+        let row = foreign_key_row(foreign_key);
+        attach_table_target(
+            &context,
+            &row,
+            &structure.object,
+            StructureActionKind::ForeignKey,
+            &foreign_key.name,
+        );
+        list.append(&row);
     }
 
     section.append(&list);
     container.append(&section);
 }
 
-pub(super) fn append_triggers_section(container: &gtk::Box, structure: &TableStructure) {
+pub(super) fn append_triggers_section(
+    container: &gtk::Box,
+    structure: &TableStructure,
+    context: StructureContextMenu,
+) {
     let section = section_box(&gettext("Triggers"), structure.triggers.len());
     let list = list_box(&gettext("No triggers"), structure.triggers.is_empty());
     for trigger in &structure.triggers {
-        list.append(&trigger_row(trigger));
+        let row = trigger_row(trigger);
+        attach_table_target(
+            &context,
+            &row,
+            &structure.object,
+            StructureActionKind::Trigger,
+            &trigger.name,
+        );
+        list.append(&row);
     }
 
     section.append(&list);
@@ -145,6 +203,19 @@ fn trigger_row(trigger: &TableTrigger) -> adw::ActionRow {
         .build();
     row.add_suffix(&detail_label(trigger.enabled.label()));
     row
+}
+
+fn attach_table_target(
+    context: &StructureContextMenu,
+    row: &adw::ActionRow,
+    table: &DatabaseObject,
+    kind: StructureActionKind,
+    name: &str,
+) {
+    context.attach(
+        row,
+        StructureActionTarget::new(table.clone(), kind, name.to_string(), true),
+    );
 }
 
 fn section_label(title: &str) -> gtk::Label {
