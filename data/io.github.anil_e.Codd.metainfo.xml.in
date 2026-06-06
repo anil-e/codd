@@ -20,6 +20,7 @@
   <url type="homepage">https://github.com/anil-e/codd</url>
   <url type="vcs-browser">https://github.com/anil-e/codd</url>
   <url type="bugtracker">https://github.com/anil-e/codd/issues</url>
+  <url type="translate">https://hosted.weblate.org/engage/codd/</url>
   <developer id="io.github.anil_e">
     <name>Anil Erdogan</name>
   </developer>
@@ -32,27 +33,27 @@
   </branding>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.7.1/images/flathub/screenshot-query.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-query.png</image>
       <caption>Run SQL queries with syntax highlighting and result previews</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.7.1/images/flathub/screenshot-table-browser.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-table-browser.png</image>
       <caption>Browse PostgreSQL table data with pagination and filters</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.7.1/images/flathub/screenshot-structure-columns.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-structure-columns.png</image>
       <caption>Inspect table columns, data types, nullability, defaults and primary keys</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.7.1/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
       <caption>Review indexes, constraints, foreign keys and triggers in the structure view</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.7.1/images/flathub/screenshot-truncate.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-truncate.png</image>
       <caption>Use table actions like rename, truncate and delete</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.7.1/images/flathub/screenshot-start.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-start.png</image>
       <caption>Manage saved PostgreSQL connections</caption>
     </screenshot>
   </screenshots>
@@ -63,6 +64,18 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.8.0" date="2026-06-06">
+      <description translate="no">
+        <p>This release adds structure actions for table columns, indexes, constraints, foreign keys and triggers.</p>
+
+        <ul>
+          <li>Structure view items now include context menu actions to copy names, rename items and drop items.</li>
+          <li>Drop actions run without CASCADE first and only offer CASCADE after PostgreSQL reports dependent objects.</li>
+          <li>More Keyboard shortcuts were added (closing tabs and cancelling running queries).</li>
+          <li>An About dialog and German translations were added.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.7.1" date="2026-06-04">
       <description translate="no">
         <p>This maintenance release updates the Spanish translation.</p>
