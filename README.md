@@ -23,6 +23,8 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 
 ## Translations
 
+<a href="https://hosted.weblate.org/engage/codd/"><img src="https://hosted.weblate.org/widget/codd/ui/multi-auto.svg" alt="Übersetzungsstatus"></a>
+
 Help make Codd available in more languages.
 
 The easiest way to contribute translations is through Weblate:
