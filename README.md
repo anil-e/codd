@@ -21,6 +21,15 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 - Generate common table scripts from the object sidebar
 - Rename, truncate, and delete tables or views from the object sidebar
 
+## Translations
+
+Help make Codd available in more languages.
+
+The easiest way to contribute translations is through Weblate:
+https://hosted.weblate.org/engage/codd/
+
+Translation pull requests are welcome as well. New languages, translation improvements, and typo fixes are all appreciated.
+
 ## Requirements
 
 Fedora:
