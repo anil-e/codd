@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-06 20:03+0200\n"
-"PO-Revision-Date: 2026-06-06 12:39+0000\n"
+"PO-Revision-Date: 2026-06-07 08:59+0000\n"
 "Last-Translator: Anil Erdogan <a.erdogan@termitel.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/codd/ui/de/>\n"
 "Language: de\n"
@@ -218,7 +218,7 @@ msgstr "Umbenennen"
 
 #: src/window_content/object_actions.rs:149
 msgid "Restart identity"
-msgstr "Identity neu starten"
+msgstr "RESTART IDENTITY"
 
 #: src/window_content/object_actions.rs:151
 msgid "Reset sequences owned by columns of the truncated table."
@@ -242,15 +242,15 @@ msgstr "View umbenennen"
 
 #: src/window_content/object_actions.rs:316
 msgid "Truncate Table"
-msgstr "Table leeren"
+msgstr "TRUNCATE TABLE"
 
 #: src/window_content/object_actions.rs:318
 msgid "Delete Table"
-msgstr "Table löschen"
+msgstr "DROP TABLE"
 
 #: src/window_content/object_actions.rs:319
 msgid "Delete View"
-msgstr "View löschen"
+msgstr "DROP VIEW"
 
 #: src/window_content/object_actions.rs:329
 msgid "Remove all rows from"
@@ -264,11 +264,11 @@ msgstr "Dies kann nicht rückgängig gemacht werden."
 #: src/window_content/object_actions.rs:335
 #: src/window_content/object_actions.rs:346
 msgid "Delete"
-msgstr "Löschen"
+msgstr "DROP"
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
-msgstr "Leeren"
+msgstr "TRUNCATE"
 
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
