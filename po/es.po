@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-06 20:03+0200\n"
-"PO-Revision-Date: 2026-06-03 18:42-0400\n"
-"Last-Translator: Francisco <fvasquez>\n"
-"Language-Team: es_DO\n"
+"PO-Revision-Date: 2026-06-07 08:32+0000\n"
+"Last-Translator: Francisco Vásquez Cuevas <fvasquez@fvtronics.com>\n"
+"Language-Team: Spanish <https://hosted.weblate.org/projects/codd/ui/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 50.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2026.6\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -25,7 +25,7 @@ msgstr "_Nueva conexión"
 
 #: src/menus.rs:32
 msgid "_New Window"
-msgstr "_Nueva ventana"
+msgstr "Nueva _ventana"
 
 #: src/menus.rs:38
 msgid "_Keyboard Shortcuts"
@@ -33,7 +33,7 @@ msgstr "_Atajos de teclado"
 
 #: src/menus.rs:39
 msgid "_About Codd"
-msgstr ""
+msgstr "Acerca de _Codd"
 
 #: src/menus.rs:40
 msgid "_Quit"
@@ -328,67 +328,69 @@ msgstr "Ingrese SQL antes de ejecutar una consulta."
 
 #: src/window_content/structure_actions.rs:83
 msgid "Choose a new name for this structure item."
-msgstr ""
+msgstr "Elija un nuevo nombre para este elemento."
 
 #: src/window_content/structure_actions.rs:145
 #: src/window_content/structure_actions.rs:340
 #: src/window_content/structure_actions.rs:346
 msgid "Drop"
-msgstr ""
+msgstr "Eliminar"
 
 #: src/window_content/structure_actions.rs:349
 msgid "from table"
-msgstr ""
+msgstr "de la tabla"
 
 #: src/window_content/structure_actions.rs:360
 msgid "renamed."
-msgstr ""
+msgstr "renombrado."
 
 #: src/window_content/structure_actions.rs:368
 msgid "dropped with CASCADE."
-msgstr ""
+msgstr "eliminado con CASCADE."
 
 #: src/window_content/structure_actions.rs:375
 msgid "dropped."
-msgstr ""
+msgstr "eliminado."
 
 #: src/window_content/structure_actions.rs:386
 msgid "Dropping with CASCADE failed"
-msgstr ""
+msgstr "La eliminación con CASCADE ha fallado"
 
 #: src/window_content/structure_actions.rs:388
 msgid "Dropping failed"
-msgstr ""
+msgstr "La eliminación ha fallado"
 
 #: src/window_content/structure_actions.rs:396
 msgid "Column"
-msgstr ""
+msgstr "Columna"
 
 #: src/window_content/structure_actions.rs:397
 msgid "Index"
-msgstr ""
+msgstr "Índice"
 
 #: src/window_content/structure_actions.rs:398
 msgid "Constraint"
-msgstr ""
+msgstr "Restricción"
 
 #: src/window_content/structure_actions.rs:399
 msgid "Foreign key"
-msgstr ""
+msgstr "Clave foránea"
 
 #: src/window_content/structure_actions.rs:400
 msgid "Trigger"
-msgstr ""
+msgstr "Disparador"
 
 #: src/window_content/structure_actions.rs:421
 msgid "Drop with CASCADE"
-msgstr ""
+msgstr "Eliminar con CASCADE"
 
 #: src/window_content/structure_actions.rs:460
 msgid ""
 "This may also drop dependent views, constraints, indexes, or other database "
 "objects. This cannot be undone."
 msgstr ""
+"Esto también podría eliminar vistas, restricciones, índices u otros objetos "
+"de base de datos dependientes. Esto no se puede deshacer."
 
 #: src/window_content/tabs.rs:60
 msgid "Close Other Tabs"
@@ -975,7 +977,7 @@ msgstr "Sin filas"
 #: src/ui/components/table_browser.rs:958
 #, rust-format
 msgid "{first}-{last} rows"
-msgstr ""
+msgstr "{first}-{last} filas"
 
 #: src/ui/components/table_browser.rs:1073
 msgid "Edit Value"
@@ -1122,31 +1124,31 @@ msgstr "Obteniendo la estructura de la tabla desde PostgreSQL."
 
 #: src/ui/components/table_structure.rs:402
 msgid "Copy Name"
-msgstr ""
+msgstr "Copiar nombre"
 
 #: src/ui/components/table_structure.rs:404
 msgid "Drop..."
-msgstr ""
+msgstr "Eliminar..."
 
 #: src/ui/components/table_structure.rs:410
 msgid "Column name copied."
-msgstr ""
+msgstr "Nombre de columna copiado."
 
 #: src/ui/components/table_structure.rs:411
 msgid "Index name copied."
-msgstr ""
+msgstr "Nombre de índice copiado."
 
 #: src/ui/components/table_structure.rs:412
 msgid "Constraint name copied."
-msgstr ""
+msgstr "Nombre de restricción copiado."
 
 #: src/ui/components/table_structure.rs:413
 msgid "Foreign key name copied."
-msgstr ""
+msgstr "Nombre de clave foránea copiado."
 
 #: src/ui/components/table_structure.rs:414
 msgid "Trigger name copied."
-msgstr ""
+msgstr "Nombre de disparador copiado."
 
 #: src/ui/components/table_structure/columns.rs:19
 msgid "Columns"
@@ -1341,7 +1343,7 @@ msgstr "Actualizar tabla o vista"
 #: data/ui/shortcuts-dialog.ui:51
 msgctxt "shortcut window"
 msgid "Tabs"
-msgstr ""
+msgstr "Pestañas"
 
 #: data/ui/shortcuts-dialog.ui:54
 msgctxt "shortcut window"
@@ -1351,7 +1353,7 @@ msgstr "Nueva pestaña de consulta"
 #: data/ui/shortcuts-dialog.ui:60
 msgctxt "shortcut window"
 msgid "Close Current Tab"
-msgstr ""
+msgstr "Cerrar pestaña actual"
 
 #: data/ui/shortcuts-dialog.ui:68
 msgctxt "shortcut window"
@@ -1366,7 +1368,7 @@ msgstr "Ejecutar"
 #: data/ui/shortcuts-dialog.ui:77
 msgctxt "shortcut window"
 msgid "Cancel Running Query"
-msgstr ""
+msgstr "Cancelar consulta en ejecución"
 
 #: data/ui/shortcuts-dialog.ui:83
 msgctxt "shortcut window"
