@@ -64,6 +64,15 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.8.1" date="2026-06-07">
+      <description translate="no">
+        <p>This maintenance release updates translations.</p>
+
+        <ul>
+          <li>German and Spanish translations were refreshed.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.8.0" date="2026-06-06">
       <description translate="no">
         <p>This release adds structure actions for table columns, indexes, constraints, foreign keys and triggers.</p>
