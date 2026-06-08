@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-06 20:03+0200\n"
-"PO-Revision-Date: 2026-06-07 08:32+0000\n"
+"PO-Revision-Date: 2026-06-08 06:56+0000\n"
 "Last-Translator: Francisco Vásquez Cuevas <fvasquez@fvtronics.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/codd/ui/es/>\n"
 "Language: es\n"
@@ -41,7 +41,7 @@ msgstr "_Salir"
 
 #: src/window.rs:205
 msgid "translator-credits"
-msgstr "Francisco Vásquez https://www.fvtronics.com/"
+msgstr "Francisco Vásquez <fvasquez.public@fvtronics.com>"
 
 #: src/window.rs:207 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
