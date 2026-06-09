@@ -8,89 +8,90 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-06 20:03+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-06-10 21:01+0000\n"
+"Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2026.6\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
-msgstr ""
+msgstr "Uus ühe_ndus"
 
 #: src/menus.rs:32
 msgid "_New Window"
-msgstr ""
+msgstr "Uus ake_n"
 
 #: src/menus.rs:38
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "_Klaviatuuri kiirklahvid"
 
 #: src/menus.rs:39
 msgid "_About Codd"
-msgstr ""
+msgstr "Rakenduse te_ave: Codd"
 
 #: src/menus.rs:40
 msgid "_Quit"
-msgstr ""
+msgstr "_Välju"
 
 #: src/window.rs:205
 msgid "translator-credits"
-msgstr ""
+msgstr "Priit Jõerüüt 2026"
 
 #: src/window.rs:207 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
-msgstr ""
+msgstr "Lihtne PostgreSQLi klient"
 
 #: src/window_content.rs:255
 msgid "Back to connections"
-msgstr ""
+msgstr "Tagasi ühenduste vaatesse"
 
 #: src/window_content.rs:274
 msgid "Main Menu"
-msgstr ""
+msgstr "Põhimenüü"
 
 #: src/window_content.rs:281
 msgid "New Query Tab"
-msgstr ""
+msgstr "Uue päringu vahekaart"
 
 #: src/window_content.rs:650 src/window_content.rs:1109
 #: src/window_content/database_switching.rs:65
 msgid "Saving tabs failed"
-msgstr ""
+msgstr "Vahekaartide salvestamine ei õnnestunud"
 
 #: src/window_content.rs:726
 msgid "Updating the saved password failed"
-msgstr ""
+msgstr "Salvestatud salasõnade uuendamine ei õnnestunud"
 
 #: src/window_content.rs:777 src/ui/components/table_browser.rs:752
 msgid "CSV exported."
-msgstr ""
+msgstr "CSV-fail on eksporditud."
 
 #: src/window_content.rs:930
 msgid "Hide Objects"
-msgstr ""
+msgstr "Peida objektid"
 
 #: src/window_content.rs:931
 msgid "Show Objects"
-msgstr ""
+msgstr "Näita objekte"
 
 #: src/window_content.rs:1144 src/ui/components/sidebar.rs:150
 #: src/ui/components/sidebar.rs:405 src/ui/components/sidebar.rs:419
 msgid "No connection"
-msgstr ""
+msgstr "Ühendust pole"
 
 #: src/window_content.rs:1211
 msgid "Connected to PostgreSQL."
-msgstr ""
+msgstr "Ühendatud PostgreSQL-iga."
 
 #: src/window_content.rs:1224
 msgid "Connected, but saving the connection failed"
-msgstr ""
+msgstr "Ühendatud, aga ühenduse salvestamine ei õnnestunud"
 
 #: src/window_content.rs:1342
 msgid "Disabling saved password failed"
@@ -128,7 +129,7 @@ msgstr ""
 #: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:995
 msgid "Close"
-msgstr ""
+msgstr "Sulge"
 
 #: src/window_content.rs:1576
 msgid "CSV export runs queries in a read-only transaction."
@@ -200,7 +201,7 @@ msgstr ""
 #: src/ui/components/editor.rs:242
 #: src/ui/components/table_browser/cell_editor.rs:93
 msgid "Cancel"
-msgstr ""
+msgstr "Katkesta"
 
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
@@ -208,7 +209,7 @@ msgstr ""
 #: src/window_content/structure_actions.rs:334
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
-msgstr ""
+msgstr "Muuda nime"
 
 #: src/window_content/object_actions.rs:149
 msgid "Restart identity"
@@ -258,7 +259,7 @@ msgstr ""
 #: src/window_content/object_actions.rs:335
 #: src/window_content/object_actions.rs:346
 msgid "Delete"
-msgstr ""
+msgstr "Kustuta"
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
@@ -330,7 +331,7 @@ msgstr ""
 
 #: src/window_content/structure_actions.rs:360
 msgid "renamed."
-msgstr ""
+msgstr "nimi on muudetud."
 
 #: src/window_content/structure_actions.rs:368
 msgid "dropped with CASCADE."
@@ -350,11 +351,11 @@ msgstr ""
 
 #: src/window_content/structure_actions.rs:396
 msgid "Column"
-msgstr ""
+msgstr "Veerg"
 
 #: src/window_content/structure_actions.rs:397
 msgid "Index"
-msgstr ""
+msgstr "Indeks"
 
 #: src/window_content/structure_actions.rs:398
 msgid "Constraint"
@@ -389,7 +390,7 @@ msgstr ""
 #: src/window_content/tabs.rs:686 src/ui/components/table_browser.rs:927
 #: src/ui/components/table_view.rs:347 src/ui/components/table_view.rs:362
 msgid "Table"
-msgstr ""
+msgstr "Tabel"
 
 #: src/window_content/tabs.rs:687
 msgid "Select the tab to load this table."
@@ -397,7 +398,7 @@ msgstr ""
 
 #: src/window_content/tabs.rs:980
 msgid "Query"
-msgstr ""
+msgstr "Päring"
 
 #: src/models/connection.rs:80
 msgid "Connection name is required."
@@ -426,20 +427,20 @@ msgstr ""
 
 #: src/ui/components/connection_dialog.rs:106
 msgid "Connection"
-msgstr ""
+msgstr "Ühendus"
 
 #: src/ui/components/connection_dialog.rs:109
 #: src/ui/components/table_structure/columns.rs:50
 msgid "Name"
-msgstr ""
+msgstr "Nimi"
 
 #: src/ui/components/connection_dialog.rs:119
 msgid "Host"
-msgstr ""
+msgstr "Host"
 
 #: src/ui/components/connection_dialog.rs:129
 msgid "Port"
-msgstr ""
+msgstr "Port"
 
 #: src/ui/components/connection_dialog.rs:140
 msgid "Default Database"
@@ -447,11 +448,11 @@ msgstr ""
 
 #: src/ui/components/connection_dialog.rs:150
 msgid "Username"
-msgstr ""
+msgstr "Kasutajanimi"
 
 #: src/ui/components/connection_dialog.rs:160
 msgid "Password"
-msgstr ""
+msgstr "Salasõna"
 
 #: src/ui/components/connection_dialog.rs:195
 msgid "Save Password"
@@ -463,7 +464,7 @@ msgstr ""
 
 #: src/ui/components/connection_dialog.rs:228
 msgid "Connect"
-msgstr ""
+msgstr "Ühenda"
 
 #: src/ui/components/connection_dialog.rs:358
 #: src/ui/components/connection_dialog.rs:473
@@ -508,11 +509,11 @@ msgstr ""
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Comma"
-msgstr ""
+msgstr "Koma"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Semicolon"
-msgstr ""
+msgstr "Semikoolon"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Tab"
