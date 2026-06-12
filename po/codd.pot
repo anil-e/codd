@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-06 20:03+0200\n"
+"POT-Creation-Date: 2026-06-12 16:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,118 +47,122 @@ msgstr ""
 msgid "Lightweight PostgreSQL client"
 msgstr ""
 
-#: src/window_content.rs:255
-msgid "Back to connections"
-msgstr ""
-
-#: src/window_content.rs:274
+#: src/window_content.rs:261 src/window_content.rs:321
 msgid "Main Menu"
 msgstr ""
 
-#: src/window_content.rs:281
+#: src/window_content.rs:294
+msgid "Objects"
+msgstr ""
+
+#: src/window_content.rs:298
+msgid "Back to connections"
+msgstr ""
+
+#: src/window_content.rs:328
 msgid "New Query Tab"
 msgstr ""
 
-#: src/window_content.rs:650 src/window_content.rs:1109
+#: src/window_content.rs:675 src/window_content.rs:1138
 #: src/window_content/database_switching.rs:65
 msgid "Saving tabs failed"
 msgstr ""
 
-#: src/window_content.rs:726
+#: src/window_content.rs:751
 msgid "Updating the saved password failed"
 msgstr ""
 
-#: src/window_content.rs:777 src/ui/components/table_browser.rs:752
+#: src/window_content.rs:802 src/ui/components/table_browser.rs:752
 msgid "CSV exported."
 msgstr ""
 
-#: src/window_content.rs:930
+#: src/window_content.rs:955
 msgid "Hide Objects"
 msgstr ""
 
-#: src/window_content.rs:931
+#: src/window_content.rs:956
 msgid "Show Objects"
 msgstr ""
 
-#: src/window_content.rs:1144 src/ui/components/sidebar.rs:150
-#: src/ui/components/sidebar.rs:405 src/ui/components/sidebar.rs:419
+#: src/window_content.rs:1173 src/ui/components/sidebar.rs:152
+#: src/ui/components/sidebar.rs:404 src/ui/components/sidebar.rs:418
 msgid "No connection"
 msgstr ""
 
-#: src/window_content.rs:1211
+#: src/window_content.rs:1239
 msgid "Connected to PostgreSQL."
 msgstr ""
 
-#: src/window_content.rs:1224
+#: src/window_content.rs:1252
 msgid "Connected, but saving the connection failed"
 msgstr ""
 
-#: src/window_content.rs:1342
+#: src/window_content.rs:1368
 msgid "Disabling saved password failed"
 msgstr ""
 
-#: src/window_content.rs:1357
+#: src/window_content.rs:1383
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr ""
 
-#: src/window_content.rs:1365
+#: src/window_content.rs:1391
 msgid "Enter SQL before exporting query results."
 msgstr ""
 
-#: src/window_content.rs:1409
+#: src/window_content.rs:1435
 msgid "The query did not return rows."
 msgstr ""
 
-#: src/window_content.rs:1437
+#: src/window_content.rs:1463
 msgid "Schema load failed"
 msgstr ""
 
-#: src/window_content.rs:1470
+#: src/window_content.rs:1496
 msgid "Connect to PostgreSQL before generating a script."
 msgstr ""
 
-#: src/window_content.rs:1510
+#: src/window_content.rs:1536
 msgid "Generating the table script failed"
 msgstr ""
 
-#: src/window_content.rs:1558 src/ui/components/table_browser.rs:755
+#: src/window_content.rs:1584 src/ui/components/table_browser.rs:755
 msgid "Export failed"
 msgstr ""
 
-#: src/window_content.rs:1563 src/window_content/structure_actions.rs:418
+#: src/window_content.rs:1589 src/window_content/structure_actions.rs:418
 #: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:995
 msgid "Close"
 msgstr ""
 
-#: src/window_content.rs:1576
+#: src/window_content.rs:1602
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
 
-#: src/window_content.rs:1578
+#: src/window_content.rs:1604
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
 "be exported."
 msgstr ""
 
-#: src/window_content.rs:1588
+#: src/window_content.rs:1614
 msgid "CREATE script generated."
 msgstr ""
 
-#: src/window_content.rs:1589
+#: src/window_content.rs:1615
 msgid "SELECT script generated."
 msgstr ""
 
-#: src/window_content.rs:1590
+#: src/window_content.rs:1616
 msgid "INSERT script generated."
 msgstr ""
 
-#: src/window_content.rs:1591
+#: src/window_content.rs:1617
 msgid "UPDATE script generated."
 msgstr ""
 
-#: src/window_content.rs:1592
+#: src/window_content.rs:1618
 msgid "DELETE script generated."
 msgstr ""
 
@@ -645,110 +649,104 @@ msgstr ""
 msgid "Search objects"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:119
+#: src/ui/components/sidebar.rs:121
 msgid "No objects match your search."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:172
+#: src/ui/components/sidebar.rs:174
 msgid "Loading schema..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:183 src/ui/components/sidebar.rs:407
-#: src/ui/components/sidebar.rs:421
+#: src/ui/components/sidebar.rs:185 src/ui/components/sidebar.rs:406
+#: src/ui/components/sidebar.rs:420
 msgid "No tables or views found"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:335
-msgid "object"
-msgid_plural "objects"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/ui/components/sidebar.rs:392
+#: src/ui/components/sidebar.rs:391
 msgid "Loading schema"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:394
+#: src/ui/components/sidebar.rs:393
 msgid "No objects available"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:403
+#: src/ui/components/sidebar.rs:402
 msgid "Fetching tables and views for the current connection."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:406
+#: src/ui/components/sidebar.rs:405
 msgid "Connect to PostgreSQL to browse database objects."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:409
+#: src/ui/components/sidebar.rs:408
 msgid "The selected database does not currently expose tables or views."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:591
+#: src/ui/components/sidebar.rs:527
 msgid "Scripts"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:595 src/ui/components/table_structure.rs:403
+#: src/ui/components/sidebar.rs:531 src/ui/components/table_structure.rs:403
 msgid "Rename..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:600
+#: src/ui/components/sidebar.rs:536
 msgid "Truncate..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:603
+#: src/ui/components/sidebar.rs:539
 msgid "Delete..."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:612
+#: src/ui/components/sidebar.rs:548
 msgid "CREATE Script"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:616
+#: src/ui/components/sidebar.rs:552
 msgid "SELECT Script"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:620
+#: src/ui/components/sidebar.rs:556
 msgid "INSERT Script"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:624
+#: src/ui/components/sidebar.rs:560
 msgid "UPDATE Script"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:628
+#: src/ui/components/sidebar.rs:564
 msgid "DELETE Script"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:636
+#: src/ui/components/sidebar.rs:572
 msgid "Copy Table Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:637
+#: src/ui/components/sidebar.rs:573
 msgid "Copy Qualified Table Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:638
+#: src/ui/components/sidebar.rs:574
 msgid "Copy View Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:639
+#: src/ui/components/sidebar.rs:575
 msgid "Copy Qualified View Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:645
+#: src/ui/components/sidebar.rs:581
 msgid "Table name copied."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:646
+#: src/ui/components/sidebar.rs:582
 msgid "Qualified table name copied."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:647
+#: src/ui/components/sidebar.rs:583
 msgid "View name copied."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:648
+#: src/ui/components/sidebar.rs:584
 msgid "Qualified view name copied."
 msgstr ""
 
@@ -1234,33 +1232,33 @@ msgid ""
 "native result previews without trying to become a multi-database suite."
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:24
+#: data/io.github.anil_e.Codd.metainfo.xml.in:25
 msgid "Anil Erdogan"
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:36
+#: data/io.github.anil_e.Codd.metainfo.xml.in:37
 msgid "Run SQL queries with syntax highlighting and result previews"
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:40
+#: data/io.github.anil_e.Codd.metainfo.xml.in:41
 msgid "Browse PostgreSQL table data with pagination and filters"
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:44
+#: data/io.github.anil_e.Codd.metainfo.xml.in:45
 msgid ""
 "Inspect table columns, data types, nullability, defaults and primary keys"
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:48
+#: data/io.github.anil_e.Codd.metainfo.xml.in:49
 msgid ""
 "Review indexes, constraints, foreign keys and triggers in the structure view"
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:52
+#: data/io.github.anil_e.Codd.metainfo.xml.in:53
 msgid "Use table actions like rename, truncate and delete"
 msgstr ""
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:56
+#: data/io.github.anil_e.Codd.metainfo.xml.in:57
 msgid "Manage saved PostgreSQL connections"
 msgstr ""
 

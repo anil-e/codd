@@ -71,7 +71,8 @@ pub struct WindowContent {
     active_query_tab_id: u64,
     next_query_tab_id: u64,
     next_browse_tab_id: u64,
-    menu_button: gtk::MenuButton,
+    start_menu_button: gtk::MenuButton,
+    workspace_menu_button: gtk::MenuButton,
     active_schema_request_id: Option<u64>,
     next_schema_request_id: u64,
     active_database_list_request_id: Option<u64>,
@@ -250,43 +251,17 @@ impl Component for WindowContent {
     view! {
         root = adw::ToolbarView {
             add_top_bar = &adw::HeaderBar {
-                    pack_start = &gtk::Button {
-                        set_icon_name: "go-previous-symbolic",
-                        set_tooltip_text: Some(&gettext("Back to connections")),
-                        add_css_class: "flat",
-                        #[watch]
-                        set_visible: model.shows_workspace(),
-                        connect_clicked => WindowContentMsg::ShowStartScreen,
-                    },
+                #[watch]
+                set_visible: model.shows_start_screen(),
+                #[wrap(Some)]
+                set_title_widget = &adw::WindowTitle::new("Codd", ""),
 
-                    pack_start = &gtk::Button {
-                        set_icon_name: "sidebar-show-symbolic",
-                        #[watch]
-                        set_tooltip_text: Some(&model.sidebar_toggle_tooltip()),
-                        add_css_class: "flat",
-                        #[watch]
-                        set_visible: model.shows_workspace(),
-                        connect_clicked => WindowContentMsg::ToggleSidebar,
-                    },
-
-                    pack_end = &model.menu_button.clone() {
-                        set_icon_name: "open-menu-symbolic",
-                        set_tooltip_text: Some(&gettext("Main Menu")),
-                        set_primary: true,
-                        set_menu_model: Some(&menus::start_menu()),
-                    },
-
-                    pack_end = &gtk::Button {
-                        set_icon_name: "tab-new-symbolic",
-                        set_tooltip_text: Some(&gettext("New Query Tab")),
-                        add_css_class: "flat",
-                        #[watch]
-                        set_visible: model.shows_workspace(),
-                        connect_clicked => WindowContentMsg::NewQueryTab,
-                    },
-
-                    #[wrap(Some)]
-                    set_title_widget = model.database_selector.widget(),
+                pack_end = &model.start_menu_button.clone() {
+                    set_icon_name: "open-menu-symbolic",
+                    set_tooltip_text: Some(&gettext("Main Menu")),
+                    set_primary: true,
+                    set_menu_model: Some(&menus::start_menu()),
+                },
             },
 
             #[wrap(Some)]
@@ -303,35 +278,83 @@ impl Component for WindowContent {
 
                         #[wrap(Some)]
                         set_child = &adw::OverlaySplitView {
-                            set_sidebar_width_fraction: 0.22,
-                            set_min_sidebar_width: 220.0,
-                            set_max_sidebar_width: 320.0,
-                            set_pin_sidebar: true,
+                            set_sidebar_width_fraction: 0.45,
+                            set_min_sidebar_width: 190.0,
+                            set_max_sidebar_width: 290.0,
+                            set_collapsed: true,
+                            set_pin_sidebar: false,
                             set_enable_show_gesture: true,
                             set_enable_hide_gesture: true,
                             #[wrap(Some)]
-                            set_sidebar = model.sidebar.widget(),
+                            set_sidebar = &adw::ToolbarView {
+                                add_css_class: "object-sidebar",
 
-                            #[wrap(Some)]
-                            set_content = &gtk::Box {
-                                set_orientation: gtk::Orientation::Vertical,
-                                set_spacing: 0,
+                                add_top_bar = &adw::HeaderBar {
+                                    #[wrap(Some)]
+                                    set_title_widget = &adw::WindowTitle::new(&gettext("Objects"), ""),
 
-                                gtk::Box {
-                                    set_orientation: gtk::Orientation::Horizontal,
-                                    #[watch]
-                                    set_visible: model.shows_workspace() && model.has_multiple_tabs(),
-
-                                    adw::TabBar {
-                                        set_hexpand: true,
-                                        set_autohide: false,
-                                        set_view: Some(&query_tab_view),
+                                    pack_start = &gtk::Button {
+                                        set_icon_name: "go-previous-symbolic",
+                                        set_tooltip_text: Some(&gettext("Back to connections")),
+                                        add_css_class: "flat",
+                                        connect_clicked => WindowContentMsg::ShowStartScreen,
                                     },
                                 },
 
-                                #[name = "query_tab_view"]
-                                adw::TabView {
-                                    set_vexpand: true,
+                                #[wrap(Some)]
+                                set_content = model.sidebar.widget(),
+                            },
+
+                            #[wrap(Some)]
+                            set_content = &adw::ToolbarView {
+                                add_top_bar = &adw::HeaderBar {
+                                    pack_start = &gtk::Button {
+                                        set_icon_name: "sidebar-show-symbolic",
+                                        #[watch]
+                                        set_tooltip_text: Some(&model.sidebar_toggle_tooltip()),
+                                        add_css_class: "flat",
+                                        connect_clicked => WindowContentMsg::ToggleSidebar,
+                                    },
+
+                                    pack_end = &model.workspace_menu_button.clone() {
+                                        set_icon_name: "open-menu-symbolic",
+                                        set_tooltip_text: Some(&gettext("Main Menu")),
+                                        set_primary: true,
+                                        set_menu_model: Some(&menus::workspace_menu()),
+                                    },
+
+                                    pack_end = &gtk::Button {
+                                        set_icon_name: "tab-new-symbolic",
+                                        set_tooltip_text: Some(&gettext("New Query Tab")),
+                                        add_css_class: "flat",
+                                        connect_clicked => WindowContentMsg::NewQueryTab,
+                                    },
+
+                                    #[wrap(Some)]
+                                    set_title_widget = model.database_selector.widget(),
+                                },
+
+                                #[wrap(Some)]
+                                set_content = &gtk::Box {
+                                    set_orientation: gtk::Orientation::Vertical,
+                                    set_spacing: 0,
+
+                                    gtk::Box {
+                                        set_orientation: gtk::Orientation::Horizontal,
+                                        #[watch]
+                                        set_visible: model.shows_workspace() && model.has_multiple_tabs(),
+
+                                        adw::TabBar {
+                                            set_hexpand: true,
+                                            set_autohide: false,
+                                            set_view: Some(&query_tab_view),
+                                        },
+                                    },
+
+                                    #[name = "query_tab_view"]
+                                    adw::TabView {
+                                        set_vexpand: true,
+                                    },
                                 },
                             },
                         },
@@ -377,7 +400,8 @@ impl Component for WindowContent {
             active_query_tab_id: 0,
             next_query_tab_id: 0,
             next_browse_tab_id: 0,
-            menu_button: gtk::MenuButton::new(),
+            start_menu_button: gtk::MenuButton::new(),
+            workspace_menu_button: gtk::MenuButton::new(),
             active_schema_request_id: None,
             next_schema_request_id: 0,
             active_database_list_request_id: None,
@@ -393,6 +417,7 @@ impl Component for WindowContent {
         };
         let widgets = view_output!();
 
+        model.sidebar.widget().set_vexpand(true);
         model.add_query_tab(&widgets, &sender);
         setup_tab_context_menu(&widgets.query_tab_view, &sender);
         widgets.content_stack.set_visible_child_name("start");
@@ -875,13 +900,13 @@ pub(super) fn workspace_split_view(widgets: &WindowContentWidgets) -> adw::Overl
 fn setup_workspace_breakpoint(widgets: &WindowContentWidgets) {
     let split_view = workspace_split_view(widgets);
     let breakpoint = adw::Breakpoint::new(adw::BreakpointCondition::new_length(
-        adw::BreakpointConditionLengthType::MaxWidth,
-        700.0,
+        adw::BreakpointConditionLengthType::MinWidth,
+        820.0,
         adw::LengthUnit::Sp,
     ));
     breakpoint.add_setters(&[
-        (&split_view, "collapsed", true),
-        (&split_view, "pin-sidebar", false),
+        (&split_view, "collapsed", false),
+        (&split_view, "pin-sidebar", true),
     ]);
 
     widgets
@@ -1089,6 +1114,10 @@ impl WindowContent {
         self.visible_page == VisiblePage::Workspace
     }
 
+    fn shows_start_screen(&self) -> bool {
+        self.visible_page == VisiblePage::Start
+    }
+
     fn sidebar_toggle_tooltip(&self) -> String {
         self.workspace_navigation.sidebar_toggle_tooltip()
     }
@@ -1142,7 +1171,6 @@ impl WindowContent {
 
         self.sidebar
             .emit(ObjectSidebarMsg::SetError(gettext("No connection")));
-        self.menu_button.set_menu_model(Some(&menus::start_menu()));
         widgets.content_stack.set_visible_child_name("start");
     }
 
@@ -1264,8 +1292,6 @@ impl WindowContent {
         split_view.set_show_sidebar(!sidebar_hidden);
         self.workspace_navigation =
             WorkspaceNavigation::from_sidebar_visibility(split_view.shows_sidebar());
-        self.menu_button
-            .set_menu_model(Some(&menus::workspace_menu()));
         widgets.content_stack.set_visible_child_name("workspace");
     }
 

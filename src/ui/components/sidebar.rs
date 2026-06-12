@@ -1,6 +1,6 @@
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::table_script::TableScriptKind;
-use gettextrs::{gettext, ngettext};
+use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk;
@@ -61,7 +61,7 @@ impl Component for ObjectSidebar {
 
     view! {
         gtk::Stack {
-            add_css_class: "object-sidebar",
+            add_css_class: "object-sidebar-content",
 
             add_named[Some("status")] = &adw::StatusPage {
                 #[watch]
@@ -83,12 +83,12 @@ impl Component for ObjectSidebar {
             add_named[Some("list")] = &gtk::Box {
                 set_orientation: gtk::Orientation::Vertical,
                 set_spacing: 0,
+                add_css_class: "object-sidebar-content",
 
                 adw::Clamp {
                     set_maximum_size: 520,
-                    set_margin_top: 12,
-                    set_margin_start: 12,
-                    set_margin_end: 12,
+                    set_margin_start: 10,
+                    set_margin_end: 10,
 
                     #[name = "search_entry"]
                     gtk::SearchEntry {
@@ -102,17 +102,19 @@ impl Component for ObjectSidebar {
                 gtk::ScrolledWindow {
                     set_vexpand: true,
                     set_policy: (gtk::PolicyType::Never, gtk::PolicyType::Automatic),
+                    add_css_class: "object-sidebar-content",
 
                     adw::Clamp {
                         set_maximum_size: 520,
-                        set_margin_top: 12,
-                        set_margin_bottom: 16,
-                        set_margin_start: 12,
-                        set_margin_end: 12,
+                        set_margin_top: 8,
+                        set_margin_bottom: 12,
+                        set_margin_start: 10,
+                        set_margin_end: 10,
 
                         gtk::Box {
                             set_orientation: gtk::Orientation::Vertical,
                             set_spacing: 12,
+                            add_css_class: "object-sidebar-content",
 
                             #[name = "empty_filter_label"]
                             gtk::Label {
@@ -127,7 +129,7 @@ impl Component for ObjectSidebar {
                             #[name = "schema_list"]
                             gtk::ListBox {
                                 set_selection_mode: gtk::SelectionMode::None,
-                                add_css_class: "boxed-list",
+                                add_css_class: "object-tree",
                                 #[watch]
                                 set_visible: model.has_search_results(),
                             },
@@ -317,50 +319,6 @@ fn objects_by_schema(objects: Vec<&DatabaseObject>) -> BTreeMap<String, Vec<&Dat
     schemas
 }
 
-fn build_schema_row(
-    schema: &str,
-    objects: &[&DatabaseObject],
-    selected_key: Option<&str>,
-    has_active_search: bool,
-    sender: &ComponentSender<ObjectSidebar>,
-    object_rows: &mut Vec<(String, adw::ActionRow)>,
-    context_menu_popovers: &mut Vec<gtk::PopoverMenu>,
-) -> adw::ExpanderRow {
-    let object_count = u32::try_from(objects.len()).unwrap_or(u32::MAX);
-    let row = adw::ExpanderRow::builder()
-        .title(schema)
-        .subtitle(format!(
-            "{} {}",
-            objects.len(),
-            ngettext("object", "objects", object_count)
-        ))
-        .expanded(
-            has_active_search
-                || schema == "public"
-                || schema_has_selected_object(objects, selected_key),
-        )
-        .build();
-
-    row.add_prefix(
-        &gtk::Image::builder()
-            .icon_name("folder-symbolic")
-            .pixel_size(16)
-            .build(),
-    );
-
-    for object in objects {
-        row.add_row(&build_object_row(
-            object,
-            selected_key,
-            sender,
-            object_rows,
-            context_menu_popovers,
-        ));
-    }
-
-    row
-}
-
 fn schema_has_selected_object(objects: &[&DatabaseObject], selected_key: Option<&str>) -> bool {
     let Some(selected_key) = selected_key else {
         return false;
@@ -376,6 +334,47 @@ fn object_kind_order(kind: &DatabaseObjectKind) -> u8 {
         DatabaseObjectKind::Table => 0,
         DatabaseObjectKind::View => 1,
     }
+}
+
+fn build_schema_row(
+    schema: &str,
+    objects: &[&DatabaseObject],
+    selected_key: Option<&str>,
+    has_active_search: bool,
+    sender: &ComponentSender<ObjectSidebar>,
+    object_rows: &mut Vec<(String, adw::ActionRow)>,
+    context_menu_popovers: &mut Vec<gtk::PopoverMenu>,
+) -> adw::ExpanderRow {
+    let row = adw::ExpanderRow::builder()
+        .title(schema)
+        .expanded(
+            has_active_search
+                || schema == "public"
+                || schema_has_selected_object(objects, selected_key),
+        )
+        .build();
+
+    row.add_css_class("object-tree-schema-row");
+
+    let icon = gtk::Image::builder()
+        .icon_name("folder-symbolic")
+        .pixel_size(16)
+        .valign(gtk::Align::Center)
+        .build();
+
+    row.add_prefix(&icon);
+
+    for object in objects {
+        row.add_row(&build_object_row(
+            object,
+            selected_key,
+            sender,
+            object_rows,
+            context_menu_popovers,
+        ));
+    }
+
+    row
 }
 
 impl ObjectSidebar {
@@ -424,69 +423,6 @@ impl ObjectSidebar {
             "dialog-error-symbolic"
         }
     }
-}
-
-fn build_object_row(
-    object: &DatabaseObject,
-    selected_key: Option<&str>,
-    sender: &ComponentSender<ObjectSidebar>,
-    object_rows: &mut Vec<(String, adw::ActionRow)>,
-    context_menu_popovers: &mut Vec<gtk::PopoverMenu>,
-) -> adw::ActionRow {
-    let row = adw::ActionRow::builder()
-        .title(&object.name)
-        .activatable(true)
-        .build();
-
-    let icon_name = match object.kind {
-        DatabaseObjectKind::Table => "table-symbolic",
-        DatabaseObjectKind::View => "view-list-symbolic",
-    };
-
-    row.add_prefix(
-        &gtk::Image::builder()
-            .icon_name(icon_name)
-            .pixel_size(16)
-            .build(),
-    );
-
-    let key = object_key(object);
-    if Some(key.as_str()) == selected_key {
-        row.add_css_class("accent");
-    }
-
-    object_rows.push((key, row.clone()));
-
-    let popover = gtk::PopoverMenu::from_model(Some(&object_menu(&object.kind)));
-    popover.set_has_arrow(false);
-    popover.set_parent(&row);
-    context_menu_popovers.push(popover.clone());
-
-    row.insert_action_group(
-        "object",
-        Some(&object_action_group(object.clone(), sender.clone())),
-    );
-
-    let context_click = gtk::GestureClick::new();
-    context_click.set_button(gtk::gdk::BUTTON_SECONDARY);
-    context_click.connect_pressed({
-        let popover = popover.clone();
-
-        move |gesture, _, _, _| {
-            gesture.set_state(gtk::EventSequenceState::Claimed);
-            popover.popup();
-        }
-    });
-
-    row.add_controller(context_click);
-
-    let selected = object.clone();
-    let sender = sender.clone();
-    row.connect_activated(move |_| {
-        sender.input(ObjectSidebarMsg::ObjectSelected(selected.clone()));
-    });
-
-    row
 }
 
 fn object_action_group(
@@ -649,12 +585,6 @@ fn object_copy_message(kind: &DatabaseObjectKind, qualified: bool) -> String {
     }
 }
 
-fn clear_list(list: &gtk::ListBox) {
-    while let Some(row) = list.row_at_index(0) {
-        list.remove(&row);
-    }
-}
-
 fn object_key(object: &DatabaseObject) -> String {
     let kind = match object.kind {
         DatabaseObjectKind::Table => "table-symbolic",
@@ -662,6 +592,79 @@ fn object_key(object: &DatabaseObject) -> String {
     };
 
     format!("{kind}\u{1f}{}\u{1f}{}", object.schema, object.name)
+}
+
+fn build_object_row(
+    object: &DatabaseObject,
+    selected_key: Option<&str>,
+    sender: &ComponentSender<ObjectSidebar>,
+    object_rows: &mut Vec<(String, adw::ActionRow)>,
+    context_menu_popovers: &mut Vec<gtk::PopoverMenu>,
+) -> adw::ActionRow {
+    let row = adw::ActionRow::builder()
+        .title(&object.name)
+        .activatable(true)
+        .build();
+
+    row.add_css_class("object-tree-object-row");
+
+    let icon_name = match object.kind {
+        DatabaseObjectKind::Table => "table-symbolic",
+        DatabaseObjectKind::View => "view-list-symbolic",
+    };
+
+    let icon = gtk::Image::builder()
+        .icon_name(icon_name)
+        .pixel_size(16)
+        .valign(gtk::Align::Center)
+        .build();
+
+    row.add_prefix(&icon);
+
+    let key = object_key(object);
+
+    if Some(key.as_str()) == selected_key {
+        row.add_css_class("accent");
+    }
+
+    object_rows.push((key, row.clone()));
+
+    let popover = gtk::PopoverMenu::from_model(Some(&object_menu(&object.kind)));
+    popover.set_has_arrow(false);
+    popover.set_parent(&row);
+    context_menu_popovers.push(popover.clone());
+
+    row.insert_action_group(
+        "object",
+        Some(&object_action_group(object.clone(), sender.clone())),
+    );
+
+    let context_click = gtk::GestureClick::new();
+    context_click.set_button(gtk::gdk::BUTTON_SECONDARY);
+    context_click.connect_pressed({
+        let popover = popover.clone();
+
+        move |gesture, _, _, _| {
+            gesture.set_state(gtk::EventSequenceState::Claimed);
+            popover.popup();
+        }
+    });
+
+    row.add_controller(context_click);
+
+    let selected = object.clone();
+    let sender = sender.clone();
+    row.connect_activated(move |_| {
+        sender.input(ObjectSidebarMsg::ObjectSelected(selected.clone()));
+    });
+
+    row
+}
+
+fn clear_list(list: &gtk::ListBox) {
+    while let Some(row) = list.row_at_index(0) {
+        list.remove(&row);
+    }
 }
 
 fn sync_selected_rows(rows: &[(String, adw::ActionRow)], selected_key: Option<&str>) {
