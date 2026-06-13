@@ -1,0 +1,1416 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the codd package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: codd\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-12 18:06+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: src/menus.rs:11
+msgid "_New Connection"
+msgstr ""
+
+#: src/menus.rs:32
+msgid "_New Window"
+msgstr ""
+
+#: src/menus.rs:38
+msgid "_Keyboard Shortcuts"
+msgstr ""
+
+#: src/menus.rs:39
+msgid "_About Codd"
+msgstr ""
+
+#: src/menus.rs:40
+msgid "_Quit"
+msgstr ""
+
+#: src/window.rs:205
+msgid "translator-credits"
+msgstr ""
+
+#: src/window.rs:207 data/io.github.anil_e.Codd.desktop.in:4
+#: data/io.github.anil_e.Codd.metainfo.xml.in:8
+msgid "Lightweight PostgreSQL client"
+msgstr ""
+
+#: src/window_content.rs:261 src/window_content.rs:321
+msgid "Main Menu"
+msgstr ""
+
+#: src/window_content.rs:294
+msgid "Objects"
+msgstr ""
+
+#: src/window_content.rs:298
+msgid "Back to connections"
+msgstr ""
+
+#: src/window_content.rs:328
+msgid "New Query Tab"
+msgstr ""
+
+#: src/window_content.rs:683 src/window_content.rs:1146
+#: src/window_content/database_switching.rs:65
+msgid "Saving tabs failed"
+msgstr ""
+
+#: src/window_content.rs:759
+msgid "Updating the saved password failed"
+msgstr ""
+
+#: src/window_content.rs:810 src/ui/components/table_browser.rs:766
+msgid "CSV exported."
+msgstr ""
+
+#: src/window_content.rs:963
+msgid "Hide Objects"
+msgstr ""
+
+#: src/window_content.rs:964
+msgid "Show Objects"
+msgstr ""
+
+#: src/window_content.rs:1181 src/ui/components/sidebar.rs:152
+#: src/ui/components/sidebar.rs:404 src/ui/components/sidebar.rs:418
+msgid "No connection"
+msgstr ""
+
+#: src/window_content.rs:1247
+msgid "Connected to PostgreSQL."
+msgstr ""
+
+#: src/window_content.rs:1260
+msgid "Connected, but saving the connection failed"
+msgstr ""
+
+#: src/window_content.rs:1376
+msgid "Disabling saved password failed"
+msgstr ""
+
+#: src/window_content.rs:1391
+msgid "Connect to PostgreSQL before exporting query results."
+msgstr ""
+
+#: src/window_content.rs:1399
+msgid "Enter SQL before exporting query results."
+msgstr ""
+
+#: src/window_content.rs:1443
+msgid "The query did not return rows."
+msgstr ""
+
+#: src/window_content.rs:1471
+msgid "Schema load failed"
+msgstr ""
+
+#: src/window_content.rs:1504
+msgid "Connect to PostgreSQL before generating a script."
+msgstr ""
+
+#: src/window_content.rs:1544
+msgid "Generating the table script failed"
+msgstr ""
+
+#: src/window_content.rs:1592 src/ui/components/table_browser.rs:769
+msgid "Export failed"
+msgstr ""
+
+#: src/window_content.rs:1597 src/window_content/structure_actions.rs:418
+#: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:504
+#: src/ui/components/table_browser.rs:1047
+msgid "Close"
+msgstr ""
+
+#: src/window_content.rs:1610
+msgid "CSV export runs queries in a read-only transaction."
+msgstr ""
+
+#: src/window_content.rs:1612
+msgid ""
+"Use a SELECT query for export. Statements that write or change transaction "
+"state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
+"be exported."
+msgstr ""
+
+#: src/window_content.rs:1622
+msgid "CREATE script generated."
+msgstr ""
+
+#: src/window_content.rs:1623
+msgid "SELECT script generated."
+msgstr ""
+
+#: src/window_content.rs:1624
+msgid "INSERT script generated."
+msgstr ""
+
+#: src/window_content.rs:1625
+msgid "UPDATE script generated."
+msgstr ""
+
+#: src/window_content.rs:1626
+msgid "DELETE script generated."
+msgstr ""
+
+#: src/window_content/database_switching.rs:57
+msgid "Connect to PostgreSQL before switching databases."
+msgstr ""
+
+#: src/window_content/database_switching.rs:107
+msgid "Database switch failed"
+msgstr ""
+
+#: src/window_content/database_switching.rs:152
+msgid "Saving the selected database failed"
+msgstr ""
+
+#: src/window_content/database_switching.rs:193
+msgid "Migrating query history failed"
+msgstr ""
+
+#: src/window_content/database_switching.rs:222
+msgid "Saving query history failed"
+msgstr ""
+
+#: src/window_content/database_switching.rs:245
+msgid "Clearing query history failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:60
+msgid "Choose a new name for this database object."
+msgstr ""
+
+#: src/window_content/object_actions.rs:65
+#: src/window_content/object_actions.rs:119
+#: src/window_content/object_actions.rs:174
+#: src/window_content/structure_actions.rs:88
+#: src/window_content/structure_actions.rs:145
+#: src/ui/components/csv_export_dialog.rs:55
+#: src/ui/components/csv_export_dialog.rs:91
+#: src/ui/components/start_screen.rs:320 src/ui/components/start_screen.rs:356
+#: src/ui/components/editor.rs:242
+#: src/ui/components/table_browser/cell_editor.rs:93
+#: src/ui/components/table_browser/insert_row.rs:141
+msgid "Cancel"
+msgstr ""
+
+#: src/window_content/object_actions.rs:66
+#: src/window_content/object_actions.rs:344
+#: src/window_content/structure_actions.rs:89
+#: src/window_content/structure_actions.rs:334
+#: src/ui/components/start_screen.rs:321
+msgid "Rename"
+msgstr ""
+
+#: src/window_content/object_actions.rs:149
+msgid "Restart identity"
+msgstr ""
+
+#: src/window_content/object_actions.rs:151
+msgid "Reset sequences owned by columns of the truncated table."
+msgstr ""
+
+#: src/window_content/object_actions.rs:156
+msgid "Cascade"
+msgstr ""
+
+#: src/window_content/object_actions.rs:158
+msgid "Also truncate tables that have foreign-key references to this table."
+msgstr ""
+
+#: src/window_content/object_actions.rs:313
+msgid "Rename Table"
+msgstr ""
+
+#: src/window_content/object_actions.rs:314
+msgid "Rename View"
+msgstr ""
+
+#: src/window_content/object_actions.rs:316
+msgid "Truncate Table"
+msgstr ""
+
+#: src/window_content/object_actions.rs:318
+msgid "Delete Table"
+msgstr ""
+
+#: src/window_content/object_actions.rs:319
+msgid "Delete View"
+msgstr ""
+
+#: src/window_content/object_actions.rs:329
+msgid "Remove all rows from"
+msgstr ""
+
+#: src/window_content/object_actions.rs:331
+#: src/window_content/object_actions.rs:337
+msgid "This cannot be undone."
+msgstr ""
+
+#: src/window_content/object_actions.rs:335
+#: src/window_content/object_actions.rs:346
+msgid "Delete"
+msgstr ""
+
+#: src/window_content/object_actions.rs:345
+msgid "Truncate"
+msgstr ""
+
+#: src/window_content/object_actions.rs:352
+msgid "Database object renamed."
+msgstr ""
+
+#: src/window_content/object_actions.rs:355
+msgid "Table truncated:"
+msgstr ""
+
+#: src/window_content/object_actions.rs:358
+msgid "Database object deleted."
+msgstr ""
+
+#: src/window_content/object_actions.rs:364
+#: src/window_content/structure_actions.rs:383
+msgid "Renaming failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:365
+msgid "Truncating failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:366
+msgid "Deleting failed"
+msgstr ""
+
+#: src/window_content/object_actions.rs:381
+#: src/window_content/structure_actions.rs:295
+msgid "Enter a valid object name."
+msgstr ""
+
+#: src/window_content/query_execution.rs:58
+msgid "Row limit reached. Query execution stopped."
+msgstr ""
+
+#: src/window_content/query_execution.rs:67 src/ui/components/results.rs:388
+msgid "Query failed"
+msgstr ""
+
+#: src/window_content/query_execution.rs:109
+msgid "A query is already running."
+msgstr ""
+
+#: src/window_content/query_execution.rs:115
+msgid "Connect to PostgreSQL before running a query."
+msgstr ""
+
+#: src/window_content/query_execution.rs:123
+msgid "Enter SQL before running a query."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:83
+msgid "Choose a new name for this structure item."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:145
+#: src/window_content/structure_actions.rs:340
+#: src/window_content/structure_actions.rs:346
+msgid "Drop"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:349
+msgid "from table"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:360
+msgid "renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:368
+msgid "dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:375
+msgid "dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:386
+msgid "Dropping with CASCADE failed"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:388
+msgid "Dropping failed"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:396
+msgid "Column"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:397
+msgid "Index"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:398
+msgid "Constraint"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:399
+msgid "Foreign key"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:400
+msgid "Trigger"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:421
+msgid "Drop with CASCADE"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:460
+msgid ""
+"This may also drop dependent views, constraints, indexes, or other database "
+"objects. This cannot be undone."
+msgstr ""
+
+#: src/window_content/tabs.rs:60
+msgid "Close Other Tabs"
+msgstr ""
+
+#: src/window_content/tabs.rs:64
+msgid "Close All"
+msgstr ""
+
+#: src/window_content/tabs.rs:686 src/ui/components/table_browser.rs:979
+#: src/ui/components/table_view.rs:371 src/ui/components/table_view.rs:392
+msgid "Table"
+msgstr ""
+
+#: src/window_content/tabs.rs:687
+msgid "Select the tab to load this table."
+msgstr ""
+
+#: src/window_content/tabs.rs:980
+msgid "Query"
+msgstr ""
+
+#: src/models/connection.rs:80
+msgid "Connection name is required."
+msgstr ""
+
+#: src/models/connection.rs:84
+msgid "Host is required."
+msgstr ""
+
+#: src/models/connection.rs:89
+msgid "Port must be a number between 1 and 65535."
+msgstr ""
+
+#: src/models/connection.rs:92
+msgid "Default database is required."
+msgstr ""
+
+#: src/models/connection.rs:96
+msgid "Username is required."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:78
+#: src/ui/components/connection_dialog.rs:93
+msgid "PostgreSQL Connection"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:106
+msgid "Connection"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:109
+#: src/ui/components/table_structure/columns.rs:50
+msgid "Name"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:119
+msgid "Host"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:129
+msgid "Port"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:140
+msgid "Default Database"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:150
+msgid "Username"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:160
+msgid "Password"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:195
+msgid "Save Password"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:221
+msgid "Test Connection"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:228
+msgid "Connect"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:358
+#: src/ui/components/connection_dialog.rs:473
+msgid "Reading the saved password failed"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:364
+msgid "Connection test succeeded."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:369
+msgid "Connection test failed"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:378
+msgid "Connection failed"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:405
+msgid "Checking password storage availability."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:406
+msgid "Store this password in Keyring."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:407
+msgid "Password storage is not available."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:424
+msgid "Saved in Keyring. Enter a new password to replace it."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:427
+msgid "No saved password was found. Enter a password to save it."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:499
+msgid "PostgreSQL returned the following error:"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:17
+msgid "Comma"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:17
+msgid "Semicolon"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:17
+msgid "Tab"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:19
+msgid "Delimiter"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:36 src/ui/components/results.rs:166
+msgid "Row limit"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:195
+#: src/ui/components/table_browser.rs:256 src/ui/components/table_view.rs:156
+msgid "Export CSV"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:49
+msgid "Choose how many rows to export and which delimiter to use."
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:199
+#: src/ui/components/table_browser.rs:260
+msgid "Export"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:87
+msgid "Save CSV"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:90
+#: src/ui/components/table_browser/cell_editor.rs:99
+msgid "Save"
+msgstr ""
+
+#: src/ui/components/csv_export_dialog.rs:98
+msgid "CSV Files"
+msgstr ""
+
+#: src/ui/components/cell_dialog.rs:29 src/ui/components/cell_dialog.rs:41
+msgid "Cell value"
+msgstr ""
+
+#: src/ui/components/database_selector.rs:43
+#: data/io.github.anil_e.Codd.desktop.in:3
+#: data/io.github.anil_e.Codd.metainfo.xml.in:7
+msgid "Codd"
+msgstr ""
+
+#: src/ui/components/database_selector.rs:48
+msgid "Switch database"
+msgstr ""
+
+#: src/ui/components/database_selector.rs:96
+msgid "Search databases"
+msgstr ""
+
+#: src/ui/components/database_selector.rs:119
+msgid "No databases match your search."
+msgstr ""
+
+#: src/ui/components/database_selector.rs:214
+#: src/ui/components/table_browser.rs:996
+msgid "Loading..."
+msgstr ""
+
+#: src/ui/components/start_screen.rs:45
+msgid "Welcome to Codd"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:46
+msgid "Add a PostgreSQL connection to get started"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:50 src/ui/components/start_screen.rs:84
+msgid "Add Connection..."
+msgstr ""
+
+#: src/ui/components/start_screen.rs:76
+msgid "Connections"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:160
+msgid "Renaming the connection failed"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:186
+msgid "Removing the connection failed"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:207
+msgid "Removing the saved password failed"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:239
+msgid "Default database"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:254
+msgid "Rename connection"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:260
+msgid "Remove connection"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:315
+msgid "Rename Connection"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:316
+msgid "Choose a new name for this connection."
+msgstr ""
+
+#: src/ui/components/start_screen.rs:348
+msgid "Remove Connection"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:351
+msgid "Remove the saved connection"
+msgstr ""
+
+#: src/ui/components/start_screen.rs:357
+msgid "Remove"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:95
+msgid "Search objects"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:121
+msgid "No objects match your search."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:174
+msgid "Loading schema..."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:185 src/ui/components/sidebar.rs:406
+#: src/ui/components/sidebar.rs:420
+msgid "No tables or views found"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:391
+msgid "Loading schema"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:393
+msgid "No objects available"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:402
+msgid "Fetching tables and views for the current connection."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:405
+msgid "Connect to PostgreSQL to browse database objects."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:408
+msgid "The selected database does not currently expose tables or views."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:527
+msgid "Scripts"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:531 src/ui/components/table_structure.rs:403
+msgid "Rename..."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:536
+msgid "Truncate..."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:539
+msgid "Delete..."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:548
+msgid "CREATE Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:552
+msgid "SELECT Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:556
+msgid "INSERT Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:560
+msgid "UPDATE Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:564
+msgid "DELETE Script"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:572
+msgid "Copy Table Name"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:573
+msgid "Copy Qualified Table Name"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:574
+msgid "Copy View Name"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:575
+msgid "Copy Qualified View Name"
+msgstr ""
+
+#: src/ui/components/sidebar.rs:581
+msgid "Table name copied."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:582
+msgid "Qualified table name copied."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:583
+msgid "View name copied."
+msgstr ""
+
+#: src/ui/components/sidebar.rs:584
+msgid "Qualified view name copied."
+msgstr ""
+
+#: src/ui/components/editor.rs:104
+msgid "Query History"
+msgstr ""
+
+#: src/ui/components/editor.rs:108
+msgid "History"
+msgstr ""
+
+#: src/ui/components/editor.rs:188
+#: src/ui/components/table_browser/filters.rs:438
+msgid "Clear"
+msgstr ""
+
+#: src/ui/components/editor.rs:201
+#: src/ui/components/table_browser/filters.rs:442
+msgid "Apply"
+msgstr ""
+
+#: src/ui/components/editor.rs:217
+msgid "Selection will be executed"
+msgstr ""
+
+#: src/ui/components/editor.rs:227
+msgid "Execute selection or statement"
+msgstr ""
+
+#: src/ui/components/editor.rs:231
+msgid "Execute"
+msgstr ""
+
+#: src/ui/components/editor.rs:372
+msgid "No query history yet."
+msgstr ""
+
+#: src/ui/components/editor.rs:477
+msgid "Unknown time"
+msgstr ""
+
+#: src/ui/components/results.rs:241 src/ui/components/results.rs:274
+msgid "Run a query to see results"
+msgstr ""
+
+#: src/ui/components/results.rs:245 src/ui/components/results.rs:276
+msgid "Run a query"
+msgstr ""
+
+#: src/ui/components/results.rs:246 src/ui/components/results.rs:278
+msgid "Results will appear here after execution."
+msgstr ""
+
+#: src/ui/components/results.rs:285
+msgid "Running query..."
+msgstr ""
+
+#: src/ui/components/results.rs:287
+msgid "Running query"
+msgstr ""
+
+#: src/ui/components/results.rs:289
+msgid "Waiting for PostgreSQL to return results."
+msgstr ""
+
+#: src/ui/components/results.rs:298
+msgid "Query cancelled"
+msgstr ""
+
+#: src/ui/components/results.rs:299
+msgid "The query was cancelled."
+msgstr ""
+
+#: src/ui/components/results.rs:318 src/ui/components/table_browser.rs:715
+msgid "Cell copied."
+msgstr ""
+
+#: src/ui/components/results.rs:329 src/ui/components/table_browser.rs:726
+msgid "Row copied."
+msgstr ""
+
+#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:737
+msgid "Column copied."
+msgstr ""
+
+#: src/ui/components/results.rs:349
+msgid "Results copied."
+msgstr ""
+
+#: src/ui/components/results.rs:361 src/ui/components/results.rs:460
+msgid "Query returned no rows."
+msgstr ""
+
+#: src/ui/components/results.rs:377
+msgid "row affected"
+msgid_plural "rows affected"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/ui/components/results.rs:379
+msgid "The statement completed successfully."
+msgstr ""
+
+#: src/ui/components/results.rs:468
+msgid "row"
+msgid_plural "rows"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/ui/components/results.rs:641 src/ui/components/table_browser.rs:1126
+msgid "Copy Cell"
+msgstr ""
+
+#: src/ui/components/results.rs:642 src/ui/components/table_browser.rs:1127
+msgid "Copy Row"
+msgstr ""
+
+#: src/ui/components/results.rs:643 src/ui/components/table_browser.rs:1128
+msgid "Copy Column"
+msgstr ""
+
+#: src/ui/components/results.rs:645
+msgid "Copy Displayed Results"
+msgstr ""
+
+#: src/ui/components/results.rs:648 src/ui/components/table_browser.rs:1133
+msgid "Export CSV..."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:248 src/ui/components/table_view.rs:145
+msgid "Show or edit filters"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:266 src/ui/components/table_view.rs:168
+msgid "Refresh"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:326
+msgid "First page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:335
+msgid "Previous page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:366
+msgid "Next page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:375
+msgid "Last page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:385
+msgid "Rows"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:390
+msgid "Rows per page"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:449
+msgid "Select a table"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:451
+msgid "Choose a table or view from the sidebar to browse its rows."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:643
+msgid "Loading table failed"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:670
+msgid "Loading last page failed"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:701
+msgid "Saving cell failed"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:746
+msgid "Page copied."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:791
+msgid "Row inserted."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:803
+msgid "Inserting row failed"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:806
+msgid "Reloading table failed"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:955
+msgid "Filter cannot be applied"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:970
+msgid "Table Browser"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:980 src/ui/components/table_view.rs:393
+msgid "View"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:988
+#: src/ui/components/table_browser.rs:990
+msgid "Filters"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:1004
+msgid "No rows"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:1010
+#, rust-format
+msgid "{first}-{last} rows"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:1125
+msgid "Edit Value"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:1130
+msgid "Copy Displayed Page"
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:32
+#: src/ui/components/table_structure/columns.rs:59
+msgid "Type"
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:40
+#: src/ui/components/table_browser/filters.rs:314
+#: src/ui/components/table_browser/insert_row.rs:239
+#: src/ui/components/table_browser/insert_row.rs:449
+msgid "Value"
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:49
+msgid ""
+"Use Set NULL to store a database NULL. Empty text is saved as empty text."
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:51
+msgid "This column is not nullable."
+msgstr ""
+
+#: src/ui/components/table_browser/cell_editor.rs:94
+msgid "Set NULL"
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:38
+msgid "Cell cannot be edited"
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:134
+msgid "Only tables can be edited."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:138
+msgid "The selected cell is no longer available."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:142
+msgid "Primary key columns are read-only for now."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:146
+msgid "This column type is not editable yet."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:150
+msgid "Editing requires a primary key."
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:52
+msgid "Load the table before adding filters."
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:57
+msgid "This table has no filterable columns."
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:64
+msgid "No filters applied."
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:86
+msgid "Missing custom SQL filter"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:100
+msgid "Missing value for filter"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:239
+msgid "Remove filter"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:344
+msgid "SQL expression"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:435
+msgid "Add Filter"
+msgstr ""
+
+#: src/ui/components/table_browser/filters.rs:601
+msgid "Custom SQL"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:133
+#: src/ui/components/table_view.rs:135
+msgid "Insert Row"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:135
+msgid ""
+"Enter values for the new row. Columns can also use DEFAULT or NULL when "
+"available."
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:142
+msgid "Insert"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:242
+msgid "NULL"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:246
+#: src/ui/components/table_structure/columns.rs:83
+msgid "Default"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:276
+msgid "Skipped"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:416
+msgid "Required"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:418
+msgid "Default or NULL allowed"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:420
+msgid "Default allowed"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:422
+msgid "NULL allowed"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:430
+msgid "Required column with unsupported type"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:433
+msgid "Generated column"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:436
+msgid "Identity column"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:439
+msgid "Unsupported column type"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:442
+msgid "Read-only column"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:447
+msgid "Required value"
+msgstr ""
+
+#: src/ui/components/table_browser/loading.rs:33
+msgid "Loading rows"
+msgstr ""
+
+#: src/ui/components/table_browser/loading.rs:34
+msgid "Fetching the selected page from PostgreSQL."
+msgstr ""
+
+#: src/ui/components/table_browser/loading.rs:64
+#: src/ui/components/table_browser/loading.rs:100
+#: src/ui/components/table_structure.rs:321
+msgid "Loading cancelled"
+msgstr ""
+
+#: src/ui/components/table_browser/loading.rs:120
+#, rust-format
+msgid ""
+"The table {name} could not be found. It may have been renamed or dropped."
+msgstr ""
+
+#: src/ui/components/table_browser/loading.rs:124
+#, rust-format
+msgid ""
+"The view {name} could not be found. It may have been renamed or dropped."
+msgstr ""
+
+#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:211
+msgid "Structure"
+msgstr ""
+
+#: src/ui/components/table_structure.rs:147
+msgid "Open a table to inspect its columns."
+msgstr ""
+
+#: src/ui/components/table_structure.rs:210
+msgid "Loading structure failed"
+msgstr ""
+
+#: src/ui/components/table_structure.rs:300
+msgid "Loading structure"
+msgstr ""
+
+#: src/ui/components/table_structure.rs:301
+msgid "Fetching table structure from PostgreSQL."
+msgstr ""
+
+#: src/ui/components/table_structure.rs:402
+msgid "Copy Name"
+msgstr ""
+
+#: src/ui/components/table_structure.rs:404
+msgid "Drop..."
+msgstr ""
+
+#: src/ui/components/table_structure.rs:410
+msgid "Column name copied."
+msgstr ""
+
+#: src/ui/components/table_structure.rs:411
+msgid "Index name copied."
+msgstr ""
+
+#: src/ui/components/table_structure.rs:412
+msgid "Constraint name copied."
+msgstr ""
+
+#: src/ui/components/table_structure.rs:413
+msgid "Foreign key name copied."
+msgstr ""
+
+#: src/ui/components/table_structure.rs:414
+msgid "Trigger name copied."
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:19
+msgid "Columns"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:68
+msgid "Nullable"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:71
+msgid "Yes"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:73
+msgid "No"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:92
+msgid "Key"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:209
+msgid "Generated"
+msgstr ""
+
+#: src/ui/components/table_structure/columns.rs:217
+#: src/ui/components/table_structure/sections.rs:251
+msgid "Primary"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:21
+msgid "Indexes"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:22
+msgid "No indexes"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:48
+msgid "Constraints"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:50
+msgid "No constraints"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:72
+msgid "Foreign Keys"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:75
+msgid "No foreign keys"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:99
+msgid "Triggers"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:100
+msgid "No triggers"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:253
+msgid "Unique"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:257
+msgid "Invalid"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:261
+msgid "Partial"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:271
+msgid "Not validated"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:284
+msgid "Deferred"
+msgstr ""
+
+#: src/ui/components/table_structure/sections.rs:285
+msgid "Deferrable"
+msgstr ""
+
+#: src/ui/components/table_view.rs:207
+msgid "Content"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.desktop.in:10
+msgid "PostgreSQL;SQL;Database;Query;GNOME;"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:10
+msgid ""
+"Codd is a lightweight PostgreSQL query app for GNOME built with Rust, GTK4, "
+"and libadwaita."
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:14
+msgid ""
+"It focuses on saved connections, database browsing, SQL execution, and "
+"native result previews without trying to become a multi-database suite."
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:25
+msgid "Anil Erdogan"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:37
+msgid "Run SQL queries with syntax highlighting and result previews"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:41
+msgid "Browse PostgreSQL table data with pagination and filters"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:45
+msgid ""
+"Inspect table columns, data types, nullability, defaults and primary keys"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:49
+msgid ""
+"Review indexes, constraints, foreign keys and triggers in the structure view"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:53
+msgid "Use table actions like rename, truncate and delete"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:57
+msgid "Manage saved PostgreSQL connections"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:6
+msgctxt "shortcut window"
+msgid "General"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:9
+msgctxt "shortcut window"
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:15
+msgctxt "shortcut window"
+msgid "New Window"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:21
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:29
+msgctxt "shortcut window"
+msgid "Navigation"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:32
+msgctxt "shortcut window"
+msgid "Search Database Objects"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:40
+msgctxt "shortcut window"
+msgid "Table Browser"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:43
+msgctxt "shortcut window"
+msgid "Refresh Table or View"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:51
+msgctxt "shortcut window"
+msgid "Tabs"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:54
+msgctxt "shortcut window"
+msgid "New Query Tab"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:60
+msgctxt "shortcut window"
+msgid "Close Current Tab"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:68
+msgctxt "shortcut window"
+msgid "Query"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:71
+msgctxt "shortcut window"
+msgid "Execute"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:77
+msgctxt "shortcut window"
+msgid "Cancel Running Query"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:83
+msgctxt "shortcut window"
+msgid "Focus SQL Editor"
+msgstr ""
