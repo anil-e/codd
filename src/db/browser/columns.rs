@@ -10,6 +10,9 @@ struct TableColumnRow {
     enum_values: Option<Vec<String>>,
     is_nullable: bool,
     is_primary_key: bool,
+    has_default: bool,
+    is_identity: bool,
+    is_generated: bool,
     ordinal_position: i32,
 }
 
@@ -33,12 +36,17 @@ pub async fn load_table_columns(
                   AND con.contype = 'p'
                   AND a.attnum = ANY(con.conkey)
             ) AS is_primary_key,
+            ad.oid IS NOT NULL AS has_default,
+            a.attidentity <> '' AS is_identity,
+            a.attgenerated <> '' AS is_generated,
             a.attnum::int4 AS ordinal_position
         FROM pg_class c
         JOIN pg_namespace n ON n.oid = c.relnamespace
         JOIN pg_attribute a ON a.attrelid = c.oid
         JOIN pg_type t ON t.oid = a.atttypid
         LEFT JOIN pg_enum e ON e.enumtypid = t.oid
+        LEFT JOIN pg_attrdef ad ON ad.adrelid = c.oid
+            AND ad.adnum = a.attnum
         WHERE n.nspname = $1
           AND c.relname = $2
           AND a.attnum > 0
@@ -51,6 +59,9 @@ pub async fn load_table_columns(
             a.atttypmod,
             t.typname,
             a.attnotnull,
+            ad.oid,
+            a.attidentity,
+            a.attgenerated,
             a.attnum
         ORDER BY a.attnum
         ",
@@ -70,6 +81,9 @@ pub async fn load_table_columns(
             type_name: row.type_name,
             is_nullable: row.is_nullable,
             is_primary_key: row.is_primary_key,
+            has_default: row.has_default,
+            is_identity: row.is_identity,
+            is_generated: row.is_generated,
             ordinal_position: row.ordinal_position,
         })
         .collect())

@@ -204,6 +204,9 @@ mod tests {
             type_group: ColumnTypeGroup::Text,
             is_nullable: false,
             is_primary_key: false,
+            has_default: false,
+            is_identity: false,
+            is_generated: false,
             ordinal_position: 1,
         }
     }

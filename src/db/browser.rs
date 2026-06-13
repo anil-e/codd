@@ -9,7 +9,7 @@ mod editing;
 mod page_sql;
 
 pub use columns::load_table_columns;
-pub use editing::update_table_cell;
+pub use editing::{insert_table_row, update_table_cell};
 
 pub async fn load_table_page(
     pool: &PgPool,
@@ -146,7 +146,10 @@ async fn load_export_rows(
 #[cfg(test)]
 mod tests {
     use super::{
-        editing::{TableCellUpdateError, update_cell_sql, validate_update_input},
+        editing::{
+            TableCellUpdateError, TableRowInsertError, insert_row_sql, update_cell_sql,
+            validate_insert_input, validate_update_input,
+        },
         page_sql::{
             TableFilterError, order_by_clause, table_count_sql_with_filters,
             table_export_sql_with_filters, table_page_sql, table_page_sql_with_filters,
@@ -155,7 +158,7 @@ mod tests {
     use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
     use crate::models::table_browser::{
         ColumnTypeGroup, FilterOperator, SortDirection, TableCell, TableColumn, TableFilter,
-        TableSort,
+        TableInsertValue, TableSort,
     };
 
     #[test]
@@ -639,6 +642,124 @@ mod tests {
         ));
     }
 
+    #[test]
+    fn insert_row_query_uses_only_submitted_columns() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "users".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![
+            identity_column("id"),
+            column_with_default("created_at"),
+            column("display name", false),
+            nullable_column("nickname"),
+        ];
+        let values = vec![
+            TableInsertValue::Default,
+            TableInsertValue::Default,
+            TableInsertValue::Value("Ada".to_string()),
+            TableInsertValue::Null,
+        ];
+
+        assert_eq!(
+            insert_row_sql(&object, &columns, &values).unwrap(),
+            "INSERT INTO \"public\".\"users\" (\"display name\", \"nickname\") VALUES ($1::text, $2::text)"
+        );
+    }
+
+    #[test]
+    fn insert_row_query_uses_default_values_when_every_column_is_omitted() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "audit".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![identity_column("id"), column_with_default("created_at")];
+        let values = vec![TableInsertValue::Default, TableInsertValue::Default];
+
+        assert_eq!(
+            insert_row_sql(&object, &columns, &values).unwrap(),
+            "INSERT INTO \"public\".\"audit\" DEFAULT VALUES"
+        );
+    }
+
+    #[test]
+    fn insert_row_query_rejects_views() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "active_users".to_string(),
+            kind: DatabaseObjectKind::View,
+        };
+
+        assert!(matches!(
+            insert_row_sql(
+                &object,
+                &[column("name", false)],
+                &[TableInsertValue::Value("Ada".to_string())]
+            ),
+            Err(TableRowInsertError::NotATable)
+        ));
+    }
+
+    #[test]
+    fn insert_row_validation_rejects_missing_required_columns() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "users".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+
+        assert!(matches!(
+            validate_insert_input(
+                &object,
+                &[column("name", false)],
+                &[TableInsertValue::Default]
+            ),
+            Err(TableRowInsertError::MissingRequiredValue(_))
+        ));
+    }
+
+    #[test]
+    fn insert_row_validation_allows_empty_strings_for_required_text_columns() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "users".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+
+        assert!(
+            validate_insert_input(
+                &object,
+                &[column("name", false)],
+                &[TableInsertValue::Value(String::new())]
+            )
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn insert_row_validation_rejects_unsupported_column_types() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "files".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let mut content = column("content", false);
+        content.type_group = ColumnTypeGroup::Binary;
+        content.display_type = "bytea".to_string();
+        content.type_name = "bytea".to_string();
+
+        assert!(matches!(
+            validate_insert_input(
+                &object,
+                &[content],
+                &[TableInsertValue::Value("\\xdeadbeef".to_string())]
+            ),
+            Err(TableRowInsertError::UnsupportedColumnType(_))
+        ));
+    }
+
     fn column(name: &str, is_primary_key: bool) -> TableColumn {
         TableColumn {
             name: name.to_string(),
@@ -648,7 +769,32 @@ mod tests {
             type_group: ColumnTypeGroup::Text,
             is_nullable: false,
             is_primary_key,
+            has_default: false,
+            is_identity: false,
+            is_generated: false,
             ordinal_position: 1,
+        }
+    }
+
+    fn nullable_column(name: &str) -> TableColumn {
+        TableColumn {
+            is_nullable: true,
+            ..column(name, false)
+        }
+    }
+
+    fn column_with_default(name: &str) -> TableColumn {
+        TableColumn {
+            has_default: true,
+            ..column(name, false)
+        }
+    }
+
+    fn identity_column(name: &str) -> TableColumn {
+        TableColumn {
+            is_identity: true,
+            has_default: true,
+            ..column(name, true)
         }
     }
 

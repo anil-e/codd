@@ -141,6 +141,7 @@ pub enum WindowContentMsg {
     FocusEditor,
     FocusObjectSearch,
     ToggleSidebar,
+    SidebarVisibilityChanged(bool),
     DatabaseSwitchCompleted {
         id: u64,
         database: String,
@@ -278,7 +279,7 @@ impl Component for WindowContent {
 
                         #[wrap(Some)]
                         set_child = &adw::OverlaySplitView {
-                            set_sidebar_width_fraction: 0.45,
+                            set_sidebar_width_fraction: 0.30,
                             set_min_sidebar_width: 190.0,
                             set_max_sidebar_width: 290.0,
                             set_collapsed: true,
@@ -422,6 +423,13 @@ impl Component for WindowContent {
         setup_tab_context_menu(&widgets.query_tab_view, &sender);
         widgets.content_stack.set_visible_child_name("start");
         setup_workspace_breakpoint(&widgets);
+
+        let s = sender.clone();
+        workspace_split_view(&widgets).connect_show_sidebar_notify(move |split_view| {
+            s.input(WindowContentMsg::SidebarVisibilityChanged(
+                split_view.shows_sidebar(),
+            ));
+        });
 
         let s = sender.clone();
         let selected_page_signals_blocked = tab_view_signals_blocked.clone();
@@ -664,6 +672,14 @@ impl Component for WindowContent {
                     widgets.toast_overlay.add_toast(adw::Toast::new(&message));
                 }
             }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
+                output: TableViewOutput::Inserted(message),
+            } => {
+                if self.browse_tabs.iter().any(|tab| tab.id == tab_id) {
+                    widgets.toast_overlay.add_toast(adw::Toast::new(&message));
+                }
+            }
             WindowContentMsg::WindowEvent(event) => {
                 self.handle_window_event(event, widgets, &sender);
             }
@@ -687,6 +703,16 @@ impl Component for WindowContent {
                 self.focus_object_search(widgets);
             }
             WindowContentMsg::ToggleSidebar => self.toggle_sidebar(widgets, root),
+            WindowContentMsg::SidebarVisibilityChanged(show_sidebar) => {
+                if show_sidebar && self.prefers_sidebar_hidden() {
+                    workspace_split_view(widgets).set_show_sidebar(false);
+                    self.workspace_navigation = WorkspaceNavigation::SidebarHidden;
+                    return;
+                }
+
+                self.workspace_navigation =
+                    WorkspaceNavigation::from_sidebar_visibility(show_sidebar);
+            }
             WindowContentMsg::DatabaseSelectorOutput(DatabaseSelectorOutput::DatabaseSelected(
                 database,
             )) => {
@@ -907,6 +933,7 @@ fn setup_workspace_breakpoint(widgets: &WindowContentWidgets) {
     breakpoint.add_setters(&[
         (&split_view, "collapsed", false),
         (&split_view, "pin-sidebar", true),
+        (&split_view, "show-sidebar", true),
     ]);
 
     widgets
@@ -1129,6 +1156,14 @@ impl WindowContent {
 
         let settings = settings::connection_state_settings(&connection.id);
         let _ = settings.set_boolean("sidebar-hidden", hidden);
+    }
+
+    fn prefers_sidebar_hidden(&self) -> bool {
+        let Some(connection) = self.state.active_connection.as_ref() else {
+            return false;
+        };
+
+        settings::connection_state_settings(&connection.id).boolean("sidebar-hidden")
     }
 
     fn show_start_screen(&mut self, widgets: &mut WindowContentWidgets) {

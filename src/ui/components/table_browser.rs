@@ -13,7 +13,8 @@ use std::rc::Rc;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::result_copy;
 use crate::models::table_browser::{
-    DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TableFilter, TablePage, TableSort,
+    DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, TableCell, TableColumn, TableFilter, TableInsertValue,
+    TablePage, TableSort,
 };
 use crate::models::{csv_export, csv_export::CsvExportOptions};
 use crate::ui::components::csv_export_dialog::{
@@ -27,6 +28,7 @@ mod cell_editor;
 mod editing;
 mod filters;
 mod grid;
+mod insert_row;
 mod loading;
 mod sorting;
 
@@ -50,6 +52,7 @@ pub struct TableBrowser {
     request_id: u64,
     active_request_id: Option<u64>,
     active_last_page_request_id: Option<u64>,
+    active_insert_request_id: Option<u64>,
     active_abort_handle: Option<AbortHandle>,
     table_rows: gio::ListStore,
     table_view: gtk::ColumnView,
@@ -150,6 +153,12 @@ pub enum TableBrowserMsg {
         path: PathBuf,
     },
     CsvExported(Result<(), String>),
+    InsertRowRequested,
+    InsertRowConfirmed(Vec<TableInsertValue>),
+    RowInserted {
+        id: u64,
+        result: InsertRowResult,
+    },
     EditCellFromMenu {
         anchor: gtk::Label,
         row_index: usize,
@@ -162,6 +171,7 @@ pub enum TableBrowserMsg {
 pub enum TableBrowserOutput {
     Copied(String),
     Exported(String),
+    Inserted(String),
 }
 
 #[derive(Debug)]
@@ -181,6 +191,17 @@ pub enum TableBrowserCommandOutput {
         result: Result<TableCell, String>,
     },
     CsvExported(Result<(), String>),
+    RowInserted {
+        id: u64,
+        result: InsertRowResult,
+    },
+}
+
+#[derive(Debug)]
+pub enum InsertRowResult {
+    Inserted(TablePage),
+    InsertFailed(String),
+    ReloadFailed(String),
 }
 
 #[relm4::component(pub)]
@@ -448,6 +469,7 @@ impl Component for TableBrowser {
             request_id: 0,
             active_request_id: None,
             active_last_page_request_id: None,
+            active_insert_request_id: None,
             active_abort_handle: None,
             table_rows,
             table_view,
@@ -759,6 +781,46 @@ impl Component for TableBrowser {
                 return;
             }
 
+            TableBrowserMsg::InsertRowRequested => {
+                self.open_insert_row_dialog(root, &sender);
+                return;
+            }
+
+            TableBrowserMsg::InsertRowConfirmed(values) => {
+                self.insert_row(values, &sender);
+            }
+
+            TableBrowserMsg::RowInserted { id, result } => {
+                if self.active_insert_request_id != Some(id) {
+                    return;
+                }
+
+                self.active_insert_request_id = None;
+                self.is_loading = false;
+
+                match result {
+                    InsertRowResult::Inserted(page) => {
+                        let _ =
+                            sender.output(TableBrowserOutput::Inserted(gettext("Row inserted.")));
+                        self.is_error = false;
+                        self.status_title.clear();
+                        self.status_description = None;
+                        self.available_columns.clone_from(&page.columns);
+                        self.page = Some(page);
+                        self.page_generation = self.page_generation.wrapping_add(1);
+                        render_table(self, &sender);
+                        self.rebuild_filters(widgets, &sender);
+                        set_stack_child(widgets, true);
+                    }
+                    InsertRowResult::InsertFailed(error) => {
+                        self.show_warning(root, &gettext("Inserting row failed"), &error);
+                    }
+                    InsertRowResult::ReloadFailed(error) => {
+                        self.show_warning(root, &gettext("Reloading table failed"), &error)
+                    }
+                }
+            }
+
             TableBrowserMsg::EditCellFromMenu {
                 anchor,
                 row_index,
@@ -803,6 +865,9 @@ impl Component for TableBrowser {
                 result,
             },
             TableBrowserCommandOutput::CsvExported(result) => TableBrowserMsg::CsvExported(result),
+            TableBrowserCommandOutput::RowInserted { id, result } => {
+                TableBrowserMsg::RowInserted { id, result }
+            }
         });
     }
 

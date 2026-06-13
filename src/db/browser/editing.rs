@@ -1,6 +1,6 @@
 use crate::db::query;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind, quote_identifier};
-use crate::models::table_browser::{TableCell, TableColumn};
+use crate::models::table_browser::{TableCell, TableColumn, TableInsertValue};
 use sqlx::{Column, PgPool, Row, TypeInfo};
 
 use super::page_sql::{primary_key_columns, returning_column_expression};
@@ -44,6 +44,37 @@ pub async fn update_table_cell(
     ))
 }
 
+pub async fn insert_table_row(
+    pool: &PgPool,
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    values: &[TableInsertValue],
+) -> Result<(), TableRowInsertError> {
+    validate_insert_input(object, columns, values)?;
+
+    let sql = insert_row_sql(object, columns, values)?;
+    let mut query = sqlx::query(&sql);
+
+    for value in values {
+        match value {
+            TableInsertValue::Default => {}
+            TableInsertValue::Null => {
+                query = query.bind(Option::<String>::None);
+            }
+            TableInsertValue::Value(value) => {
+                query = query.bind(Some(value.clone()));
+            }
+        }
+    }
+
+    query
+        .execute(pool)
+        .await
+        .map_err(TableRowInsertError::Sqlx)?;
+
+    Ok(())
+}
+
 #[derive(Debug)]
 pub enum TableCellUpdateError {
     NotATable,
@@ -53,6 +84,15 @@ pub enum TableCellUpdateError {
     UnsupportedColumnType,
     NotNullable,
     InvalidCell,
+    Sqlx(sqlx::Error),
+}
+
+#[derive(Debug)]
+pub enum TableRowInsertError {
+    NotATable,
+    InvalidColumnValues,
+    MissingRequiredValue(String),
+    UnsupportedColumnType(String),
     Sqlx(sqlx::Error),
 }
 
@@ -75,6 +115,25 @@ impl std::fmt::Display for TableCellUpdateError {
             }
             Self::NotNullable => write!(formatter, "This column cannot be set to NULL."),
             Self::InvalidCell => write!(formatter, "The selected cell is no longer available."),
+            Self::Sqlx(error) => write!(formatter, "{error}"),
+        }
+    }
+}
+
+impl std::fmt::Display for TableRowInsertError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NotATable => write!(formatter, "Only tables can be edited."),
+            Self::InvalidColumnValues => write!(formatter, "The submitted row is no longer valid."),
+            Self::MissingRequiredValue(column) => {
+                write!(formatter, "Missing value for required column {column}.")
+            }
+            Self::UnsupportedColumnType(column) => {
+                write!(
+                    formatter,
+                    "Column {column} cannot be inserted from this form."
+                )
+            }
             Self::Sqlx(error) => write!(formatter, "{error}"),
         }
     }
@@ -119,6 +178,42 @@ pub(super) fn update_cell_sql(
     ))
 }
 
+pub(super) fn insert_row_sql(
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    values: &[TableInsertValue],
+) -> Result<String, TableRowInsertError> {
+    validate_insert_input(object, columns, values)?;
+
+    let mut insert_columns = Vec::new();
+    let mut insert_values = Vec::new();
+    let mut bind_index = 1;
+
+    for (column, value) in columns.iter().zip(values) {
+        if matches!(value, TableInsertValue::Default) {
+            continue;
+        }
+
+        insert_columns.push(quote_identifier(&column.name));
+        insert_values.push(format!("${bind_index}::{}", column.display_type));
+        bind_index += 1;
+    }
+
+    if insert_columns.is_empty() {
+        return Ok(format!(
+            "INSERT INTO {} DEFAULT VALUES",
+            object.qualified_name()
+        ));
+    }
+
+    Ok(format!(
+        "INSERT INTO {} ({}) VALUES ({})",
+        object.qualified_name(),
+        insert_columns.join(", "),
+        insert_values.join(", ")
+    ))
+}
+
 pub(super) fn validate_update_input(
     object: &DatabaseObject,
     columns: &[TableColumn],
@@ -155,6 +250,54 @@ pub(super) fn validate_update_input(
         .any(|(_, column)| !column.is_editable_value_type())
     {
         return Err(TableCellUpdateError::UnsupportedPrimaryKeyType);
+    }
+
+    Ok(())
+}
+
+pub(super) fn validate_insert_input(
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    values: &[TableInsertValue],
+) -> Result<(), TableRowInsertError> {
+    if object.kind != DatabaseObjectKind::Table {
+        return Err(TableRowInsertError::NotATable);
+    }
+
+    if columns.len() != values.len() {
+        return Err(TableRowInsertError::InvalidColumnValues);
+    }
+
+    for (column, value) in columns.iter().zip(values) {
+        match value {
+            TableInsertValue::Default => {
+                if column.is_required_for_insert() {
+                    return Err(TableRowInsertError::MissingRequiredValue(
+                        column.name.clone(),
+                    ));
+                }
+            }
+            TableInsertValue::Null => {
+                if !column.is_insertable() {
+                    return Err(TableRowInsertError::UnsupportedColumnType(
+                        column.name.clone(),
+                    ));
+                }
+
+                if !column.is_nullable {
+                    return Err(TableRowInsertError::MissingRequiredValue(
+                        column.name.clone(),
+                    ));
+                }
+            }
+            TableInsertValue::Value(_) => {
+                if !column.is_insertable() {
+                    return Err(TableRowInsertError::UnsupportedColumnType(
+                        column.name.clone(),
+                    ));
+                }
+            }
+        }
     }
 
     Ok(())

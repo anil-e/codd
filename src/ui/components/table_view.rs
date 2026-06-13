@@ -33,6 +33,7 @@ pub enum TableViewMsg {
         reset_browser_state: bool,
     },
     ExportCsv,
+    InsertRow,
     ShowContent,
     ShowStructure,
     ToggleFilters,
@@ -44,6 +45,7 @@ pub enum TableViewMsg {
 pub enum TableViewOutput {
     Copied(String),
     Exported(String),
+    Inserted(String),
     StructureCopied {
         text: String,
         message: String,
@@ -129,24 +131,37 @@ impl Component for TableView {
                 },
 
                 gtk::Button {
+                    set_icon_name: "list-add-symbolic",
+                    set_tooltip_text: Some(&gettext("Insert Row")),
+                    add_css_class: "flat",
+                    #[watch]
+                    set_visible: model.can_insert_rows(),
+                    #[watch]
+                    set_sensitive: model.mode == TableViewMode::Content,
+                    #[watch]
+                    set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
+                    connect_clicked => TableViewMsg::InsertRow,
+                },
+
+                gtk::Button {
                     set_tooltip_text: Some(&gettext("Show or edit filters")),
+                    set_icon_name: "filter-symbolic",
                     add_css_class: "flat",
                     #[watch]
                     set_sensitive: model.mode == TableViewMode::Content,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
-                    set_child: Some(&icon_label_widget("filter-symbolic", &gettext("Filters"))),
                     connect_clicked => TableViewMsg::ToggleFilters,
                 },
 
                 gtk::Button {
                     set_tooltip_text: Some(&gettext("Export CSV")),
+                    set_icon_name: "document-save-symbolic",
                     add_css_class: "flat",
                     #[watch]
                     set_sensitive: model.mode == TableViewMode::Content,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
-                    set_child: Some(&icon_label_widget("document-save-symbolic", &gettext("Export"))),
                     connect_clicked => TableViewMsg::ExportCsv,
                 },
 
@@ -270,6 +285,12 @@ impl Component for TableView {
                 }
             }
 
+            TableViewMsg::InsertRow => {
+                if self.mode == TableViewMode::Content && self.can_insert_rows() {
+                    self.browser.emit(TableBrowserMsg::InsertRowRequested);
+                }
+            }
+
             TableViewMsg::ShowContent => {
                 self.mode = TableViewMode::Content;
                 widgets.mode_stack.set_visible_child_name("content");
@@ -297,6 +318,11 @@ impl Component for TableView {
 
             TableViewMsg::BrowserOutput(TableBrowserOutput::Exported(message)) => {
                 let _ = sender.output(TableViewOutput::Exported(message));
+                return;
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::Inserted(message)) => {
+                let _ = sender.output(TableViewOutput::Inserted(message));
                 return;
             }
 
@@ -353,6 +379,12 @@ impl TableView {
             .is_some_and(|object| object.kind == DatabaseObjectKind::Table)
     }
 
+    fn can_insert_rows(&self) -> bool {
+        self.object
+            .as_ref()
+            .is_some_and(|object| object.kind == DatabaseObjectKind::Table)
+    }
+
     fn object_context(&self) -> String {
         let Some(object) = self.object.as_ref() else {
             return String::new();
@@ -365,14 +397,4 @@ impl TableView {
 
         format!("{} · {}", object.schema, kind)
     }
-}
-
-fn icon_label_widget(icon_name: &str, label: &str) -> gtk::Box {
-    let container = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-    let image = gtk::Image::from_icon_name(icon_name);
-    container.append(&image);
-
-    let label = gtk::Label::new(Some(label));
-    container.append(&label);
-    container
 }

@@ -39,12 +39,23 @@ pub struct TableColumn {
     pub type_group: ColumnTypeGroup,
     pub is_nullable: bool,
     pub is_primary_key: bool,
+    pub has_default: bool,
+    pub is_identity: bool,
+    pub is_generated: bool,
     pub ordinal_position: i32,
 }
 
 impl TableColumn {
     pub fn is_editable_value_type(&self) -> bool {
         self.type_group != ColumnTypeGroup::Binary
+    }
+
+    pub fn is_insertable(&self) -> bool {
+        !self.is_identity && !self.is_generated && self.is_editable_value_type()
+    }
+
+    pub fn is_required_for_insert(&self) -> bool {
+        !self.is_nullable && !self.has_default && !self.is_identity && !self.is_generated
     }
 
     pub fn uses_text_display(&self) -> bool {
@@ -76,6 +87,13 @@ impl TableCell {
             is_null: false,
         }
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TableInsertValue {
+    Default,
+    Null,
+    Value(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -280,6 +298,9 @@ mod tests {
             type_group: ColumnTypeGroup::from_postgres_type(type_name),
             is_nullable: false,
             is_primary_key: false,
+            has_default: false,
+            is_identity: false,
+            is_generated: false,
             ordinal_position: 1,
         }
     }

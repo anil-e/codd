@@ -28,6 +28,7 @@ impl TableBrowser {
         close_popover(&mut self.edit_popover);
 
         self.active_last_page_request_id = None;
+        self.active_insert_request_id = None;
         self.is_loading = true;
         self.is_error = false;
         self.status_title = gettext("Loading rows");
@@ -80,6 +81,7 @@ impl TableBrowser {
         }
 
         self.is_loading = true;
+        self.active_insert_request_id = None;
         let id = self.allocate_request_id();
         let page_size = self.page_size;
         let filters = self.active_filters.clone();
@@ -104,7 +106,7 @@ impl TableBrowser {
         });
     }
 
-    fn allocate_request_id(&mut self) -> u64 {
+    pub(super) fn allocate_request_id(&mut self) -> u64 {
         let id = self.request_id;
         self.request_id = self.request_id.wrapping_add(1);
         id

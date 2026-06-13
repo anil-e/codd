@@ -347,12 +347,14 @@ fn build_schema_row(
 ) -> adw::ExpanderRow {
     let row = adw::ExpanderRow::builder()
         .title(schema)
+        .title_lines(2)
         .expanded(
             has_active_search
                 || schema == "public"
                 || schema_has_selected_object(objects, selected_key),
         )
         .build();
+    row.set_tooltip_text(Some(schema));
 
     row.add_css_class("object-tree-schema-row");
 
@@ -603,8 +605,10 @@ fn build_object_row(
 ) -> adw::ActionRow {
     let row = adw::ActionRow::builder()
         .title(&object.name)
+        .title_lines(2)
         .activatable(true)
         .build();
+    row.set_tooltip_text(Some(&object.name));
 
     row.add_css_class("object-tree-object-row");
 
