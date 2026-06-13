@@ -8,55 +8,56 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-12 18:06+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-06-13 18:17+0000\n"
+"Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
+"Language-Team: Finnish <https://hosted.weblate.org/projects/codd/ui/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
-msgstr ""
+msgstr "_Uusi yhteys"
 
 #: src/menus.rs:32
 msgid "_New Window"
-msgstr ""
+msgstr "_Uusi ikkuna"
 
 #: src/menus.rs:38
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "_Pikanäppäimet"
 
 #: src/menus.rs:39
 msgid "_About Codd"
-msgstr ""
+msgstr "_Tietoja - Codd"
 
 #: src/menus.rs:40
 msgid "_Quit"
-msgstr ""
+msgstr "_Lopeta"
 
 #: src/window.rs:205
 msgid "translator-credits"
-msgstr ""
+msgstr "Jiri Grönroos"
 
 #: src/window.rs:207 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
-msgstr ""
+msgstr "Kevyt PostgreSQL-asiakasohjelmisto"
 
 #: src/window_content.rs:261 src/window_content.rs:321
 msgid "Main Menu"
-msgstr ""
+msgstr "Päävalikko"
 
 #: src/window_content.rs:294
 msgid "Objects"
-msgstr ""
+msgstr "Objektit"
 
 #: src/window_content.rs:298
 msgid "Back to connections"
-msgstr ""
+msgstr "Takaisin yhteyksiin"
 
 #: src/window_content.rs:328
 msgid "New Query Tab"
@@ -90,7 +91,7 @@ msgstr ""
 
 #: src/window_content.rs:1247
 msgid "Connected to PostgreSQL."
-msgstr ""
+msgstr "Yhdistetty PostgreSQL:ään."
 
 #: src/window_content.rs:1260
 msgid "Connected, but saving the connection failed"
@@ -102,7 +103,7 @@ msgstr ""
 
 #: src/window_content.rs:1391
 msgid "Connect to PostgreSQL before exporting query results."
-msgstr ""
+msgstr "Yhdistä PostgreSQL:ään ennen kyselyn tulosten vientiä."
 
 #: src/window_content.rs:1399
 msgid "Enter SQL before exporting query results."
@@ -118,7 +119,7 @@ msgstr ""
 
 #: src/window_content.rs:1504
 msgid "Connect to PostgreSQL before generating a script."
-msgstr ""
+msgstr "Yhdistä PostgreSQL:ään ennen skriptin luontia."
 
 #: src/window_content.rs:1544
 msgid "Generating the table script failed"
@@ -167,7 +168,7 @@ msgstr ""
 
 #: src/window_content/database_switching.rs:57
 msgid "Connect to PostgreSQL before switching databases."
-msgstr ""
+msgstr "Yhdistä PostgreSQL:ään ennen tietokantojen välillä vaihtamista."
 
 #: src/window_content/database_switching.rs:107
 msgid "Database switch failed"
@@ -313,7 +314,7 @@ msgstr ""
 
 #: src/window_content/query_execution.rs:115
 msgid "Connect to PostgreSQL before running a query."
-msgstr ""
+msgstr "Yhdistä PostgreSQL:ään ennen kyselyn suorittamista."
 
 #: src/window_content/query_execution.rs:123
 msgid "Enter SQL before running a query."
@@ -427,7 +428,7 @@ msgstr ""
 #: src/ui/components/connection_dialog.rs:78
 #: src/ui/components/connection_dialog.rs:93
 msgid "PostgreSQL Connection"
-msgstr ""
+msgstr "PostgreSQL-yhteys"
 
 #: src/ui/components/connection_dialog.rs:106
 msgid "Connection"
@@ -509,7 +510,7 @@ msgstr ""
 
 #: src/ui/components/connection_dialog.rs:499
 msgid "PostgreSQL returned the following error:"
-msgstr ""
+msgstr "PostgreSQL palautti seuraavan virheen:"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Comma"
@@ -587,15 +588,15 @@ msgstr ""
 
 #: src/ui/components/start_screen.rs:45
 msgid "Welcome to Codd"
-msgstr ""
+msgstr "Tervetuloa Coddiin"
 
 #: src/ui/components/start_screen.rs:46
 msgid "Add a PostgreSQL connection to get started"
-msgstr ""
+msgstr "Lisää PostgreSQL-yhteys aloittaaksesi"
 
 #: src/ui/components/start_screen.rs:50 src/ui/components/start_screen.rs:84
 msgid "Add Connection..."
-msgstr ""
+msgstr "Lisää yhteys..."
 
 #: src/ui/components/start_screen.rs:76
 msgid "Connections"
@@ -676,7 +677,7 @@ msgstr ""
 
 #: src/ui/components/sidebar.rs:405
 msgid "Connect to PostgreSQL to browse database objects."
-msgstr ""
+msgstr "Yhdistä PostgreSQL:ään selataksesi tietokantaobjekteja."
 
 #: src/ui/components/sidebar.rs:408
 msgid "The selected database does not currently expose tables or views."
@@ -810,7 +811,7 @@ msgstr ""
 
 #: src/ui/components/results.rs:289
 msgid "Waiting for PostgreSQL to return results."
-msgstr ""
+msgstr "Odotetaan PostgreSQL:n palauttavan tuloksia."
 
 #: src/ui/components/results.rs:298
 msgid "Query cancelled"
@@ -1029,7 +1030,7 @@ msgstr ""
 
 #: src/ui/components/table_browser/filters.rs:52
 msgid "Load the table before adding filters."
-msgstr ""
+msgstr "Lataa taulu ennen suodatinten lisäämistä."
 
 #: src/ui/components/table_browser/filters.rs:57
 msgid "This table has no filterable columns."
@@ -1057,7 +1058,7 @@ msgstr ""
 
 #: src/ui/components/table_browser/filters.rs:435
 msgid "Add Filter"
-msgstr ""
+msgstr "Lisää suodatin"
 
 #: src/ui/components/table_browser/filters.rs:601
 msgid "Custom SQL"
@@ -1137,7 +1138,7 @@ msgstr ""
 
 #: src/ui/components/table_browser/loading.rs:34
 msgid "Fetching the selected page from PostgreSQL."
-msgstr ""
+msgstr "Noudetaan valittu sivu PostgreSQL:stä."
 
 #: src/ui/components/table_browser/loading.rs:64
 #: src/ui/components/table_browser/loading.rs:100
@@ -1175,7 +1176,7 @@ msgstr ""
 
 #: src/ui/components/table_structure.rs:301
 msgid "Fetching table structure from PostgreSQL."
-msgstr ""
+msgstr "Noudetaan taulurakennetta PostgreSQL:stä."
 
 #: src/ui/components/table_structure.rs:402
 msgid "Copy Name"
@@ -1296,7 +1297,7 @@ msgstr ""
 
 #: data/io.github.anil_e.Codd.desktop.in:10
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
-msgstr ""
+msgstr "PostgreSQL;SQL;Database;Query;GNOME;tietokanta;kanta;kysely;"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:10
 msgid ""
