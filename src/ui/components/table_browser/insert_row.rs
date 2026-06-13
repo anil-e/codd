@@ -12,7 +12,7 @@ use crate::ui::components::table_browser::{
 };
 
 const COLUMN_LABEL_WIDTH: i32 = 210;
-const VALUE_ENTRY_WIDTH: i32 = 300;
+const VALUE_ENTRY_MIN_WIDTH: i32 = 320;
 const MODE_DROPDOWN_WIDTH: i32 = 120;
 
 #[derive(Clone)]
@@ -125,9 +125,11 @@ fn show_insert_row_dialog(
     }
 
     let scroller = gtk::ScrolledWindow::builder()
-        .min_content_width(680)
+        .min_content_width(820)
         .min_content_height(300)
         .max_content_height(620)
+        .hscrollbar_policy(gtk::PolicyType::Never)
+        .vscrollbar_policy(gtk::PolicyType::Automatic)
         .propagate_natural_height(true)
         .child(&list)
         .build();
@@ -225,7 +227,7 @@ fn readonly_column_row(column: &TableColumn) -> gtk::ListBoxRow {
     grid.attach(&column_label(column, readonly_reason(column)), 0, 0, 1, 1);
 
     let entry = gtk::Entry::builder()
-        .width_request(VALUE_ENTRY_WIDTH)
+        .width_request(VALUE_ENTRY_MIN_WIDTH)
         .hexpand(true)
         .sensitive(false)
         .placeholder_text(readonly_reason(column))
@@ -300,7 +302,7 @@ impl InsertColumnInput {
 impl InsertValueInput {
     fn text(column: &TableColumn) -> Self {
         let entry = gtk::Entry::builder()
-            .width_request(VALUE_ENTRY_WIDTH)
+            .width_request(VALUE_ENTRY_MIN_WIDTH)
             .hexpand(true)
             .placeholder_text(value_placeholder(column))
             .build();
@@ -314,7 +316,7 @@ impl InsertValueInput {
         let dropdown = gtk::DropDown::builder()
             .model(&gtk::StringList::new(&borrowed))
             .selected(0)
-            .width_request(VALUE_ENTRY_WIDTH)
+            .width_request(VALUE_ENTRY_MIN_WIDTH)
             .hexpand(true)
             .build();
         dropdown.add_css_class("compact");
