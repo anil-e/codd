@@ -33,27 +33,35 @@
   </branding>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-query.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.9.0/images/flathub/screenshot-query.png</image>
       <caption>Run SQL queries with syntax highlighting and result previews</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-table-browser.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.9.0/images/flathub/screenshot-table-browser.png</image>
       <caption>Browse PostgreSQL table data with pagination and filters</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-structure-columns.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.9.0/images/flathub/screenshot-insert-row.png</image>
+      <caption>Insert new table rows with defaults, NULL values and PostgreSQL type validation</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.9.0/images/flathub/screenshot-structure-columns.png</image>
       <caption>Inspect table columns, data types, nullability, defaults and primary keys</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.9.0/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
       <caption>Review indexes, constraints, foreign keys and triggers in the structure view</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-truncate.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.9.0/images/flathub/screenshot-drop-constraint.png</image>
+      <caption>Edit table structure from native context menus</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.9.0/images/flathub/screenshot-truncate.png</image>
       <caption>Use table actions like rename, truncate and delete</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.8.0/images/flathub/screenshot-start.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.9.0/images/flathub/screenshot-start.png</image>
       <caption>Manage saved PostgreSQL connections</caption>
     </screenshot>
   </screenshots>
@@ -64,6 +72,19 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.9.0" date="2026-06-13">
+      <description translate="no">
+        <p>This release adds row insertion from the table browser and refines the object sidebar.</p>
+
+        <ul>
+          <li>Tables can now insert new rows from the table browser, with support for DEFAULT values, NULL values and PostgreSQL type validation.</li>
+          <li>The table browser toolbar now uses compact icon actions for insert, filters, export and refresh.</li>
+          <li>The object sidebar was redesigned to be more compact, responsive and consistent with GNOME navigation patterns.</li>
+          <li>Table browser screenshots were refreshed for Flathub.</li>
+          <li>Translations were updated.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.8.1" date="2026-06-07">
       <description translate="no">
         <p>This maintenance release updates translations.</p>
