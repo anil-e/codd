@@ -8,135 +8,137 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-12 18:06+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-06-14 19:01+0000\n"
+"Last-Translator: Bruno <brunoeduardoamaraldarosa@gmail.com>\n"
+"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/codd/"
+"ui/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
-msgstr ""
+msgstr "_Nova Conexão"
 
 #: src/menus.rs:32
 msgid "_New Window"
-msgstr ""
+msgstr "_Nova Janela"
 
 #: src/menus.rs:38
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "_Atalhos de Teclado"
 
 #: src/menus.rs:39
 msgid "_About Codd"
-msgstr ""
+msgstr "_Sobre o Codd"
 
 #: src/menus.rs:40
 msgid "_Quit"
-msgstr ""
+msgstr "_Sair"
 
 #: src/window.rs:205
 msgid "translator-credits"
-msgstr ""
+msgstr "créditos do tradutor"
 
 #: src/window.rs:207 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
-msgstr ""
+msgstr "Cliente PostgreSQL leve"
 
 #: src/window_content.rs:261 src/window_content.rs:321
 msgid "Main Menu"
-msgstr ""
+msgstr "Menu"
 
 #: src/window_content.rs:294
 msgid "Objects"
-msgstr ""
+msgstr "Objetos"
 
 #: src/window_content.rs:298
 msgid "Back to connections"
-msgstr ""
+msgstr "Voltar para conexões"
 
 #: src/window_content.rs:328
 msgid "New Query Tab"
-msgstr ""
+msgstr "Nova Aba de Consulta"
 
 #: src/window_content.rs:683 src/window_content.rs:1146
 #: src/window_content/database_switching.rs:65
 msgid "Saving tabs failed"
-msgstr ""
+msgstr "Falha ao salvar guias"
 
 #: src/window_content.rs:759
 msgid "Updating the saved password failed"
-msgstr ""
+msgstr "Falha na atualização da senha salva"
 
 #: src/window_content.rs:810 src/ui/components/table_browser.rs:766
 msgid "CSV exported."
-msgstr ""
+msgstr "CSV exportado."
 
 #: src/window_content.rs:963
 msgid "Hide Objects"
-msgstr ""
+msgstr "Esconder objetos"
 
 #: src/window_content.rs:964
 msgid "Show Objects"
-msgstr ""
+msgstr "Ver objetos"
 
 #: src/window_content.rs:1181 src/ui/components/sidebar.rs:152
 #: src/ui/components/sidebar.rs:404 src/ui/components/sidebar.rs:418
 msgid "No connection"
-msgstr ""
+msgstr "Sem conexão"
 
 #: src/window_content.rs:1247
 msgid "Connected to PostgreSQL."
-msgstr ""
+msgstr "Conectado ao PostgreSQL."
 
 #: src/window_content.rs:1260
 msgid "Connected, but saving the connection failed"
-msgstr ""
+msgstr "Conectado, mas não foi possível salvar a conexão"
 
 #: src/window_content.rs:1376
 msgid "Disabling saved password failed"
-msgstr ""
+msgstr "Falha ao desativar a senha salva"
 
 #: src/window_content.rs:1391
 msgid "Connect to PostgreSQL before exporting query results."
-msgstr ""
+msgstr "Conecte-se ao PostgreSQL antes de exportar os resultados da consulta."
 
 #: src/window_content.rs:1399
 msgid "Enter SQL before exporting query results."
-msgstr ""
+msgstr "Digite uma consulta SQL antes de exportar os resultados da consulta."
 
 #: src/window_content.rs:1443
 msgid "The query did not return rows."
-msgstr ""
+msgstr "A consulta não retornou linhas."
 
 #: src/window_content.rs:1471
 msgid "Schema load failed"
-msgstr ""
+msgstr "Falha ao carregar o esquema"
 
 #: src/window_content.rs:1504
 msgid "Connect to PostgreSQL before generating a script."
-msgstr ""
+msgstr "Conecte-se ao PostgreSQL antes de gerar um script."
 
 #: src/window_content.rs:1544
 msgid "Generating the table script failed"
-msgstr ""
+msgstr "Falha ao gerar o script da tabela"
 
 #: src/window_content.rs:1592 src/ui/components/table_browser.rs:769
 msgid "Export failed"
-msgstr ""
+msgstr "Falha na exportação"
 
 #: src/window_content.rs:1597 src/window_content/structure_actions.rs:418
 #: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:1047
 msgid "Close"
-msgstr ""
+msgstr "Fechar"
 
 #: src/window_content.rs:1610
 msgid "CSV export runs queries in a read-only transaction."
-msgstr ""
+msgstr "A exportação CSV executa consultas em uma transação somente leitura."
 
 #: src/window_content.rs:1612
 msgid ""
@@ -144,54 +146,57 @@ msgid ""
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
 "be exported."
 msgstr ""
+"Use uma consulta SELECT para exportar. Instruções que gravam ou alteram o "
+"estado da transação, como UPDATE, INSERT, DELETE, CREATE, COMMIT ou "
+"ROLLBACK, não podem ser exportadas."
 
 #: src/window_content.rs:1622
 msgid "CREATE script generated."
-msgstr ""
+msgstr "Script CREATE gerado."
 
 #: src/window_content.rs:1623
 msgid "SELECT script generated."
-msgstr ""
+msgstr "Script SELECT gerado."
 
 #: src/window_content.rs:1624
 msgid "INSERT script generated."
-msgstr ""
+msgstr "Script INSERT gerado."
 
 #: src/window_content.rs:1625
 msgid "UPDATE script generated."
-msgstr ""
+msgstr "Script UPDATE gerado."
 
 #: src/window_content.rs:1626
 msgid "DELETE script generated."
-msgstr ""
+msgstr "Script DELETE gerado."
 
 #: src/window_content/database_switching.rs:57
 msgid "Connect to PostgreSQL before switching databases."
-msgstr ""
+msgstr "Conecte-se ao PostgreSQL antes de trocar de banco de dados."
 
 #: src/window_content/database_switching.rs:107
 msgid "Database switch failed"
-msgstr ""
+msgstr "Falha ao trocar de banco de dados"
 
 #: src/window_content/database_switching.rs:152
 msgid "Saving the selected database failed"
-msgstr ""
+msgstr "Falha ao salvar o banco de dados selecionado"
 
 #: src/window_content/database_switching.rs:193
 msgid "Migrating query history failed"
-msgstr ""
+msgstr "Falha ao migrar o histórico de consultas"
 
 #: src/window_content/database_switching.rs:222
 msgid "Saving query history failed"
-msgstr ""
+msgstr "Falha ao salvar o histórico de consultas"
 
 #: src/window_content/database_switching.rs:245
 msgid "Clearing query history failed"
-msgstr ""
+msgstr "Falha ao limpar o histórico de consultas"
 
 #: src/window_content/object_actions.rs:60
 msgid "Choose a new name for this database object."
-msgstr ""
+msgstr "Escolha um novo nome para este objeto do banco de dados."
 
 #: src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
@@ -205,7 +210,7 @@ msgstr ""
 #: src/ui/components/table_browser/cell_editor.rs:93
 #: src/ui/components/table_browser/insert_row.rs:141
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
@@ -213,31 +218,33 @@ msgstr ""
 #: src/window_content/structure_actions.rs:334
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
-msgstr ""
+msgstr "Renomear"
 
 #: src/window_content/object_actions.rs:149
 msgid "Restart identity"
-msgstr ""
+msgstr "Reiniciar identidade"
 
 #: src/window_content/object_actions.rs:151
 msgid "Reset sequences owned by columns of the truncated table."
-msgstr ""
+msgstr "Redefinir sequências pertencentes às colunas da tabela truncada."
 
 #: src/window_content/object_actions.rs:156
 msgid "Cascade"
-msgstr ""
+msgstr "Em cascata"
 
 #: src/window_content/object_actions.rs:158
 msgid "Also truncate tables that have foreign-key references to this table."
 msgstr ""
+"Também truncar tabelas que possuem referências de chave estrangeira para "
+"esta tabela."
 
 #: src/window_content/object_actions.rs:313
 msgid "Rename Table"
-msgstr ""
+msgstr "Renomear Tabela"
 
 #: src/window_content/object_actions.rs:314
 msgid "Rename View"
-msgstr ""
+msgstr "Renomear Visualização"
 
 #: src/window_content/object_actions.rs:316
 msgid "Truncate Table"
