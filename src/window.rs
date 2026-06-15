@@ -26,6 +26,7 @@ pub enum AppWindowMsg {
     RunQuery,
     CancelQuery,
     RefreshTableBrowser,
+    RefreshWorkspace,
     FocusEditor,
     FocusObjectSearch,
     NewWindow,
@@ -112,6 +113,9 @@ impl Component for AppWindow {
             AppWindowMsg::RefreshTableBrowser => {
                 self.content.emit(WindowContentMsg::RefreshActiveBrowseTab);
             }
+            AppWindowMsg::RefreshWorkspace => {
+                self.content.emit(WindowContentMsg::RefreshWorkspace);
+            }
             AppWindowMsg::FocusEditor => {
                 self.content.emit(WindowContentMsg::FocusEditor);
             }
@@ -174,6 +178,7 @@ fn setup_app_actions(sender: &ComponentSender<AppWindow>) {
     app.set_accels_for_action("win.run-query", &["<Control>Return"]);
     app.set_accels_for_action("win.cancel-query", &["Escape"]);
     app.set_accels_for_action("win.refresh-table-browser", &["<Control>r"]);
+    app.set_accels_for_action("win.refresh-workspace", &["F5"]);
     app.set_accels_for_action("win.focus-editor", &["<Control>e"]);
     app.set_accels_for_action("win.search", &["<Control>f"]);
     app.set_accels_for_action("app.shortcuts", &["<Control>question"]);
@@ -227,6 +232,7 @@ impl From<WindowAction> for AppWindowMsg {
             WindowAction::RunQuery => Self::RunQuery,
             WindowAction::CancelQuery => Self::CancelQuery,
             WindowAction::RefreshTableBrowser => Self::RefreshTableBrowser,
+            WindowAction::RefreshWorkspace => Self::RefreshWorkspace,
             WindowAction::FocusEditor => Self::FocusEditor,
             WindowAction::FocusObjectSearch => Self::FocusObjectSearch,
         }

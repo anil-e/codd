@@ -10,6 +10,7 @@ pub enum WindowAction {
     RunQuery,
     CancelQuery,
     RefreshTableBrowser,
+    RefreshWorkspace,
     FocusEditor,
     FocusObjectSearch,
 }
@@ -47,6 +48,12 @@ pub fn setup_window_actions(
         root,
         "refresh-table-browser",
         WindowAction::RefreshTableBrowser,
+        emit.clone(),
+    );
+    add_window_action(
+        root,
+        "refresh-workspace",
+        WindowAction::RefreshWorkspace,
         emit.clone(),
     );
     add_window_action(

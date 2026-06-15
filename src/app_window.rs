@@ -24,6 +24,7 @@ pub enum AppWindowMsg {
     RunQuery,
     CancelQuery,
     RefreshTableBrowser,
+    RefreshWorkspace,
     FocusEditor,
     FocusObjectSearch,
 }
@@ -115,6 +116,9 @@ impl Component for AppWindow {
             AppWindowMsg::RefreshTableBrowser => {
                 self.content.emit(WindowContentMsg::RefreshActiveBrowseTab);
             }
+            AppWindowMsg::RefreshWorkspace => {
+                self.content.emit(WindowContentMsg::RefreshWorkspace);
+            }
             AppWindowMsg::FocusEditor => {
                 self.content.emit(WindowContentMsg::FocusEditor);
             }
@@ -134,6 +138,7 @@ impl From<WindowAction> for AppWindowMsg {
             WindowAction::RunQuery => Self::RunQuery,
             WindowAction::CancelQuery => Self::CancelQuery,
             WindowAction::RefreshTableBrowser => Self::RefreshTableBrowser,
+            WindowAction::RefreshWorkspace => Self::RefreshWorkspace,
             WindowAction::FocusEditor => Self::FocusEditor,
             WindowAction::FocusObjectSearch => Self::FocusObjectSearch,
         }

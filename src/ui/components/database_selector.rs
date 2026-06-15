@@ -23,11 +23,13 @@ pub enum DatabaseSelectorMsg {
     SetLoading(bool),
     SearchChanged(String),
     DatabaseRowActivated(usize),
+    RefreshRequested,
 }
 
 #[derive(Debug)]
 pub enum DatabaseSelectorOutput {
     DatabaseSelected(String),
+    RefreshRequested,
 }
 
 #[relm4::component(pub)]
@@ -49,7 +51,7 @@ impl Component for DatabaseSelector {
                 #[watch]
                 set_visible: model.has_context(),
                 #[watch]
-                set_sensitive: !model.is_loading && !model.databases.is_empty(),
+                set_sensitive: !model.databases.is_empty(),
                 #[wrap(Some)]
                 set_child = &gtk::Box {
                     set_orientation: gtk::Orientation::Horizontal,
@@ -82,13 +84,28 @@ impl Component for DatabaseSelector {
                         set_margin_end: 10,
                         set_width_request: 320,
 
-                        gtk::Label {
-                            #[watch]
-                            set_label: &model.connection_title,
-                            add_css_class: "heading",
-                            set_halign: gtk::Align::Start,
+                        gtk::Box {
+                            set_orientation: gtk::Orientation::Horizontal,
+                            set_spacing: 8,
                             #[watch]
                             set_visible: !model.connection_title.is_empty(),
+
+                            gtk::Label {
+                                #[watch]
+                                set_label: &model.connection_title,
+                                add_css_class: "heading",
+                                set_halign: gtk::Align::Start,
+                                set_hexpand: true,
+                            },
+
+                            gtk::Button {
+                                set_icon_name: "view-refresh-symbolic",
+                                set_tooltip_text: Some(&gettext("Refresh Databases")),
+                                add_css_class: "flat",
+                                #[watch]
+                                set_sensitive: !model.is_loading,
+                                connect_clicked => DatabaseSelectorMsg::RefreshRequested,
+                            },
                         },
 
                         #[name = "search_entry"]
@@ -105,6 +122,8 @@ impl Component for DatabaseSelector {
                             set_min_content_height: 180,
                             set_max_content_height: 320,
                             set_policy: (gtk::PolicyType::Never, gtk::PolicyType::Automatic),
+                            #[watch]
+                            set_sensitive: !model.is_loading,
 
                             #[name = "database_list"]
                             gtk::ListBox {
@@ -192,6 +211,10 @@ impl Component for DatabaseSelector {
                         (*database).to_string(),
                     ));
                 }
+            }
+
+            DatabaseSelectorMsg::RefreshRequested => {
+                let _ = sender.output(DatabaseSelectorOutput::RefreshRequested);
             }
         }
 

@@ -138,6 +138,7 @@ pub enum WindowContentMsg {
     RunQuery,
     CancelQuery,
     RefreshActiveBrowseTab,
+    RefreshWorkspace,
     FocusEditor,
     FocusObjectSearch,
     ToggleSidebar,
@@ -299,6 +300,13 @@ impl Component for WindowContent {
                                         set_tooltip_text: Some(&gettext("Back to connections")),
                                         add_css_class: "flat",
                                         connect_clicked => WindowContentMsg::ShowStartScreen,
+                                    },
+
+                                    pack_end = &gtk::Button {
+                                        set_icon_name: "view-refresh-symbolic",
+                                        set_tooltip_text: Some(&gettext("Refresh Objects")),
+                                        add_css_class: "flat",
+                                        connect_clicked => WindowContentMsg::RefreshWorkspace,
                                     },
                                 },
 
@@ -553,6 +561,9 @@ impl Component for WindowContent {
             WindowContentMsg::RefreshActiveBrowseTab => {
                 self.refresh_active_browse_tab(widgets, &sender);
             }
+            WindowContentMsg::RefreshWorkspace => {
+                self.refresh_workspace(&sender);
+            }
             WindowContentMsg::EditorOutput {
                 tab_id,
                 output: SqlEditorOutput::RunRequested,
@@ -717,6 +728,9 @@ impl Component for WindowContent {
                 database,
             )) => {
                 self.switch_database(database, widgets, &sender);
+            }
+            WindowContentMsg::DatabaseSelectorOutput(DatabaseSelectorOutput::RefreshRequested) => {
+                self.reload_database_list(&sender);
             }
             WindowContentMsg::DatabaseSwitchCompleted {
                 id,
@@ -1513,6 +1527,36 @@ impl WindowContent {
             WindowContentCommandOutput::SchemaLoaded {
                 id: schema_request_id,
                 result: db::schema::load_schema(&pool)
+                    .await
+                    .map_err(|error| error.to_string()),
+            }
+        });
+    }
+
+    fn refresh_workspace(&mut self, sender: &ComponentSender<Self>) {
+        if !self.shows_workspace() {
+            return;
+        }
+
+        self.sidebar.emit(ObjectSidebarMsg::Loading);
+        self.reload_schema(sender);
+        self.reload_database_list(sender);
+    }
+
+    fn reload_database_list(&mut self, sender: &ComponentSender<Self>) {
+        let Some(pool) = self.active_pool.clone() else {
+            return;
+        };
+
+        let database_list_request_id = self.allocate_database_list_request_id();
+        self.active_database_list_request_id = Some(database_list_request_id);
+        self.database_selector
+            .emit(DatabaseSelectorMsg::SetLoading(true));
+
+        sender.oneshot_command(async move {
+            WindowContentCommandOutput::DatabasesLoaded {
+                id: database_list_request_id,
+                result: db::postgres::list_databases(&pool)
                     .await
                     .map_err(|error| error.to_string()),
             }

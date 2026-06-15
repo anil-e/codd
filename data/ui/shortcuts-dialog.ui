@@ -33,6 +33,12 @@
             <property name="accelerator">&lt;Control&gt;f</property>
           </object>
         </child>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Refresh Database Objects</property>
+            <property name="accelerator">F5</property>
+          </object>
+        </child>
       </object>
     </child>
     <child>
