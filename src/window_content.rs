@@ -280,7 +280,7 @@ impl Component for WindowContent {
 
                         #[wrap(Some)]
                         set_child = &adw::OverlaySplitView {
-                            set_sidebar_width_fraction: 0.30,
+                            set_sidebar_width_fraction: 0.26,
                             set_min_sidebar_width: 190.0,
                             set_max_sidebar_width: 290.0,
                             set_collapsed: true,
