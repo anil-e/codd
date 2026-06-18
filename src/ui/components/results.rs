@@ -104,14 +104,36 @@ impl Component for QueryResults {
                     #[watch]
                     set_title: &model.status_title,
                     #[watch]
-                    set_description: model.status_description.as_deref(),
+                    set_description: if model.is_error {
+                        None
+                    } else {
+                        model.status_description.as_deref()
+                    },
 
                     #[wrap(Some)]
-                    set_child = &gtk::Spinner {
-                        #[watch]
-                        set_visible: model.is_loading,
-                        #[watch]
-                        set_spinning: model.is_loading,
+                    set_child = &gtk::Box {
+                        set_orientation: gtk::Orientation::Vertical,
+                        set_spacing: 12,
+                        set_halign: gtk::Align::Center,
+
+                        gtk::Spinner {
+                            #[watch]
+                            set_visible: model.is_loading,
+                            #[watch]
+                            set_spinning: model.is_loading,
+                        },
+
+                        gtk::Label {
+                            set_selectable: true,
+                            set_wrap: true,
+                            set_max_width_chars: 90,
+                            set_justify: gtk::Justification::Center,
+                            #[watch]
+                            set_visible: model.is_error,
+                            #[watch]
+                            set_label: model.status_description.as_deref().unwrap_or_default(),
+                        },
+
                     },
                 },
 
