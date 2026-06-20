@@ -16,6 +16,7 @@ pub struct TableView {
     object: Option<DatabaseObject>,
     mode: TableViewMode,
     structure_loaded: bool,
+    can_delete_selected_row: bool,
     browser: Controller<TableBrowser>,
     structure: Controller<TableStructureView>,
 }
@@ -34,6 +35,7 @@ pub enum TableViewMsg {
     },
     ExportCsv,
     InsertRow,
+    DeleteRow,
     ShowContent,
     ShowStructure,
     ToggleFilters,
@@ -46,6 +48,7 @@ pub enum TableViewOutput {
     Copied(String),
     Exported(String),
     Inserted(String),
+    Deleted(String),
     StructureCopied {
         text: String,
         message: String,
@@ -144,6 +147,20 @@ impl Component for TableView {
                 },
 
                 gtk::Button {
+                    set_icon_name: "user-trash-symbolic",
+                    set_tooltip_text: Some(&gettext("Delete selected row")),
+                    add_css_class: "flat",
+                    add_css_class: "destructive-action",
+                    #[watch]
+                    set_visible: model.can_insert_rows(),
+                    #[watch]
+                    set_sensitive: model.mode == TableViewMode::Content && model.can_delete_selected_row,
+                    #[watch]
+                    set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
+                    connect_clicked => TableViewMsg::DeleteRow,
+                },
+
+                gtk::Button {
                     set_tooltip_text: Some(&gettext("Show or edit filters")),
                     set_icon_name: "filter-symbolic",
                     add_css_class: "flat",
@@ -199,6 +216,7 @@ impl Component for TableView {
             object: None,
             mode: TableViewMode::Content,
             structure_loaded: false,
+            can_delete_selected_row: false,
             browser,
             structure,
         };
@@ -240,6 +258,7 @@ impl Component for TableView {
                 self.pool = Some(pool.clone());
                 self.object = Some(object.clone());
                 self.mode = TableViewMode::Content;
+                self.can_delete_selected_row = false;
                 self.structure_loaded = false;
                 widgets.mode_stack.set_visible_child_name("content");
                 self.browser.emit(TableBrowserMsg::Open { pool, object });
@@ -291,6 +310,13 @@ impl Component for TableView {
                 }
             }
 
+            TableViewMsg::DeleteRow => {
+                if self.mode == TableViewMode::Content && self.can_delete_selected_row {
+                    self.browser
+                        .emit(TableBrowserMsg::DeleteSelectedRowRequested);
+                }
+            }
+
             TableViewMsg::ShowContent => {
                 self.mode = TableViewMode::Content;
                 widgets.mode_stack.set_visible_child_name("content");
@@ -324,6 +350,15 @@ impl Component for TableView {
             TableViewMsg::BrowserOutput(TableBrowserOutput::Inserted(message)) => {
                 let _ = sender.output(TableViewOutput::Inserted(message));
                 return;
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::Deleted(message)) => {
+                let _ = sender.output(TableViewOutput::Deleted(message));
+                return;
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::SelectionChanged(can_delete)) => {
+                self.can_delete_selected_row = can_delete;
             }
 
             TableViewMsg::StructureOutput(TableStructureOutput::Copied { text, message }) => {

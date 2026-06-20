@@ -29,6 +29,7 @@ impl TableBrowser {
 
         self.active_last_page_request_id = None;
         self.active_insert_request_id = None;
+        self.active_delete_request_id = None;
         self.is_loading = true;
         self.is_error = false;
         self.status_title = gettext("Loading rows");
@@ -82,6 +83,7 @@ impl TableBrowser {
 
         self.is_loading = true;
         self.active_insert_request_id = None;
+        self.active_delete_request_id = None;
         let id = self.allocate_request_id();
         let page_size = self.page_size;
         let filters = self.active_filters.clone();

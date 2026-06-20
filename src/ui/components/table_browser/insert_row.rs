@@ -70,6 +70,7 @@ impl TableBrowser {
         self.is_loading = true;
         let id = self.allocate_request_id();
         self.active_insert_request_id = Some(id);
+        self.active_delete_request_id = None;
         let offset = self.offset;
         let page_size = self.page_size;
         let filters = self.active_filters.clone();

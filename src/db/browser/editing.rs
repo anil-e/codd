@@ -75,6 +75,35 @@ pub async fn insert_table_row(
     Ok(())
 }
 
+pub async fn delete_table_row(
+    pool: &PgPool,
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    row: &[TableCell],
+) -> Result<(), TableRowDeleteError> {
+    validate_delete_input(object, columns, row)?;
+
+    let sql = delete_row_sql(object, columns)?;
+    let mut query = sqlx::query(&sql);
+
+    for (index, _) in primary_key_columns(columns) {
+        let cell = &row[index];
+        let value = (!cell.is_null).then(|| cell.value.clone());
+        query = query.bind(value);
+    }
+
+    let result = query
+        .execute(pool)
+        .await
+        .map_err(TableRowDeleteError::Sqlx)?;
+
+    if result.rows_affected() != 1 {
+        return Err(TableRowDeleteError::InvalidRow);
+    }
+
+    Ok(())
+}
+
 #[derive(Debug)]
 pub enum TableCellUpdateError {
     NotATable,
@@ -93,6 +122,15 @@ pub enum TableRowInsertError {
     InvalidColumnValues,
     MissingRequiredValue(String),
     UnsupportedColumnType(String),
+    Sqlx(sqlx::Error),
+}
+
+#[derive(Debug)]
+pub enum TableRowDeleteError {
+    NotATable,
+    MissingPrimaryKey,
+    UnsupportedPrimaryKeyType,
+    InvalidRow,
     Sqlx(sqlx::Error),
 }
 
@@ -134,6 +172,23 @@ impl std::fmt::Display for TableRowInsertError {
                     "Column {column} cannot be inserted from this form."
                 )
             }
+            Self::Sqlx(error) => write!(formatter, "{error}"),
+        }
+    }
+}
+
+impl std::fmt::Display for TableRowDeleteError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NotATable => write!(formatter, "Only tables can be edited."),
+            Self::MissingPrimaryKey => write!(formatter, "Deleting requires a primary key."),
+            Self::UnsupportedPrimaryKeyType => {
+                write!(
+                    formatter,
+                    "Deleting is not supported for this primary key type yet."
+                )
+            }
+            Self::InvalidRow => write!(formatter, "The selected row is no longer available."),
             Self::Sqlx(error) => write!(formatter, "{error}"),
         }
     }
@@ -211,6 +266,46 @@ pub(super) fn insert_row_sql(
         object.qualified_name(),
         insert_columns.join(", "),
         insert_values.join(", ")
+    ))
+}
+
+pub(super) fn delete_row_sql(
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+) -> Result<String, TableRowDeleteError> {
+    if object.kind != DatabaseObjectKind::Table {
+        return Err(TableRowDeleteError::NotATable);
+    }
+
+    let primary_key_columns = primary_key_columns(columns);
+    if primary_key_columns.is_empty() {
+        return Err(TableRowDeleteError::MissingPrimaryKey);
+    }
+
+    if primary_key_columns
+        .iter()
+        .any(|(_, column)| !column.is_editable_value_type())
+    {
+        return Err(TableRowDeleteError::UnsupportedPrimaryKeyType);
+    }
+
+    let where_clause = primary_key_columns
+        .iter()
+        .enumerate()
+        .map(|(bind_index, (_, column))| {
+            format!(
+                "{} IS NOT DISTINCT FROM ${}::{}",
+                quote_identifier(&column.name),
+                bind_index + 1,
+                column.display_type
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" AND ");
+
+    Ok(format!(
+        "DELETE FROM {} WHERE {where_clause}",
+        object.qualified_name()
     ))
 }
 
@@ -301,4 +396,16 @@ pub(super) fn validate_insert_input(
     }
 
     Ok(())
+}
+
+pub(super) fn validate_delete_input(
+    object: &DatabaseObject,
+    columns: &[TableColumn],
+    row: &[TableCell],
+) -> Result<(), TableRowDeleteError> {
+    if row.len() != columns.len() {
+        return Err(TableRowDeleteError::InvalidRow);
+    }
+
+    delete_row_sql(object, columns).map(|_| ())
 }

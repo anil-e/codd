@@ -41,10 +41,12 @@ pub(super) struct TableBrowserRow {
 #[derive(Clone)]
 struct CellFactoryContext {
     sender: ComponentSender<TableBrowser>,
-    copy_popover: gtk::PopoverMenu,
+    context_popover: gtk::PopoverMenu,
     copy_target: Rc<Cell<Option<CopyTarget>>>,
     edit_target: Rc<RefCell<Option<EditTarget>>>,
     edit_action: gio::SimpleAction,
+    delete_action: gio::SimpleAction,
+    selection: gtk::SingleSelection,
 }
 
 pub(super) fn clear_columns(view: &gtk::ColumnView) {
@@ -62,6 +64,7 @@ fn cell_factory(
     type_group: ColumnTypeGroup,
     is_dark: bool,
     can_edit: bool,
+    can_delete: bool,
     context: CellFactoryContext,
 ) -> gtk::SignalListItemFactory {
     let factory = gtk::SignalListItemFactory::new();
@@ -129,8 +132,10 @@ fn cell_factory(
                         row_index: row.index,
                         column_index,
                     });
+                    context.selection.set_selected(row.index as u32);
                     context.edit_action.set_enabled(can_edit);
-                    show_copy_menu(&label, &context.copy_popover, x, y);
+                    context.delete_action.set_enabled(can_delete);
+                    show_context_menu(&label, &context.context_popover, x, y);
                 }
             });
             gesture
@@ -195,7 +200,7 @@ fn cell_factory(
     factory
 }
 
-fn show_copy_menu(anchor: &gtk::Label, popover: &gtk::PopoverMenu, x: f64, y: f64) {
+fn show_context_menu(anchor: &gtk::Label, popover: &gtk::PopoverMenu, x: f64, y: f64) {
     if let Some(parent) = popover.parent()
         && let Some(point) =
             anchor.compute_point(&parent, &gtk::graphene::Point::new(x as f32, y as f32))
@@ -253,15 +258,25 @@ fn sync_columns(
     });
     let context = CellFactoryContext {
         sender: sender.clone(),
-        copy_popover: table_browser.copy_popover.clone(),
+        context_popover: table_browser.context_popover.clone(),
         copy_target: table_browser.copy_target.clone(),
         edit_target: table_browser.edit_target.clone(),
         edit_action: table_browser.edit_action.clone(),
+        delete_action: table_browser.delete_action.clone(),
+        selection: table_browser.selection.clone(),
     };
+    let can_delete = table_browser.can_delete_rows();
 
     for (index, column) in columns.iter().enumerate() {
         let can_edit = can_edit && !column.is_primary_key && column.is_editable_value_type();
-        let factory = cell_factory(index, column.type_group, is_dark, can_edit, context.clone());
+        let factory = cell_factory(
+            index,
+            column.type_group,
+            is_dark,
+            can_edit,
+            can_delete,
+            context.clone(),
+        );
         let title = column.name.clone();
         let view_column = gtk::ColumnViewColumn::new(Some(&title), Some(factory));
         view_column.set_resizable(true);

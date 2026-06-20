@@ -691,6 +691,14 @@ impl Component for WindowContent {
                     widgets.toast_overlay.add_toast(adw::Toast::new(&message));
                 }
             }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
+                output: TableViewOutput::Deleted(message),
+            } => {
+                if self.browse_tabs.iter().any(|tab| tab.id == tab_id) {
+                    widgets.toast_overlay.add_toast(adw::Toast::new(&message));
+                }
+            }
             WindowContentMsg::WindowEvent(event) => {
                 self.handle_window_event(event, widgets, &sender);
             }

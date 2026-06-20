@@ -50,6 +50,12 @@
             <property name="accelerator">&lt;Control&gt;r</property>
           </object>
         </child>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Delete Selected Row</property>
+            <property name="accelerator">Delete</property>
+          </object>
+        </child>
       </object>
     </child>
     <child>

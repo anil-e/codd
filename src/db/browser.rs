@@ -9,7 +9,7 @@ mod editing;
 mod page_sql;
 
 pub use columns::load_table_columns;
-pub use editing::{insert_table_row, update_table_cell};
+pub use editing::{delete_table_row, insert_table_row, update_table_cell};
 
 pub async fn load_table_page(
     pool: &PgPool,
@@ -147,8 +147,9 @@ async fn load_export_rows(
 mod tests {
     use super::{
         editing::{
-            TableCellUpdateError, TableRowInsertError, insert_row_sql, update_cell_sql,
-            validate_insert_input, validate_update_input,
+            TableCellUpdateError, TableRowDeleteError, TableRowInsertError, delete_row_sql,
+            insert_row_sql, update_cell_sql, validate_delete_input, validate_insert_input,
+            validate_update_input,
         },
         page_sql::{
             TableFilterError, order_by_clause, table_count_sql_with_filters,
@@ -639,6 +640,91 @@ mod tests {
         assert!(matches!(
             validate_update_input(&object, &columns, &row, 1),
             Err(TableCellUpdateError::UnsupportedPrimaryKeyType)
+        ));
+    }
+
+    #[test]
+    fn delete_row_query_uses_primary_key() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "users".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![column("id", true), column("display name", false)];
+
+        assert_eq!(
+            delete_row_sql(&object, &columns).unwrap(),
+            "DELETE FROM \"public\".\"users\" WHERE \"id\" IS NOT DISTINCT FROM $1::text"
+        );
+    }
+
+    #[test]
+    fn delete_row_query_supports_composite_primary_keys() {
+        let object = DatabaseObject {
+            schema: "tenant data".to_string(),
+            name: "settings".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![
+            column("tenant id", true),
+            column("key", true),
+            column("value", false),
+        ];
+
+        assert_eq!(
+            delete_row_sql(&object, &columns).unwrap(),
+            "DELETE FROM \"tenant data\".\"settings\" WHERE \"tenant id\" IS NOT DISTINCT FROM $1::text AND \"key\" IS NOT DISTINCT FROM $2::text"
+        );
+    }
+
+    #[test]
+    fn delete_row_rejects_views() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "active_users".to_string(),
+            kind: DatabaseObjectKind::View,
+        };
+
+        assert!(matches!(
+            delete_row_sql(&object, &[column("id", true)]),
+            Err(TableRowDeleteError::NotATable)
+        ));
+    }
+
+    #[test]
+    fn delete_row_rejects_missing_primary_key() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "users".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+
+        assert!(matches!(
+            delete_row_sql(&object, &[column("name", false)]),
+            Err(TableRowDeleteError::MissingPrimaryKey)
+        ));
+    }
+
+    #[test]
+    fn delete_row_rejects_unsupported_primary_key_types() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "files".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let mut id = column("id", true);
+        id.type_group = ColumnTypeGroup::Binary;
+        id.display_type = "bytea".to_string();
+        id.type_name = "bytea".to_string();
+        let columns = vec![id, column("name", false)];
+        let row = vec![
+            TableCell::new("\\xdeadbeef".to_string()),
+            TableCell::new("readme".to_string()),
+        ];
+
+        assert!(matches!(
+            validate_delete_input(&object, &columns, &row),
+            Err(TableRowDeleteError::UnsupportedPrimaryKeyType)
         ));
     }
 

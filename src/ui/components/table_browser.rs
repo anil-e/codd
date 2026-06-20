@@ -25,6 +25,7 @@ use grid::render_table;
 use sorting::{connect_sort_handlers, next_sort_for_header_click, sync_sort_indicator};
 
 mod cell_editor;
+mod delete_row;
 mod editing;
 mod filters;
 mod grid;
@@ -53,8 +54,10 @@ pub struct TableBrowser {
     active_request_id: Option<u64>,
     active_last_page_request_id: Option<u64>,
     active_insert_request_id: Option<u64>,
+    active_delete_request_id: Option<u64>,
     active_abort_handle: Option<AbortHandle>,
     table_rows: gio::ListStore,
+    selection: gtk::SingleSelection,
     table_view: gtk::ColumnView,
     filter_panel: gtk::Box,
     edit_popover: Option<gtk::Popover>,
@@ -62,7 +65,8 @@ pub struct TableBrowser {
     copy_target: Rc<Cell<Option<CopyTarget>>>,
     edit_target: Rc<RefCell<Option<EditTarget>>>,
     edit_action: gio::SimpleAction,
-    copy_popover: gtk::PopoverMenu,
+    delete_action: gio::SimpleAction,
+    context_popover: gtk::PopoverMenu,
     style_manager: adw::StyleManager,
     dark_notify_handler: Option<glib::SignalHandlerId>,
 }
@@ -159,6 +163,16 @@ pub enum TableBrowserMsg {
         id: u64,
         result: InsertRowResult,
     },
+    DeleteSelectedRowRequested,
+    DeleteRowConfirmed {
+        page_generation: u64,
+        row_index: usize,
+    },
+    RowDeleted {
+        id: u64,
+        result: DeleteRowResult,
+    },
+    SelectionChanged,
     EditCellFromMenu {
         anchor: gtk::Label,
         row_index: usize,
@@ -172,6 +186,8 @@ pub enum TableBrowserOutput {
     Copied(String),
     Exported(String),
     Inserted(String),
+    Deleted(String),
+    SelectionChanged(bool),
 }
 
 #[derive(Debug)]
@@ -195,12 +211,23 @@ pub enum TableBrowserCommandOutput {
         id: u64,
         result: InsertRowResult,
     },
+    RowDeleted {
+        id: u64,
+        result: DeleteRowResult,
+    },
 }
 
 #[derive(Debug)]
 pub enum InsertRowResult {
     Inserted(TablePage),
     InsertFailed(String),
+    ReloadFailed(String),
+}
+
+#[derive(Debug)]
+pub enum DeleteRowResult {
+    Deleted(TablePage),
+    DeleteFailed(String),
     ReloadFailed(String),
 }
 
@@ -417,27 +444,36 @@ impl Component for TableBrowser {
     ) -> ComponentParts<Self> {
         let table_rows = gio::ListStore::new::<glib::BoxedAnyObject>();
         let filter_panel = gtk::Box::new(gtk::Orientation::Vertical, 8);
-        let table_view = gtk::ColumnView::new(Some(gtk::NoSelection::new(Some(
-            table_rows.clone().upcast::<gio::ListModel>(),
-        ))));
+        let selection = gtk::SingleSelection::new(Some(table_rows.clone()));
+        selection.set_autoselect(false);
+        selection.set_can_unselect(true);
+        selection.connect_selected_notify({
+            let sender = sender.clone();
+
+            move |_| sender.input(TableBrowserMsg::SelectionChanged)
+        });
+
+        let table_view = gtk::ColumnView::new(Some(selection.clone()));
 
         table_view.set_vexpand(true);
         table_view.set_hexpand(true);
         table_view.set_show_row_separators(true);
         table_view.set_show_column_separators(true);
+        table_view.set_focusable(true);
         table_view.add_css_class("data-table");
+        table_view.add_controller(delete_key_controller(&sender));
 
         let copy_target = Rc::new(Cell::new(None));
         let edit_target = Rc::new(RefCell::new(None));
 
-        let copy_popover = gtk::PopoverMenu::from_model(Some(&copy_menu()));
-        copy_popover.set_has_arrow(false);
-        copy_popover.set_parent(&root);
+        let context_popover = gtk::PopoverMenu::from_model(Some(&context_menu()));
+        context_popover.set_has_arrow(false);
+        context_popover.set_parent(&root);
 
-        let (copy_action_group, edit_action) =
-            copy_action_group(copy_target.clone(), edit_target.clone(), sender.clone());
+        let (context_action_group, edit_action, delete_action) =
+            context_action_group(copy_target.clone(), edit_target.clone(), sender.clone());
 
-        root.insert_action_group("browser", Some(&copy_action_group));
+        root.insert_action_group("browser", Some(&context_action_group));
 
         let style_manager = adw::StyleManager::default();
         let dark_notify_handler = {
@@ -470,8 +506,10 @@ impl Component for TableBrowser {
             active_request_id: None,
             active_last_page_request_id: None,
             active_insert_request_id: None,
+            active_delete_request_id: None,
             active_abort_handle: None,
             table_rows,
+            selection,
             table_view,
             filter_panel,
             edit_popover: None,
@@ -479,7 +517,8 @@ impl Component for TableBrowser {
             copy_target,
             edit_target,
             edit_action,
-            copy_popover,
+            delete_action,
+            context_popover,
             style_manager,
             dark_notify_handler: Some(dark_notify_handler),
         };
@@ -509,7 +548,8 @@ impl Component for TableBrowser {
     ) {
         match msg {
             TableBrowserMsg::Open { pool, object } => {
-                self.close_copy_menu();
+                self.close_context_menu();
+                self.clear_selection();
                 self.pool = Some(pool);
                 self.object = Some(object);
                 self.offset = 0;
@@ -522,19 +562,22 @@ impl Component for TableBrowser {
             }
 
             TableBrowserMsg::ObjectRenamed(object) => {
-                self.close_copy_menu();
+                self.close_context_menu();
+                self.clear_selection();
                 self.object = Some(object);
                 self.offset = 0;
                 self.load_page(widgets, &sender);
             }
 
             TableBrowserMsg::Refresh => {
-                self.close_copy_menu();
+                self.close_context_menu();
+                self.clear_selection();
                 self.load_page(widgets, &sender);
             }
 
             TableBrowserMsg::SchemaChanged => {
-                self.close_copy_menu();
+                self.close_context_menu();
+                self.clear_selection();
                 close_popover(&mut self.edit_popover);
                 self.offset = 0;
                 self.available_columns.clear();
@@ -552,18 +595,21 @@ impl Component for TableBrowser {
 
             TableBrowserMsg::FirstPage => {
                 if self.can_go_previous() {
+                    self.clear_selection();
                     self.offset = 0;
                     self.load_page(widgets, &sender);
                 }
             }
 
             TableBrowserMsg::PreviousPage => {
+                self.clear_selection();
                 self.offset = self.offset.saturating_sub(self.page_size);
                 self.load_page(widgets, &sender);
             }
 
             TableBrowserMsg::NextPage => {
                 if self.can_go_next() {
+                    self.clear_selection();
                     self.offset = self.offset.saturating_add(self.page_size);
                     self.load_page(widgets, &sender);
                 }
@@ -580,7 +626,8 @@ impl Component for TableBrowser {
                     return;
                 }
 
-                self.close_copy_menu();
+                self.close_context_menu();
+                self.clear_selection();
                 self.page_size = page_size;
                 self.offset = 0;
                 self.load_page(widgets, &sender);
@@ -611,7 +658,8 @@ impl Component for TableBrowser {
                 }
 
                 self.sort = next_sort;
-                self.close_copy_menu();
+                self.close_context_menu();
+                self.clear_selection();
                 self.offset = 0;
                 sync_sort_indicator(&self.table_view, self.sort.as_ref());
                 self.load_page(widgets, &sender);
@@ -622,7 +670,7 @@ impl Component for TableBrowser {
                     return;
                 }
 
-                self.close_copy_menu();
+                self.close_context_menu();
                 self.active_request_id = None;
                 self.active_abort_handle = None;
                 self.is_loading = false;
@@ -644,6 +692,7 @@ impl Component for TableBrowser {
                         }
                         self.page = Some(page);
                         self.page_generation = self.page_generation.wrapping_add(1);
+                        self.clear_selection();
                     }
 
                     Err(error) => {
@@ -651,6 +700,7 @@ impl Component for TableBrowser {
                         self.status_title = gettext("Loading table failed");
                         self.status_description = Some(error);
                         self.page = None;
+                        self.clear_selection();
                     }
                 }
 
@@ -685,6 +735,10 @@ impl Component for TableBrowser {
                 row_index,
                 column_index,
             } => {
+                if self.is_loading {
+                    return;
+                }
+
                 self.open_edit_popover(&anchor, row_index, column_index, &sender, root);
             }
 
@@ -787,6 +841,7 @@ impl Component for TableBrowser {
             }
 
             TableBrowserMsg::InsertRowConfirmed(values) => {
+                self.clear_selection();
                 self.insert_row(values, &sender);
             }
 
@@ -808,6 +863,7 @@ impl Component for TableBrowser {
                         self.available_columns.clone_from(&page.columns);
                         self.page = Some(page);
                         self.page_generation = self.page_generation.wrapping_add(1);
+                        self.clear_selection();
                         render_table(self, &sender);
                         self.rebuild_filters(widgets, &sender);
                         set_stack_child(widgets, true);
@@ -821,16 +877,71 @@ impl Component for TableBrowser {
                 }
             }
 
+            TableBrowserMsg::DeleteSelectedRowRequested => {
+                self.open_delete_row_dialog(root, &sender);
+                return;
+            }
+
+            TableBrowserMsg::DeleteRowConfirmed {
+                page_generation,
+                row_index,
+            } => {
+                self.delete_row(page_generation, row_index, &sender);
+            }
+
+            TableBrowserMsg::RowDeleted { id, result } => {
+                if self.active_delete_request_id != Some(id) {
+                    return;
+                }
+
+                self.active_delete_request_id = None;
+                self.is_loading = false;
+
+                match result {
+                    DeleteRowResult::Deleted(page) => {
+                        let _ = sender.output(TableBrowserOutput::Deleted(gettext("Row deleted.")));
+                        self.is_error = false;
+                        self.status_title.clear();
+                        self.status_description = None;
+                        self.offset = page.offset;
+                        self.available_columns.clone_from(&page.columns);
+                        self.page = Some(page);
+                        self.page_generation = self.page_generation.wrapping_add(1);
+                        self.clear_selection();
+                        render_table(self, &sender);
+                        self.rebuild_filters(widgets, &sender);
+                        set_stack_child(widgets, true);
+                    }
+                    DeleteRowResult::DeleteFailed(error) => {
+                        self.show_warning(root, &gettext("Deleting row failed"), &error);
+                    }
+                    DeleteRowResult::ReloadFailed(error) => {
+                        self.show_warning(root, &gettext("Reloading table failed"), &error)
+                    }
+                }
+            }
+
+            TableBrowserMsg::SelectionChanged => {
+                let _ = sender.output(TableBrowserOutput::SelectionChanged(
+                    self.can_delete_selected_row(),
+                ));
+                return;
+            }
+
             TableBrowserMsg::EditCellFromMenu {
                 anchor,
                 row_index,
                 column_index,
             } => {
+                if self.is_loading {
+                    return;
+                }
+
                 self.open_edit_popover(&anchor, row_index, column_index, &sender, root);
             }
 
             TableBrowserMsg::AppearanceChanged => {
-                self.close_copy_menu();
+                self.close_context_menu();
                 close_popover(&mut self.edit_popover);
                 self.rendered_columns.clear();
                 render_table(self, &sender);
@@ -868,6 +979,9 @@ impl Component for TableBrowser {
             TableBrowserCommandOutput::RowInserted { id, result } => {
                 TableBrowserMsg::RowInserted { id, result }
             }
+            TableBrowserCommandOutput::RowDeleted { id, result } => {
+                TableBrowserMsg::RowDeleted { id, result }
+            }
         });
     }
 
@@ -881,10 +995,10 @@ impl Component for TableBrowser {
         }
 
         close_popover(&mut self.edit_popover);
-        self.close_copy_menu();
+        self.close_context_menu();
 
-        if self.copy_popover.parent().is_some() {
-            self.copy_popover.unparent();
+        if self.context_popover.parent().is_some() {
+            self.context_popover.unparent();
         }
     }
 }
@@ -922,11 +1036,12 @@ impl TableBrowser {
         let _ = sender.output(TableBrowserOutput::Copied(message));
     }
 
-    fn close_copy_menu(&self) {
-        self.copy_popover.popdown();
+    fn close_context_menu(&self) {
+        self.context_popover.popdown();
         self.copy_target.set(None);
         self.edit_target.borrow_mut().take();
         self.edit_action.set_enabled(false);
+        self.delete_action.set_enabled(false);
     }
 
     fn handle_filter_event(
@@ -1040,6 +1155,45 @@ impl TableBrowser {
         !self.is_loading && self.page.as_ref().is_some_and(|page| page.has_next_page)
     }
 
+    fn selected_row_index(&self) -> Option<usize> {
+        let position = self.selection.selected();
+        if position == gtk::INVALID_LIST_POSITION {
+            return None;
+        }
+
+        usize::try_from(position).ok()
+    }
+
+    fn selected_row(&self) -> Option<(usize, Vec<TableCell>)> {
+        let row_index = self.selected_row_index()?;
+        let row = self.page.as_ref()?.rows.get(row_index)?.clone();
+
+        Some((row_index, row))
+    }
+
+    fn clear_selection(&self) {
+        self.selection.set_selected(gtk::INVALID_LIST_POSITION);
+    }
+
+    pub(super) fn can_delete_rows(&self) -> bool {
+        self.page
+            .as_ref()
+            .is_some_and(|page| page.object.kind == DatabaseObjectKind::Table)
+            && self
+                .available_columns
+                .iter()
+                .any(|column| column.is_primary_key)
+            && self
+                .available_columns
+                .iter()
+                .filter(|column| column.is_primary_key)
+                .all(|column| column.is_editable_value_type())
+    }
+
+    pub(super) fn can_delete_selected_row(&self) -> bool {
+        !self.is_loading && self.can_delete_rows() && self.selected_row().is_some()
+    }
+
     fn status_icon_name(&self) -> &'static str {
         if self.is_error {
             "dialog-error-symbolic"
@@ -1133,26 +1287,60 @@ fn copy_text_to_clipboard(text: &str) {
     }
 }
 
-fn copy_menu() -> gio::Menu {
+fn context_menu() -> gio::Menu {
     let menu = gio::Menu::new();
-    menu.append(Some(&gettext("Edit Value")), Some("browser.edit-cell"));
-    menu.append(Some(&gettext("Copy Cell")), Some("browser.copy-cell"));
-    menu.append(Some(&gettext("Copy Row")), Some("browser.copy-row"));
-    menu.append(Some(&gettext("Copy Column")), Some("browser.copy-column"));
-    menu.append(
+
+    let edit_section = gio::Menu::new();
+    edit_section.append(Some(&gettext("Edit Value")), Some("browser.edit-cell"));
+    menu.append_section(None, &edit_section);
+
+    let copy_section = gio::Menu::new();
+    copy_section.append(Some(&gettext("Copy Cell")), Some("browser.copy-cell"));
+    copy_section.append(Some(&gettext("Copy Row")), Some("browser.copy-row"));
+    copy_section.append(Some(&gettext("Copy Column")), Some("browser.copy-column"));
+    copy_section.append(
         Some(&gettext("Copy Displayed Page")),
         Some("browser.copy-page"),
     );
-    menu.append(Some(&gettext("Export CSV...")), Some("browser.export-csv"));
+    copy_section.append(Some(&gettext("Export CSV...")), Some("browser.export-csv"));
+    menu.append_section(None, &copy_section);
+
+    let destructive_section = gio::Menu::new();
+    destructive_section.append(Some(&gettext("Delete Row...")), Some("browser.delete-row"));
+    menu.append_section(None, &destructive_section);
 
     menu
 }
 
-fn copy_action_group(
+fn delete_key_controller(sender: &ComponentSender<TableBrowser>) -> gtk::EventControllerKey {
+    let controller = gtk::EventControllerKey::new();
+    controller.connect_key_pressed({
+        let sender = sender.clone();
+
+        move |_, key, _, state| {
+            let shortcut_modifiers = gtk::gdk::ModifierType::CONTROL_MASK
+                | gtk::gdk::ModifierType::SHIFT_MASK
+                | gtk::gdk::ModifierType::ALT_MASK
+                | gtk::gdk::ModifierType::SUPER_MASK
+                | gtk::gdk::ModifierType::META_MASK;
+
+            if key == gtk::gdk::Key::Delete && !state.intersects(shortcut_modifiers) {
+                sender.input(TableBrowserMsg::DeleteSelectedRowRequested);
+                glib::Propagation::Stop
+            } else {
+                glib::Propagation::Proceed
+            }
+        }
+    });
+
+    controller
+}
+
+fn context_action_group(
     copy_target: Rc<Cell<Option<CopyTarget>>>,
     edit_target: Rc<RefCell<Option<EditTarget>>>,
     sender: ComponentSender<TableBrowser>,
-) -> (gio::SimpleActionGroup, gio::SimpleAction) {
+) -> (gio::SimpleActionGroup, gio::SimpleAction, gio::SimpleAction) {
     let action_group = gio::SimpleActionGroup::new();
     let edit_action = gio::SimpleAction::new("edit-cell", None);
     edit_action.set_enabled(false);
@@ -1173,6 +1361,17 @@ fn copy_action_group(
         }
     });
     action_group.add_action(&edit_action);
+
+    let delete_action = gio::SimpleAction::new("delete-row", None);
+    delete_action.set_enabled(false);
+    delete_action.connect_activate({
+        let sender = sender.clone();
+
+        move |_, _| {
+            sender.input(TableBrowserMsg::DeleteSelectedRowRequested);
+        }
+    });
+    action_group.add_action(&delete_action);
 
     let actions = [
         "copy-cell",
@@ -1209,7 +1408,7 @@ fn copy_action_group(
         action_group.add_action(&simple_action);
     }
 
-    (action_group, edit_action)
+    (action_group, edit_action, delete_action)
 }
 
 fn csv_filename_for_object(object: &DatabaseObject) -> String {
