@@ -17,7 +17,7 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 - Write SQL with syntax highlighting and line numbers
 - Reuse automatically saved query history per database
 - Browse table rows with pagination, filters, custom SQL filters, and editable cell values
-- Insert new table rows from the table browser
+- Insert and delete table rows from the table browser
 - Export results as CSV
 - Generate common table scripts from the object sidebar
 - Rename, truncate, and delete tables or views from the object sidebar
