@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-20 19:33+0200\n"
-"PO-Revision-Date: 2026-06-23 07:44+0000\n"
+"PO-Revision-Date: 2026-06-24 19:16+0000\n"
 "Last-Translator: தமிழ்நேரம் <tamilneram247@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/codd/ui/ta/>\n"
 "Language: ta\n"
@@ -20,11 +20,11 @@ msgstr ""
 
 #: src/menus.rs:11
 msgid "_New Connection"
-msgstr "_புதிய இணைப்பு"
+msgstr "புதிய இணைப்பு"
 
 #: src/menus.rs:32
 msgid "_New Window"
-msgstr "_புதிய சாளரம்"
+msgstr "புதிய சாளரம்"
 
 #: src/menus.rs:38
 msgid "_Keyboard Shortcuts"
@@ -32,24 +32,24 @@ msgstr "விசைப்பலகை குறுக்குவழிகள�
 
 #: src/menus.rs:39
 msgid "_About Codd"
-msgstr "_கோட் பற்றி"
+msgstr "கோட் பற்றி"
 
 #: src/menus.rs:40
 msgid "_Quit"
-msgstr "_விடு"
+msgstr "விடு"
 
 #: src/window.rs:215
 msgid "translator-credits"
-msgstr "மொழிபெயர்ப்பாளர்-வரவுகள்"
+msgstr "மொழிபெயர்ப்பாளர்-வரவுகள்: [தமிழ்நேரம்](TamilNeram.github.io)"
 
 #: src/window.rs:217 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
-msgstr "இலகுரக PostgreSQL கிளையன்ட்"
+msgstr "இலகுரக பின்கிரிகவிமொ வாடிக்கையாளர்"
 
 #: src/window_content.rs:264 src/window_content.rs:331
 msgid "Main Menu"
-msgstr "ப்ளே பட்டியல்"
+msgstr "முதன்மை பட்டியல்"
 
 #: src/window_content.rs:297
 msgid "Objects"
@@ -57,11 +57,11 @@ msgstr "பொருள்கள்"
 
 #: src/window_content.rs:301
 msgid "Back to connections"
-msgstr "பின் பெறுநர் connections"
+msgstr "பின்னே இணைப்புகளுக்கு"
 
 #: src/window_content.rs:308
 msgid "Refresh Objects"
-msgstr "பொருட்களைப் புதுப்பிக்கவும்"
+msgstr "பொருட்களைப் புதுப்பி"
 
 #: src/window_content.rs:338
 msgid "New Query Tab"
@@ -95,7 +95,7 @@ msgstr "இணைப்பு இல்லை"
 
 #: src/window_content.rs:1300
 msgid "Connected to PostgreSQL."
-msgstr "PostgreSQL உடன் இணைக்கப்பட்டது."
+msgstr "பின்கிரிகவிமொ உடன் இணைக்கப்பட்டது."
 
 #: src/window_content.rs:1313
 msgid "Connected, but saving the connection failed"
@@ -107,7 +107,7 @@ msgstr "சேமிக்கப்பட்ட கடவுச்சொல்�
 
 #: src/window_content.rs:1444
 msgid "Connect to PostgreSQL before exporting query results."
-msgstr "வினவல் முடிவுகளை ஏற்றுமதி செய்வதற்கு முன் PostgreSQL உடன் இணைக்கவும்."
+msgstr "வினவல் முடிவுகளை ஏற்றுமதி செய்வதற்கு முன் பின்கிரிகவிமொ உடன் இணை."
 
 #: src/window_content.rs:1452
 msgid "Enter SQL before exporting query results."
@@ -123,11 +123,11 @@ msgstr "திட்ட ஏற்றம் தோல்வியடைந்த�
 
 #: src/window_content.rs:1587
 msgid "Connect to PostgreSQL before generating a script."
-msgstr "ச்கிரிப்டை உருவாக்கும் முன் PostgreSQL உடன் இணைக்கவும்."
+msgstr "கைஉரையை உருவாக்கும் முன் பின்கிரிகவிமொ உடன் இணை."
 
 #: src/window_content.rs:1627
 msgid "Generating the table script failed"
-msgstr "அட்டவணை ச்கிரிப்டை உருவாக்குவது தோல்வியடைந்தது"
+msgstr "அட்டவணை கைஉரையை உருவாக்குவது தோல்வியடைந்தது"
 
 #: src/window_content.rs:1675 src/ui/components/table_browser.rs:828
 msgid "Export failed"
@@ -150,37 +150,37 @@ msgid ""
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
 "be exported."
 msgstr ""
-"ஏற்றுமதிக்கு தேர்ந்தெடு வினவலைப் பயன்படுத்தவும். புதுப்பித்தல், செருகுதல், நீக்குதல், "
+"ஏற்றுமதிக்கு தேர்ந்தெடு வினவலைப் பயன்படுத்து. புதுப்பித்தல், செருகுதல், நீக்குதல், "
 "உருவாக்குதல், உறுதி செய்தல் அல்லது பின்வாங்குதல் போன்ற பரிவர்த்தனை நிலையை எழுதும் அல்லது "
 "மாற்றும் அறிக்கைகளை ஏற்றுமதி செய்ய முடியாது."
 
 #: src/window_content.rs:1705
 msgid "CREATE script generated."
-msgstr "ச்கிரிப்டை உருவாக்கவும்."
+msgstr "உருவாக்கு கைஉரையை உருவாக்கப்பட்டது."
 
 #: src/window_content.rs:1706
 msgid "SELECT script generated."
-msgstr "தேர்ந்தெடு ச்கிரிப்ட் உருவாக்கப்பட்டது."
+msgstr "தேர்ந்தெடு கைஉரை உருவாக்கப்பட்டது."
 
 #: src/window_content.rs:1707
 msgid "INSERT script generated."
-msgstr "செருகவும் ச்கிரிப்ட் உருவாக்கப்பட்டது."
+msgstr "செருகு கைஉரை உருவாக்கப்பட்டது."
 
 #: src/window_content.rs:1708
 msgid "UPDATE script generated."
-msgstr "புதுப்பிப்பு ச்கிரிப்ட் உருவாக்கப்பட்டது."
+msgstr "புதுப்பிப்பு கைஉரை உருவாக்கப்பட்டது."
 
 #: src/window_content.rs:1709
 msgid "DELETE script generated."
-msgstr "ச்கிரிப்டை நீக்கவும்."
+msgstr "நீக்கு கைஉரையை உருவாக்கப்பட்டது."
 
 #: src/window_content/database_switching.rs:57
 msgid "Connect to PostgreSQL before switching databases."
-msgstr "தரவுத்தளங்களை மாற்றுவதற்கு முன் PostgreSQL உடன் இணைக்கவும்."
+msgstr "தரவுத்தளங்களை மாற்றுவதற்கு முன் பின்கிரிகவிமொ உடன் இணை."
 
 #: src/window_content/database_switching.rs:107
 msgid "Database switch failed"
-msgstr "தரவுத்தள சுவிட்ச் தோல்வியடைந்தது"
+msgstr "தரவுத்தள மாற்றம் தோல்வியடைந்தது"
 
 #: src/window_content/database_switching.rs:152
 msgid "Saving the selected database failed"
@@ -200,7 +200,7 @@ msgstr "வினவல் வரலாற்றை அழிக்க முட
 
 #: src/window_content/object_actions.rs:60
 msgid "Choose a new name for this database object."
-msgstr "இந்த தரவுத்தள பொருளுக்கு புதிய பெயரைத் தேர்வு செய்யவும்."
+msgstr "இந்த தரவுத்தள பொருளுக்கு புதிய பெயரைத் தேர்வு செய்."
 
 #: src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
@@ -214,7 +214,7 @@ msgstr "இந்த தரவுத்தள பொருளுக்கு ப
 #: src/ui/components/table_browser/cell_editor.rs:93
 #: src/ui/components/table_browser/insert_row.rs:147
 msgid "Cancel"
-msgstr "ரத்துசெய்"
+msgstr "கைவிடு"
 
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
@@ -222,16 +222,16 @@ msgstr "ரத்துசெய்"
 #: src/window_content/structure_actions.rs:334
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
-msgstr "மறுபெயரிடவும்"
+msgstr "மறுபெயரிடு"
 
 #: src/window_content/object_actions.rs:149
 msgid "Restart identity"
-msgstr "அடையாளத்தை மீண்டும் தொடங்கவும்"
+msgstr "அடையாளத்தை மீண்டும் தொடங்கு"
 
 #: src/window_content/object_actions.rs:151
 msgid "Reset sequences owned by columns of the truncated table."
 msgstr ""
-"துண்டிக்கப்பட்ட அட்டவணையின் நெடுவரிசைகளுக்குச் சொந்தமான தொடர்களை மீட்டமைக்கவும்."
+"துண்டிக்கப்பட்ட அட்டவணையின் நெடுவரிசைகளுக்குச் சொந்தமான தொடர்களை மீட்டமை."
 
 #: src/window_content/object_actions.rs:156
 msgid "Cascade"
@@ -239,20 +239,19 @@ msgstr "ஓடையிணைப்பு"
 
 #: src/window_content/object_actions.rs:158
 msgid "Also truncate tables that have foreign-key references to this table."
-msgstr ""
-"இந்த அட்டவணையில் வெளிநாட்டு முக்கிய குறிப்புகளைக் கொண்ட அட்டவணைகளையும் துண்டிக்கவும்."
+msgstr "இந்த அட்டவணையில் வெளி திறவு குறிப்புகளைக் கொண்ட அட்டவணைகளையும் துண்டி."
 
 #: src/window_content/object_actions.rs:313
 msgid "Rename Table"
-msgstr "அட்டவணையை மறுபெயரிடவும்"
+msgstr "அட்டவணையை மறுபெயரிடு"
 
 #: src/window_content/object_actions.rs:314
 msgid "Rename View"
-msgstr "பார்வையை மறுபெயரிடவும்"
+msgstr "பார்வையை மறுபெயரிடு"
 
 #: src/window_content/object_actions.rs:316
 msgid "Truncate Table"
-msgstr "அட்டவணையை துண்டிக்கவும்"
+msgstr "அட்டவணையை துண்டி"
 
 #: src/window_content/object_actions.rs:318
 msgid "Delete Table"
@@ -278,7 +277,7 @@ msgstr "நீக்கு"
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
-msgstr "துண்டிக்கவும்"
+msgstr "துண்டி"
 
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
@@ -324,7 +323,7 @@ msgstr "ஒரு வினவல் ஏற்கனவே இயங்குக
 
 #: src/window_content/query_execution.rs:115
 msgid "Connect to PostgreSQL before running a query."
-msgstr "வினவலை இயக்கும் முன் PostgreSQL உடன் இணைக்கவும்."
+msgstr "வினவலை இயக்கும் முன் பின்கிரிகவிமொ உடன் இணை."
 
 #: src/window_content/query_execution.rs:123
 msgid "Enter SQL before running a query."
@@ -342,7 +341,7 @@ msgstr "கைவிடு"
 
 #: src/window_content/structure_actions.rs:349
 msgid "from table"
-msgstr "மேசையில் இருந்து"
+msgstr "அட்டவணையில் இருந்து"
 
 #: src/window_content/structure_actions.rs:360
 msgid "renamed."
@@ -378,7 +377,7 @@ msgstr "கட்டுப்பாடு"
 
 #: src/window_content/structure_actions.rs:399
 msgid "Foreign key"
-msgstr "வெளிநாட்டு விசை"
+msgstr "வெளி திறவு"
 
 #: src/window_content/structure_actions.rs:400
 msgid "Trigger"
@@ -411,7 +410,7 @@ msgstr "அட்டவணை"
 
 #: src/window_content/tabs.rs:705
 msgid "Select the tab to load this table."
-msgstr "இந்த அட்டவணையை ஏற்ற தாவலைத் தேர்ந்தெடுக்கவும்."
+msgstr "இந்த அட்டவணையை ஏற்ற தாவலைத் தேர்ந்தெடு."
 
 #: src/window_content/tabs.rs:998
 msgid "Query"
@@ -440,7 +439,7 @@ msgstr "பயனர் பெயர் தேவை."
 #: src/ui/components/connection_dialog.rs:78
 #: src/ui/components/connection_dialog.rs:93
 msgid "PostgreSQL Connection"
-msgstr "PostgreSQL இணைப்பு"
+msgstr "பின்கிரிகவிமொ இணைப்பு"
 
 #: src/ui/components/connection_dialog.rs:106
 msgid "Connection"
@@ -473,7 +472,7 @@ msgstr "கடவுச்சொல்"
 
 #: src/ui/components/connection_dialog.rs:195
 msgid "Save Password"
-msgstr "கடவுச்சொல்லை சேமிக்கவும்"
+msgstr "கடவுச்சொல்லை சேமி"
 
 #: src/ui/components/connection_dialog.rs:221
 msgid "Test Connection"
@@ -506,7 +505,7 @@ msgstr "கடவுச்சொல் சேமிப்பகத்தின�
 
 #: src/ui/components/connection_dialog.rs:406
 msgid "Store this password in Keyring."
-msgstr "இந்த கடவுச்சொல்லை கீரிங்கில் சேமிக்கவும்."
+msgstr "இந்த கடவுச்சொல்லை திறவுவளையத்தில் சேமி."
 
 #: src/ui/components/connection_dialog.rs:407
 msgid "Password storage is not available."
@@ -514,7 +513,8 @@ msgstr "கடவுச்சொல் சேமிப்பு கிடைக�
 
 #: src/ui/components/connection_dialog.rs:424
 msgid "Saved in Keyring. Enter a new password to replace it."
-msgstr "கீரிங்கில் சேமிக்கப்பட்டது. அதை மாற்ற புதிய கடவுச்சொல்லை உள்ளிடவும்."
+msgstr ""
+"திறவுவளையத்தில் சேமிக்கப்பட்டது. அதை மாற்ற புதிய கடவுச்சொல்லை உள்ளிடவும்."
 
 #: src/ui/components/connection_dialog.rs:427
 msgid "No saved password was found. Enter a password to save it."
@@ -523,11 +523,11 @@ msgstr ""
 
 #: src/ui/components/connection_dialog.rs:499
 msgid "PostgreSQL returned the following error:"
-msgstr "PostgreSQL பின்வரும் பிழையை வழங்கியது:"
+msgstr "பின்கிரிகவிமொ பின்வரும் பிழையை வழங்கியது:"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Comma"
-msgstr "கமா"
+msgstr "காற்புள்ளி"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Semicolon"
@@ -563,7 +563,7 @@ msgstr "ஏற்றுமதி"
 
 #: src/ui/components/csv_export_dialog.rs:87
 msgid "Save CSV"
-msgstr "காபிம ஐ சேமிக்கவும்"
+msgstr "காபிம ஐ சேமி"
 
 #: src/ui/components/csv_export_dialog.rs:90
 #: src/ui/components/table_browser/cell_editor.rs:99
@@ -572,7 +572,7 @@ msgstr "சேமி"
 
 #: src/ui/components/csv_export_dialog.rs:98
 msgid "CSV Files"
-msgstr "சிஎச்வி கோப்புகள்"
+msgstr "காபிம கோப்புகள்"
 
 #: src/ui/components/cell_dialog.rs:29 src/ui/components/cell_dialog.rs:41
 msgid "Cell value"
@@ -586,15 +586,15 @@ msgstr "கோட்"
 
 #: src/ui/components/database_selector.rs:50
 msgid "Switch database"
-msgstr "தரவுத்தளத்தை மாற்றவும்"
+msgstr "தரவுத்தளத்தை மாற்று"
 
 #: src/ui/components/database_selector.rs:103
 msgid "Refresh Databases"
-msgstr "தரவுத்தளங்களைப் புதுப்பிக்கவும்"
+msgstr "தரவுத்தளங்களைப் புதுப்பி"
 
 #: src/ui/components/database_selector.rs:113
 msgid "Search databases"
-msgstr "தரவுத்தளங்களைத் தேடுங்கள்"
+msgstr "தரவுத்தளங்களைத் தேடு"
 
 #: src/ui/components/database_selector.rs:138
 msgid "No databases match your search."
@@ -607,11 +607,11 @@ msgstr "ஏற்றுகிறது..."
 
 #: src/ui/components/start_screen.rs:45
 msgid "Welcome to Codd"
-msgstr "Coddக்கு வரவேற்கிறோம்"
+msgstr "கோட்க்கு வரவேற்கிறோம்"
 
 #: src/ui/components/start_screen.rs:46
 msgid "Add a PostgreSQL connection to get started"
-msgstr "தொடங்குவதற்கு PostgreSQL இணைப்பைச் சேர்க்கவும்"
+msgstr "தொடங்குவதற்கு பின்கிரிகவிமொ இணைப்பைச் சேர்"
 
 #: src/ui/components/start_screen.rs:50 src/ui/components/start_screen.rs:84
 msgid "Add Connection..."
@@ -639,7 +639,7 @@ msgstr "இயல்புநிலை தரவுத்தளம்"
 
 #: src/ui/components/start_screen.rs:254
 msgid "Rename connection"
-msgstr "இணைப்பை மறுபெயரிடவும்"
+msgstr "இணைப்பை மறுபெயரிடு"
 
 #: src/ui/components/start_screen.rs:260
 msgid "Remove connection"
@@ -647,7 +647,7 @@ msgstr "இணைப்பை அகற்று"
 
 #: src/ui/components/start_screen.rs:315
 msgid "Rename Connection"
-msgstr "இணைப்பை மறுபெயரிடவும்"
+msgstr "இணைப்பை மறுபெயரிடு"
 
 #: src/ui/components/start_screen.rs:316
 msgid "Choose a new name for this connection."
@@ -659,7 +659,7 @@ msgstr "இணைப்பை அகற்று"
 
 #: src/ui/components/start_screen.rs:351
 msgid "Remove the saved connection"
-msgstr "சேமித்த இணைப்பை அகற்றவும்"
+msgstr "சேமித்த இணைப்பை அகற்று"
 
 #: src/ui/components/start_screen.rs:357
 msgid "Remove"
@@ -667,7 +667,7 @@ msgstr "அகற்று"
 
 #: src/ui/components/sidebar.rs:95
 msgid "Search objects"
-msgstr "பொருள்களைத் தேடுங்கள்"
+msgstr "பொருள்களைத் தேடு"
 
 #: src/ui/components/sidebar.rs:121
 msgid "No objects match your search."
@@ -696,7 +696,7 @@ msgstr "தற்போதைய இணைப்பிற்கான அட்�
 
 #: src/ui/components/sidebar.rs:407
 msgid "Connect to PostgreSQL to browse database objects."
-msgstr "தரவுத்தள பொருட்களை உலாவ PostgreSQL உடன் இணைக்கவும்."
+msgstr "தரவுத்தள பொருட்களை உலாவ பின்கிரிகவிமொ உடன் இணை."
 
 #: src/ui/components/sidebar.rs:410
 msgid "The selected database does not currently expose tables or views."
@@ -705,7 +705,7 @@ msgstr ""
 
 #: src/ui/components/sidebar.rs:529
 msgid "Scripts"
-msgstr "ச்கிரிப்டுகள்"
+msgstr "கைஉரைகள்"
 
 #: src/ui/components/sidebar.rs:533 src/ui/components/table_structure.rs:403
 msgid "Rename..."
@@ -713,7 +713,7 @@ msgstr "மறுபெயரிடு..."
 
 #: src/ui/components/sidebar.rs:538
 msgid "Truncate..."
-msgstr "துண்டிக்கவும்..."
+msgstr "துண்டி..."
 
 #: src/ui/components/sidebar.rs:541
 msgid "Delete..."
@@ -721,39 +721,39 @@ msgstr "நீக்கு..."
 
 #: src/ui/components/sidebar.rs:550
 msgid "CREATE Script"
-msgstr "ச்கிரிப்டை உருவாக்கவும்"
+msgstr "உருவாக்கு கைஉரை"
 
 #: src/ui/components/sidebar.rs:554
 msgid "SELECT Script"
-msgstr "ச்கிரிப்டைத் தேர்ந்தெடுக்கவும்"
+msgstr "தேர்ந்தெடு கைஉரை"
 
 #: src/ui/components/sidebar.rs:558
 msgid "INSERT Script"
-msgstr "ச்கிரிப்டைச் செருகவும்"
+msgstr "செருகு கைஉரை"
 
 #: src/ui/components/sidebar.rs:562
 msgid "UPDATE Script"
-msgstr "ச்கிரிப்டைப் புதுப்பிக்கவும்"
+msgstr "புதுப்பி கைஉரை"
 
 #: src/ui/components/sidebar.rs:566
 msgid "DELETE Script"
-msgstr "ச்கிரிப்டை நீக்கு"
+msgstr "நீக்கு கைஉரை"
 
 #: src/ui/components/sidebar.rs:574
 msgid "Copy Table Name"
-msgstr "அட்டவணையின் பெயரை நகலெடுக்கவும்"
+msgstr "அட்டவணையின் பெயரை நகலெடு"
 
 #: src/ui/components/sidebar.rs:575
 msgid "Copy Qualified Table Name"
-msgstr "தகுதியான அட்டவணையின் பெயரை நகலெடுக்கவும்"
+msgstr "தகுதியான அட்டவணையின் பெயரை நகலெடு"
 
 #: src/ui/components/sidebar.rs:576
 msgid "Copy View Name"
-msgstr "காட்சிப் பெயரை நகலெடுக்கவும்"
+msgstr "காட்சிப் பெயரை நகலெடு"
 
 #: src/ui/components/sidebar.rs:577
 msgid "Copy Qualified View Name"
-msgstr "தகுதியான பார்வை பெயரை நகலெடுக்கவும்"
+msgstr "தகுதியான பார்வை பெயரை நகலெடு"
 
 #: src/ui/components/sidebar.rs:583
 msgid "Table name copied."
@@ -795,7 +795,7 @@ msgstr "தேர்வு செயல்படுத்தப்படும�
 
 #: src/ui/components/editor.rs:227
 msgid "Execute selection or statement"
-msgstr "தேர்வு அல்லது அறிக்கையை இயக்கவும்"
+msgstr "தேர்வு அல்லது அறிக்கையை இயக்கு"
 
 #: src/ui/components/editor.rs:231
 msgid "Execute"
@@ -811,11 +811,11 @@ msgstr "தெரியாத நேரம்"
 
 #: src/ui/components/results.rs:263 src/ui/components/results.rs:296
 msgid "Run a query to see results"
-msgstr "முடிவுகளைக் காண வினவலை இயக்கவும்"
+msgstr "முடிவுகளைக் காண வினவலை இயக்கு"
 
 #: src/ui/components/results.rs:267 src/ui/components/results.rs:298
 msgid "Run a query"
-msgstr "வினவலை இயக்கவும்"
+msgstr "வினவலை இயக்கு"
 
 #: src/ui/components/results.rs:268 src/ui/components/results.rs:300
 msgid "Results will appear here after execution."
@@ -831,15 +831,15 @@ msgstr "வினவல் இயங்குகிறது"
 
 #: src/ui/components/results.rs:311
 msgid "Waiting for PostgreSQL to return results."
-msgstr "PostgreSQL முடிவுகளை வழங்க காத்திருக்கிறது."
+msgstr "பின்கிரிகவிமொ முடிவுகளை வழங்க காத்திருக்கிறது."
 
 #: src/ui/components/results.rs:320
 msgid "Query cancelled"
-msgstr "வினவல் ரத்து செய்யப்பட்டது"
+msgstr "வினவல் கைவிடப்பட்டது"
 
 #: src/ui/components/results.rs:321
 msgid "The query was cancelled."
-msgstr "வினவல் ரத்து செய்யப்பட்டது."
+msgstr "வினவல் கைவிடப்பட்டது."
 
 #: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:774
 msgid "Cell copied."
@@ -874,16 +874,16 @@ msgstr "அறிக்கை வெற்றிகரமாக முடிந�
 #: src/ui/components/results.rs:490
 msgid "row"
 msgid_plural "rows"
-msgstr[0] "நிரை"
+msgstr[0] "வரிசை"
 msgstr[1] "வரிசைகள்"
 
 #: src/ui/components/results.rs:663 src/ui/components/table_browser.rs:1287
 msgid "Copy Cell"
-msgstr "கலத்தை நகலெடுக்கவும்"
+msgstr "கலத்தை நகலெடு"
 
 #: src/ui/components/results.rs:664 src/ui/components/table_browser.rs:1288
 msgid "Copy Row"
-msgstr "வரிசையை நகலெடுக்கவும்"
+msgstr "வரிசையை நகலெடு"
 
 #: src/ui/components/results.rs:665 src/ui/components/table_browser.rs:1289
 msgid "Copy Column"
@@ -899,7 +899,7 @@ msgstr "காபிம ஐ ஏற்றுமதி செய்..."
 
 #: src/ui/components/table_browser.rs:281 src/ui/components/table_view.rs:164
 msgid "Show or edit filters"
-msgstr "வடிப்பான்களைக் காட்டு அல்லது திருத்தவும்"
+msgstr "வடிப்பான்களைக் காட்டு அல்லது திருத்து"
 
 #: src/ui/components/table_browser.rs:299 src/ui/components/table_view.rs:187
 msgid "Refresh"
@@ -931,12 +931,12 @@ msgstr "ஒரு பக்கத்திற்கு வரிசைகள்"
 
 #: src/ui/components/table_browser.rs:489
 msgid "Select a table"
-msgstr "ஒரு அட்டவணையைத் தேர்ந்தெடுக்கவும்"
+msgstr "ஒரு அட்டவணையைத் தேர்ந்தெடு"
 
 #: src/ui/components/table_browser.rs:491
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr ""
-"அதன் வரிசைகளை உலவ பக்கப்பட்டியில் இருந்து ஒரு அட்டவணை அல்லது பார்வையைத் தேர்வு செய்யவும்."
+"அதன் வரிசைகளை உலவ பக்கப்பட்டியில் இருந்து ஒரு அட்டவணை அல்லது பார்வையைத் தேர்வு செய்."
 
 #: src/ui/components/table_browser.rs:697
 msgid "Loading table failed"
@@ -1003,11 +1003,11 @@ msgstr "{first}-{last} வரிசைகள்"
 
 #: src/ui/components/table_browser.rs:1286
 msgid "Edit Value"
-msgstr "மதிப்பைத் திருத்தவும்"
+msgstr "மதிப்பைத் திருத்து"
 
 #: src/ui/components/table_browser.rs:1291
 msgid "Copy Displayed Page"
-msgstr "காட்டப்பட்ட பக்கத்தை நகலெடுக்கவும்"
+msgstr "காட்டப்பட்ட பக்கத்தை நகலெடு"
 
 #: src/ui/components/table_browser.rs:1297
 msgid "Delete Row..."
@@ -1029,16 +1029,16 @@ msgstr "மதிப்பு"
 msgid ""
 "Use Set NULL to store a database NULL. Empty text is saved as empty text."
 msgstr ""
-"NULL என்ற தரவுத்தளத்தைச் சேமிக்க கணம் NULL ஐப் பயன்படுத்தவும். வெற்று உரை வெற்று உரையாக "
+"சுழி என்ற தரவுத்தளத்தைச் சேமிக்க கணம் சுழி ஐப் பயன்படுத்து. வெற்று உரை வெற்று உரையாக "
 "சேமிக்கப்படுகிறது."
 
 #: src/ui/components/table_browser/cell_editor.rs:51
 msgid "This column is not nullable."
-msgstr "இந்த நெடுவரிசையை ரத்து செய்ய முடியாது."
+msgstr "இந்த நெடுவரிசையை சுழி செய்ய முடியாது."
 
 #: src/ui/components/table_browser/cell_editor.rs:94
 msgid "Set NULL"
-msgstr "NULL ஐ அமைக்கவும்"
+msgstr "சுழி ஐ அமை"
 
 #: src/ui/components/table_browser/editing.rs:38
 msgid "Cell cannot be edited"
@@ -1062,11 +1062,11 @@ msgstr "இந்த நெடுவரிசை வகையை இன்னு
 
 #: src/ui/components/table_browser/editing.rs:150
 msgid "Editing requires a primary key."
-msgstr "திருத்துவதற்கு முதன்மை விசை தேவை."
+msgstr "திருத்துவதற்கு முதன்மை திறவு தேவை."
 
 #: src/ui/components/table_browser/filters.rs:52
 msgid "Load the table before adding filters."
-msgstr "வடிகட்டிகளைச் சேர்ப்பதற்கு முன் அட்டவணையை ஏற்றவும்."
+msgstr "வடிகட்டிகளைச் சேர்ப்பதற்கு முன் அட்டவணையை ஏற்று."
 
 #: src/ui/components/table_browser/filters.rs:57
 msgid "This table has no filterable columns."
@@ -1094,7 +1094,7 @@ msgstr "கவிமொ வெளிப்பாடு"
 
 #: src/ui/components/table_browser/filters.rs:435
 msgid "Add Filter"
-msgstr "வடிகட்டியைச் சேர்க்கவும்"
+msgstr "வடிகட்டியைச் சேர்"
 
 #: src/ui/components/table_browser/filters.rs:601
 msgid "Custom SQL"
@@ -1103,7 +1103,7 @@ msgstr "தனிப்பயன் கவிமொ"
 #: src/ui/components/table_browser/insert_row.rs:139
 #: src/ui/components/table_view.rs:138
 msgid "Insert Row"
-msgstr "வரிசையைச் செருகவும்"
+msgstr "வரிசையைச் செருகு"
 
 #: src/ui/components/table_browser/insert_row.rs:141
 msgid ""
@@ -1111,15 +1111,15 @@ msgid ""
 "available."
 msgstr ""
 "புதிய வரிசைக்கான மதிப்புகளை உள்ளிடவும். நெடுவரிசைகள் இருக்கும் போது இயல்புநிலை அல்லது "
-"NULL ஐயும் பயன்படுத்தலாம்."
+"சுழி ஐயும் பயன்படுத்தலாம்."
 
 #: src/ui/components/table_browser/insert_row.rs:148
 msgid "Insert"
-msgstr "செருகவும்"
+msgstr "செருகு"
 
 #: src/ui/components/table_browser/insert_row.rs:248
 msgid "NULL"
-msgstr "NULL"
+msgstr "சுழி"
 
 #: src/ui/components/table_browser/insert_row.rs:252
 #: src/ui/components/table_structure/columns.rs:83
@@ -1136,7 +1136,7 @@ msgstr "தேவை"
 
 #: src/ui/components/table_browser/insert_row.rs:419
 msgid "Default or NULL allowed"
-msgstr "இயல்புநிலை அல்லது NULL அனுமதிக்கப்படுகிறது"
+msgstr "இயல்புநிலை அல்லது சுழி அனுமதிக்கப்படுகிறது"
 
 #: src/ui/components/table_browser/insert_row.rs:421
 msgid "Default allowed"
@@ -1144,7 +1144,7 @@ msgstr "இயல்புநிலை அனுமதிக்கப்பட�
 
 #: src/ui/components/table_browser/insert_row.rs:423
 msgid "NULL allowed"
-msgstr "NULL அனுமதிக்கப்படுகிறது"
+msgstr "சுழி அனுமதிக்கப்படுகிறது"
 
 #: src/ui/components/table_browser/insert_row.rs:431
 msgid "Required column with unsupported type"
@@ -1176,13 +1176,13 @@ msgstr "வரிசைகளை ஏற்றுகிறது"
 
 #: src/ui/components/table_browser/loading.rs:36
 msgid "Fetching the selected page from PostgreSQL."
-msgstr "PostgreSQL இலிருந்து தேர்ந்தெடுக்கப்பட்ட பக்கத்தைப் பெறுகிறது."
+msgstr "பின்கிரிகவிமொ இலிருந்து தேர்ந்தெடுக்கப்பட்ட பக்கத்தைப் பெறுகிறது."
 
 #: src/ui/components/table_browser/loading.rs:66
 #: src/ui/components/table_browser/loading.rs:104
 #: src/ui/components/table_structure.rs:321
 msgid "Loading cancelled"
-msgstr "ஏற்றுதல் ரத்துசெய்யப்பட்டது"
+msgstr "ஏற்றுதல் கைவிடுயப்பட்டது"
 
 #: src/ui/components/table_browser/loading.rs:124
 #, rust-format
@@ -1206,7 +1206,7 @@ msgstr "கட்டமைப்பு"
 
 #: src/ui/components/table_structure.rs:147
 msgid "Open a table to inspect its columns."
-msgstr "அதன் நெடுவரிசைகளை ஆய்வு செய்ய அட்டவணையைத் திறக்கவும்."
+msgstr "அதன் நெடுவரிசைகளை ஆய்வு செய்ய அட்டவணையைத் திற."
 
 #: src/ui/components/table_structure.rs:210
 msgid "Loading structure failed"
@@ -1218,11 +1218,11 @@ msgstr "ஏற்றுதல் அமைப்பு"
 
 #: src/ui/components/table_structure.rs:301
 msgid "Fetching table structure from PostgreSQL."
-msgstr "PostgreSQL இலிருந்து அட்டவணை கட்டமைப்பைப் பெறுகிறது."
+msgstr "பின்கிரிகவிமொ இலிருந்து அட்டவணை கட்டமைப்பைப் பெறுகிறது."
 
 #: src/ui/components/table_structure.rs:402
 msgid "Copy Name"
-msgstr "பெயரை நகலெடுக்கவும்"
+msgstr "பெயரை நகலெடு"
 
 #: src/ui/components/table_structure.rs:404
 msgid "Drop..."
@@ -1242,7 +1242,7 @@ msgstr "தடையின் பெயர் நகலெடுக்கப்�
 
 #: src/ui/components/table_structure.rs:413
 msgid "Foreign key name copied."
-msgstr "வெளிநாட்டு முக்கிய பெயர் நகலெடுக்கப்பட்டது."
+msgstr "வெளி திறவு பெயர் நகலெடுக்கப்பட்டது."
 
 #: src/ui/components/table_structure.rs:414
 msgid "Trigger name copied."
@@ -1254,7 +1254,7 @@ msgstr "நெடுவரிசைகள்"
 
 #: src/ui/components/table_structure/columns.rs:68
 msgid "Nullable"
-msgstr "எண்ணத்தக்கது"
+msgstr "சுழியத்தக்கது"
 
 #: src/ui/components/table_structure/columns.rs:71
 msgid "Yes"
@@ -1266,7 +1266,7 @@ msgstr "இல்லை"
 
 #: src/ui/components/table_structure/columns.rs:92
 msgid "Key"
-msgstr "முக்கிய"
+msgstr "திறவு"
 
 #: src/ui/components/table_structure/columns.rs:209
 msgid "Generated"
@@ -1295,11 +1295,11 @@ msgstr "கட்டுப்பாடுகள் இல்லை"
 
 #: src/ui/components/table_structure/sections.rs:72
 msgid "Foreign Keys"
-msgstr "வெளிநாட்டு விசைகள்"
+msgstr "வெளி திறவுகள்"
 
 #: src/ui/components/table_structure/sections.rs:75
 msgid "No foreign keys"
-msgstr "வெளிநாட்டு விசைகள் இல்லை"
+msgstr "வெளி திறவுகள் இல்லை"
 
 #: src/ui/components/table_structure/sections.rs:99
 msgid "Triggers"
@@ -1343,15 +1343,15 @@ msgstr "உள்ளடக்கம்"
 
 #: data/io.github.anil_e.Codd.desktop.in:10
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
-msgstr "பின்சிஆர்இகவிமொ;கவிமொ;தரவுதளம்;வினாவல்;குனோம்;"
+msgstr "பின்கிரிகவிமொ;கவிமொ;தரவுதளம்;வினாவல்;குனோம்;"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:10
 msgid ""
 "Codd is a lightweight PostgreSQL query app for GNOME built with Rust, GTK4, "
 "and libadwaita."
 msgstr ""
-"Codd என்பது Rust, GTK4 மற்றும் libadwaita ஆகியவற்றைக் கொண்டு உருவாக்கப்பட்ட GNOMEக்கான "
-"இலகுரக PostgreSQL வினவல் பயன்பாடாகும்."
+"கோட் என்பது Rust, GTK4 மற்றும் libadwaita ஆகியவற்றைக் கொண்டு உருவாக்கப்பட்ட குனோமுக்கான "
+"இலகுரக பின்கிரிகவிமொ வினவல் பயன்பாடாகும்."
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:14
 msgid ""
@@ -1368,46 +1368,46 @@ msgstr "அனில் எர்டோகன்"
 #: data/io.github.anil_e.Codd.metainfo.xml.in:37
 msgid "Run SQL queries with syntax highlighting and result previews"
 msgstr ""
-"தொடரியல் சிறப்பம்சங்கள் மற்றும் முடிவு முன்னோட்டங்களுடன் கவிமொ வினவல்களை இயக்கவும்"
+"தொடரியல் சிறப்புபண்புகள் மற்றும் முடிவு முன்னோட்டங்களுடன் கவிமொ வினவல்களை இயக்கு"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:41
 msgid "Browse PostgreSQL table data with pagination and filters"
-msgstr "பேசினேசன் மற்றும் ஃபில்டர்களுடன் PostgreSQL டேபிள் தரவை உலாவவும்"
+msgstr "பேசினேசன் மற்றும் ஃபில்டர்களுடன் பின்கிரிகவிமொ டேபிள் தரவை உலாவு"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:45
 msgid ""
 "Insert new table rows with defaults, NULL values and PostgreSQL type "
 "validation"
 msgstr ""
-"இயல்புநிலைகள், NULL மதிப்புகள் மற்றும் PostgreSQL வகை சரிபார்ப்புடன் புதிய அட்டவணை "
-"வரிசைகளைச் செருகவும்"
+"இயல்புநிலைகள், சுழி மதிப்புகள் மற்றும் பின்கிரிகவிமொ வகை சரிபார்ப்புடன் புதிய அட்டவணை "
+"வரிசைகளைச் செருகு"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:49
 msgid ""
 "Inspect table columns, data types, nullability, defaults and primary keys"
 msgstr ""
-"அட்டவணை நெடுவரிசைகள், தரவு வகைகள், nullability, defaults மற்றும் முதன்மை விசைகளை "
+"அட்டவணை நெடுவரிசைகள், தரவு வகைகள், nullability, defaults மற்றும் முதன்மை திறவுகளை "
 "ஆய்வு செய்யவும்"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:53
 msgid ""
 "Review indexes, constraints, foreign keys and triggers in the structure view"
 msgstr ""
-"கட்டமைப்பு பார்வையில் குறியீடுகள், கட்டுப்பாடுகள், வெளிநாட்டு விசைகள் மற்றும் தூண்டுதல்களை "
-"மதிப்பாய்வு செய்யவும்"
+"கட்டமைப்பு பார்வையில் குறியீடுகள், கட்டுப்பாடுகள், வெளி திறவுகள் மற்றும் தூண்டுதல்களை "
+"மதிப்பாய்வு செய்"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:57
 msgid "Edit table structure from native context menus"
-msgstr "சொந்த சூழல் மெனுக்களிலிருந்து அட்டவணை அமைப்பைத் திருத்தவும்"
+msgstr "சொந்த சூழல் மெனுக்களிலிருந்து அட்டவணை அமைப்பைத் திருத்து"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:61
 msgid "Use table actions like rename, truncate and delete"
 msgstr ""
-"மறுபெயரிடுதல், துண்டித்தல் மற்றும் நீக்குதல் போன்ற அட்டவணை செயல்களைப் பயன்படுத்தவும்"
+"மறுபெயரிடுதல், துண்டித்தல் மற்றும் நீக்குதல் போன்ற அட்டவணை செயல்களைப் பயன்படுத்து"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:65
 msgid "Manage saved PostgreSQL connections"
-msgstr "சேமிக்கப்பட்ட PostgreSQL இணைப்புகளை நிர்வகிக்கவும்"
+msgstr "சேமிக்கப்பட்ட பின்கிரிகவிமொ இணைப்புகளை நிர்வகி"
 
 #: data/ui/shortcuts-dialog.ui:6
 msgctxt "shortcut window"
@@ -1437,12 +1437,12 @@ msgstr "வானோடல்"
 #: data/ui/shortcuts-dialog.ui:32
 msgctxt "shortcut window"
 msgid "Search Database Objects"
-msgstr "தரவுத்தள பொருள்களைத் தேடுங்கள்"
+msgstr "தரவுத்தள பொருள்களைத் தேடு"
 
 #: data/ui/shortcuts-dialog.ui:38
 msgctxt "shortcut window"
 msgid "Refresh Database Objects"
-msgstr "தரவுத்தளப் பொருட்களைப் புதுப்பிக்கவும்"
+msgstr "தரவுத்தளப் பொருட்களைப் புதுப்பி"
 
 #: data/ui/shortcuts-dialog.ui:46
 msgctxt "shortcut window"
@@ -1452,7 +1452,7 @@ msgstr "அட்டவணை உலாவி"
 #: data/ui/shortcuts-dialog.ui:49
 msgctxt "shortcut window"
 msgid "Refresh Table or View"
-msgstr "அட்டவணையைப் புதுப்பிக்கவும் அல்லது பார்க்கவும்"
+msgstr "அட்டவணையைப் புதுப்பி அல்லது பார்"
 
 #: data/ui/shortcuts-dialog.ui:55
 msgctxt "shortcut window"
@@ -1492,4 +1492,4 @@ msgstr "வினவல் இயங்குவதை நீக்கறல்"
 #: data/ui/shortcuts-dialog.ui:95
 msgctxt "shortcut window"
 msgid "Focus SQL Editor"
-msgstr "கவனம் கவிமொ எடிட்டர்"
+msgstr "கவனம் கவிமொ திருத்தி"
