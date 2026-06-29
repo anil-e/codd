@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-20 19:33+0200\n"
-"PO-Revision-Date: 2026-06-17 02:05+0000\n"
+"PO-Revision-Date: 2026-07-01 00:01+0000\n"
 "Last-Translator: Francisco Vásquez Cuevas <fvasquez@fvtronics.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/codd/ui/es/>\n"
 "Language: es\n"
@@ -975,11 +975,11 @@ msgstr "No se pudo recargar la tabla"
 
 #: src/ui/components/table_browser.rs:896
 msgid "Row deleted."
-msgstr ""
+msgstr "Fila eliminada."
 
 #: src/ui/components/table_browser.rs:910
 msgid "Deleting row failed"
-msgstr ""
+msgstr "No se pudo eliminar la fila"
 
 #: src/ui/components/table_browser.rs:1077
 msgid "Filter cannot be applied"
@@ -1017,7 +1017,7 @@ msgstr "Copiar página mostrada"
 
 #: src/ui/components/table_browser.rs:1297
 msgid "Delete Row..."
-msgstr ""
+msgstr "Eliminar fila…"
 
 #: src/ui/components/table_browser/cell_editor.rs:32
 #: src/ui/components/table_structure/columns.rs:59
@@ -1341,7 +1341,7 @@ msgstr "Diferible"
 
 #: src/ui/components/table_view.rs:151
 msgid "Delete selected row"
-msgstr ""
+msgstr "Eliminar fila seleccionada"
 
 #: src/ui/components/table_view.rs:227
 msgid "Content"
@@ -1464,7 +1464,7 @@ msgstr "Actualizar tabla o vista"
 #: data/ui/shortcuts-dialog.ui:55
 msgctxt "shortcut window"
 msgid "Delete Selected Row"
-msgstr ""
+msgstr "Eliminar fila seleccionada"
 
 #: data/ui/shortcuts-dialog.ui:63
 msgctxt "shortcut window"
