@@ -24,9 +24,8 @@
       "buildsystem": "meson",
       "sources": [
         {
-          "type": "git",
-          "url": "https://github.com/anil-e/codd.git",
-          "tag": "v0.8.1"
+          "type": "dir",
+          "path": "."
         },
         "cargo-sources.json"
       ],
