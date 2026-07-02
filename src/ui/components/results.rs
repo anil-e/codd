@@ -381,11 +381,19 @@ impl Component for QueryResults {
                 self.status_text = result_status_text(&result);
                 self.status_title = if result.rows.is_empty() {
                     gettext("Query returned no rows.")
+                } else if result.columns.is_empty() {
+                    gettext("Query returned no columns.")
                 } else {
                     String::new()
                 };
-                self.status_description = None;
-                self.result = (!result.rows.is_empty()).then_some(result);
+                self.status_description = if !result.rows.is_empty() && result.columns.is_empty() {
+                    Some(gettext(
+                        "The statement returned rows, but there are no columns to display.",
+                    ))
+                } else {
+                    None
+                };
+                self.result = has_displayable_result(&result).then_some(result);
             }
 
             QueryResultsMsg::ShowResult(QueryExecutionResult::AffectedRows(rows)) => {
@@ -489,6 +497,10 @@ fn result_status_text(result: &QueryResult) -> String {
         result.rows.len(),
         ngettext("row", "rows", row_count)
     )
+}
+
+fn has_displayable_result(result: &QueryResult) -> bool {
+    !result.rows.is_empty() && !result.columns.is_empty()
 }
 
 impl QueryResults {
@@ -727,7 +739,7 @@ fn display_cell_value(value: &str, is_header: bool) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{QueryResult, result_status_text};
+    use super::{QueryResult, has_displayable_result, result_status_text};
 
     #[test]
     fn result_status_keeps_row_count_when_row_limit_was_reached() {
@@ -751,5 +763,17 @@ mod tests {
         };
 
         assert_eq!(result_status_text(&result), "1 row");
+    }
+
+    #[test]
+    fn zero_column_results_are_not_displayed_as_grid() {
+        let result = QueryResult {
+            columns: Vec::new(),
+            rows: vec![Vec::new()],
+            row_limit: Some(1_000),
+            row_limit_reached: false,
+        };
+
+        assert!(!has_displayable_result(&result));
     }
 }
