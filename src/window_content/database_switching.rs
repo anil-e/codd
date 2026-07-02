@@ -115,6 +115,7 @@ impl WindowContent {
         self.active_pool = Some(pool);
         self.state.active_database = Some(database.clone());
         self.state.objects.clear();
+        self.set_completion_catalog(crate::models::completion::CompletionCatalog::empty());
         let Some(mut details) = self.active_connection_details.clone() else {
             return;
         };
@@ -254,6 +255,19 @@ impl WindowContent {
         for tab in &self.query_tabs {
             tab.editor
                 .emit(SqlEditorMsg::SetHistory(self.query_history.clone()));
+        }
+    }
+
+    pub(super) fn set_completion_catalog(
+        &mut self,
+        catalog: crate::models::completion::CompletionCatalog,
+    ) {
+        self.completion_catalog = catalog;
+
+        for tab in &self.query_tabs {
+            tab.editor.emit(SqlEditorMsg::SetCompletionCatalog(
+                self.completion_catalog.clone(),
+            ));
         }
     }
 

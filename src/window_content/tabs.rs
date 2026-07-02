@@ -212,6 +212,9 @@ impl WindowContent {
         if let Some(tab) = self.query_tabs.last() {
             tab.editor
                 .emit(SqlEditorMsg::SetHistory(self.query_history.clone()));
+            tab.editor.emit(SqlEditorMsg::SetCompletionCatalog(
+                self.completion_catalog.clone(),
+            ));
         }
     }
 

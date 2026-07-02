@@ -4,6 +4,7 @@ pub mod connection_dialog;
 pub mod csv_export_dialog;
 pub mod database_selector;
 pub mod editor;
+pub mod editor_completion;
 pub mod results;
 pub mod sidebar;
 pub mod start_screen;

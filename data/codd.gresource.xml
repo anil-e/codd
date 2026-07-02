@@ -5,6 +5,8 @@
     <file>style.css</file>
   </gresource>
   <gresource prefix="/io/github/anil_e/codd/icons">
+    <file preprocess="xml-stripblanks" alias="scalable/actions/code-symbolic.svg">icons/symbolic/actions/code-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/columns-symbolic.svg">icons/symbolic/actions/columns-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="scalable/actions/dialog-error-symbolic.svg">icons/symbolic/actions/dialog-error-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="scalable/actions/document-open-symbolic.svg">icons/symbolic/actions/document-open-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="scalable/actions/document-save-symbolic.svg">icons/symbolic/actions/document-save-symbolic.svg</file>
@@ -14,6 +16,7 @@
     <file preprocess="xml-stripblanks" alias="scalable/actions/folder-symbolic.svg">icons/symbolic/actions/folder-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="scalable/actions/go-next-symbolic.svg">icons/symbolic/actions/go-next-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="scalable/actions/go-previous-symbolic.svg">icons/symbolic/actions/go-previous-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="scalable/actions/lang-function-symbolic.svg">icons/symbolic/actions/lang-function-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="scalable/actions/last-symbolic.svg">icons/symbolic/actions/last-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="scalable/actions/list-add-symbolic.svg">icons/symbolic/actions/list-add-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="scalable/actions/media-playback-start-symbolic.svg">icons/symbolic/actions/media-playback-start-symbolic.svg</file>

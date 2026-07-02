@@ -1,4 +1,5 @@
 pub mod browser;
+pub mod completion;
 pub mod object_actions;
 pub mod postgres;
 pub mod query;

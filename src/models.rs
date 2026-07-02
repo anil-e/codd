@@ -1,3 +1,4 @@
+pub mod completion;
 pub mod connection;
 pub mod csv_export;
 pub mod database_object;

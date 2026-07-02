@@ -96,6 +96,12 @@
             <property name="accelerator">&lt;Control&gt;e</property>
           </object>
         </child>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Show Suggestions</property>
+            <property name="accelerator">&lt;Control&gt;space</property>
+          </object>
+        </child>
       </object>
     </child>
   </object>

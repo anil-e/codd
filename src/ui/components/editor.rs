@@ -1,4 +1,6 @@
+use crate::models::completion::CompletionCatalog;
 use crate::models::query_history::QueryHistoryEntry;
+use crate::ui::components::editor_completion::SqlCompletionProvider;
 use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
@@ -10,6 +12,7 @@ use sourceview5::prelude::*;
 pub struct SqlEditor {
     buffer: sourceview5::Buffer,
     history_preview_buffer: sourceview5::Buffer,
+    completion_provider: SqlCompletionProvider,
     is_running: bool,
     has_selection: bool,
     history: Vec<QueryHistoryEntry>,
@@ -24,6 +27,7 @@ pub enum SqlEditorMsg {
     SetRunning(bool),
     SelectionChanged(bool),
     SetHistory(Vec<QueryHistoryEntry>),
+    SetCompletionCatalog(CompletionCatalog),
     Focus,
     RunRequested,
     CancelRequested,
@@ -76,11 +80,19 @@ impl Component for SqlEditor {
                     set_right_margin: 18,
 
                     add_controller = gtk::EventControllerKey {
-                        connect_key_pressed[sender] => move |_, key, _, modifiers| {
+                        connect_key_pressed[sender] => move |controller, key, _, modifiers| {
                             if modifiers.contains(gtk::gdk::ModifierType::CONTROL_MASK)
                                 && (key == gtk::gdk::Key::Return || key == gtk::gdk::Key::KP_Enter)
                             {
                                 sender.input(SqlEditorMsg::RunRequested);
+                                glib::Propagation::Stop
+                            } else if modifiers.contains(gtk::gdk::ModifierType::CONTROL_MASK)
+                                && key == gtk::gdk::Key::space
+                            {
+                                if let Some(view) = controller.widget().and_downcast::<sourceview5::View>() {
+                                    view.completion().show();
+                                }
+
                                 glib::Propagation::Stop
                             } else {
                                 glib::Propagation::Proceed
@@ -257,6 +269,7 @@ impl Component for SqlEditor {
         configure_sql_buffer(&buffer);
         let history_preview_buffer = sourceview5::Buffer::new(None);
         configure_sql_buffer(&history_preview_buffer);
+        let completion_provider = SqlCompletionProvider::new();
         let style_manager = adw::StyleManager::default();
         apply_style_scheme(&buffer, &history_preview_buffer, style_manager.is_dark());
         let dark_notify_handler = {
@@ -276,6 +289,7 @@ impl Component for SqlEditor {
         let mut model = SqlEditor {
             buffer,
             history_preview_buffer,
+            completion_provider,
             is_running: false,
             has_selection: false,
             history: Vec::new(),
@@ -285,6 +299,10 @@ impl Component for SqlEditor {
             selection_notify_handler: Some(selection_notify_handler),
         };
         let widgets = view_output!();
+        widgets
+            .source_view
+            .completion()
+            .add_provider(&model.completion_provider);
         model.render_history(&widgets);
 
         ComponentParts { model, widgets }
@@ -311,6 +329,10 @@ impl Component for SqlEditor {
                 self.selected_history_index = self.default_history_selection();
                 self.sync_history_preview();
                 self.render_history(widgets);
+            }
+
+            SqlEditorMsg::SetCompletionCatalog(catalog) => {
+                self.completion_provider.set_catalog(catalog);
             }
 
             SqlEditorMsg::Focus => {

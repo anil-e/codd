@@ -18,6 +18,7 @@ use std::sync::{
 
 use crate::db;
 use crate::menus;
+use crate::models::completion::CompletionCatalog;
 use crate::models::connection::{ConnectionDetails, SavedConnection};
 use crate::models::csv_export::{self, CsvExportOptions};
 use crate::models::database_object::DatabaseObject;
@@ -68,6 +69,7 @@ pub struct WindowContent {
     query_tabs: Vec<QueryTab>,
     browse_tabs: Vec<BrowseTab>,
     query_history: Vec<QueryHistoryEntry>,
+    completion_catalog: CompletionCatalog,
     active_query_tab_id: u64,
     next_query_tab_id: u64,
     next_browse_tab_id: u64,
@@ -207,7 +209,7 @@ pub enum WindowContentEvent {
 pub enum WindowContentCommandOutput {
     SchemaLoaded {
         id: u64,
-        result: Result<Vec<DatabaseObject>, String>,
+        result: Result<SchemaLoadResult, String>,
     },
     DatabasesLoaded {
         id: u64,
@@ -241,6 +243,12 @@ pub enum WindowContentCommandOutput {
         save_password: bool,
         result: Result<(), String>,
     },
+}
+
+#[derive(Debug)]
+pub struct SchemaLoadResult {
+    objects: Vec<DatabaseObject>,
+    completion_catalog: CompletionCatalog,
 }
 
 #[relm4::component(pub)]
@@ -406,6 +414,7 @@ impl Component for WindowContent {
             query_tabs: Vec::new(),
             browse_tabs: Vec::new(),
             query_history: Vec::new(),
+            completion_catalog: CompletionCatalog::empty(),
             active_query_tab_id: 0,
             next_query_tab_id: 0,
             next_browse_tab_id: 0,
@@ -1330,9 +1339,7 @@ impl WindowContent {
         sender.oneshot_command(async move {
             WindowContentCommandOutput::SchemaLoaded {
                 id: schema_request_id,
-                result: db::schema::load_schema(&pool)
-                    .await
-                    .map_err(|error| error.to_string()),
+                result: load_schema_result(&pool).await,
             }
         });
     }
@@ -1502,7 +1509,7 @@ impl WindowContent {
         });
     }
 
-    fn handle_schema_loaded(&mut self, id: u64, result: Result<Vec<DatabaseObject>, String>) {
+    fn handle_schema_loaded(&mut self, id: u64, result: Result<SchemaLoadResult, String>) {
         if self.active_schema_request_id != Some(id) {
             return;
         }
@@ -1510,11 +1517,14 @@ impl WindowContent {
         self.active_schema_request_id = None;
 
         match result {
-            Ok(objects) => {
+            Ok(result) => {
+                let objects = result.objects;
                 self.state.objects.clone_from(&objects);
                 self.sidebar.emit(ObjectSidebarMsg::SetObjects(objects));
+                self.set_completion_catalog(result.completion_catalog);
             }
             Err(error) => {
+                self.set_completion_catalog(CompletionCatalog::empty());
                 self.sidebar.emit(ObjectSidebarMsg::SetError(format!(
                     "{}: {error}",
                     gettext("Schema load failed")
@@ -1534,9 +1544,7 @@ impl WindowContent {
         sender.oneshot_command(async move {
             WindowContentCommandOutput::SchemaLoaded {
                 id: schema_request_id,
-                result: db::schema::load_schema(&pool)
-                    .await
-                    .map_err(|error| error.to_string()),
+                result: load_schema_result(&pool).await,
             }
         });
     }
@@ -1675,6 +1683,20 @@ fn show_export_error_dialog(widgets: &WindowContentWidgets, error: &str) {
 
     dialog.add_response("close", &gettext("Close"));
     dialog.present(widgets.toast_overlay.root().as_ref());
+}
+
+async fn load_schema_result(pool: &PgPool) -> Result<SchemaLoadResult, String> {
+    let objects = db::schema::load_schema(pool)
+        .await
+        .map_err(|error| error.to_string())?;
+    let completion_catalog = db::completion::load_catalog(pool)
+        .await
+        .unwrap_or_else(|_| CompletionCatalog::empty());
+
+    Ok(SchemaLoadResult {
+        objects,
+        completion_catalog,
+    })
 }
 
 fn query_export_error_message(error: &str) -> String {
