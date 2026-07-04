@@ -8,6 +8,7 @@ src/window_content/query_execution.rs
 src/window_content/structure_actions.rs
 src/window_content/tabs.rs
 src/models/connection.rs
+src/models/completion.rs
 src/ui/components/connection_dialog.rs
 src/ui/components/csv_export_dialog.rs
 src/ui/components/cell_dialog.rs
@@ -18,6 +19,7 @@ src/ui/components/editor.rs
 src/ui/components/results.rs
 src/ui/components/table_browser.rs
 src/ui/components/table_browser/cell_editor.rs
+src/ui/components/table_browser/delete_row.rs
 src/ui/components/table_browser/editing.rs
 src/ui/components/table_browser/filters.rs
 src/ui/components/table_browser/grid.rs

@@ -1,4 +1,5 @@
 use crate::models::database_object::quote_identifier;
+use gettextrs::gettext;
 
 const KEYWORDS: &[&str] = &[
     "SELECT",
@@ -114,8 +115,10 @@ impl SqlFunction {
 
     fn detail(self) -> String {
         format!(
-            "Kind: {}\nSignature: {}()",
+            "{}: {}\n{}: {}()",
+            gettext("Kind"),
             CompletionItemKind::Function.label(),
+            gettext("Signature"),
             self.name
         )
     }
@@ -159,15 +162,15 @@ pub enum CompletionItemKind {
 }
 
 impl CompletionItemKind {
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Self::Keyword => "keyword",
-            Self::Function => "function",
-            Self::Schema => "schema",
-            Self::Table => "table",
-            Self::View => "view",
-            Self::MaterializedView => "materialized view",
-            Self::Column => "column",
+            Self::Keyword => gettext("keyword"),
+            Self::Function => gettext("function"),
+            Self::Schema => gettext("schema"),
+            Self::Table => gettext("table"),
+            Self::View => gettext("view"),
+            Self::MaterializedView => gettext("materialized view"),
+            Self::Column => gettext("column"),
         }
     }
 }
@@ -220,7 +223,7 @@ impl CompletionCatalog {
                         suggestions.push(CompletionSuggestion {
                             label: column.name.clone(),
                             insert_text: quoted_if_needed(&column.name),
-                            summary: CompletionItemKind::Column.label().to_string(),
+                            summary: CompletionItemKind::Column.label(),
                             detail: column_detail(object, column),
                             kind: CompletionItemKind::Column,
                             cursor_backward: 0,
@@ -235,8 +238,12 @@ impl CompletionCatalog {
                 suggestions.push(CompletionSuggestion {
                     label: schema.name.clone(),
                     insert_text: quoted_if_needed(&schema.name),
-                    summary: CompletionItemKind::Schema.label().to_string(),
-                    detail: format!("Kind: {}", CompletionItemKind::Schema.label()),
+                    summary: CompletionItemKind::Schema.label(),
+                    detail: format!(
+                        "{}: {}",
+                        gettext("Kind"),
+                        CompletionItemKind::Schema.label()
+                    ),
                     kind: CompletionItemKind::Schema,
                     cursor_backward: 0,
                 });
@@ -248,7 +255,7 @@ impl CompletionCatalog {
                 suggestions.push(CompletionSuggestion {
                     label: object.name.clone(),
                     insert_text: quoted_if_needed(&object.name),
-                    summary: object.kind.label().to_string(),
+                    summary: object.kind.label(),
                     detail: object_detail(object),
                     kind: object.kind,
                     cursor_backward: 0,
@@ -261,7 +268,7 @@ impl CompletionCatalog {
                 suggestions.push(CompletionSuggestion {
                     label: function.name.to_string(),
                     insert_text: function.insert_text(),
-                    summary: CompletionItemKind::Function.label().to_string(),
+                    summary: CompletionItemKind::Function.label(),
                     detail: function.detail(),
                     kind: CompletionItemKind::Function,
                     cursor_backward: 1,
@@ -274,8 +281,8 @@ impl CompletionCatalog {
                 suggestions.push(CompletionSuggestion {
                     label: (*keyword).to_string(),
                     insert_text: (*keyword).to_string(),
-                    summary: CompletionItemKind::Keyword.label().to_string(),
-                    detail: CompletionItemKind::Keyword.label().to_string(),
+                    summary: CompletionItemKind::Keyword.label(),
+                    detail: CompletionItemKind::Keyword.label(),
                     kind: CompletionItemKind::Keyword,
                     cursor_backward: 0,
                 });
@@ -321,7 +328,7 @@ impl CompletionCatalog {
             .map(|object| CompletionSuggestion {
                 label: object.name.clone(),
                 insert_text: quoted_if_needed(&object.name),
-                summary: object.kind.label().to_string(),
+                summary: object.kind.label(),
                 detail: object_detail(object),
                 kind: object.kind,
                 cursor_backward: 0,
@@ -399,7 +406,7 @@ impl CompletionCatalog {
             .map(|column| CompletionSuggestion {
                 label: column.name.clone(),
                 insert_text: quoted_if_needed(&column.name),
-                summary: CompletionItemKind::Column.label().to_string(),
+                summary: CompletionItemKind::Column.label(),
                 detail: column_detail(object, column),
                 kind: CompletionItemKind::Column,
                 cursor_backward: 0,
@@ -410,19 +417,25 @@ impl CompletionCatalog {
 
 fn column_detail(object: &CompletionObject, column: &CompletionColumn) -> String {
     format!(
-        "Kind: {}\nTable: {}.{}\nType: {}",
+        "{}: {}\n{}: {}.{}\n{}: {}",
+        gettext("Kind"),
         CompletionItemKind::Column.label(),
+        gettext("Table"),
         object.schema,
         object.name,
+        gettext("Type"),
         column.data_type
     )
 }
 
 fn object_detail(object: &CompletionObject) -> String {
     format!(
-        "Kind: {}\nSchema: {}\nName: {}",
+        "{}: {}\n{}: {}\n{}: {}",
+        gettext("Kind"),
         object.kind.label(),
+        gettext("Schema"),
         object.schema,
+        gettext("Name"),
         object.name
     )
 }
