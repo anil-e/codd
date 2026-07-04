@@ -14,7 +14,7 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 - Store connection passwords securely in Keyring
 - Browse tables and views
 - Inspect table structure, including columns, indexes, constraints, foreign keys, and triggers
-- Write SQL with syntax highlighting and line numbers
+- Write SQL with syntax highlighting, line numbers, and schema-aware completion
 - Reuse automatically saved query history per database
 - Browse table rows with pagination, filters, custom SQL filters, and editable cell values
 - Insert and delete table rows from the table browser
