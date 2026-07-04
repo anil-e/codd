@@ -45,7 +45,81 @@ const KEYWORDS: &[&str] = &[
     "RETURNING",
 ];
 
+const FUNCTIONS: &[SqlFunction] = &[
+    SqlFunction::new("ABS"),
+    SqlFunction::new("ARRAY_AGG"),
+    SqlFunction::new("ARRAY_LENGTH"),
+    SqlFunction::new("AVG"),
+    SqlFunction::new("CEIL"),
+    SqlFunction::new("COALESCE"),
+    SqlFunction::new("CONCAT"),
+    SqlFunction::new("COUNT"),
+    SqlFunction::new("DATE_PART"),
+    SqlFunction::new("DATE_TRUNC"),
+    SqlFunction::new("DENSE_RANK"),
+    SqlFunction::new("EXTRACT"),
+    SqlFunction::new("FLOOR"),
+    SqlFunction::new("GREATEST"),
+    SqlFunction::new("JSONB_AGG"),
+    SqlFunction::new("JSONB_ARRAY_LENGTH"),
+    SqlFunction::new("JSONB_BUILD_ARRAY"),
+    SqlFunction::new("JSONB_BUILD_OBJECT"),
+    SqlFunction::new("JSONB_EACH"),
+    SqlFunction::new("JSONB_EACH_TEXT"),
+    SqlFunction::new("JSONB_EXTRACT_PATH"),
+    SqlFunction::new("JSONB_EXTRACT_PATH_TEXT"),
+    SqlFunction::new("JSONB_OBJECT_KEYS"),
+    SqlFunction::new("JSONB_PRETTY"),
+    SqlFunction::new("JSONB_SET"),
+    SqlFunction::new("JSONB_STRIP_NULLS"),
+    SqlFunction::new("JSONB_TYPEOF"),
+    SqlFunction::new("LEAST"),
+    SqlFunction::new("LENGTH"),
+    SqlFunction::new("LOWER"),
+    SqlFunction::new("MAX"),
+    SqlFunction::new("MIN"),
+    SqlFunction::new("NOW"),
+    SqlFunction::new("NULLIF"),
+    SqlFunction::new("RANK"),
+    SqlFunction::new("REGEXP_REPLACE"),
+    SqlFunction::new("REPLACE"),
+    SqlFunction::new("ROUND"),
+    SqlFunction::new("ROW_NUMBER"),
+    SqlFunction::new("SPLIT_PART"),
+    SqlFunction::new("STRING_AGG"),
+    SqlFunction::new("SUBSTRING"),
+    SqlFunction::new("SUM"),
+    SqlFunction::new("TO_CHAR"),
+    SqlFunction::new("TO_DATE"),
+    SqlFunction::new("TO_JSONB"),
+    SqlFunction::new("TRIM"),
+    SqlFunction::new("UPPER"),
+];
+
 const MAX_COMPLETION_SUGGESTIONS: usize = 200;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct SqlFunction {
+    name: &'static str,
+}
+
+impl SqlFunction {
+    const fn new(name: &'static str) -> Self {
+        Self { name }
+    }
+
+    fn insert_text(self) -> String {
+        format!("{}()", self.name)
+    }
+
+    fn detail(self) -> String {
+        format!(
+            "Kind: {}\nSignature: {}()",
+            CompletionItemKind::Function.label(),
+            self.name
+        )
+    }
+}
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct CompletionCatalog {
@@ -76,6 +150,7 @@ pub struct CompletionColumn {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CompletionItemKind {
     Keyword,
+    Function,
     Schema,
     Table,
     View,
@@ -87,6 +162,7 @@ impl CompletionItemKind {
     pub fn label(self) -> &'static str {
         match self {
             Self::Keyword => "keyword",
+            Self::Function => "function",
             Self::Schema => "schema",
             Self::Table => "table",
             Self::View => "view",
@@ -103,6 +179,7 @@ pub struct CompletionSuggestion {
     pub summary: String,
     pub detail: String,
     pub kind: CompletionItemKind,
+    pub cursor_backward: usize,
 }
 
 impl CompletionCatalog {
@@ -146,6 +223,7 @@ impl CompletionCatalog {
                             summary: CompletionItemKind::Column.label().to_string(),
                             detail: column_detail(object, column),
                             kind: CompletionItemKind::Column,
+                            cursor_backward: 0,
                         });
                     }
                 }
@@ -160,6 +238,7 @@ impl CompletionCatalog {
                     summary: CompletionItemKind::Schema.label().to_string(),
                     detail: format!("Kind: {}", CompletionItemKind::Schema.label()),
                     kind: CompletionItemKind::Schema,
+                    cursor_backward: 0,
                 });
             }
         }
@@ -172,6 +251,20 @@ impl CompletionCatalog {
                     summary: object.kind.label().to_string(),
                     detail: object_detail(object),
                     kind: object.kind,
+                    cursor_backward: 0,
+                });
+            }
+        }
+
+        for function in FUNCTIONS {
+            if matches_prefix(function.name, prefix) {
+                suggestions.push(CompletionSuggestion {
+                    label: function.name.to_string(),
+                    insert_text: function.insert_text(),
+                    summary: CompletionItemKind::Function.label().to_string(),
+                    detail: function.detail(),
+                    kind: CompletionItemKind::Function,
+                    cursor_backward: 1,
                 });
             }
         }
@@ -184,6 +277,7 @@ impl CompletionCatalog {
                     summary: CompletionItemKind::Keyword.label().to_string(),
                     detail: CompletionItemKind::Keyword.label().to_string(),
                     kind: CompletionItemKind::Keyword,
+                    cursor_backward: 0,
                 });
             }
         }
@@ -230,6 +324,7 @@ impl CompletionCatalog {
                 summary: object.kind.label().to_string(),
                 detail: object_detail(object),
                 kind: object.kind,
+                cursor_backward: 0,
             })
             .collect::<Vec<_>>();
 
@@ -307,6 +402,7 @@ impl CompletionCatalog {
                 summary: CompletionItemKind::Column.label().to_string(),
                 detail: column_detail(object, column),
                 kind: CompletionItemKind::Column,
+                cursor_backward: 0,
             })
             .collect()
     }
@@ -399,7 +495,8 @@ fn kind_rank(kind: CompletionItemKind) -> u8 {
         CompletionItemKind::View => 2,
         CompletionItemKind::MaterializedView => 3,
         CompletionItemKind::Column => 4,
-        CompletionItemKind::Keyword => 5,
+        CompletionItemKind::Function => 5,
+        CompletionItemKind::Keyword => 6,
     }
 }
 
@@ -728,6 +825,34 @@ mod tests {
             .collect::<Vec<_>>();
 
         assert_eq!(labels, vec!["users"]);
+    }
+
+    #[test]
+    fn suggests_common_postgresql_functions() {
+        let catalog = test_catalog();
+        let suggestions = catalog.suggestions("select co");
+
+        assert_eq!(
+            suggestion_labels(&suggestions),
+            vec!["COALESCE", "CONCAT", "COUNT"]
+        );
+        assert!(
+            suggestions
+                .iter()
+                .all(|suggestion| suggestion.kind == CompletionItemKind::Function)
+        );
+        assert_eq!(suggestions[0].insert_text, "COALESCE()");
+        assert_eq!(suggestions[0].cursor_backward, 1);
+    }
+
+    #[test]
+    fn suggests_jsonb_postgresql_functions() {
+        let catalog = test_catalog();
+        let suggestions = catalog.suggestions("select jsonb_pr");
+
+        assert_eq!(suggestion_labels(&suggestions), vec!["JSONB_PRETTY"]);
+        assert_eq!(suggestions[0].insert_text, "JSONB_PRETTY()");
+        assert_eq!(suggestions[0].kind, CompletionItemKind::Function);
     }
 
     #[test]

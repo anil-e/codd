@@ -170,8 +170,13 @@ mod provider {
                 return;
             };
 
+            let suggestion = proposal.suggestion();
             buffer.delete(&mut begin, &mut end);
-            buffer.insert(&mut begin, &proposal.suggestion().insert_text);
+            buffer.insert(&mut begin, &suggestion.insert_text);
+            if suggestion.cursor_backward > 0 {
+                begin.backward_chars(suggestion.cursor_backward as i32);
+                buffer.place_cursor(&begin);
+            }
         }
     }
 }
@@ -349,6 +354,7 @@ fn is_completion_trigger(character: char) -> bool {
 fn icon_name(kind: CompletionItemKind) -> &'static str {
     match kind {
         CompletionItemKind::Keyword => "code-symbolic",
+        CompletionItemKind::Function => "lang-function-symbolic",
         CompletionItemKind::Schema => "folder-symbolic",
         CompletionItemKind::Table => "table-symbolic",
         CompletionItemKind::View => "view-list-symbolic",
