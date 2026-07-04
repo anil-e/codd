@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-20 19:33+0200\n"
-"PO-Revision-Date: 2026-06-17 02:05+0000\n"
+"PO-Revision-Date: 2026-06-29 17:01+0000\n"
 "Last-Translator: William Oprandi <william.oprandi@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/codd/ui/fr/>\n"
 "Language: fr\n"
@@ -266,89 +266,90 @@ msgstr "Supprimer la vue"
 
 #: src/window_content/object_actions.rs:329
 msgid "Remove all rows from"
-msgstr ""
+msgstr "Supprimer toutes les lignes de"
 
 #: src/window_content/object_actions.rs:331
 #: src/window_content/object_actions.rs:337
 msgid "This cannot be undone."
-msgstr ""
+msgstr "C'est irréversible."
 
 #: src/window_content/object_actions.rs:335
 #: src/window_content/object_actions.rs:346
 msgid "Delete"
-msgstr ""
+msgstr "Supprimer"
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
-msgstr ""
+msgstr "Tronquer"
 
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
-msgstr ""
+msgstr "L'objet de base de données a été renommé."
 
 #: src/window_content/object_actions.rs:355
 msgid "Table truncated:"
-msgstr ""
+msgstr "Table tronquée :"
 
 #: src/window_content/object_actions.rs:358
 msgid "Database object deleted."
-msgstr ""
+msgstr "Objet de base de données supprimé."
 
 #: src/window_content/object_actions.rs:364
 #: src/window_content/structure_actions.rs:383
 msgid "Renaming failed"
-msgstr ""
+msgstr "Échec du renommage"
 
 #: src/window_content/object_actions.rs:365
 msgid "Truncating failed"
-msgstr ""
+msgstr "La troncature a échoué"
 
 #: src/window_content/object_actions.rs:366
 msgid "Deleting failed"
-msgstr ""
+msgstr "Échec de la suppression"
 
 #: src/window_content/object_actions.rs:381
 #: src/window_content/structure_actions.rs:295
 msgid "Enter a valid object name."
-msgstr ""
+msgstr "Saisissez un nom d'objet valide."
 
 #: src/window_content/query_execution.rs:58
 msgid "Row limit reached. Query execution stopped."
-msgstr ""
+msgstr "Limite de lignes atteinte. Exécution de la requête interrompue."
 
 #: src/window_content/query_execution.rs:67 src/ui/components/results.rs:410
 msgid "Query failed"
-msgstr ""
+msgstr "La requête a échoué"
 
 #: src/window_content/query_execution.rs:109
 msgid "A query is already running."
-msgstr ""
+msgstr "Une requête est déjà en cours."
 
 #: src/window_content/query_execution.rs:115
 msgid "Connect to PostgreSQL before running a query."
-msgstr ""
+msgstr "Connectez-vous à PostgreSQL avant d'exécuter une requête."
 
 #: src/window_content/query_execution.rs:123
 msgid "Enter SQL before running a query."
-msgstr ""
+msgstr "Saisissez du code SQL avant d'exécuter une requête."
 
 #: src/window_content/structure_actions.rs:83
 msgid "Choose a new name for this structure item."
-msgstr ""
+msgstr "Choisissez un nouveau nom pour cet élément de structure."
 
 #: src/window_content/structure_actions.rs:145
 #: src/window_content/structure_actions.rs:340
 #: src/window_content/structure_actions.rs:346
+#, fuzzy
 msgid "Drop"
-msgstr ""
+msgstr "Supprimer"
 
 #: src/window_content/structure_actions.rs:349
 msgid "from table"
-msgstr ""
+msgstr "de la table"
 
 #: src/window_content/structure_actions.rs:360
 msgid "renamed."
-msgstr ""
+msgstr "renommé."
 
 #: src/window_content/structure_actions.rs:368
 msgid "dropped with CASCADE."
@@ -431,127 +432,131 @@ msgstr ""
 
 #: src/models/connection.rs:92
 msgid "Default database is required."
-msgstr ""
+msgstr "Une base de données par défaut est requise."
 
 #: src/models/connection.rs:96
 msgid "Username is required."
-msgstr ""
+msgstr "Un nom d'utilisateur est requis."
 
 #: src/ui/components/connection_dialog.rs:78
 #: src/ui/components/connection_dialog.rs:93
 msgid "PostgreSQL Connection"
-msgstr ""
+msgstr "Connexion PostgreSQL"
 
 #: src/ui/components/connection_dialog.rs:106
 msgid "Connection"
-msgstr ""
+msgstr "Connexion"
 
 #: src/ui/components/connection_dialog.rs:109
 #: src/ui/components/table_structure/columns.rs:50
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 #: src/ui/components/connection_dialog.rs:119
 msgid "Host"
-msgstr ""
+msgstr "Hôte"
 
 #: src/ui/components/connection_dialog.rs:129
 msgid "Port"
-msgstr ""
+msgstr "Port"
 
 #: src/ui/components/connection_dialog.rs:140
 msgid "Default Database"
-msgstr ""
+msgstr "Base de données par défaut"
 
 #: src/ui/components/connection_dialog.rs:150
 msgid "Username"
-msgstr ""
+msgstr "Nom d'utilisateur"
 
 #: src/ui/components/connection_dialog.rs:160
 msgid "Password"
-msgstr ""
+msgstr "Mot de passe"
 
 #: src/ui/components/connection_dialog.rs:195
 msgid "Save Password"
-msgstr ""
+msgstr "Enregistrer le mot de passe"
 
 #: src/ui/components/connection_dialog.rs:221
 msgid "Test Connection"
-msgstr ""
+msgstr "Tester la connexion"
 
 #: src/ui/components/connection_dialog.rs:228
 msgid "Connect"
-msgstr ""
+msgstr "Connecter"
 
 #: src/ui/components/connection_dialog.rs:358
 #: src/ui/components/connection_dialog.rs:473
 msgid "Reading the saved password failed"
-msgstr ""
+msgstr "La lecture du mot de passe enregistré a échoué"
 
 #: src/ui/components/connection_dialog.rs:364
 msgid "Connection test succeeded."
-msgstr ""
+msgstr "Test de connexion réussi."
 
 #: src/ui/components/connection_dialog.rs:369
 msgid "Connection test failed"
-msgstr ""
+msgstr "Le test de connexion a échoué"
 
 #: src/ui/components/connection_dialog.rs:378
 msgid "Connection failed"
-msgstr ""
+msgstr "Échec de la connexion"
 
 #: src/ui/components/connection_dialog.rs:405
 msgid "Checking password storage availability."
-msgstr ""
+msgstr "Vérification de la disponibilité du stockage des mots de passe."
 
 #: src/ui/components/connection_dialog.rs:406
 msgid "Store this password in Keyring."
-msgstr ""
+msgstr "Conservez ce mot de passe dans votre trousseau de clés."
 
 #: src/ui/components/connection_dialog.rs:407
 msgid "Password storage is not available."
-msgstr ""
+msgstr "Le stockage des mots de passe n'est pas disponible."
 
 #: src/ui/components/connection_dialog.rs:424
 msgid "Saved in Keyring. Enter a new password to replace it."
 msgstr ""
+"Enregistré dans le trousseau. Saisissez un nouveau mot de passe pour le "
+"remplacer."
 
 #: src/ui/components/connection_dialog.rs:427
 msgid "No saved password was found. Enter a password to save it."
 msgstr ""
+"Aucun mot de passe enregistré n'a été trouvé. Veuillez saisir un mot de "
+"passe pour l'enregistrer."
 
 #: src/ui/components/connection_dialog.rs:499
 msgid "PostgreSQL returned the following error:"
-msgstr ""
+msgstr "PostgreSQL a renvoyé l'erreur suivante :"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Comma"
-msgstr ""
+msgstr "Virgule"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Semicolon"
-msgstr ""
+msgstr "Point-virgule"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Tab"
-msgstr ""
+msgstr "Tabulation"
 
 #: src/ui/components/csv_export_dialog.rs:19
 msgid "Delimiter"
-msgstr ""
+msgstr "Séparateur"
 
 #: src/ui/components/csv_export_dialog.rs:36 src/ui/components/results.rs:188
 msgid "Row limit"
-msgstr ""
+msgstr "Limite de lignes"
 
 #: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:217
 #: src/ui/components/table_browser.rs:289 src/ui/components/table_view.rs:175
 msgid "Export CSV"
-msgstr ""
+msgstr "Exporter au format CSV"
 
 #: src/ui/components/csv_export_dialog.rs:49
 msgid "Choose how many rows to export and which delimiter to use."
-msgstr ""
+msgstr "Choisissez le nombre de lignes à exporter et le délimiteur à utiliser."
 
 #: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:221
 #: src/ui/components/table_browser.rs:293
