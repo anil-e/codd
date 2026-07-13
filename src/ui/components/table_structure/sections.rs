@@ -232,7 +232,10 @@ fn add_detail_suffix(row: &adw::ActionRow, text: &str) {
 }
 
 fn section_title(title: &str, count: usize) -> String {
-    format!("{title} ({count})")
+    // Translators: Section heading with an item count, for example "Columns (3)".
+    gettext("{title} ({count})")
+        .replace("{title}", title)
+        .replace("{count}", &count.to_string())
 }
 
 fn detail_label(text: &str) -> gtk::Label {

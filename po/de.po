@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-04 12:01+0200\n"
+"POT-Creation-Date: 2026-07-13 14:26+0200\n"
 "PO-Revision-Date: 2026-06-15 18:38+0000\n"
 "Last-Translator: Anil Erdogan <a.erdogan@termitel.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/codd/ui/de/>\n"
@@ -315,7 +315,7 @@ msgstr "Geben Sie einen gültigen Objektnamen ein."
 msgid "Row limit reached. Query execution stopped."
 msgstr "Zeilenlimit erreicht. Query-Ausführung gestoppt."
 
-#: src/window_content/query_execution.rs:67 src/ui/components/results.rs:418
+#: src/window_content/query_execution.rs:67 src/ui/components/results.rs:417
 msgid "Query failed"
 msgstr "Query fehlgeschlagen"
 
@@ -908,7 +908,7 @@ msgstr "Spalte kopiert."
 msgid "Results copied."
 msgstr "Ergebnisse kopiert."
 
-#: src/ui/components/results.rs:383 src/ui/components/results.rs:490
+#: src/ui/components/results.rs:383 src/ui/components/results.rs:489
 msgid "Query returned no rows."
 msgstr "Query hat keine Zeilen zurückgegeben."
 
@@ -918,41 +918,46 @@ msgstr "Query hat keine Spalten zurückgegeben."
 
 #: src/ui/components/results.rs:391
 msgid "The statement returned rows, but there are no columns to display."
-msgstr "Das Statement hat Zeilen zurückgegeben, aber es gibt keine Spalten zum Anzeigen."
+msgstr ""
+"Das Statement hat Zeilen zurückgegeben, aber es gibt keine Spalten zum "
+"Anzeigen."
 
-#: src/ui/components/results.rs:407
-msgid "row affected"
-msgid_plural "rows affected"
-msgstr[0] "Zeile betroffen"
-msgstr[1] "Zeilen betroffen"
+#: src/ui/components/results.rs:406
+#, rust-format
+msgid "{rows} row affected"
+msgid_plural "{rows} rows affected"
+msgstr[0] "{rows} Zeile betroffen"
+msgstr[1] "{rows} Zeilen betroffen"
 
-#: src/ui/components/results.rs:409
+#: src/ui/components/results.rs:408
 msgid "The statement completed successfully."
 msgstr "Das Statement wurde erfolgreich abgeschlossen."
 
-#: src/ui/components/results.rs:498
-msgid "row"
-msgid_plural "rows"
-msgstr[0] "Zeile"
-msgstr[1] "Zeilen"
+#. Translators: Query result row count. The limit suffix is "+" when the result was limited, for example "1000+ rows".
+#: src/ui/components/results.rs:496
+#, rust-format
+msgid "{rows}{limit_suffix} row"
+msgid_plural "{rows}{limit_suffix} rows"
+msgstr[0] "{rows}{limit_suffix} Zeile"
+msgstr[1] "{rows}{limit_suffix} Zeilen"
 
-#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1298
+#: src/ui/components/results.rs:677 src/ui/components/table_browser.rs:1298
 msgid "Copy Cell"
 msgstr "Zelle kopieren"
 
-#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1299
+#: src/ui/components/results.rs:678 src/ui/components/table_browser.rs:1299
 msgid "Copy Row"
 msgstr "Zeile kopieren"
 
-#: src/ui/components/results.rs:677 src/ui/components/table_browser.rs:1300
+#: src/ui/components/results.rs:679 src/ui/components/table_browser.rs:1300
 msgid "Copy Column"
 msgstr "Spalte kopieren"
 
-#: src/ui/components/results.rs:679
+#: src/ui/components/results.rs:681
 msgid "Copy Displayed Results"
 msgstr "Angezeigte Ergebnisse kopieren"
 
-#: src/ui/components/results.rs:682 src/ui/components/table_browser.rs:1305
+#: src/ui/components/results.rs:684 src/ui/components/table_browser.rs:1305
 msgid "Export CSV..."
 msgstr "CSV exportieren..."
 
@@ -1048,9 +1053,13 @@ msgid "View"
 msgstr "View"
 
 #: src/ui/components/table_browser.rs:1116
-#: src/ui/components/table_browser.rs:1118
 msgid "Filters"
 msgstr "Filter"
+
+#: src/ui/components/table_browser.rs:1118
+#, rust-format
+msgid "Filters ({count})"
+msgstr "Filter ({count})"
 
 #: src/ui/components/table_browser.rs:1132
 msgid "No rows"
@@ -1336,7 +1345,7 @@ msgid "Generated"
 msgstr "Generated"
 
 #: src/ui/components/table_structure/columns.rs:217
-#: src/ui/components/table_structure/sections.rs:251
+#: src/ui/components/table_structure/sections.rs:254
 msgid "Primary"
 msgstr "Primary"
 
@@ -1372,27 +1381,33 @@ msgstr "Triggers"
 msgid "No triggers"
 msgstr "Keine Triggers"
 
-#: src/ui/components/table_structure/sections.rs:253
+#. Translators: Section heading with an item count, for example "Columns (3)".
+#: src/ui/components/table_structure/sections.rs:236
+#, rust-format
+msgid "{title} ({count})"
+msgstr "{title} ({count})"
+
+#: src/ui/components/table_structure/sections.rs:256
 msgid "Unique"
 msgstr "Unique"
 
-#: src/ui/components/table_structure/sections.rs:257
+#: src/ui/components/table_structure/sections.rs:260
 msgid "Invalid"
 msgstr "Ungültig"
 
-#: src/ui/components/table_structure/sections.rs:261
+#: src/ui/components/table_structure/sections.rs:264
 msgid "Partial"
 msgstr "Partial"
 
-#: src/ui/components/table_structure/sections.rs:271
+#: src/ui/components/table_structure/sections.rs:274
 msgid "Not validated"
 msgstr "Nicht validiert"
 
-#: src/ui/components/table_structure/sections.rs:284
+#: src/ui/components/table_structure/sections.rs:287
 msgid "Deferred"
 msgstr "Deferred"
 
-#: src/ui/components/table_structure/sections.rs:285
+#: src/ui/components/table_structure/sections.rs:288
 msgid "Deferrable"
 msgstr "Deferrable"
 
@@ -1557,3 +1572,8 @@ msgstr "SQL-Editor fokussieren"
 msgctxt "shortcut window"
 msgid "Show Suggestions"
 msgstr ""
+
+#~ msgid "row"
+#~ msgid_plural "rows"
+#~ msgstr[0] "Zeile"
+#~ msgstr[1] "Zeilen"

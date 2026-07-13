@@ -5,5 +5,6 @@ i18n.gettext(
   args: [
     '--keyword=gettext',
     '--keyword=ngettext:1,2',
+    '--add-comments=Translators:',
   ],
 )

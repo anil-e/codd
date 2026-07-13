@@ -1115,7 +1115,7 @@ impl TableBrowser {
         if self.active_filters.is_empty() {
             gettext("Filters")
         } else {
-            format!("{} ({})", gettext("Filters"), self.active_filters.len())
+            gettext("Filters ({count})").replace("{count}", &self.active_filters.len().to_string())
         }
     }
 

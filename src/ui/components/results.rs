@@ -402,10 +402,9 @@ impl Component for QueryResults {
                 self.is_error = false;
                 self.status_text.clear();
                 let affected_rows = plural_count_u64(rows);
-                self.status_title = format!(
-                    "{rows} {}",
-                    ngettext("row affected", "rows affected", affected_rows)
-                );
+                self.status_title =
+                    ngettext("{rows} row affected", "{rows} rows affected", affected_rows)
+                        .replace("{rows}", &rows.to_string());
                 self.status_description = Some(gettext("The statement completed successfully."));
                 self.result = None;
             }
@@ -490,13 +489,16 @@ fn result_status_text(result: &QueryResult) -> String {
         return gettext("Query returned no rows.");
     }
 
-    let row_suffix = if result.row_limit_reached { "+" } else { "" };
+    let limit_suffix = if result.row_limit_reached { "+" } else { "" };
     let row_count = plural_count(result.rows.len());
-    format!(
-        "{}{row_suffix} {}",
-        result.rows.len(),
-        ngettext("row", "rows", row_count)
+    ngettext(
+        // Translators: Query result row count. The limit suffix is "+" when the result was limited, for example "1000+ rows".
+        "{rows}{limit_suffix} row",
+        "{rows}{limit_suffix} rows",
+        row_count,
     )
+    .replace("{rows}", &result.rows.len().to_string())
+    .replace("{limit_suffix}", limit_suffix)
 }
 
 fn has_displayable_result(result: &QueryResult) -> bool {
