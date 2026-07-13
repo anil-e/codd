@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-13 14:26+0200\n"
-"PO-Revision-Date: 2026-07-13 12:32+0000\n"
+"PO-Revision-Date: 2026-07-13 14:09+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -917,64 +917,64 @@ msgstr "Päringuvastuses oli ridu, kuid pole ühtegi veergu, mida saaks kuvada."
 #, rust-format
 msgid "{rows} row affected"
 msgid_plural "{rows} rows affected"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Mõjutatud on {rows} rida"
+msgstr[1] "Mõjutatud on {rows} rida"
 
 #: src/ui/components/results.rs:408
 msgid "The statement completed successfully."
-msgstr ""
+msgstr "SQL-lausendi täitmine õnnestus."
 
 #. Translators: Query result row count. The limit suffix is "+" when the result was limited, for example "1000+ rows".
 #: src/ui/components/results.rs:496
 #, rust-format
 msgid "{rows}{limit_suffix} row"
 msgid_plural "{rows}{limit_suffix} rows"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{rows}{limit_suffix} rida"
+msgstr[1] "{rows}{limit_suffix} rida"
 
 #: src/ui/components/results.rs:677 src/ui/components/table_browser.rs:1298
 msgid "Copy Cell"
-msgstr ""
+msgstr "Kopeeri lahter"
 
 #: src/ui/components/results.rs:678 src/ui/components/table_browser.rs:1299
 msgid "Copy Row"
-msgstr ""
+msgstr "Kopeeri rida"
 
 #: src/ui/components/results.rs:679 src/ui/components/table_browser.rs:1300
 msgid "Copy Column"
-msgstr ""
+msgstr "Kopeeri veerg"
 
 #: src/ui/components/results.rs:681
 msgid "Copy Displayed Results"
-msgstr ""
+msgstr "Kopeeri kuvatud tulemused"
 
 #: src/ui/components/results.rs:684 src/ui/components/table_browser.rs:1305
 msgid "Export CSV..."
-msgstr ""
+msgstr "Ekspordi CSV-failina…"
 
 #: src/ui/components/table_browser.rs:282 src/ui/components/table_view.rs:164
 msgid "Show or edit filters"
-msgstr ""
+msgstr "Näita või muuda filtreid"
 
 #: src/ui/components/table_browser.rs:300 src/ui/components/table_view.rs:187
 msgid "Refresh"
-msgstr ""
+msgstr "Laadi uuesti"
 
 #: src/ui/components/table_browser.rs:360
 msgid "First page"
-msgstr ""
+msgstr "Esimene leht"
 
 #: src/ui/components/table_browser.rs:369
 msgid "Previous page"
-msgstr ""
+msgstr "Eelmine leht"
 
 #: src/ui/components/table_browser.rs:400
 msgid "Next page"
-msgstr ""
+msgstr "Järgmine leht"
 
 #: src/ui/components/table_browser.rs:409
 msgid "Last page"
-msgstr ""
+msgstr "Viimane leht"
 
 #: src/ui/components/table_browser.rs:419
 msgid "Rows"
