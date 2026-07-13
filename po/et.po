@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-13 14:26+0200\n"
-"PO-Revision-Date: 2026-07-13 14:44+0000\n"
+"PO-Revision-Date: 2026-07-13 15:09+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -45,7 +45,7 @@ msgstr "Priit Jõerüüt 2026"
 #: src/window.rs:212 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
-msgstr "Lihtne PostgreSQLi klient"
+msgstr "Lihtne PostgreSQL-i klientrakendus"
 
 #: src/window_content.rs:271 src/window_content.rs:338
 msgid "Main Menu"
@@ -325,7 +325,7 @@ msgstr "Päring on juba töös."
 
 #: src/window_content/query_execution.rs:115
 msgid "Connect to PostgreSQL before running a query."
-msgstr ""
+msgstr "Enne päringu käivitamist ühenda PostgreSQL-iga."
 
 #: src/window_content/query_execution.rs:123
 msgid "Enter SQL before running a query."
@@ -1235,7 +1235,7 @@ msgstr ""
 
 #: src/ui/components/table_browser/loading.rs:36
 msgid "Fetching the selected page from PostgreSQL."
-msgstr ""
+msgstr "Laadin valitud lehte PostgreSQL-i serverist."
 
 #: src/ui/components/table_browser/loading.rs:66
 #: src/ui/components/table_browser/loading.rs:104
@@ -1273,59 +1273,59 @@ msgstr ""
 
 #: src/ui/components/table_structure.rs:301
 msgid "Fetching table structure from PostgreSQL."
-msgstr ""
+msgstr "Laadin tabeli struktuuri PostgreSQL-i serverist."
 
 #: src/ui/components/table_structure.rs:402
 msgid "Copy Name"
-msgstr ""
+msgstr "Kopeeri nimi"
 
 #: src/ui/components/table_structure.rs:404
 msgid "Drop..."
-msgstr ""
+msgstr "Kasuta DROP-käsku…"
 
 #: src/ui/components/table_structure.rs:410
 msgid "Column name copied."
-msgstr ""
+msgstr "Veeru nimi on kopeeritud."
 
 #: src/ui/components/table_structure.rs:411
 msgid "Index name copied."
-msgstr ""
+msgstr "Indeksi nimi on kopeeritud."
 
 #: src/ui/components/table_structure.rs:412
 msgid "Constraint name copied."
-msgstr ""
+msgstr "Piirangu nimi on kopeeritud."
 
 #: src/ui/components/table_structure.rs:413
 msgid "Foreign key name copied."
-msgstr ""
+msgstr "Välisvõtme nimi on kopeeritud."
 
 #: src/ui/components/table_structure.rs:414
 msgid "Trigger name copied."
-msgstr ""
+msgstr "Päästiku nimi on kopeeritud."
 
 #: src/ui/components/table_structure/columns.rs:19
 msgid "Columns"
-msgstr ""
+msgstr "Veerud"
 
 #: src/ui/components/table_structure/columns.rs:68
 msgid "Nullable"
-msgstr ""
+msgstr "Saab kasutada NULL-väärtust"
 
 #: src/ui/components/table_structure/columns.rs:71
 msgid "Yes"
-msgstr ""
+msgstr "Jah"
 
 #: src/ui/components/table_structure/columns.rs:73
 msgid "No"
-msgstr ""
+msgstr "Ei"
 
 #: src/ui/components/table_structure/columns.rs:92
 msgid "Key"
-msgstr ""
+msgstr "Võti"
 
 #: src/ui/components/table_structure/columns.rs:209
 msgid "Generated"
-msgstr ""
+msgstr "Genereeritud"
 
 #: src/ui/components/table_structure/columns.rs:217
 #: src/ui/components/table_structure/sections.rs:254
@@ -1334,53 +1334,53 @@ msgstr ""
 
 #: src/ui/components/table_structure/sections.rs:21
 msgid "Indexes"
-msgstr ""
+msgstr "Indeksid"
 
 #: src/ui/components/table_structure/sections.rs:22
 msgid "No indexes"
-msgstr ""
+msgstr "Indekseid pole"
 
 #: src/ui/components/table_structure/sections.rs:48
 msgid "Constraints"
-msgstr ""
+msgstr "Piirangureeglid"
 
 #: src/ui/components/table_structure/sections.rs:50
 msgid "No constraints"
-msgstr ""
+msgstr "Piirangureegleid pole"
 
 #: src/ui/components/table_structure/sections.rs:72
 msgid "Foreign Keys"
-msgstr ""
+msgstr "Välisvõtmed"
 
 #: src/ui/components/table_structure/sections.rs:75
 msgid "No foreign keys"
-msgstr ""
+msgstr "Välisvõtmeid pole"
 
 #: src/ui/components/table_structure/sections.rs:99
 msgid "Triggers"
-msgstr ""
+msgstr "Andmebaasipäästikud"
 
 #: src/ui/components/table_structure/sections.rs:100
 msgid "No triggers"
-msgstr ""
+msgstr "Andmebaasipäästikuid pole"
 
 #. Translators: Section heading with an item count, for example "Columns (3)".
 #: src/ui/components/table_structure/sections.rs:236
 #, rust-format
 msgid "{title} ({count})"
-msgstr ""
+msgstr "{title} ({count})"
 
 #: src/ui/components/table_structure/sections.rs:256
 msgid "Unique"
-msgstr ""
+msgstr "Unikaalne"
 
 #: src/ui/components/table_structure/sections.rs:260
 msgid "Invalid"
-msgstr ""
+msgstr "Vigane"
 
 #: src/ui/components/table_structure/sections.rs:264
 msgid "Partial"
-msgstr ""
+msgstr "Osaline"
 
 #: src/ui/components/table_structure/sections.rs:274
 msgid "Not validated"
@@ -1396,67 +1396,82 @@ msgstr ""
 
 #: src/ui/components/table_view.rs:151
 msgid "Delete selected row"
-msgstr ""
+msgstr "Kustuta valitud rida"
 
 #: src/ui/components/table_view.rs:227
 msgid "Content"
-msgstr ""
+msgstr "Sisu"
 
 #: data/io.github.anil_e.Codd.desktop.in:10
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
 msgstr ""
+"PostgreSQL;SQL;Database;Query;GNOME;andmebaas;andmebaasiklient;andmebaasiliides;graafiline "
+"liides;päring;"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:10
 msgid ""
 "Codd is a lightweight PostgreSQL query app for GNOME built with Rust, GTK4, "
 "and libadwaita."
 msgstr ""
+"Codd on GNOME'i jaoks mõeldud lihtne ja väikesemahuline PostgreSQL-i "
+"klientrakendus, mille põhikomponentideks on Rust, GTK4 ja libadwaita."
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:14
 msgid ""
 "It focuses on saved connections, database browsing, SQL execution, and "
 "native result previews without trying to become a multi-database suite."
 msgstr ""
+"Rakendus keskendub salvestatud ühenduste haldusele, andmebaaside sisu "
+"sirvimisele, SQL-käskude käivitamisele ja tulemuste eelvaate kuvamisele "
+"keskkonnaomases vormis, püüdmata muutuda mitut andmebaasi hõlmavaks "
+"keerukaks tarkvarapaketiks."
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:25
 msgid "Anil Erdogan"
-msgstr ""
+msgstr "Anil Erdogan"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:37
 msgid "Run SQL queries with syntax highlighting and result previews"
-msgstr ""
+msgstr "SQL-päring süntaksi esiletõstmisega ja andmete eelvaatega"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:41
 msgid "Browse PostgreSQL table data with pagination and filters"
 msgstr ""
+"PostgreSQL-i tabeli andmete sirvimine lehtede kaupa ja filtreid kasutades"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:45
 msgid ""
 "Insert new table rows with defaults, NULL values and PostgreSQL type "
 "validation"
 msgstr ""
+"Uue rea lisamine kasutades vaikimisi või NULL-väärtust ja lastes PostgreSQL-"
+"il teha tüübikontrolli"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:49
 msgid ""
 "Inspect table columns, data types, nullability, defaults and primary keys"
 msgstr ""
+"Tabeli väljade/veergude, andmetüüpide, vaikimisi väärtuste, primaarvõtmete "
+"ja NULL-väärtuse kasutatavuse uurimine"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:53
 msgid ""
 "Review indexes, constraints, foreign keys and triggers in the structure view"
 msgstr ""
+"Struktureeritud ülevaade tabeli indeksitest, andmebaasipiirangutest, "
+"välisvõtmetest ja päästikutest"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:57
 msgid "Edit table structure from native context menus"
-msgstr ""
+msgstr "Tabeli struktuuri muutmine kontekstimenüüdest"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:61
 msgid "Use table actions like rename, truncate and delete"
-msgstr ""
+msgstr "Võimalus muuta tabeli nime, selle sisu kustutada või tühjendada"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:65
 msgid "Manage saved PostgreSQL connections"
-msgstr ""
+msgstr "Salvestatud PostgreSQL-i ühenduste haldus"
 
 #: data/ui/shortcuts-dialog.ui:6
 msgctxt "shortcut window"
