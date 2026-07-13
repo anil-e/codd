@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-04 12:01+0200\n"
-"PO-Revision-Date: 2026-07-06 08:01+0000\n"
+"PO-Revision-Date: 2026-07-13 12:32+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -103,35 +103,35 @@ msgstr "Ühendatud, aga ühenduse salvestamine ei õnnestunud"
 
 #: src/window_content.rs:1432
 msgid "Disabling saved password failed"
-msgstr ""
+msgstr "Salvestatud salasõna kasutuselt eemaldamine ei õnnestunud"
 
 #: src/window_content.rs:1447
 msgid "Connect to PostgreSQL before exporting query results."
-msgstr ""
+msgstr "Enne päringutulemuste eksportimist ühenda PostgreSQL-iga."
 
 #: src/window_content.rs:1455
 msgid "Enter SQL before exporting query results."
-msgstr ""
+msgstr "Enne päringutulemuste eksportimist ava SQL-vaade."
 
 #: src/window_content.rs:1499
 msgid "The query did not return rows."
-msgstr ""
+msgstr "Päringu vastuses polnud ühtegi rida."
 
 #: src/window_content.rs:1530
 msgid "Schema load failed"
-msgstr ""
+msgstr "Andmebaasiskeema laadimine ei õnnestunud"
 
 #: src/window_content.rs:1591
 msgid "Connect to PostgreSQL before generating a script."
-msgstr ""
+msgstr "Enne skripti koostamist ühenda PostgreSQL-iga."
 
 #: src/window_content.rs:1631
 msgid "Generating the table script failed"
-msgstr ""
+msgstr "Tabeli skripti koostamine ei õnnestunud"
 
 #: src/window_content.rs:1679 src/ui/components/table_browser.rs:831
 msgid "Export failed"
-msgstr ""
+msgstr "Eksportimine ei õnnestunud"
 
 #: src/window_content.rs:1684 src/window_content/structure_actions.rs:418
 #: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:504
@@ -142,6 +142,8 @@ msgstr "Sulge"
 #: src/window_content.rs:1711
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
+"Andmete eksport CSV-faili käivitab päringud ainult lugemisõigustes "
+"transaktsioonina."
 
 #: src/window_content.rs:1713
 msgid ""
@@ -149,6 +151,9 @@ msgid ""
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
 "be exported."
 msgstr ""
+"Eksportimiseks kasuta SELECT-päringut. Käsklusi, mis kirjutavad andmeid või "
+"muudavad transaktsiooni olekut, nagu UPDATE, INSERT, DELETE, CREATE, COMMIT "
+"või ROLLBACK, ei saa eksportida."
 
 #: src/window_content.rs:1723
 msgid "CREATE script generated."
@@ -184,19 +189,19 @@ msgstr "Valitud andmebaasi salvestamine ei õnnestunud"
 
 #: src/window_content/database_switching.rs:194
 msgid "Migrating query history failed"
-msgstr ""
+msgstr "Päringute ajaloo ümberkolimine ei õnnestunud"
 
 #: src/window_content/database_switching.rs:223
 msgid "Saving query history failed"
-msgstr ""
+msgstr "Päringute ajaloo salvestamine ei õnnestunud"
 
 #: src/window_content/database_switching.rs:246
 msgid "Clearing query history failed"
-msgstr ""
+msgstr "Päringute ajaloo kustutamine ei õnnestunud"
 
 #: src/window_content/object_actions.rs:60
 msgid "Choose a new name for this database object."
-msgstr ""
+msgstr "Sisesta selle andmebaasiobjekti uus nimi."
 
 #: src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
@@ -223,7 +228,7 @@ msgstr "Muuda nime"
 
 #: src/window_content/object_actions.rs:149
 msgid "Restart identity"
-msgstr ""
+msgstr "Käivita identiteet uuesti"
 
 #: src/window_content/object_actions.rs:151
 msgid "Reset sequences owned by columns of the truncated table."
@@ -316,7 +321,7 @@ msgstr ""
 
 #: src/window_content/query_execution.rs:109
 msgid "A query is already running."
-msgstr ""
+msgstr "Päring on juba töös."
 
 #: src/window_content/query_execution.rs:115
 msgid "Connect to PostgreSQL before running a query."
@@ -426,11 +431,11 @@ msgstr "Pordinumber peab olema vahemikus 1 kuni 65535."
 
 #: src/models/connection.rs:92
 msgid "Default database is required."
-msgstr ""
+msgstr "Vaikimisi andmebaas on nõutav."
 
 #: src/models/connection.rs:96
 msgid "Username is required."
-msgstr ""
+msgstr "Kasutajanimi on nõutav."
 
 #: src/models/completion.rs:119 src/models/completion.rs:244
 #: src/models/completion.rs:421 src/models/completion.rs:434
@@ -467,13 +472,13 @@ msgstr ""
 
 #: src/models/completion.rs:173
 msgid "column"
-msgstr ""
+msgstr "veerg"
 
 #: src/models/completion.rs:426
 #: src/ui/components/table_browser/cell_editor.rs:32
 #: src/ui/components/table_structure/columns.rs:59
 msgid "Type"
-msgstr ""
+msgstr "Tüüp"
 
 #: src/models/completion.rs:436
 msgid "Schema"
@@ -487,7 +492,7 @@ msgstr "Nimi"
 #: src/ui/components/connection_dialog.rs:78
 #: src/ui/components/connection_dialog.rs:93
 msgid "PostgreSQL Connection"
-msgstr ""
+msgstr "PostgreSQL-i ühendus"
 
 #: src/ui/components/connection_dialog.rs:106
 msgid "Connection"
@@ -503,7 +508,7 @@ msgstr "Port"
 
 #: src/ui/components/connection_dialog.rs:140
 msgid "Default Database"
-msgstr ""
+msgstr "Vaikimisi andmebaas"
 
 #: src/ui/components/connection_dialog.rs:150
 msgid "Username"
@@ -515,11 +520,11 @@ msgstr "Salasõna"
 
 #: src/ui/components/connection_dialog.rs:195
 msgid "Save Password"
-msgstr ""
+msgstr "Salvesta salasõna"
 
 #: src/ui/components/connection_dialog.rs:221
 msgid "Test Connection"
-msgstr ""
+msgstr "Testi ühendust"
 
 #: src/ui/components/connection_dialog.rs:228
 msgid "Connect"
@@ -528,43 +533,44 @@ msgstr "Ühenda"
 #: src/ui/components/connection_dialog.rs:358
 #: src/ui/components/connection_dialog.rs:473
 msgid "Reading the saved password failed"
-msgstr ""
+msgstr "Salvestatud salasõna lugemine ei õnnestunud"
 
 #: src/ui/components/connection_dialog.rs:364
 msgid "Connection test succeeded."
-msgstr ""
+msgstr "Ühenduse test toimis."
 
 #: src/ui/components/connection_dialog.rs:369
 msgid "Connection test failed"
-msgstr ""
+msgstr "Ühenduse test ei õnnestunud"
 
 #: src/ui/components/connection_dialog.rs:378
 msgid "Connection failed"
-msgstr ""
+msgstr "Ühendamine ei õnnestunud"
 
 #: src/ui/components/connection_dialog.rs:405
 msgid "Checking password storage availability."
-msgstr ""
+msgstr "Kontrollin salasõna andmeruumi saadavust."
 
 #: src/ui/components/connection_dialog.rs:406
 msgid "Store this password in Keyring."
-msgstr ""
+msgstr "Salvesta see salasõna võtmerõngasse."
 
 #: src/ui/components/connection_dialog.rs:407
 msgid "Password storage is not available."
-msgstr ""
+msgstr "Salasõna andmeruum pole saadaval."
 
 #: src/ui/components/connection_dialog.rs:424
 msgid "Saved in Keyring. Enter a new password to replace it."
 msgstr ""
+"Salasõna on salvestatud võtmerõngasse. Asendamiseks sisesta uus salasõna."
 
 #: src/ui/components/connection_dialog.rs:427
 msgid "No saved password was found. Enter a password to save it."
-msgstr ""
+msgstr "Ühtegi salvestatud salasõna ei leidu. Salvestamiseks sisesta salasõna."
 
 #: src/ui/components/connection_dialog.rs:499
 msgid "PostgreSQL returned the following error:"
-msgstr ""
+msgstr "PostgreSQL-i päringuvastuses oli järgnev viga:"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Comma"
@@ -576,141 +582,141 @@ msgstr "Semikoolon"
 
 #: src/ui/components/csv_export_dialog.rs:17
 msgid "Tab"
-msgstr ""
+msgstr "Vahekaart"
 
 #: src/ui/components/csv_export_dialog.rs:19
 msgid "Delimiter"
-msgstr ""
+msgstr "Väljade eraldaja"
 
 #: src/ui/components/csv_export_dialog.rs:36 src/ui/components/results.rs:188
 msgid "Row limit"
-msgstr ""
+msgstr "Ridade piirang"
 
 #: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:217
 #: src/ui/components/table_browser.rs:290 src/ui/components/table_view.rs:175
 msgid "Export CSV"
-msgstr ""
+msgstr "Ekspordi CSV-failina"
 
 #: src/ui/components/csv_export_dialog.rs:49
 msgid "Choose how many rows to export and which delimiter to use."
-msgstr ""
+msgstr "Vali eksporditavate ridade arv ja kasutatav väljade eraldaja."
 
 #: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:221
 #: src/ui/components/table_browser.rs:294
 msgid "Export"
-msgstr ""
+msgstr "Ekspordi"
 
 #: src/ui/components/csv_export_dialog.rs:87
 msgid "Save CSV"
-msgstr ""
+msgstr "Salvesta CSV-failina"
 
 #: src/ui/components/csv_export_dialog.rs:90
 #: src/ui/components/table_browser/cell_editor.rs:99
 msgid "Save"
-msgstr ""
+msgstr "Salvesta"
 
 #: src/ui/components/csv_export_dialog.rs:98
 msgid "CSV Files"
-msgstr ""
+msgstr "CSV-failid"
 
 #: src/ui/components/cell_dialog.rs:29 src/ui/components/cell_dialog.rs:41
 msgid "Cell value"
-msgstr ""
+msgstr "Lahtri väärtus"
 
 #: src/ui/components/database_selector.rs:45
 #: data/io.github.anil_e.Codd.desktop.in:3
 #: data/io.github.anil_e.Codd.metainfo.xml.in:7
 msgid "Codd"
-msgstr ""
+msgstr "Codd"
 
 #: src/ui/components/database_selector.rs:50
 msgid "Switch database"
-msgstr ""
+msgstr "Vaheta andmebaasi"
 
 #: src/ui/components/database_selector.rs:103
 msgid "Refresh Databases"
-msgstr ""
+msgstr "Laadi andmebaaside loend uuesti"
 
 #: src/ui/components/database_selector.rs:113
 msgid "Search databases"
-msgstr ""
+msgstr "Otsi andmebaase"
 
 #: src/ui/components/database_selector.rs:138
 msgid "No databases match your search."
-msgstr ""
+msgstr "Ainsamgi andmebaas ei vasta sinu otsingule."
 
 #: src/ui/components/database_selector.rs:237
 #: src/ui/components/table_browser.rs:1124
 msgid "Loading..."
-msgstr ""
+msgstr "Laadin andmeid..."
 
 #: src/ui/components/start_screen.rs:45
 msgid "Welcome to Codd"
-msgstr ""
+msgstr "Tere tulemast, see on Codd"
 
 #: src/ui/components/start_screen.rs:46
 msgid "Add a PostgreSQL connection to get started"
-msgstr ""
+msgstr "Alustamiseks lisa PostgreSQL-i ühendus"
 
 #: src/ui/components/start_screen.rs:50 src/ui/components/start_screen.rs:84
 msgid "Add Connection..."
-msgstr ""
+msgstr "Lisa ühendus…"
 
 #: src/ui/components/start_screen.rs:76
 msgid "Connections"
-msgstr ""
+msgstr "Ühendused"
 
 #: src/ui/components/start_screen.rs:160
 msgid "Renaming the connection failed"
-msgstr ""
+msgstr "Ühenduse nime muutmine ei õnnestunud"
 
 #: src/ui/components/start_screen.rs:186
 msgid "Removing the connection failed"
-msgstr ""
+msgstr "Ühenduse eemaldamine ei õnnestunud"
 
 #: src/ui/components/start_screen.rs:207
 msgid "Removing the saved password failed"
-msgstr ""
+msgstr "Salvestatud salasõna eemaldamine ei õnnestunud"
 
 #: src/ui/components/start_screen.rs:239
 msgid "Default database"
-msgstr ""
+msgstr "Vaikimisi andmebaas"
 
 #: src/ui/components/start_screen.rs:254
 msgid "Rename connection"
-msgstr ""
+msgstr "Muuda ühenduse nime"
 
 #: src/ui/components/start_screen.rs:260
 msgid "Remove connection"
-msgstr ""
+msgstr "Eemalda ühendus"
 
 #: src/ui/components/start_screen.rs:315
 msgid "Rename Connection"
-msgstr ""
+msgstr "Muuda ühenduse nime"
 
 #: src/ui/components/start_screen.rs:316
 msgid "Choose a new name for this connection."
-msgstr ""
+msgstr "Sisesta uus nimi selle ühenduse jaoks."
 
 #: src/ui/components/start_screen.rs:348
 msgid "Remove Connection"
-msgstr ""
+msgstr "Eemalda ühendus"
 
 #: src/ui/components/start_screen.rs:351
 msgid "Remove the saved connection"
-msgstr ""
+msgstr "Eemalda salvestatud ühendus"
 
 #: src/ui/components/start_screen.rs:357
 msgid "Remove"
-msgstr ""
+msgstr "Eemalda"
 
 #: src/ui/components/sidebar.rs:95
 msgid "Search objects"
-msgstr ""
+msgstr "Otsi objekte"
 
 #: src/ui/components/sidebar.rs:121
 msgid "No objects match your search."
-msgstr ""
+msgstr "Ainsamgi objekt ei vasta sinu otsingule."
 
 #: src/ui/components/sidebar.rs:174
 msgid "Loading schema..."
@@ -719,7 +725,7 @@ msgstr ""
 #: src/ui/components/sidebar.rs:185 src/ui/components/sidebar.rs:408
 #: src/ui/components/sidebar.rs:422
 msgid "No tables or views found"
-msgstr ""
+msgstr "Ühtegi tabelid ega vaadet ei leidunud"
 
 #: src/ui/components/sidebar.rs:393
 msgid "Loading schema"
@@ -727,27 +733,27 @@ msgstr ""
 
 #: src/ui/components/sidebar.rs:395
 msgid "No objects available"
-msgstr ""
+msgstr "Ühtegi objekti pole saadaval"
 
 #: src/ui/components/sidebar.rs:404
 msgid "Fetching tables and views for the current connection."
-msgstr ""
+msgstr "Tuvastan antud ühenduse jaoks kasutatavaid tabeleid ja vaateid."
 
 #: src/ui/components/sidebar.rs:407
 msgid "Connect to PostgreSQL to browse database objects."
-msgstr ""
+msgstr "Andmebaasiobjektide sirvimiseks ühenda PostgreSQL-iga."
 
 #: src/ui/components/sidebar.rs:410
 msgid "The selected database does not currently expose tables or views."
-msgstr ""
+msgstr "Valitud andmebaas hetkel ei avalda kasutatavaid tabeleid ja vaateid."
 
 #: src/ui/components/sidebar.rs:529
 msgid "Scripts"
-msgstr ""
+msgstr "Skriptid"
 
 #: src/ui/components/sidebar.rs:533 src/ui/components/table_structure.rs:403
 msgid "Rename..."
-msgstr ""
+msgstr "Muuda nime…"
 
 #: src/ui/components/sidebar.rs:538
 msgid "Truncate..."
@@ -755,157 +761,157 @@ msgstr ""
 
 #: src/ui/components/sidebar.rs:541
 msgid "Delete..."
-msgstr ""
+msgstr "Kustuta…"
 
 #: src/ui/components/sidebar.rs:550
 msgid "CREATE Script"
-msgstr ""
+msgstr "CREATE-skript"
 
 #: src/ui/components/sidebar.rs:554
 msgid "SELECT Script"
-msgstr ""
+msgstr "SELECT-skript"
 
 #: src/ui/components/sidebar.rs:558
 msgid "INSERT Script"
-msgstr ""
+msgstr "INSERT-skript"
 
 #: src/ui/components/sidebar.rs:562
 msgid "UPDATE Script"
-msgstr ""
+msgstr "UPDATE-skript"
 
 #: src/ui/components/sidebar.rs:566
 msgid "DELETE Script"
-msgstr ""
+msgstr "DELETE-skript"
 
 #: src/ui/components/sidebar.rs:574
 msgid "Copy Table Name"
-msgstr ""
+msgstr "Kopeeri tabeli nimi"
 
 #: src/ui/components/sidebar.rs:575
 msgid "Copy Qualified Table Name"
-msgstr ""
+msgstr "Kopeeri tabeli täismahuline nimi"
 
 #: src/ui/components/sidebar.rs:576
 msgid "Copy View Name"
-msgstr ""
+msgstr "Kopeeri vaate nimi"
 
 #: src/ui/components/sidebar.rs:577
 msgid "Copy Qualified View Name"
-msgstr ""
+msgstr "Kopeeri vaate täismahuline nimi"
 
 #: src/ui/components/sidebar.rs:583
 msgid "Table name copied."
-msgstr ""
+msgstr "Tabeli nimi on kopeeritud."
 
 #: src/ui/components/sidebar.rs:584
 msgid "Qualified table name copied."
-msgstr ""
+msgstr "Tabeli täismahuline nimi on kopeeritud."
 
 #: src/ui/components/sidebar.rs:585
 msgid "View name copied."
-msgstr ""
+msgstr "Vaate nimi on kopeeritud."
 
 #: src/ui/components/sidebar.rs:586
 msgid "Qualified view name copied."
-msgstr ""
+msgstr "Vaate täismahuline nimi on kopeeritud."
 
 #: src/ui/components/editor.rs:116
 msgid "Query History"
-msgstr ""
+msgstr "Päringute ajalugu"
 
 #: src/ui/components/editor.rs:120
 msgid "History"
-msgstr ""
+msgstr "Ajalugu"
 
 #: src/ui/components/editor.rs:200
 #: src/ui/components/table_browser/filters.rs:438
 msgid "Clear"
-msgstr ""
+msgstr "Tühjenda"
 
 #: src/ui/components/editor.rs:213
 #: src/ui/components/table_browser/filters.rs:442
 msgid "Apply"
-msgstr ""
+msgstr "Rakenda"
 
 #: src/ui/components/editor.rs:229
 msgid "Selection will be executed"
-msgstr ""
+msgstr "Valitud kood käivitatakse"
 
 #: src/ui/components/editor.rs:239
 msgid "Execute selection or statement"
-msgstr ""
+msgstr "Käivita valik või kogu käsk"
 
 #: src/ui/components/editor.rs:243
 msgid "Execute"
-msgstr ""
+msgstr "Kävita"
 
 #: src/ui/components/editor.rs:394
 msgid "No query history yet."
-msgstr ""
+msgstr "Päringute ajalugu veel pole."
 
 #: src/ui/components/editor.rs:499
 msgid "Unknown time"
-msgstr ""
+msgstr "Aeg pole teada"
 
 #: src/ui/components/results.rs:263 src/ui/components/results.rs:296
 msgid "Run a query to see results"
-msgstr ""
+msgstr "Tulemuste nägemiseks käivita päring"
 
 #: src/ui/components/results.rs:267 src/ui/components/results.rs:298
 msgid "Run a query"
-msgstr ""
+msgstr "Käivita päring"
 
 #: src/ui/components/results.rs:268 src/ui/components/results.rs:300
 msgid "Results will appear here after execution."
-msgstr ""
+msgstr "Tulemused on näha peale käivitamist."
 
 #: src/ui/components/results.rs:307
 msgid "Running query..."
-msgstr ""
+msgstr "Päring on töös…"
 
 #: src/ui/components/results.rs:309
 msgid "Running query"
-msgstr ""
+msgstr "Päring on töös"
 
 #: src/ui/components/results.rs:311
 msgid "Waiting for PostgreSQL to return results."
-msgstr ""
+msgstr "Ootan kuni PostgreSQL edastab päringu vastused."
 
 #: src/ui/components/results.rs:320
 msgid "Query cancelled"
-msgstr ""
+msgstr "Päring on katkestatud"
 
 #: src/ui/components/results.rs:321
 msgid "The query was cancelled."
-msgstr ""
+msgstr "Päringu töö on katkestatud."
 
 #: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:777
 msgid "Cell copied."
-msgstr ""
+msgstr "Lahter on kopeeritud."
 
 #: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:788
 msgid "Row copied."
-msgstr ""
+msgstr "Rida on kopeeritud."
 
 #: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:799
 msgid "Column copied."
-msgstr ""
+msgstr "Veerg on kopeeritud."
 
 #: src/ui/components/results.rs:371
 msgid "Results copied."
-msgstr ""
+msgstr "Tulemused on kopeeritud."
 
 #: src/ui/components/results.rs:383 src/ui/components/results.rs:490
 msgid "Query returned no rows."
-msgstr ""
+msgstr "Päringuvastuses polnud ridu."
 
 #: src/ui/components/results.rs:385
 msgid "Query returned no columns."
-msgstr ""
+msgstr "Päringuvastuses polnud veerge."
 
 #: src/ui/components/results.rs:391
 msgid "The statement returned rows, but there are no columns to display."
-msgstr ""
+msgstr "Päringuvastuses oli ridu, kuid pole ühtegi veergu, mida saaks kuvada."
 
 #: src/ui/components/results.rs:407
 msgid "row affected"
