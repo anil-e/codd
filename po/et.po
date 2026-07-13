@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-13 14:26+0200\n"
-"PO-Revision-Date: 2026-07-13 15:09+0000\n"
+"PO-Revision-Date: 2026-07-14 05:39+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -313,11 +313,11 @@ msgstr "Sisesta korrektne objektinimi."
 
 #: src/window_content/query_execution.rs:58
 msgid "Row limit reached. Query execution stopped."
-msgstr ""
+msgstr "Ridade arvu ülempiir on käes. Päringu töö on lõpetatud."
 
 #: src/window_content/query_execution.rs:67 src/ui/components/results.rs:417
 msgid "Query failed"
-msgstr ""
+msgstr "Päring ei toiminud"
 
 #: src/window_content/query_execution.rs:109
 msgid "A query is already running."
@@ -329,11 +329,11 @@ msgstr "Enne päringu käivitamist ühenda PostgreSQL-iga."
 
 #: src/window_content/query_execution.rs:123
 msgid "Enter SQL before running a query."
-msgstr ""
+msgstr "Enne päringu käivitamist palun sisesta SQL-lausend."
 
 #: src/window_content/structure_actions.rs:83
 msgid "Choose a new name for this structure item."
-msgstr ""
+msgstr "Sisesta selle struktuuriobjekti uus nimi."
 
 #: src/window_content/structure_actions.rs:145
 #: src/window_content/structure_actions.rs:340
@@ -448,27 +448,27 @@ msgstr ""
 
 #: src/models/completion.rs:167
 msgid "keyword"
-msgstr ""
+msgstr "märksõna"
 
 #: src/models/completion.rs:168
 msgid "function"
-msgstr ""
+msgstr "funktsioon"
 
 #: src/models/completion.rs:169
 msgid "schema"
-msgstr ""
+msgstr "andmebaasiskeema"
 
 #: src/models/completion.rs:170
 msgid "table"
-msgstr ""
+msgstr "tabel"
 
 #: src/models/completion.rs:171
 msgid "view"
-msgstr ""
+msgstr "vaade"
 
 #: src/models/completion.rs:172
 msgid "materialized view"
-msgstr ""
+msgstr "realiseeritud vaade"
 
 #: src/models/completion.rs:173
 msgid "column"
@@ -482,7 +482,7 @@ msgstr "Tüüp"
 
 #: src/models/completion.rs:436
 msgid "Schema"
-msgstr ""
+msgstr "Andmebaasiskeema"
 
 #: src/models/completion.rs:438 src/ui/components/connection_dialog.rs:109
 #: src/ui/components/table_structure/columns.rs:50
@@ -720,7 +720,7 @@ msgstr "Ainsamgi objekt ei vasta sinu otsingule."
 
 #: src/ui/components/sidebar.rs:174
 msgid "Loading schema..."
-msgstr ""
+msgstr "Laadin andmebaasiskeemat…"
 
 #: src/ui/components/sidebar.rs:185 src/ui/components/sidebar.rs:408
 #: src/ui/components/sidebar.rs:422
@@ -729,7 +729,7 @@ msgstr "Ühtegi tabelid ega vaadet ei leidunud"
 
 #: src/ui/components/sidebar.rs:393
 msgid "Loading schema"
-msgstr ""
+msgstr "Laadin andmebaasiskeemat"
 
 #: src/ui/components/sidebar.rs:395
 msgid "No objects available"
@@ -978,7 +978,7 @@ msgstr "Viimane leht"
 
 #: src/ui/components/table_browser.rs:419
 msgid "Rows"
-msgstr ""
+msgstr "Ridu"
 
 #: src/ui/components/table_browser.rs:424
 msgid "Rows per page"
@@ -1035,11 +1035,11 @@ msgstr "Filtri kasutamine pole võimalik"
 
 #: src/ui/components/table_browser.rs:1098
 msgid "Table Browser"
-msgstr ""
+msgstr "Tabelisirvija"
 
 #: src/ui/components/table_browser.rs:1108 src/ui/components/table_view.rs:430
 msgid "View"
-msgstr ""
+msgstr "Vaade"
 
 #: src/ui/components/table_browser.rs:1116
 msgid "Filters"
@@ -1082,6 +1082,8 @@ msgstr "Väärtus"
 msgid ""
 "Use Set NULL to store a database NULL. Empty text is saved as empty text."
 msgstr ""
+"Andmebaasiomase NULL-väärtuse salvestamiseks kasuta „Set NULL“ määratlust. "
+"Tühjaks jäetud tekstiväärtus salvestatakse 0-pikkusega tühja tekstina."
 
 #: src/ui/components/table_browser/cell_editor.rs:51
 msgid "This column is not nullable."
@@ -1137,7 +1139,7 @@ msgstr "Ühtegi filtrit pole kasutusel."
 
 #: src/ui/components/table_browser/filters.rs:86
 msgid "Missing custom SQL filter"
-msgstr ""
+msgstr "Kohandatud SQL-filter on puudu"
 
 #: src/ui/components/table_browser/filters.rs:100
 msgid "Missing value for filter"
@@ -1187,51 +1189,51 @@ msgstr "Vaikimisi"
 
 #: src/ui/components/table_browser/insert_row.rs:282
 msgid "Skipped"
-msgstr ""
+msgstr "Vahelejäetud"
 
 #: src/ui/components/table_browser/insert_row.rs:417
 msgid "Required"
-msgstr ""
+msgstr "Nõutav"
 
 #: src/ui/components/table_browser/insert_row.rs:419
 msgid "Default or NULL allowed"
-msgstr ""
+msgstr "Lubatud on vaikimisi või NULL-väärtus"
 
 #: src/ui/components/table_browser/insert_row.rs:421
 msgid "Default allowed"
-msgstr ""
+msgstr "Lubatud on vaikimisi väärtus"
 
 #: src/ui/components/table_browser/insert_row.rs:423
 msgid "NULL allowed"
-msgstr ""
+msgstr "Lubatud on NULL-väärtus"
 
 #: src/ui/components/table_browser/insert_row.rs:431
 msgid "Required column with unsupported type"
-msgstr ""
+msgstr "Nõutav veerg mittetoetatud tüübiga"
 
 #: src/ui/components/table_browser/insert_row.rs:434
 msgid "Generated column"
-msgstr ""
+msgstr "Genereeritud väli"
 
 #: src/ui/components/table_browser/insert_row.rs:437
 msgid "Identity column"
-msgstr ""
+msgstr "Identiteediväli"
 
 #: src/ui/components/table_browser/insert_row.rs:440
 msgid "Unsupported column type"
-msgstr ""
+msgstr "Veeru/välja tüüp pole toetatud"
 
 #: src/ui/components/table_browser/insert_row.rs:443
 msgid "Read-only column"
-msgstr ""
+msgstr "Ainult lugemisõigustes veerg/väli"
 
 #: src/ui/components/table_browser/insert_row.rs:448
 msgid "Required value"
-msgstr ""
+msgstr "Nõutav väärtus"
 
 #: src/ui/components/table_browser/loading.rs:35
 msgid "Loading rows"
-msgstr ""
+msgstr "Laadin ridu"
 
 #: src/ui/components/table_browser/loading.rs:36
 msgid "Fetching the selected page from PostgreSQL."
@@ -1241,35 +1243,39 @@ msgstr "Laadin valitud lehte PostgreSQL-i serverist."
 #: src/ui/components/table_browser/loading.rs:104
 #: src/ui/components/table_structure.rs:321
 msgid "Loading cancelled"
-msgstr ""
+msgstr "Laadimine on katkestatud"
 
 #: src/ui/components/table_browser/loading.rs:124
 #, rust-format
 msgid ""
 "The table {name} could not be found. It may have been renamed or dropped."
 msgstr ""
+"„{name}“ tabelit ei leidu. Tema nimi võib olla muutunud või ta on sootuks "
+"kustutatud."
 
 #: src/ui/components/table_browser/loading.rs:128
 #, rust-format
 msgid ""
 "The view {name} could not be found. It may have been renamed or dropped."
 msgstr ""
+"„{name}“ vaadet ei leidu. Tema nimi võib olla muutunud või ta on sootuks "
+"kustutatud."
 
 #: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:231
 msgid "Structure"
-msgstr ""
+msgstr "Struktuur"
 
 #: src/ui/components/table_structure.rs:147
 msgid "Open a table to inspect its columns."
-msgstr ""
+msgstr "Veergude uurimiseks ava tabel."
 
 #: src/ui/components/table_structure.rs:210
 msgid "Loading structure failed"
-msgstr ""
+msgstr "Struktuuri laadimine ei õnnestunud"
 
 #: src/ui/components/table_structure.rs:300
 msgid "Loading structure"
-msgstr ""
+msgstr "Laadin struktuuri"
 
 #: src/ui/components/table_structure.rs:301
 msgid "Fetching table structure from PostgreSQL."
@@ -1330,7 +1336,7 @@ msgstr "Genereeritud"
 #: src/ui/components/table_structure/columns.rs:217
 #: src/ui/components/table_structure/sections.rs:254
 msgid "Primary"
-msgstr ""
+msgstr "Primaarvõti"
 
 #: src/ui/components/table_structure/sections.rs:21
 msgid "Indexes"
@@ -1384,15 +1390,15 @@ msgstr "Osaline"
 
 #: src/ui/components/table_structure/sections.rs:274
 msgid "Not validated"
-msgstr ""
+msgstr "Pole valideeritud"
 
 #: src/ui/components/table_structure/sections.rs:287
 msgid "Deferred"
-msgstr ""
+msgstr "Edasilükatud"
 
 #: src/ui/components/table_structure/sections.rs:288
 msgid "Deferrable"
-msgstr ""
+msgstr "Edasilükatav"
 
 #: src/ui/components/table_view.rs:151
 msgid "Delete selected row"
