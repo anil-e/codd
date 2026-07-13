@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-04 12:01+0200\n"
-"PO-Revision-Date: 2026-06-14 19:01+0000\n"
+"PO-Revision-Date: 2026-07-06 08:01+0000\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/codd/ui/fi/>\n"
 "Language: fi\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.dev0\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -61,7 +61,7 @@ msgstr "Takaisin yhteyksiin"
 
 #: src/window_content.rs:315
 msgid "Refresh Objects"
-msgstr ""
+msgstr "Päivitä objektit"
 
 #: src/window_content.rs:345
 msgid "New Query Tab"
@@ -447,27 +447,27 @@ msgstr ""
 
 #: src/models/completion.rs:168
 msgid "function"
-msgstr ""
+msgstr "funktio"
 
 #: src/models/completion.rs:169
 msgid "schema"
-msgstr ""
+msgstr "skeema"
 
 #: src/models/completion.rs:170
 msgid "table"
-msgstr ""
+msgstr "taulu"
 
 #: src/models/completion.rs:171
 msgid "view"
-msgstr ""
+msgstr "näkymä"
 
 #: src/models/completion.rs:172
 msgid "materialized view"
-msgstr ""
+msgstr "materialisoitu näkymä"
 
 #: src/models/completion.rs:173
 msgid "column"
-msgstr ""
+msgstr "sarake"
 
 #: src/models/completion.rs:426
 #: src/ui/components/table_browser/cell_editor.rs:32
@@ -477,7 +477,7 @@ msgstr "Tyyppi"
 
 #: src/models/completion.rs:436
 msgid "Schema"
-msgstr ""
+msgstr "Skeema"
 
 #: src/models/completion.rs:438 src/ui/components/connection_dialog.rs:109
 #: src/ui/components/table_structure/columns.rs:50
@@ -1014,11 +1014,11 @@ msgstr "Taulun lataaminen uudelleen epäonnistui"
 
 #: src/ui/components/table_browser.rs:902
 msgid "Row deleted."
-msgstr ""
+msgstr "Rivi poistettu."
 
 #: src/ui/components/table_browser.rs:916
 msgid "Deleting row failed"
-msgstr ""
+msgstr "Rivin poistaminen epäonnistui"
 
 #: src/ui/components/table_browser.rs:1083
 msgid "Filter cannot be applied"
@@ -1080,11 +1080,11 @@ msgstr ""
 
 #: src/ui/components/table_browser/delete_row.rs:25
 msgid "Delete Row?"
-msgstr ""
+msgstr "Poistetaanko rivi?"
 
 #: src/ui/components/table_browser/delete_row.rs:26
 msgid "This will permanently delete the selected row."
-msgstr ""
+msgstr "Tämä poistaa valitun rivin pysyvästi."
 
 #: src/ui/components/table_browser/editing.rs:38
 msgid "Cell cannot be edited"
@@ -1375,7 +1375,7 @@ msgstr ""
 
 #: src/ui/components/table_view.rs:151
 msgid "Delete selected row"
-msgstr ""
+msgstr "Poista valittu rivi"
 
 #: src/ui/components/table_view.rs:227
 msgid "Content"
@@ -1472,7 +1472,7 @@ msgstr "Etsi tietokantaobjekteja"
 #: data/ui/shortcuts-dialog.ui:38
 msgctxt "shortcut window"
 msgid "Refresh Database Objects"
-msgstr ""
+msgstr "Päivitä tietokantaobjektit"
 
 #: data/ui/shortcuts-dialog.ui:46
 msgctxt "shortcut window"
@@ -1487,7 +1487,7 @@ msgstr "Päivitä taulu tai näkymä"
 #: data/ui/shortcuts-dialog.ui:55
 msgctxt "shortcut window"
 msgid "Delete Selected Row"
-msgstr ""
+msgstr "Poista valittu rivi"
 
 #: data/ui/shortcuts-dialog.ui:63
 msgctxt "shortcut window"
@@ -1527,4 +1527,4 @@ msgstr "Kohdista SQL-muokkaimeen"
 #: data/ui/shortcuts-dialog.ui:101
 msgctxt "shortcut window"
 msgid "Show Suggestions"
-msgstr ""
+msgstr "Näytä ehdotukset"

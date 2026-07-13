@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-04 12:01+0200\n"
-"PO-Revision-Date: 2026-06-10 21:01+0000\n"
+"PO-Revision-Date: 2026-07-06 08:01+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -53,7 +53,7 @@ msgstr "Põhimenüü"
 
 #: src/window_content.rs:304
 msgid "Objects"
-msgstr ""
+msgstr "Objektid"
 
 #: src/window_content.rs:308
 msgid "Back to connections"
@@ -61,7 +61,7 @@ msgstr "Tagasi ühenduste vaatesse"
 
 #: src/window_content.rs:315
 msgid "Refresh Objects"
-msgstr ""
+msgstr "Laadi objektide andmed uuesti"
 
 #: src/window_content.rs:345
 msgid "New Query Tab"
@@ -152,35 +152,35 @@ msgstr ""
 
 #: src/window_content.rs:1723
 msgid "CREATE script generated."
-msgstr ""
+msgstr "CREATE-sktipt on koostatud."
 
 #: src/window_content.rs:1724
 msgid "SELECT script generated."
-msgstr ""
+msgstr "SELECT-sktipt on koostatud."
 
 #: src/window_content.rs:1725
 msgid "INSERT script generated."
-msgstr ""
+msgstr "INSERT-sktipt on koostatud."
 
 #: src/window_content.rs:1726
 msgid "UPDATE script generated."
-msgstr ""
+msgstr "UPDATE-sktipt on koostatud."
 
 #: src/window_content.rs:1727
 msgid "DELETE script generated."
-msgstr ""
+msgstr "DELETE-sktipt on koostatud."
 
 #: src/window_content/database_switching.rs:57
 msgid "Connect to PostgreSQL before switching databases."
-msgstr ""
+msgstr "Enne andmebaaside vahetamist ühenda PostgreSQL-serveriga."
 
 #: src/window_content/database_switching.rs:107
 msgid "Database switch failed"
-msgstr ""
+msgstr "Andmebaaside vahetamine ei õnnestunud"
 
 #: src/window_content/database_switching.rs:153
 msgid "Saving the selected database failed"
-msgstr ""
+msgstr "Valitud andmebaasi salvestamine ei õnnestunud"
 
 #: src/window_content/database_switching.rs:194
 msgid "Migrating query history failed"
@@ -239,32 +239,32 @@ msgstr ""
 
 #: src/window_content/object_actions.rs:313
 msgid "Rename Table"
-msgstr ""
+msgstr "Muuda tabeli nime"
 
 #: src/window_content/object_actions.rs:314
 msgid "Rename View"
-msgstr ""
+msgstr "Muuda vaate nime"
 
 #: src/window_content/object_actions.rs:316
 msgid "Truncate Table"
-msgstr ""
+msgstr "Tühjenda tabeli sisu"
 
 #: src/window_content/object_actions.rs:318
 msgid "Delete Table"
-msgstr ""
+msgstr "Kustuta tabel"
 
 #: src/window_content/object_actions.rs:319
 msgid "Delete View"
-msgstr ""
+msgstr "Kustuta vaade"
 
 #: src/window_content/object_actions.rs:329
 msgid "Remove all rows from"
-msgstr ""
+msgstr "Eemalda kõik read objektist"
 
 #: src/window_content/object_actions.rs:331
 #: src/window_content/object_actions.rs:337
 msgid "This cannot be undone."
-msgstr ""
+msgstr "Seda tegevust ei saa tagasi pöörata."
 
 #: src/window_content/object_actions.rs:335
 #: src/window_content/object_actions.rs:346
@@ -274,37 +274,37 @@ msgstr "Kustuta"
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
-msgstr ""
+msgstr "Tühjenda sisu"
 
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
-msgstr ""
+msgstr "Andmebaasiobjekti nimi on muudetud."
 
 #: src/window_content/object_actions.rs:355
 msgid "Table truncated:"
-msgstr ""
+msgstr "Tabeli sisu on tühjendatud:"
 
 #: src/window_content/object_actions.rs:358
 msgid "Database object deleted."
-msgstr ""
+msgstr "Andmebaasiobjekt on kustutatud."
 
 #: src/window_content/object_actions.rs:364
 #: src/window_content/structure_actions.rs:383
 msgid "Renaming failed"
-msgstr ""
+msgstr "Nime muutmine ei õnnestunud"
 
 #: src/window_content/object_actions.rs:365
 msgid "Truncating failed"
-msgstr ""
+msgstr "Sisu tühjendamine ei õnnestunud"
 
 #: src/window_content/object_actions.rs:366
 msgid "Deleting failed"
-msgstr ""
+msgstr "Kustutamine ei õnnestunud"
 
 #: src/window_content/object_actions.rs:381
 #: src/window_content/structure_actions.rs:295
 msgid "Enter a valid object name."
-msgstr ""
+msgstr "Sisesta korrektne objektinimi."
 
 #: src/window_content/query_execution.rs:58
 msgid "Row limit reached. Query execution stopped."
@@ -370,11 +370,11 @@ msgstr "Indeks"
 
 #: src/window_content/structure_actions.rs:398
 msgid "Constraint"
-msgstr ""
+msgstr "Piirang"
 
 #: src/window_content/structure_actions.rs:399
 msgid "Foreign key"
-msgstr ""
+msgstr "Välisvõti"
 
 #: src/window_content/structure_actions.rs:400
 msgid "Trigger"
@@ -392,11 +392,11 @@ msgstr ""
 
 #: src/window_content/tabs.rs:60
 msgid "Close Other Tabs"
-msgstr ""
+msgstr "Sulge muud vahekaardid"
 
 #: src/window_content/tabs.rs:64
 msgid "Close All"
-msgstr ""
+msgstr "Sulge kõik"
 
 #: src/window_content/tabs.rs:689 src/models/completion.rs:423
 #: src/ui/components/table_browser.rs:1107 src/ui/components/table_view.rs:408
@@ -406,7 +406,7 @@ msgstr "Tabel"
 
 #: src/window_content/tabs.rs:690
 msgid "Select the tab to load this table."
-msgstr ""
+msgstr "Selle tabeli laadimiseks vali antud vahekaart."
 
 #: src/window_content/tabs.rs:983
 msgid "Query"
@@ -414,15 +414,15 @@ msgstr "Päring"
 
 #: src/models/connection.rs:80
 msgid "Connection name is required."
-msgstr ""
+msgstr "Ühenduse nimi on nõutav."
 
 #: src/models/connection.rs:84
 msgid "Host is required."
-msgstr ""
+msgstr "Hosti/serveri nimi on nõutav."
 
 #: src/models/connection.rs:89
 msgid "Port must be a number between 1 and 65535."
-msgstr ""
+msgstr "Pordinumber peab olema vahemikus 1 kuni 65535."
 
 #: src/models/connection.rs:92
 msgid "Default database is required."
