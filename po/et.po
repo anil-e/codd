@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-13 14:26+0200\n"
-"PO-Revision-Date: 2026-07-13 12:32+0000\n"
+"PO-Revision-Date: 2026-07-14 05:39+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -45,7 +45,7 @@ msgstr "Priit Jõerüüt 2026"
 #: src/window.rs:212 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
-msgstr "Lihtne PostgreSQLi klient"
+msgstr "Lihtne PostgreSQL-i klientrakendus"
 
 #: src/window_content.rs:271 src/window_content.rs:338
 msgid "Main Menu"
@@ -61,7 +61,7 @@ msgstr "Tagasi ühenduste vaatesse"
 
 #: src/window_content.rs:315
 msgid "Refresh Objects"
-msgstr "Laadi objektide andmed uuesti"
+msgstr "Laadi objektide teave uuesti"
 
 #: src/window_content.rs:345
 msgid "New Query Tab"
@@ -313,11 +313,11 @@ msgstr "Sisesta korrektne objektinimi."
 
 #: src/window_content/query_execution.rs:58
 msgid "Row limit reached. Query execution stopped."
-msgstr ""
+msgstr "Ridade arvu ülempiir on käes. Päringu töö on lõpetatud."
 
 #: src/window_content/query_execution.rs:67 src/ui/components/results.rs:417
 msgid "Query failed"
-msgstr ""
+msgstr "Päring ei toiminud"
 
 #: src/window_content/query_execution.rs:109
 msgid "A query is already running."
@@ -325,15 +325,15 @@ msgstr "Päring on juba töös."
 
 #: src/window_content/query_execution.rs:115
 msgid "Connect to PostgreSQL before running a query."
-msgstr ""
+msgstr "Enne päringu käivitamist ühenda PostgreSQL-iga."
 
 #: src/window_content/query_execution.rs:123
 msgid "Enter SQL before running a query."
-msgstr ""
+msgstr "Enne päringu käivitamist palun sisesta SQL-lausend."
 
 #: src/window_content/structure_actions.rs:83
 msgid "Choose a new name for this structure item."
-msgstr ""
+msgstr "Sisesta selle struktuuriobjekti uus nimi."
 
 #: src/window_content/structure_actions.rs:145
 #: src/window_content/structure_actions.rs:340
@@ -448,27 +448,27 @@ msgstr ""
 
 #: src/models/completion.rs:167
 msgid "keyword"
-msgstr ""
+msgstr "märksõna"
 
 #: src/models/completion.rs:168
 msgid "function"
-msgstr ""
+msgstr "funktsioon"
 
 #: src/models/completion.rs:169
 msgid "schema"
-msgstr ""
+msgstr "andmebaasiskeema"
 
 #: src/models/completion.rs:170
 msgid "table"
-msgstr ""
+msgstr "tabel"
 
 #: src/models/completion.rs:171
 msgid "view"
-msgstr ""
+msgstr "vaade"
 
 #: src/models/completion.rs:172
 msgid "materialized view"
-msgstr ""
+msgstr "realiseeritud vaade"
 
 #: src/models/completion.rs:173
 msgid "column"
@@ -482,7 +482,7 @@ msgstr "Tüüp"
 
 #: src/models/completion.rs:436
 msgid "Schema"
-msgstr ""
+msgstr "Andmebaasiskeema"
 
 #: src/models/completion.rs:438 src/ui/components/connection_dialog.rs:109
 #: src/ui/components/table_structure/columns.rs:50
@@ -720,7 +720,7 @@ msgstr "Ainsamgi objekt ei vasta sinu otsingule."
 
 #: src/ui/components/sidebar.rs:174
 msgid "Loading schema..."
-msgstr ""
+msgstr "Laadin andmebaasiskeemat…"
 
 #: src/ui/components/sidebar.rs:185 src/ui/components/sidebar.rs:408
 #: src/ui/components/sidebar.rs:422
@@ -729,7 +729,7 @@ msgstr "Ühtegi tabelid ega vaadet ei leidunud"
 
 #: src/ui/components/sidebar.rs:393
 msgid "Loading schema"
-msgstr ""
+msgstr "Laadin andmebaasiskeemat"
 
 #: src/ui/components/sidebar.rs:395
 msgid "No objects available"
@@ -917,631 +917,654 @@ msgstr "Päringuvastuses oli ridu, kuid pole ühtegi veergu, mida saaks kuvada."
 #, rust-format
 msgid "{rows} row affected"
 msgid_plural "{rows} rows affected"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Mõjutatud on {rows} rida"
+msgstr[1] "Mõjutatud on {rows} rida"
 
 #: src/ui/components/results.rs:408
 msgid "The statement completed successfully."
-msgstr ""
+msgstr "SQL-lausendi täitmine õnnestus."
 
 #. Translators: Query result row count. The limit suffix is "+" when the result was limited, for example "1000+ rows".
 #: src/ui/components/results.rs:496
 #, rust-format
 msgid "{rows}{limit_suffix} row"
 msgid_plural "{rows}{limit_suffix} rows"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{rows}{limit_suffix} rida"
+msgstr[1] "{rows}{limit_suffix} rida"
 
 #: src/ui/components/results.rs:677 src/ui/components/table_browser.rs:1298
 msgid "Copy Cell"
-msgstr ""
+msgstr "Kopeeri lahter"
 
 #: src/ui/components/results.rs:678 src/ui/components/table_browser.rs:1299
 msgid "Copy Row"
-msgstr ""
+msgstr "Kopeeri rida"
 
 #: src/ui/components/results.rs:679 src/ui/components/table_browser.rs:1300
 msgid "Copy Column"
-msgstr ""
+msgstr "Kopeeri veerg"
 
 #: src/ui/components/results.rs:681
 msgid "Copy Displayed Results"
-msgstr ""
+msgstr "Kopeeri kuvatud tulemused"
 
 #: src/ui/components/results.rs:684 src/ui/components/table_browser.rs:1305
 msgid "Export CSV..."
-msgstr ""
+msgstr "Ekspordi CSV-failina…"
 
 #: src/ui/components/table_browser.rs:282 src/ui/components/table_view.rs:164
 msgid "Show or edit filters"
-msgstr ""
+msgstr "Näita või muuda filtreid"
 
 #: src/ui/components/table_browser.rs:300 src/ui/components/table_view.rs:187
 msgid "Refresh"
-msgstr ""
+msgstr "Laadi uuesti"
 
 #: src/ui/components/table_browser.rs:360
 msgid "First page"
-msgstr ""
+msgstr "Esimene leht"
 
 #: src/ui/components/table_browser.rs:369
 msgid "Previous page"
-msgstr ""
+msgstr "Eelmine leht"
 
 #: src/ui/components/table_browser.rs:400
 msgid "Next page"
-msgstr ""
+msgstr "Järgmine leht"
 
 #: src/ui/components/table_browser.rs:409
 msgid "Last page"
-msgstr ""
+msgstr "Viimane leht"
 
 #: src/ui/components/table_browser.rs:419
 msgid "Rows"
-msgstr ""
+msgstr "Ridu"
 
 #: src/ui/components/table_browser.rs:424
 msgid "Rows per page"
-msgstr ""
+msgstr "Ridu lehe kohta"
 
 #: src/ui/components/table_browser.rs:492
 msgid "Select a table"
-msgstr ""
+msgstr "Vali tabel"
 
 #: src/ui/components/table_browser.rs:494
 msgid "Choose a table or view from the sidebar to browse its rows."
-msgstr ""
+msgstr "Andmeridade vaatamiseks vali külgpaanilt tabel või vaade."
 
 #: src/ui/components/table_browser.rs:700
 msgid "Loading table failed"
-msgstr ""
+msgstr "Tabeli laadimine ei õnnestunud"
 
 #: src/ui/components/table_browser.rs:728
 msgid "Loading last page failed"
-msgstr ""
+msgstr "Viimase lehe laadimine ei õnnestunud"
 
 #: src/ui/components/table_browser.rs:763
 msgid "Saving cell failed"
-msgstr ""
+msgstr "Lahtri salvestamine ei õnnestunud"
 
 #: src/ui/components/table_browser.rs:808
 msgid "Page copied."
-msgstr ""
+msgstr "Leht on kopeeritud."
 
 #: src/ui/components/table_browser.rs:859
 msgid "Row inserted."
-msgstr ""
+msgstr "Rida on lisatud."
 
 #: src/ui/components/table_browser.rs:872
 msgid "Inserting row failed"
-msgstr ""
+msgstr "Rea lisamine ei õnnestunud"
 
 #: src/ui/components/table_browser.rs:875
 #: src/ui/components/table_browser.rs:919
 msgid "Reloading table failed"
-msgstr ""
+msgstr "Tabeli uuesti laadimine ei õnnestunud"
 
 #: src/ui/components/table_browser.rs:902
 msgid "Row deleted."
-msgstr ""
+msgstr "Rida on kustutatud."
 
 #: src/ui/components/table_browser.rs:916
 msgid "Deleting row failed"
-msgstr ""
+msgstr "Rea kustutamine ei õnnestunud"
 
 #: src/ui/components/table_browser.rs:1083
 msgid "Filter cannot be applied"
-msgstr ""
+msgstr "Filtri kasutamine pole võimalik"
 
 #: src/ui/components/table_browser.rs:1098
 msgid "Table Browser"
-msgstr ""
+msgstr "Tabelisirvija"
 
 #: src/ui/components/table_browser.rs:1108 src/ui/components/table_view.rs:430
 msgid "View"
-msgstr ""
+msgstr "Vaade"
 
 #: src/ui/components/table_browser.rs:1116
 msgid "Filters"
-msgstr ""
+msgstr "Filtrid"
 
 #: src/ui/components/table_browser.rs:1118
 #, rust-format
 msgid "Filters ({count})"
-msgstr ""
+msgstr "Filtrid ({count})"
 
 #: src/ui/components/table_browser.rs:1132
 msgid "No rows"
-msgstr ""
+msgstr "Ridu pole"
 
 #: src/ui/components/table_browser.rs:1138
 #, rust-format
 msgid "{first}-{last} rows"
-msgstr ""
+msgstr "{first}-{last} rida"
 
 #: src/ui/components/table_browser.rs:1294
 msgid "Edit Value"
-msgstr ""
+msgstr "Muuda väärtust"
 
 #: src/ui/components/table_browser.rs:1302
 msgid "Copy Displayed Page"
-msgstr ""
+msgstr "Kopeeri kuvatud leht"
 
 #: src/ui/components/table_browser.rs:1309
 msgid "Delete Row..."
-msgstr ""
+msgstr "Kustuta rida…"
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
 #: src/ui/components/table_browser/insert_row.rs:245
 #: src/ui/components/table_browser/insert_row.rs:450
 msgid "Value"
-msgstr ""
+msgstr "Väärtus"
 
 #: src/ui/components/table_browser/cell_editor.rs:49
 msgid ""
 "Use Set NULL to store a database NULL. Empty text is saved as empty text."
 msgstr ""
+"Andmebaasiomase NULL-väärtuse salvestamiseks kasuta „Set NULL“ määratlust. "
+"Tühjaks jäetud tekstiväärtus salvestatakse 0-pikkusega tühja tekstina."
 
 #: src/ui/components/table_browser/cell_editor.rs:51
 msgid "This column is not nullable."
-msgstr ""
+msgstr "Selle veeru/välja väärtuseks ei saa olla NULL."
 
 #: src/ui/components/table_browser/cell_editor.rs:94
 msgid "Set NULL"
-msgstr ""
+msgstr "Määra väärtuseks NULL"
 
 #: src/ui/components/table_browser/delete_row.rs:25
 msgid "Delete Row?"
-msgstr ""
+msgstr "Kas kustutad rea?"
 
 #: src/ui/components/table_browser/delete_row.rs:26
 msgid "This will permanently delete the selected row."
-msgstr ""
+msgstr "Järgnevaga kustutad valitud rea jäädavalt."
 
 #: src/ui/components/table_browser/editing.rs:38
 msgid "Cell cannot be edited"
-msgstr ""
+msgstr "Lahtrit ei saa muuta"
 
 #: src/ui/components/table_browser/editing.rs:134
 msgid "Only tables can be edited."
-msgstr ""
+msgstr "Muuta saad vaid tabeleid."
 
 #: src/ui/components/table_browser/editing.rs:138
 msgid "The selected cell is no longer available."
-msgstr ""
+msgstr "Valitud lahter pole enam saadaval."
 
 #: src/ui/components/table_browser/editing.rs:142
 msgid "Primary key columns are read-only for now."
-msgstr ""
+msgstr "Primaarvõtme veerud on hetkel vaid vaadatavas olekus."
 
 #: src/ui/components/table_browser/editing.rs:146
 msgid "This column type is not editable yet."
-msgstr ""
+msgstr "See veerutüüp pole hetkel veel muudetav."
 
 #: src/ui/components/table_browser/editing.rs:150
 msgid "Editing requires a primary key."
-msgstr ""
+msgstr "Muutmine eeldab primaarvõtme olemasolu."
 
 #: src/ui/components/table_browser/filters.rs:52
 msgid "Load the table before adding filters."
-msgstr ""
+msgstr "Enne filtrite lisamist palun laadi tabel."
 
 #: src/ui/components/table_browser/filters.rs:57
 msgid "This table has no filterable columns."
-msgstr ""
+msgstr "Selles tabelis pole filtreeritavaid veerge."
 
 #: src/ui/components/table_browser/filters.rs:64
 msgid "No filters applied."
-msgstr ""
+msgstr "Ühtegi filtrit pole kasutusel."
 
 #: src/ui/components/table_browser/filters.rs:86
 msgid "Missing custom SQL filter"
-msgstr ""
+msgstr "Kohandatud SQL-filter on puudu"
 
 #: src/ui/components/table_browser/filters.rs:100
 msgid "Missing value for filter"
-msgstr ""
+msgstr "Filtril on väärtus puudu"
 
 #: src/ui/components/table_browser/filters.rs:239
 msgid "Remove filter"
-msgstr ""
+msgstr "Eemalda filter"
 
 #: src/ui/components/table_browser/filters.rs:344
 msgid "SQL expression"
-msgstr ""
+msgstr "SQL-lausend"
 
 #: src/ui/components/table_browser/filters.rs:435
 msgid "Add Filter"
-msgstr ""
+msgstr "Lisa filter"
 
 #: src/ui/components/table_browser/filters.rs:601
 msgid "Custom SQL"
-msgstr ""
+msgstr "Kohandatud SQL"
 
 #: src/ui/components/table_browser/insert_row.rs:139
 #: src/ui/components/table_view.rs:138
 msgid "Insert Row"
-msgstr ""
+msgstr "Lisa rida"
 
 #: src/ui/components/table_browser/insert_row.rs:141
 msgid ""
 "Enter values for the new row. Columns can also use DEFAULT or NULL when "
 "available."
 msgstr ""
+"Sisesta uue rea väärtused. Kui on lubatud/saadaval, siis väljade väärtused "
+"võivad olla ka DEFAULT või NULL."
 
 #: src/ui/components/table_browser/insert_row.rs:148
 msgid "Insert"
-msgstr ""
+msgstr "Lisa"
 
 #: src/ui/components/table_browser/insert_row.rs:248
 msgid "NULL"
-msgstr ""
+msgstr "NULL"
 
 #: src/ui/components/table_browser/insert_row.rs:252
 #: src/ui/components/table_structure/columns.rs:83
 msgid "Default"
-msgstr ""
+msgstr "Vaikimisi"
 
 #: src/ui/components/table_browser/insert_row.rs:282
 msgid "Skipped"
-msgstr ""
+msgstr "Vahelejäetud"
 
 #: src/ui/components/table_browser/insert_row.rs:417
 msgid "Required"
-msgstr ""
+msgstr "Nõutav"
 
 #: src/ui/components/table_browser/insert_row.rs:419
 msgid "Default or NULL allowed"
-msgstr ""
+msgstr "Lubatud on vaikimisi või NULL-väärtus"
 
 #: src/ui/components/table_browser/insert_row.rs:421
 msgid "Default allowed"
-msgstr ""
+msgstr "Lubatud on vaikimisi väärtus"
 
 #: src/ui/components/table_browser/insert_row.rs:423
 msgid "NULL allowed"
-msgstr ""
+msgstr "Lubatud on NULL-väärtus"
 
 #: src/ui/components/table_browser/insert_row.rs:431
 msgid "Required column with unsupported type"
-msgstr ""
+msgstr "Nõutav veerg mittetoetatud tüübiga"
 
 #: src/ui/components/table_browser/insert_row.rs:434
 msgid "Generated column"
-msgstr ""
+msgstr "Genereeritud väli"
 
 #: src/ui/components/table_browser/insert_row.rs:437
 msgid "Identity column"
-msgstr ""
+msgstr "Identiteediväli"
 
 #: src/ui/components/table_browser/insert_row.rs:440
 msgid "Unsupported column type"
-msgstr ""
+msgstr "Veeru/välja tüüp pole toetatud"
 
 #: src/ui/components/table_browser/insert_row.rs:443
 msgid "Read-only column"
-msgstr ""
+msgstr "Ainult lugemisõigustes veerg/väli"
 
 #: src/ui/components/table_browser/insert_row.rs:448
 msgid "Required value"
-msgstr ""
+msgstr "Nõutav väärtus"
 
 #: src/ui/components/table_browser/loading.rs:35
 msgid "Loading rows"
-msgstr ""
+msgstr "Laadin ridu"
 
 #: src/ui/components/table_browser/loading.rs:36
 msgid "Fetching the selected page from PostgreSQL."
-msgstr ""
+msgstr "Laadin valitud lehte PostgreSQL-i serverist."
 
 #: src/ui/components/table_browser/loading.rs:66
 #: src/ui/components/table_browser/loading.rs:104
 #: src/ui/components/table_structure.rs:321
 msgid "Loading cancelled"
-msgstr ""
+msgstr "Laadimine on katkestatud"
 
 #: src/ui/components/table_browser/loading.rs:124
 #, rust-format
 msgid ""
 "The table {name} could not be found. It may have been renamed or dropped."
 msgstr ""
+"„{name}“ tabelit ei leidu. Tema nimi võib olla muutunud või ta on sootuks "
+"kustutatud."
 
 #: src/ui/components/table_browser/loading.rs:128
 #, rust-format
 msgid ""
 "The view {name} could not be found. It may have been renamed or dropped."
 msgstr ""
+"„{name}“ vaadet ei leidu. Tema nimi võib olla muutunud või ta on sootuks "
+"kustutatud."
 
 #: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:231
 msgid "Structure"
-msgstr ""
+msgstr "Struktuur"
 
 #: src/ui/components/table_structure.rs:147
 msgid "Open a table to inspect its columns."
-msgstr ""
+msgstr "Veergude uurimiseks ava tabel."
 
 #: src/ui/components/table_structure.rs:210
 msgid "Loading structure failed"
-msgstr ""
+msgstr "Struktuuri laadimine ei õnnestunud"
 
 #: src/ui/components/table_structure.rs:300
 msgid "Loading structure"
-msgstr ""
+msgstr "Laadin struktuuri"
 
 #: src/ui/components/table_structure.rs:301
 msgid "Fetching table structure from PostgreSQL."
-msgstr ""
+msgstr "Laadin tabeli struktuuri PostgreSQL-i serverist."
 
 #: src/ui/components/table_structure.rs:402
 msgid "Copy Name"
-msgstr ""
+msgstr "Kopeeri nimi"
 
 #: src/ui/components/table_structure.rs:404
 msgid "Drop..."
-msgstr ""
+msgstr "Kasuta DROP-käsku…"
 
 #: src/ui/components/table_structure.rs:410
 msgid "Column name copied."
-msgstr ""
+msgstr "Veeru nimi on kopeeritud."
 
 #: src/ui/components/table_structure.rs:411
 msgid "Index name copied."
-msgstr ""
+msgstr "Indeksi nimi on kopeeritud."
 
 #: src/ui/components/table_structure.rs:412
 msgid "Constraint name copied."
-msgstr ""
+msgstr "Piirangu nimi on kopeeritud."
 
 #: src/ui/components/table_structure.rs:413
 msgid "Foreign key name copied."
-msgstr ""
+msgstr "Välisvõtme nimi on kopeeritud."
 
 #: src/ui/components/table_structure.rs:414
 msgid "Trigger name copied."
-msgstr ""
+msgstr "Päästiku nimi on kopeeritud."
 
 #: src/ui/components/table_structure/columns.rs:19
 msgid "Columns"
-msgstr ""
+msgstr "Veerud"
 
 #: src/ui/components/table_structure/columns.rs:68
 msgid "Nullable"
-msgstr ""
+msgstr "Saab kasutada NULL-väärtust"
 
 #: src/ui/components/table_structure/columns.rs:71
 msgid "Yes"
-msgstr ""
+msgstr "Jah"
 
 #: src/ui/components/table_structure/columns.rs:73
 msgid "No"
-msgstr ""
+msgstr "Ei"
 
 #: src/ui/components/table_structure/columns.rs:92
 msgid "Key"
-msgstr ""
+msgstr "Võti"
 
 #: src/ui/components/table_structure/columns.rs:209
 msgid "Generated"
-msgstr ""
+msgstr "Genereeritud"
 
 #: src/ui/components/table_structure/columns.rs:217
 #: src/ui/components/table_structure/sections.rs:254
 msgid "Primary"
-msgstr ""
+msgstr "Primaarvõti"
 
 #: src/ui/components/table_structure/sections.rs:21
 msgid "Indexes"
-msgstr ""
+msgstr "Indeksid"
 
 #: src/ui/components/table_structure/sections.rs:22
 msgid "No indexes"
-msgstr ""
+msgstr "Indekseid pole"
 
 #: src/ui/components/table_structure/sections.rs:48
 msgid "Constraints"
-msgstr ""
+msgstr "Piirangureeglid"
 
 #: src/ui/components/table_structure/sections.rs:50
 msgid "No constraints"
-msgstr ""
+msgstr "Piirangureegleid pole"
 
 #: src/ui/components/table_structure/sections.rs:72
 msgid "Foreign Keys"
-msgstr ""
+msgstr "Välisvõtmed"
 
 #: src/ui/components/table_structure/sections.rs:75
 msgid "No foreign keys"
-msgstr ""
+msgstr "Välisvõtmeid pole"
 
 #: src/ui/components/table_structure/sections.rs:99
 msgid "Triggers"
-msgstr ""
+msgstr "Andmebaasipäästikud"
 
 #: src/ui/components/table_structure/sections.rs:100
 msgid "No triggers"
-msgstr ""
+msgstr "Andmebaasipäästikuid pole"
 
 #. Translators: Section heading with an item count, for example "Columns (3)".
 #: src/ui/components/table_structure/sections.rs:236
 #, rust-format
 msgid "{title} ({count})"
-msgstr ""
+msgstr "{title} ({count})"
 
 #: src/ui/components/table_structure/sections.rs:256
 msgid "Unique"
-msgstr ""
+msgstr "Unikaalne"
 
 #: src/ui/components/table_structure/sections.rs:260
 msgid "Invalid"
-msgstr ""
+msgstr "Vigane"
 
 #: src/ui/components/table_structure/sections.rs:264
 msgid "Partial"
-msgstr ""
+msgstr "Osaline"
 
 #: src/ui/components/table_structure/sections.rs:274
 msgid "Not validated"
-msgstr ""
+msgstr "Pole valideeritud"
 
 #: src/ui/components/table_structure/sections.rs:287
 msgid "Deferred"
-msgstr ""
+msgstr "Edasilükatud"
 
 #: src/ui/components/table_structure/sections.rs:288
 msgid "Deferrable"
-msgstr ""
+msgstr "Edasilükatav"
 
 #: src/ui/components/table_view.rs:151
 msgid "Delete selected row"
-msgstr ""
+msgstr "Kustuta valitud rida"
 
 #: src/ui/components/table_view.rs:227
 msgid "Content"
-msgstr ""
+msgstr "Sisu"
 
 #: data/io.github.anil_e.Codd.desktop.in:10
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
 msgstr ""
+"PostgreSQL;SQL;Database;Query;GNOME;andmebaas;andmebaasiklient;andmebaasiliides;graafiline "
+"liides;päring;"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:10
 msgid ""
 "Codd is a lightweight PostgreSQL query app for GNOME built with Rust, GTK4, "
 "and libadwaita."
 msgstr ""
+"Codd on GNOME'i jaoks mõeldud lihtne ja väikesemahuline PostgreSQL-i "
+"klientrakendus, mille põhikomponentideks on Rust, GTK4 ja libadwaita."
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:14
 msgid ""
 "It focuses on saved connections, database browsing, SQL execution, and "
 "native result previews without trying to become a multi-database suite."
 msgstr ""
+"Rakendus keskendub salvestatud ühenduste haldusele, andmebaaside sisu "
+"sirvimisele, SQL-käskude käivitamisele ja tulemuste eelvaate kuvamisele "
+"keskkonnaomases vormis, püüdmata muutuda mitut andmebaasi hõlmavaks "
+"keerukaks tarkvarapaketiks."
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:25
 msgid "Anil Erdogan"
-msgstr ""
+msgstr "Anil Erdogan"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:37
 msgid "Run SQL queries with syntax highlighting and result previews"
-msgstr ""
+msgstr "SQL-päring süntaksi esiletõstmisega ja andmete eelvaatega"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:41
 msgid "Browse PostgreSQL table data with pagination and filters"
 msgstr ""
+"PostgreSQL-i tabeli andmete sirvimine lehtede kaupa ja filtreid kasutades"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:45
 msgid ""
 "Insert new table rows with defaults, NULL values and PostgreSQL type "
 "validation"
 msgstr ""
+"Uue rea lisamine kasutades vaikimisi või NULL-väärtust ja lastes PostgreSQL-"
+"il teha tüübikontrolli"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:49
 msgid ""
 "Inspect table columns, data types, nullability, defaults and primary keys"
 msgstr ""
+"Tabeli väljade/veergude, andmetüüpide, vaikimisi väärtuste, primaarvõtmete "
+"ja NULL-väärtuse kasutatavuse uurimine"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:53
 msgid ""
 "Review indexes, constraints, foreign keys and triggers in the structure view"
 msgstr ""
+"Struktureeritud ülevaade tabeli indeksitest, andmebaasipiirangutest, "
+"välisvõtmetest ja päästikutest"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:57
 msgid "Edit table structure from native context menus"
-msgstr ""
+msgstr "Tabeli struktuuri muutmine kontekstimenüüdest"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:61
 msgid "Use table actions like rename, truncate and delete"
-msgstr ""
+msgstr "Võimalus muuta tabeli nime, selle sisu kustutada või tühjendada"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:65
 msgid "Manage saved PostgreSQL connections"
-msgstr ""
+msgstr "Salvestatud PostgreSQL-i ühenduste haldus"
 
 #: data/ui/shortcuts-dialog.ui:6
 msgctxt "shortcut window"
 msgid "General"
-msgstr ""
+msgstr "Üldised"
 
 #: data/ui/shortcuts-dialog.ui:9
 msgctxt "shortcut window"
 msgid "Keyboard Shortcuts"
-msgstr ""
+msgstr "Klaviatuuri kiirklahvid"
 
 #: data/ui/shortcuts-dialog.ui:15
 msgctxt "shortcut window"
 msgid "New Window"
-msgstr ""
+msgstr "Uus aken"
 
 #: data/ui/shortcuts-dialog.ui:21
 msgctxt "shortcut window"
 msgid "Quit"
-msgstr ""
+msgstr "Välju"
 
 #: data/ui/shortcuts-dialog.ui:29
 msgctxt "shortcut window"
 msgid "Navigation"
-msgstr ""
+msgstr "Liikumine rakenduses"
 
 #: data/ui/shortcuts-dialog.ui:32
 msgctxt "shortcut window"
 msgid "Search Database Objects"
-msgstr ""
+msgstr "Otsi andmebaasiobjekte"
 
 #: data/ui/shortcuts-dialog.ui:38
 msgctxt "shortcut window"
 msgid "Refresh Database Objects"
-msgstr ""
+msgstr "Laadi andmebaasiobjektid uuesti"
 
 #: data/ui/shortcuts-dialog.ui:46
 msgctxt "shortcut window"
 msgid "Table Browser"
-msgstr ""
+msgstr "Tabelipõhine brauser"
 
 #: data/ui/shortcuts-dialog.ui:49
 msgctxt "shortcut window"
 msgid "Refresh Table or View"
-msgstr ""
+msgstr "Laadi tabeli või vaate andmed uuesti"
 
 #: data/ui/shortcuts-dialog.ui:55
 msgctxt "shortcut window"
 msgid "Delete Selected Row"
-msgstr ""
+msgstr "Kustuta valitud rida"
 
 #: data/ui/shortcuts-dialog.ui:63
 msgctxt "shortcut window"
 msgid "Tabs"
-msgstr ""
+msgstr "Vahekaardid"
 
 #: data/ui/shortcuts-dialog.ui:66
 msgctxt "shortcut window"
 msgid "New Query Tab"
-msgstr ""
+msgstr "Uue päringu vahekaart"
 
 #: data/ui/shortcuts-dialog.ui:72
 msgctxt "shortcut window"
 msgid "Close Current Tab"
-msgstr ""
+msgstr "Sulge see vahekaart"
 
 #: data/ui/shortcuts-dialog.ui:80
 msgctxt "shortcut window"
 msgid "Query"
-msgstr ""
+msgstr "Päring"
 
 #: data/ui/shortcuts-dialog.ui:83
 msgctxt "shortcut window"
 msgid "Execute"
-msgstr ""
+msgstr "Kävita päring"
 
 #: data/ui/shortcuts-dialog.ui:89
 msgctxt "shortcut window"
 msgid "Cancel Running Query"
-msgstr ""
+msgstr "Katkesta töösolev päring"
 
 #: data/ui/shortcuts-dialog.ui:95
 msgctxt "shortcut window"
 msgid "Focus SQL Editor"
-msgstr ""
+msgstr "Säti fookus SQL-i muutmisvaatesse"
 
 #: data/ui/shortcuts-dialog.ui:101
 msgctxt "shortcut window"
 msgid "Show Suggestions"
-msgstr ""
+msgstr "Näita soovitusi"

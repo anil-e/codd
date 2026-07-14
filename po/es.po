@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-13 14:26+0200\n"
-"PO-Revision-Date: 2026-07-01 00:01+0000\n"
+"PO-Revision-Date: 2026-07-13 14:09+0000\n"
 "Last-Translator: Francisco Vásquez Cuevas <fvasquez@fvtronics.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/codd/ui/es/>\n"
 "Language: es\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.dev0\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -449,39 +449,39 @@ msgstr "El nombre de usuario es obligatorio."
 #: src/models/completion.rs:119 src/models/completion.rs:244
 #: src/models/completion.rs:421 src/models/completion.rs:434
 msgid "Kind"
-msgstr ""
+msgstr "Clase"
 
 #: src/models/completion.rs:121
 msgid "Signature"
-msgstr ""
+msgstr "Firma"
 
 #: src/models/completion.rs:167
 msgid "keyword"
-msgstr ""
+msgstr "palabra clave"
 
 #: src/models/completion.rs:168
 msgid "function"
-msgstr ""
+msgstr "función"
 
 #: src/models/completion.rs:169
 msgid "schema"
-msgstr ""
+msgstr "esquema"
 
 #: src/models/completion.rs:170
 msgid "table"
-msgstr ""
+msgstr "tabla"
 
 #: src/models/completion.rs:171
 msgid "view"
-msgstr ""
+msgstr "vista"
 
 #: src/models/completion.rs:172
 msgid "materialized view"
-msgstr ""
+msgstr "vista materializada"
 
 #: src/models/completion.rs:173
 msgid "column"
-msgstr ""
+msgstr "columna"
 
 #: src/models/completion.rs:426
 #: src/ui/components/table_browser/cell_editor.rs:32
@@ -491,7 +491,7 @@ msgstr "Tipo"
 
 #: src/models/completion.rs:436
 msgid "Schema"
-msgstr ""
+msgstr "Esquema"
 
 #: src/models/completion.rs:438 src/ui/components/connection_dialog.rs:109
 #: src/ui/components/table_structure/columns.rs:50
@@ -920,18 +920,18 @@ msgstr "La consulta no devolvió filas."
 
 #: src/ui/components/results.rs:385
 msgid "Query returned no columns."
-msgstr ""
+msgstr "La consulta no devolvió columnas."
 
 #: src/ui/components/results.rs:391
 msgid "The statement returned rows, but there are no columns to display."
-msgstr ""
+msgstr "La sentencia devolvió filas, pero no hay columnas que mostrar."
 
 #: src/ui/components/results.rs:406
-#, fuzzy, rust-format
+#, rust-format
 msgid "{rows} row affected"
 msgid_plural "{rows} rows affected"
-msgstr[0] "fila afectada"
-msgstr[1] "filas afectadas"
+msgstr[0] "{rows} fila afectada"
+msgstr[1] "{rows} filas afectadas"
 
 #: src/ui/components/results.rs:408
 msgid "The statement completed successfully."
@@ -942,8 +942,8 @@ msgstr "La sentencia se completó correctamente."
 #, rust-format
 msgid "{rows}{limit_suffix} row"
 msgid_plural "{rows}{limit_suffix} rows"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{rows}{limit_suffix} fila"
+msgstr[1] "{rows}{limit_suffix} filas"
 
 #: src/ui/components/results.rs:677 src/ui/components/table_browser.rs:1298
 msgid "Copy Cell"
@@ -1061,7 +1061,7 @@ msgstr "Filtros"
 #: src/ui/components/table_browser.rs:1118
 #, rust-format
 msgid "Filters ({count})"
-msgstr ""
+msgstr "Filtros ({count})"
 
 #: src/ui/components/table_browser.rs:1132
 msgid "No rows"
@@ -1108,11 +1108,11 @@ msgstr "Asignar NULL"
 
 #: src/ui/components/table_browser/delete_row.rs:25
 msgid "Delete Row?"
-msgstr ""
+msgstr "Borrar fila?"
 
 #: src/ui/components/table_browser/delete_row.rs:26
 msgid "This will permanently delete the selected row."
-msgstr ""
+msgstr "Esto eliminará la fila seleccionada permanentemente."
 
 #: src/ui/components/table_browser/editing.rs:38
 msgid "Cell cannot be edited"
@@ -1387,7 +1387,7 @@ msgstr "Sin disparadores"
 #: src/ui/components/table_structure/sections.rs:236
 #, rust-format
 msgid "{title} ({count})"
-msgstr ""
+msgstr "{title} ({count})"
 
 #: src/ui/components/table_structure/sections.rs:256
 msgid "Unique"
@@ -1578,7 +1578,7 @@ msgstr "Enfocar editor SQL"
 #: data/ui/shortcuts-dialog.ui:101
 msgctxt "shortcut window"
 msgid "Show Suggestions"
-msgstr ""
+msgstr "Mostrar sugerencias"
 
 #~ msgid "row"
 #~ msgid_plural "rows"
