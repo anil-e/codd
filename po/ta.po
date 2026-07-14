@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-13 14:26+0200\n"
+"POT-Creation-Date: 2026-07-14 07:51+0200\n"
 "PO-Revision-Date: 2026-06-24 19:16+0000\n"
 "Last-Translator: தமிழ்நேரம் <tamilneram247@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/codd/ui/ta/>\n"
@@ -133,7 +133,7 @@ msgstr "அட்டவணை கைஉரையை உருவாக்கு�
 msgid "Export failed"
 msgstr "ஏற்றுமதி தோல்வியடைந்தது"
 
-#: src/window_content.rs:1684 src/window_content/structure_actions.rs:418
+#: src/window_content.rs:1684 src/window_content/structure_actions.rs:423
 #: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:1214
 msgid "Close"
@@ -219,7 +219,6 @@ msgstr "கைவிடு"
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
 #: src/window_content/structure_actions.rs:89
-#: src/window_content/structure_actions.rs:334
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
 msgstr "மறுபெயரிடு"
@@ -260,51 +259,63 @@ msgstr "அட்டவணையை நீக்கு"
 msgid "Delete View"
 msgstr "காட்சியை நீக்கு"
 
-#: src/window_content/object_actions.rs:329
-msgid "Remove all rows from"
-msgstr "எல்லா வரிசைகளையும் அகற்று"
+#: src/window_content/object_actions.rs:327
+#, rust-format
+msgid ""
+"Remove all rows from {table}?\n"
+"This cannot be undone."
+msgstr ""
 
-#: src/window_content/object_actions.rs:331
-#: src/window_content/object_actions.rs:337
-msgid "This cannot be undone."
-msgstr "இதை செயல்தவிர்க்க முடியாது."
+#: src/window_content/object_actions.rs:332
+#, rust-format
+msgid ""
+"Delete table {name}?\n"
+"This cannot be undone."
+msgstr ""
 
-#: src/window_content/object_actions.rs:335
-#: src/window_content/object_actions.rs:346
-#: src/ui/components/table_browser/delete_row.rs:32
-msgid "Delete"
-msgstr "நீக்கு"
+#: src/window_content/object_actions.rs:334
+#, rust-format
+msgid ""
+"Delete view {name}?\n"
+"This cannot be undone."
+msgstr ""
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
 msgstr "துண்டி"
 
+#: src/window_content/object_actions.rs:346
+#: src/ui/components/table_browser/delete_row.rs:32
+msgid "Delete"
+msgstr "நீக்கு"
+
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
 msgstr "தரவுத்தள பொருள் மறுபெயரிடப்பட்டது."
 
-#: src/window_content/object_actions.rs:355
-msgid "Table truncated:"
-msgstr "அட்டவணை துண்டிக்கப்பட்டது:"
+#: src/window_content/object_actions.rs:354
+#, rust-format
+msgid "Table truncated: {table}"
+msgstr ""
 
-#: src/window_content/object_actions.rs:358
+#: src/window_content/object_actions.rs:356
 msgid "Database object deleted."
 msgstr "தரவுத்தள பொருள் நீக்கப்பட்டது."
 
-#: src/window_content/object_actions.rs:364
-#: src/window_content/structure_actions.rs:383
+#: src/window_content/object_actions.rs:362
+#: src/window_content/structure_actions.rs:398
 msgid "Renaming failed"
 msgstr "மறுபெயரிடுவதில் தோல்வி"
 
-#: src/window_content/object_actions.rs:365
+#: src/window_content/object_actions.rs:363
 msgid "Truncating failed"
 msgstr "துண்டிக்க முடியவில்லை"
 
-#: src/window_content/object_actions.rs:366
+#: src/window_content/object_actions.rs:364
 msgid "Deleting failed"
 msgstr "நீக்குவது தோல்வியடைந்தது"
 
-#: src/window_content/object_actions.rs:381
+#: src/window_content/object_actions.rs:379
 #: src/window_content/structure_actions.rs:295
 msgid "Enter a valid object name."
 msgstr "சரியான பொருளின் பெயரை உள்ளிடவும்."
@@ -334,60 +345,147 @@ msgid "Choose a new name for this structure item."
 msgstr "இந்த கட்டமைப்பு உருப்படிக்கு புதிய பெயரைத் தேர்வு செய்யவும்."
 
 #: src/window_content/structure_actions.rs:145
-#: src/window_content/structure_actions.rs:340
-#: src/window_content/structure_actions.rs:346
 msgid "Drop"
 msgstr "கைவிடு"
 
-#: src/window_content/structure_actions.rs:349
-msgid "from table"
-msgstr "அட்டவணையில் இருந்து"
+#: src/window_content/structure_actions.rs:333
+msgid "Rename column"
+msgstr ""
 
-#: src/window_content/structure_actions.rs:360
-msgid "renamed."
-msgstr "மறுபெயரிடப்பட்டது."
+#: src/window_content/structure_actions.rs:334
+msgid "Rename index"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:335
+msgid "Rename constraint"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:336
+msgid "Rename foreign key"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:337
+msgid "Rename trigger"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:343
+msgid "Drop column"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:344
+msgid "Drop index"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:345
+msgid "Drop constraint"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:346
+msgid "Drop foreign key"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:347
+msgid "Drop trigger"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:353
+#, rust-format
+msgid "Drop column {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:354
+#, rust-format
+msgid "Drop index {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:355
+#, rust-format
+msgid "Drop constraint {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:356
+#, rust-format
+msgid "Drop foreign key {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:357
+#, rust-format
+msgid "Drop trigger {name} from table {table}?"
+msgstr ""
 
 #: src/window_content/structure_actions.rs:368
-msgid "dropped with CASCADE."
-msgstr "ஓடையிணைப்பு உடன் கைவிடப்பட்டது."
+msgid "Column renamed."
+msgstr ""
 
-#: src/window_content/structure_actions.rs:375
-msgid "dropped."
-msgstr "கைவிடப்பட்டது."
+#: src/window_content/structure_actions.rs:369
+msgid "Index renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:370
+msgid "Constraint renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:371
+msgid "Foreign key renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:372
+msgid "Trigger renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:377
+msgid "Column dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:378
+msgid "Index dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:379
+msgid "Constraint dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:380
+msgid "Foreign key dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:381
+msgid "Trigger dropped with CASCADE."
+msgstr ""
 
 #: src/window_content/structure_actions.rs:386
+msgid "Column dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:387
+msgid "Index dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:388
+msgid "Constraint dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:389
+msgid "Foreign key dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:390
+msgid "Trigger dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:401
 msgid "Dropping with CASCADE failed"
 msgstr "ஓடையிணைப்பு உடன் கைவிட முடியவில்லை"
 
-#: src/window_content/structure_actions.rs:388
+#: src/window_content/structure_actions.rs:403
 msgid "Dropping failed"
 msgstr "கைவிடுவது தோல்வியடைந்தது"
 
-#: src/window_content/structure_actions.rs:396
-msgid "Column"
-msgstr "நெடுவரிசை"
-
-#: src/window_content/structure_actions.rs:397
-msgid "Index"
-msgstr "குறியெண்"
-
-#: src/window_content/structure_actions.rs:398
-msgid "Constraint"
-msgstr "கட்டுப்பாடு"
-
-#: src/window_content/structure_actions.rs:399
-msgid "Foreign key"
-msgstr "வெளி திறவு"
-
-#: src/window_content/structure_actions.rs:400
-msgid "Trigger"
-msgstr "தூண்டுதல்"
-
-#: src/window_content/structure_actions.rs:421
+#: src/window_content/structure_actions.rs:426
 msgid "Drop with CASCADE"
 msgstr "ஓடையிணைப்பு உடன் கைவிடவும்"
 
-#: src/window_content/structure_actions.rs:460
+#: src/window_content/structure_actions.rs:465
 msgid ""
 "This may also drop dependent views, constraints, indexes, or other database "
 "objects. This cannot be undone."
@@ -1567,6 +1665,42 @@ msgstr "கவனம் கவிமொ திருத்தி"
 msgctxt "shortcut window"
 msgid "Show Suggestions"
 msgstr ""
+
+#~ msgid "Remove all rows from"
+#~ msgstr "எல்லா வரிசைகளையும் அகற்று"
+
+#~ msgid "This cannot be undone."
+#~ msgstr "இதை செயல்தவிர்க்க முடியாது."
+
+#~ msgid "Table truncated:"
+#~ msgstr "அட்டவணை துண்டிக்கப்பட்டது:"
+
+#~ msgid "from table"
+#~ msgstr "அட்டவணையில் இருந்து"
+
+#~ msgid "renamed."
+#~ msgstr "மறுபெயரிடப்பட்டது."
+
+#~ msgid "dropped with CASCADE."
+#~ msgstr "ஓடையிணைப்பு உடன் கைவிடப்பட்டது."
+
+#~ msgid "dropped."
+#~ msgstr "கைவிடப்பட்டது."
+
+#~ msgid "Column"
+#~ msgstr "நெடுவரிசை"
+
+#~ msgid "Index"
+#~ msgstr "குறியெண்"
+
+#~ msgid "Constraint"
+#~ msgstr "கட்டுப்பாடு"
+
+#~ msgid "Foreign key"
+#~ msgstr "வெளி திறவு"
+
+#~ msgid "Trigger"
+#~ msgstr "தூண்டுதல்"
 
 #~ msgid "row"
 #~ msgid_plural "rows"

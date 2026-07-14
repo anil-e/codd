@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-13 14:26+0200\n"
+"POT-Creation-Date: 2026-07-14 07:51+0200\n"
 "PO-Revision-Date: 2026-07-06 08:01+0000\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/codd/ui/fi/>\n"
@@ -133,7 +133,7 @@ msgstr ""
 msgid "Export failed"
 msgstr "Vienti epäonnistui"
 
-#: src/window_content.rs:1684 src/window_content/structure_actions.rs:418
+#: src/window_content.rs:1684 src/window_content/structure_actions.rs:423
 #: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:1214
 msgid "Close"
@@ -216,7 +216,6 @@ msgstr "Peru"
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
 #: src/window_content/structure_actions.rs:89
-#: src/window_content/structure_actions.rs:334
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
 msgstr "Nimeä uudelleen"
@@ -257,51 +256,63 @@ msgstr "Poista taulu"
 msgid "Delete View"
 msgstr "Poista näkymä"
 
-#: src/window_content/object_actions.rs:329
-msgid "Remove all rows from"
+#: src/window_content/object_actions.rs:327
+#, rust-format
+msgid ""
+"Remove all rows from {table}?\n"
+"This cannot be undone."
 msgstr ""
 
-#: src/window_content/object_actions.rs:331
-#: src/window_content/object_actions.rs:337
-msgid "This cannot be undone."
+#: src/window_content/object_actions.rs:332
+#, rust-format
+msgid ""
+"Delete table {name}?\n"
+"This cannot be undone."
 msgstr ""
 
-#: src/window_content/object_actions.rs:335
-#: src/window_content/object_actions.rs:346
-#: src/ui/components/table_browser/delete_row.rs:32
-msgid "Delete"
-msgstr "Poista"
+#: src/window_content/object_actions.rs:334
+#, rust-format
+msgid ""
+"Delete view {name}?\n"
+"This cannot be undone."
+msgstr ""
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
 msgstr ""
 
+#: src/window_content/object_actions.rs:346
+#: src/ui/components/table_browser/delete_row.rs:32
+msgid "Delete"
+msgstr "Poista"
+
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
 msgstr "Tietokantaobjekti nimetty uudelleen."
 
-#: src/window_content/object_actions.rs:355
-msgid "Table truncated:"
+#: src/window_content/object_actions.rs:354
+#, rust-format
+msgid "Table truncated: {table}"
 msgstr ""
 
-#: src/window_content/object_actions.rs:358
+#: src/window_content/object_actions.rs:356
 msgid "Database object deleted."
 msgstr "Tietokantaobjekti poistettu."
 
-#: src/window_content/object_actions.rs:364
-#: src/window_content/structure_actions.rs:383
+#: src/window_content/object_actions.rs:362
+#: src/window_content/structure_actions.rs:398
 msgid "Renaming failed"
 msgstr "Nimeäminen uudelleen epäonnistui"
 
-#: src/window_content/object_actions.rs:365
+#: src/window_content/object_actions.rs:363
 msgid "Truncating failed"
 msgstr ""
 
-#: src/window_content/object_actions.rs:366
+#: src/window_content/object_actions.rs:364
 msgid "Deleting failed"
 msgstr "Poistaminen epäonnistui"
 
-#: src/window_content/object_actions.rs:381
+#: src/window_content/object_actions.rs:379
 #: src/window_content/structure_actions.rs:295
 msgid "Enter a valid object name."
 msgstr "Kirjoita kelvollinen objektin nimi."
@@ -331,60 +342,147 @@ msgid "Choose a new name for this structure item."
 msgstr ""
 
 #: src/window_content/structure_actions.rs:145
-#: src/window_content/structure_actions.rs:340
-#: src/window_content/structure_actions.rs:346
 msgid "Drop"
 msgstr "Pudota"
 
-#: src/window_content/structure_actions.rs:349
-msgid "from table"
+#: src/window_content/structure_actions.rs:333
+msgid "Rename column"
 msgstr ""
 
-#: src/window_content/structure_actions.rs:360
-msgid "renamed."
+#: src/window_content/structure_actions.rs:334
+msgid "Rename index"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:335
+msgid "Rename constraint"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:336
+msgid "Rename foreign key"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:337
+msgid "Rename trigger"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:343
+msgid "Drop column"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:344
+msgid "Drop index"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:345
+msgid "Drop constraint"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:346
+msgid "Drop foreign key"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:347
+msgid "Drop trigger"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:353
+#, rust-format
+msgid "Drop column {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:354
+#, rust-format
+msgid "Drop index {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:355
+#, rust-format
+msgid "Drop constraint {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:356
+#, rust-format
+msgid "Drop foreign key {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:357
+#, rust-format
+msgid "Drop trigger {name} from table {table}?"
 msgstr ""
 
 #: src/window_content/structure_actions.rs:368
-msgid "dropped with CASCADE."
+msgid "Column renamed."
 msgstr ""
 
-#: src/window_content/structure_actions.rs:375
-msgid "dropped."
+#: src/window_content/structure_actions.rs:369
+msgid "Index renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:370
+msgid "Constraint renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:371
+msgid "Foreign key renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:372
+msgid "Trigger renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:377
+msgid "Column dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:378
+msgid "Index dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:379
+msgid "Constraint dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:380
+msgid "Foreign key dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:381
+msgid "Trigger dropped with CASCADE."
 msgstr ""
 
 #: src/window_content/structure_actions.rs:386
-msgid "Dropping with CASCADE failed"
+msgid "Column dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:387
+msgid "Index dropped."
 msgstr ""
 
 #: src/window_content/structure_actions.rs:388
+msgid "Constraint dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:389
+msgid "Foreign key dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:390
+msgid "Trigger dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:401
+msgid "Dropping with CASCADE failed"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:403
 msgid "Dropping failed"
 msgstr ""
 
-#: src/window_content/structure_actions.rs:396
-msgid "Column"
-msgstr "Sarake"
-
-#: src/window_content/structure_actions.rs:397
-msgid "Index"
-msgstr "Indeksi"
-
-#: src/window_content/structure_actions.rs:398
-msgid "Constraint"
-msgstr "Rajoite"
-
-#: src/window_content/structure_actions.rs:399
-msgid "Foreign key"
-msgstr "Viiteavain"
-
-#: src/window_content/structure_actions.rs:400
-msgid "Trigger"
-msgstr "Liipaisin"
-
-#: src/window_content/structure_actions.rs:421
+#: src/window_content/structure_actions.rs:426
 msgid "Drop with CASCADE"
 msgstr ""
 
-#: src/window_content/structure_actions.rs:460
+#: src/window_content/structure_actions.rs:465
 msgid ""
 "This may also drop dependent views, constraints, indexes, or other database "
 "objects. This cannot be undone."
@@ -1541,6 +1639,21 @@ msgstr "Kohdista SQL-muokkaimeen"
 msgctxt "shortcut window"
 msgid "Show Suggestions"
 msgstr "Näytä ehdotukset"
+
+#~ msgid "Column"
+#~ msgstr "Sarake"
+
+#~ msgid "Index"
+#~ msgstr "Indeksi"
+
+#~ msgid "Constraint"
+#~ msgstr "Rajoite"
+
+#~ msgid "Foreign key"
+#~ msgstr "Viiteavain"
+
+#~ msgid "Trigger"
+#~ msgstr "Liipaisin"
 
 #~ msgid "row"
 #~ msgid_plural "rows"
