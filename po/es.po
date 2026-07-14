@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-14 07:51+0200\n"
-"PO-Revision-Date: 2026-07-13 14:09+0000\n"
+"PO-Revision-Date: 2026-07-15 09:01+0000\n"
 "Last-Translator: Francisco Vásquez Cuevas <fvasquez@fvtronics.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/codd/ui/es/>\n"
 "Language: es\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -273,6 +273,8 @@ msgid ""
 "Remove all rows from {table}?\n"
 "This cannot be undone."
 msgstr ""
+"Eliminar todas las filas de {table}?\n"
+"Esto no se puede deshacer."
 
 #: src/window_content/object_actions.rs:332
 #, rust-format
@@ -280,6 +282,8 @@ msgid ""
 "Delete table {name}?\n"
 "This cannot be undone."
 msgstr ""
+"Eliminar tabla {name}?\n"
+"Esto no se puede deshacer."
 
 #: src/window_content/object_actions.rs:334
 #, rust-format
@@ -287,6 +291,8 @@ msgid ""
 "Delete view {name}?\n"
 "This cannot be undone."
 msgstr ""
+"Eliminar vista {name}?\n"
+"Esto no se puede deshacer."
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
@@ -304,7 +310,7 @@ msgstr "Objeto de base de datos renombrado."
 #: src/window_content/object_actions.rs:354
 #, rust-format
 msgid "Table truncated: {table}"
-msgstr ""
+msgstr "Tabla truncada: {table}"
 
 #: src/window_content/object_actions.rs:356
 msgid "Database object deleted."
@@ -358,128 +364,128 @@ msgstr "Eliminar"
 
 #: src/window_content/structure_actions.rs:333
 msgid "Rename column"
-msgstr ""
+msgstr "Renombrar columna"
 
 #: src/window_content/structure_actions.rs:334
 msgid "Rename index"
-msgstr ""
+msgstr "Renombrar índice"
 
 #: src/window_content/structure_actions.rs:335
 msgid "Rename constraint"
-msgstr ""
+msgstr "Renombrar restricción"
 
 #: src/window_content/structure_actions.rs:336
 msgid "Rename foreign key"
-msgstr ""
+msgstr "Renombrar clave foránea"
 
 #: src/window_content/structure_actions.rs:337
 msgid "Rename trigger"
-msgstr ""
+msgstr "Renombrar disparador"
 
 #: src/window_content/structure_actions.rs:343
 msgid "Drop column"
-msgstr ""
+msgstr "Eliminar columna"
 
 #: src/window_content/structure_actions.rs:344
 msgid "Drop index"
-msgstr ""
+msgstr "Eliminar índice"
 
 #: src/window_content/structure_actions.rs:345
 msgid "Drop constraint"
-msgstr ""
+msgstr "Eliminar restricción"
 
 #: src/window_content/structure_actions.rs:346
 msgid "Drop foreign key"
-msgstr ""
+msgstr "Eliminar clave foránea"
 
 #: src/window_content/structure_actions.rs:347
 msgid "Drop trigger"
-msgstr ""
+msgstr "Eliminar disparador"
 
 #: src/window_content/structure_actions.rs:353
 #, rust-format
 msgid "Drop column {name} from table {table}?"
-msgstr ""
+msgstr "¿Eliminar columna {name} de la tabla {table}?"
 
 #: src/window_content/structure_actions.rs:354
 #, rust-format
 msgid "Drop index {name} from table {table}?"
-msgstr ""
+msgstr "¿Eliminar índice {name} de la tabla {table}?"
 
 #: src/window_content/structure_actions.rs:355
 #, rust-format
 msgid "Drop constraint {name} from table {table}?"
-msgstr ""
+msgstr "¿Eliminar restricción {name} de la tabla {table}?"
 
 #: src/window_content/structure_actions.rs:356
 #, rust-format
 msgid "Drop foreign key {name} from table {table}?"
-msgstr ""
+msgstr "¿Eliminar clave foránea {name} de la tabla {table}?"
 
 #: src/window_content/structure_actions.rs:357
 #, rust-format
 msgid "Drop trigger {name} from table {table}?"
-msgstr ""
+msgstr "¿Eliminar disparador {name} de la tabla {table}?"
 
 #: src/window_content/structure_actions.rs:368
 msgid "Column renamed."
-msgstr ""
+msgstr "Columna renombrada."
 
 #: src/window_content/structure_actions.rs:369
 msgid "Index renamed."
-msgstr ""
+msgstr "Índice renombrado."
 
 #: src/window_content/structure_actions.rs:370
 msgid "Constraint renamed."
-msgstr ""
+msgstr "Restricción renombrada."
 
 #: src/window_content/structure_actions.rs:371
 msgid "Foreign key renamed."
-msgstr ""
+msgstr "Clave foránea renombrada."
 
 #: src/window_content/structure_actions.rs:372
 msgid "Trigger renamed."
-msgstr ""
+msgstr "Disparador renombrado."
 
 #: src/window_content/structure_actions.rs:377
 msgid "Column dropped with CASCADE."
-msgstr ""
+msgstr "Columna eliminada con CASCADE."
 
 #: src/window_content/structure_actions.rs:378
 msgid "Index dropped with CASCADE."
-msgstr ""
+msgstr "Índice eliminado con CASCADE."
 
 #: src/window_content/structure_actions.rs:379
 msgid "Constraint dropped with CASCADE."
-msgstr ""
+msgstr "Restricción eliminada con CASCADE."
 
 #: src/window_content/structure_actions.rs:380
 msgid "Foreign key dropped with CASCADE."
-msgstr ""
+msgstr "Clave foránea eliminada con CASCADE."
 
 #: src/window_content/structure_actions.rs:381
 msgid "Trigger dropped with CASCADE."
-msgstr ""
+msgstr "Disparador eliminado con CASCADE."
 
 #: src/window_content/structure_actions.rs:386
 msgid "Column dropped."
-msgstr ""
+msgstr "Columna eliminada."
 
 #: src/window_content/structure_actions.rs:387
 msgid "Index dropped."
-msgstr ""
+msgstr "Índice eliminado."
 
 #: src/window_content/structure_actions.rs:388
 msgid "Constraint dropped."
-msgstr ""
+msgstr "Restricción eliminada."
 
 #: src/window_content/structure_actions.rs:389
 msgid "Foreign key dropped."
-msgstr ""
+msgstr "Clave foránea eliminada."
 
 #: src/window_content/structure_actions.rs:390
 msgid "Trigger dropped."
-msgstr ""
+msgstr "Disparador eliminado."
 
 #: src/window_content/structure_actions.rs:401
 msgid "Dropping with CASCADE failed"
