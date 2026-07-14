@@ -324,18 +324,18 @@ fn object_action_heading(action: ObjectAction, object: &DatabaseObject) -> Strin
 fn object_action_body(action: ObjectAction, object: &DatabaseObject) -> String {
     match action {
         ObjectAction::Rename => String::new(),
-        ObjectAction::Truncate => format!(
-            "{} {}?\n{}",
-            gettext("Remove all rows from"),
-            object.qualified_name(),
-            gettext("This cannot be undone.")
-        ),
-        ObjectAction::Delete => format!(
-            "{} {}?\n{}",
-            gettext("Delete"),
-            object.qualified_name(),
-            gettext("This cannot be undone.")
-        ),
+        ObjectAction::Truncate => gettext("Remove all rows from {table}?\nThis cannot be undone.")
+            .replace("{table}", &object.qualified_name()),
+        ObjectAction::Delete => {
+            let message = match object.kind {
+                DatabaseObjectKind::Table => {
+                    gettext("Delete table {name}?\nThis cannot be undone.")
+                }
+                DatabaseObjectKind::View => gettext("Delete view {name}?\nThis cannot be undone."),
+            };
+
+            message.replace("{name}", &object.qualified_name())
+        }
     }
 }
 
@@ -350,11 +350,9 @@ fn object_action_confirm_label(action: ObjectAction) -> String {
 fn object_action_success_message(action: ObjectAction, object: &DatabaseObject) -> String {
     match action {
         ObjectAction::Rename => gettext("Database object renamed."),
-        ObjectAction::Truncate => format!(
-            "{} {}",
-            gettext("Table truncated:"),
-            object.qualified_name()
-        ),
+        ObjectAction::Truncate => {
+            gettext("Table truncated: {table}").replace("{table}", &object.qualified_name())
+        }
         ObjectAction::Delete => gettext("Database object deleted."),
     }
 }

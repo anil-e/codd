@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-14 07:38+0200\n"
+"POT-Creation-Date: 2026-07-14 07:51+0200\n"
 "PO-Revision-Date: 2026-06-15 18:38+0000\n"
 "Last-Translator: Anil Erdogan <a.erdogan@termitel.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/codd/ui/de/>\n"
@@ -261,51 +261,69 @@ msgstr "DROP TABLE"
 msgid "Delete View"
 msgstr "DROP VIEW"
 
-#: src/window_content/object_actions.rs:329
-msgid "Remove all rows from"
-msgstr "Alle Zeilen entfernen aus"
+#: src/window_content/object_actions.rs:327
+#, rust-format
+msgid ""
+"Remove all rows from {table}?\n"
+"This cannot be undone."
+msgstr ""
+"Alle Zeilen aus {table} entfernen?\n"
+"Dies kann nicht rückgängig gemacht werden."
 
-#: src/window_content/object_actions.rs:331
-#: src/window_content/object_actions.rs:337
-msgid "This cannot be undone."
-msgstr "Dies kann nicht rückgängig gemacht werden."
+#: src/window_content/object_actions.rs:332
+#, rust-format
+msgid ""
+"Delete table {name}?\n"
+"This cannot be undone."
+msgstr ""
+"Table {name} löschen?\n"
+"Dies kann nicht rückgängig gemacht werden."
 
-#: src/window_content/object_actions.rs:335
-#: src/window_content/object_actions.rs:346
-#: src/ui/components/table_browser/delete_row.rs:32
-msgid "Delete"
-msgstr "DROP"
+#: src/window_content/object_actions.rs:334
+#, rust-format
+msgid ""
+"Delete view {name}?\n"
+"This cannot be undone."
+msgstr ""
+"View {name} löschen?\n"
+"Dies kann nicht rückgängig gemacht werden."
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
 msgstr "TRUNCATE"
 
+#: src/window_content/object_actions.rs:346
+#: src/ui/components/table_browser/delete_row.rs:32
+msgid "Delete"
+msgstr "DROP"
+
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
 msgstr "Datenbankobjekt umbenannt."
 
-#: src/window_content/object_actions.rs:355
-msgid "Table truncated:"
-msgstr "Table geleert:"
+#: src/window_content/object_actions.rs:354
+#, rust-format
+msgid "Table truncated: {table}"
+msgstr "Table geleert: {table}"
 
-#: src/window_content/object_actions.rs:358
+#: src/window_content/object_actions.rs:356
 msgid "Database object deleted."
 msgstr "Datenbankobjekt gelöscht."
 
-#: src/window_content/object_actions.rs:364
+#: src/window_content/object_actions.rs:362
 #: src/window_content/structure_actions.rs:398
 msgid "Renaming failed"
 msgstr "Umbenennen fehlgeschlagen"
 
-#: src/window_content/object_actions.rs:365
+#: src/window_content/object_actions.rs:363
 msgid "Truncating failed"
 msgstr "Leeren fehlgeschlagen"
 
-#: src/window_content/object_actions.rs:366
+#: src/window_content/object_actions.rs:364
 msgid "Deleting failed"
 msgstr "Löschen fehlgeschlagen"
 
-#: src/window_content/object_actions.rs:381
+#: src/window_content/object_actions.rs:379
 #: src/window_content/structure_actions.rs:295
 msgid "Enter a valid object name."
 msgstr "Geben Sie einen gültigen Objektnamen ein."
@@ -1658,6 +1676,9 @@ msgstr "SQL-Editor fokussieren"
 msgctxt "shortcut window"
 msgid "Show Suggestions"
 msgstr ""
+
+#~ msgid "Remove all rows from"
+#~ msgstr "Alle Zeilen entfernen aus"
 
 #~ msgid "from table"
 #~ msgstr "aus Tabelle"

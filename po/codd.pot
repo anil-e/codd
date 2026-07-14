@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-14 07:38+0200\n"
+"POT-Creation-Date: 2026-07-14 07:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -256,51 +256,63 @@ msgstr ""
 msgid "Delete View"
 msgstr ""
 
-#: src/window_content/object_actions.rs:329
-msgid "Remove all rows from"
+#: src/window_content/object_actions.rs:327
+#, rust-format
+msgid ""
+"Remove all rows from {table}?\n"
+"This cannot be undone."
 msgstr ""
 
-#: src/window_content/object_actions.rs:331
-#: src/window_content/object_actions.rs:337
-msgid "This cannot be undone."
+#: src/window_content/object_actions.rs:332
+#, rust-format
+msgid ""
+"Delete table {name}?\n"
+"This cannot be undone."
 msgstr ""
 
-#: src/window_content/object_actions.rs:335
-#: src/window_content/object_actions.rs:346
-#: src/ui/components/table_browser/delete_row.rs:32
-msgid "Delete"
+#: src/window_content/object_actions.rs:334
+#, rust-format
+msgid ""
+"Delete view {name}?\n"
+"This cannot be undone."
 msgstr ""
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
 msgstr ""
 
+#: src/window_content/object_actions.rs:346
+#: src/ui/components/table_browser/delete_row.rs:32
+msgid "Delete"
+msgstr ""
+
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
 msgstr ""
 
-#: src/window_content/object_actions.rs:355
-msgid "Table truncated:"
+#: src/window_content/object_actions.rs:354
+#, rust-format
+msgid "Table truncated: {table}"
 msgstr ""
 
-#: src/window_content/object_actions.rs:358
+#: src/window_content/object_actions.rs:356
 msgid "Database object deleted."
 msgstr ""
 
-#: src/window_content/object_actions.rs:364
+#: src/window_content/object_actions.rs:362
 #: src/window_content/structure_actions.rs:398
 msgid "Renaming failed"
 msgstr ""
 
-#: src/window_content/object_actions.rs:365
+#: src/window_content/object_actions.rs:363
 msgid "Truncating failed"
 msgstr ""
 
-#: src/window_content/object_actions.rs:366
+#: src/window_content/object_actions.rs:364
 msgid "Deleting failed"
 msgstr ""
 
-#: src/window_content/object_actions.rs:381
+#: src/window_content/object_actions.rs:379
 #: src/window_content/structure_actions.rs:295
 msgid "Enter a valid object name."
 msgstr ""
