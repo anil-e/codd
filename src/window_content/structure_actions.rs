@@ -329,51 +329,66 @@ fn normalize_structure_action_request(
 }
 
 fn rename_heading(target: &StructureActionTarget) -> String {
-    format!(
-        "{} {}",
-        gettext("Rename"),
-        structure_kind_label(target.kind)
-    )
+    match target.kind {
+        StructureActionKind::Column => gettext("Rename column"),
+        StructureActionKind::Index => gettext("Rename index"),
+        StructureActionKind::Constraint => gettext("Rename constraint"),
+        StructureActionKind::ForeignKey => gettext("Rename foreign key"),
+        StructureActionKind::Trigger => gettext("Rename trigger"),
+    }
 }
 
 fn drop_heading(target: &StructureActionTarget) -> String {
-    format!("{} {}", gettext("Drop"), structure_kind_label(target.kind))
+    match target.kind {
+        StructureActionKind::Column => gettext("Drop column"),
+        StructureActionKind::Index => gettext("Drop index"),
+        StructureActionKind::Constraint => gettext("Drop constraint"),
+        StructureActionKind::ForeignKey => gettext("Drop foreign key"),
+        StructureActionKind::Trigger => gettext("Drop trigger"),
+    }
 }
 
 fn drop_body(target: &StructureActionTarget) -> String {
-    format!(
-        "{} {} {} {}?\n{}",
-        gettext("Drop"),
-        structure_kind_label(target.kind),
-        target.name,
-        gettext("from table"),
-        target.table.qualified_name()
-    )
+    let message = match target.kind {
+        StructureActionKind::Column => gettext("Drop column {name} from table {table}?"),
+        StructureActionKind::Index => gettext("Drop index {name} from table {table}?"),
+        StructureActionKind::Constraint => gettext("Drop constraint {name} from table {table}?"),
+        StructureActionKind::ForeignKey => gettext("Drop foreign key {name} from table {table}?"),
+        StructureActionKind::Trigger => gettext("Drop trigger {name} from table {table}?"),
+    };
+
+    message
+        .replace("{name}", &target.name)
+        .replace("{table}", &target.table.qualified_name())
 }
 
 fn structure_action_success_message(request: &StructureActionRequest) -> String {
     match request {
-        StructureActionRequest::Rename { target, .. } => {
-            format!(
-                "{} {}",
-                structure_kind_label(target.kind),
-                gettext("renamed.")
-            )
-        }
+        StructureActionRequest::Rename { target, .. } => match target.kind {
+            StructureActionKind::Column => gettext("Column renamed."),
+            StructureActionKind::Index => gettext("Index renamed."),
+            StructureActionKind::Constraint => gettext("Constraint renamed."),
+            StructureActionKind::ForeignKey => gettext("Foreign key renamed."),
+            StructureActionKind::Trigger => gettext("Trigger renamed."),
+        },
         StructureActionRequest::Drop { target, mode, .. } => {
             if *mode == StructureDropMode::Cascade {
-                return format!(
-                    "{} {}",
-                    structure_kind_label(target.kind),
-                    gettext("dropped with CASCADE.")
-                );
+                return match target.kind {
+                    StructureActionKind::Column => gettext("Column dropped with CASCADE."),
+                    StructureActionKind::Index => gettext("Index dropped with CASCADE."),
+                    StructureActionKind::Constraint => gettext("Constraint dropped with CASCADE."),
+                    StructureActionKind::ForeignKey => gettext("Foreign key dropped with CASCADE."),
+                    StructureActionKind::Trigger => gettext("Trigger dropped with CASCADE."),
+                };
             }
 
-            format!(
-                "{} {}",
-                structure_kind_label(target.kind),
-                gettext("dropped.")
-            )
+            match target.kind {
+                StructureActionKind::Column => gettext("Column dropped."),
+                StructureActionKind::Index => gettext("Index dropped."),
+                StructureActionKind::Constraint => gettext("Constraint dropped."),
+                StructureActionKind::ForeignKey => gettext("Foreign key dropped."),
+                StructureActionKind::Trigger => gettext("Trigger dropped."),
+            }
         }
     }
 }
@@ -388,16 +403,6 @@ fn structure_action_failure_message(request: &StructureActionRequest) -> String 
                 gettext("Dropping failed")
             }
         }
-    }
-}
-
-fn structure_kind_label(kind: StructureActionKind) -> String {
-    match kind {
-        StructureActionKind::Column => gettext("Column"),
-        StructureActionKind::Index => gettext("Index"),
-        StructureActionKind::Constraint => gettext("Constraint"),
-        StructureActionKind::ForeignKey => gettext("Foreign key"),
-        StructureActionKind::Trigger => gettext("Trigger"),
     }
 }
 

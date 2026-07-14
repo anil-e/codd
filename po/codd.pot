@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-13 14:26+0200\n"
+"POT-Creation-Date: 2026-07-14 07:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -133,7 +133,7 @@ msgstr ""
 msgid "Export failed"
 msgstr ""
 
-#: src/window_content.rs:1684 src/window_content/structure_actions.rs:418
+#: src/window_content.rs:1684 src/window_content/structure_actions.rs:423
 #: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:504
 #: src/ui/components/table_browser.rs:1214
 msgid "Close"
@@ -216,7 +216,6 @@ msgstr ""
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
 #: src/window_content/structure_actions.rs:89
-#: src/window_content/structure_actions.rs:334
 #: src/ui/components/start_screen.rs:321
 msgid "Rename"
 msgstr ""
@@ -289,7 +288,7 @@ msgid "Database object deleted."
 msgstr ""
 
 #: src/window_content/object_actions.rs:364
-#: src/window_content/structure_actions.rs:383
+#: src/window_content/structure_actions.rs:398
 msgid "Renaming failed"
 msgstr ""
 
@@ -331,60 +330,147 @@ msgid "Choose a new name for this structure item."
 msgstr ""
 
 #: src/window_content/structure_actions.rs:145
-#: src/window_content/structure_actions.rs:340
-#: src/window_content/structure_actions.rs:346
 msgid "Drop"
 msgstr ""
 
-#: src/window_content/structure_actions.rs:349
-msgid "from table"
+#: src/window_content/structure_actions.rs:333
+msgid "Rename column"
 msgstr ""
 
-#: src/window_content/structure_actions.rs:360
-msgid "renamed."
+#: src/window_content/structure_actions.rs:334
+msgid "Rename index"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:335
+msgid "Rename constraint"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:336
+msgid "Rename foreign key"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:337
+msgid "Rename trigger"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:343
+msgid "Drop column"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:344
+msgid "Drop index"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:345
+msgid "Drop constraint"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:346
+msgid "Drop foreign key"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:347
+msgid "Drop trigger"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:353
+#, rust-format
+msgid "Drop column {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:354
+#, rust-format
+msgid "Drop index {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:355
+#, rust-format
+msgid "Drop constraint {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:356
+#, rust-format
+msgid "Drop foreign key {name} from table {table}?"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:357
+#, rust-format
+msgid "Drop trigger {name} from table {table}?"
 msgstr ""
 
 #: src/window_content/structure_actions.rs:368
-msgid "dropped with CASCADE."
+msgid "Column renamed."
 msgstr ""
 
-#: src/window_content/structure_actions.rs:375
-msgid "dropped."
+#: src/window_content/structure_actions.rs:369
+msgid "Index renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:370
+msgid "Constraint renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:371
+msgid "Foreign key renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:372
+msgid "Trigger renamed."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:377
+msgid "Column dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:378
+msgid "Index dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:379
+msgid "Constraint dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:380
+msgid "Foreign key dropped with CASCADE."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:381
+msgid "Trigger dropped with CASCADE."
 msgstr ""
 
 #: src/window_content/structure_actions.rs:386
-msgid "Dropping with CASCADE failed"
+msgid "Column dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:387
+msgid "Index dropped."
 msgstr ""
 
 #: src/window_content/structure_actions.rs:388
+msgid "Constraint dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:389
+msgid "Foreign key dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:390
+msgid "Trigger dropped."
+msgstr ""
+
+#: src/window_content/structure_actions.rs:401
+msgid "Dropping with CASCADE failed"
+msgstr ""
+
+#: src/window_content/structure_actions.rs:403
 msgid "Dropping failed"
 msgstr ""
 
-#: src/window_content/structure_actions.rs:396
-msgid "Column"
-msgstr ""
-
-#: src/window_content/structure_actions.rs:397
-msgid "Index"
-msgstr ""
-
-#: src/window_content/structure_actions.rs:398
-msgid "Constraint"
-msgstr ""
-
-#: src/window_content/structure_actions.rs:399
-msgid "Foreign key"
-msgstr ""
-
-#: src/window_content/structure_actions.rs:400
-msgid "Trigger"
-msgstr ""
-
-#: src/window_content/structure_actions.rs:421
+#: src/window_content/structure_actions.rs:426
 msgid "Drop with CASCADE"
 msgstr ""
 
-#: src/window_content/structure_actions.rs:460
+#: src/window_content/structure_actions.rs:465
 msgid ""
 "This may also drop dependent views, constraints, indexes, or other database "
 "objects. This cannot be undone."
