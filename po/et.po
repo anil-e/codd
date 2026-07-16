@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-14 07:51+0200\n"
-"PO-Revision-Date: 2026-07-14 05:39+0000\n"
+"PO-Revision-Date: 2026-07-15 09:01+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -232,14 +232,18 @@ msgstr "Käivita identiteet uuesti"
 #: src/window_content/object_actions.rs:151
 msgid "Reset sequences owned by columns of the truncated table."
 msgstr ""
+"Lähtestab järjestusloendurid, mida kasutavad „TRUNCATE“ käsuga tühjendatava "
+"tabeli veerud."
 
 #: src/window_content/object_actions.rs:156
 msgid "Cascade"
-msgstr ""
+msgstr "Kustuta „CASCADE“ lisatingimusega"
 
 #: src/window_content/object_actions.rs:158
 msgid "Also truncate tables that have foreign-key references to this table."
 msgstr ""
+"„TRUNCATE“ käsuga tühjendad ka tabelid, kus on välisvõtme põhine viide siia "
+"tabelisse."
 
 #: src/window_content/object_actions.rs:313
 msgid "Rename Table"
@@ -267,6 +271,8 @@ msgid ""
 "Remove all rows from {table}?\n"
 "This cannot be undone."
 msgstr ""
+"Kas kustutad kõik read tabelist „{table}“?\n"
+"Seda tegevust ei saa tagasi pöörata."
 
 #: src/window_content/object_actions.rs:332
 #, rust-format
@@ -274,6 +280,8 @@ msgid ""
 "Delete table {name}?\n"
 "This cannot be undone."
 msgstr ""
+"Kas kustutad tabeli „{name}“?\n"
+"Seda tegevust ei saa tagasi pöörata."
 
 #: src/window_content/object_actions.rs:334
 #, rust-format
@@ -281,6 +289,8 @@ msgid ""
 "Delete view {name}?\n"
 "This cannot be undone."
 msgstr ""
+"Kas kustutad vaate „{name}“?\n"
+"Seda tegevust ei saa tagasi pöörata."
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
@@ -298,7 +308,7 @@ msgstr "Andmebaasiobjekti nimi on muudetud."
 #: src/window_content/object_actions.rs:354
 #, rust-format
 msgid "Table truncated: {table}"
-msgstr ""
+msgstr "„{table}“ tabel on tühjendatud"
 
 #: src/window_content/object_actions.rs:356
 msgid "Database object deleted."
@@ -348,150 +358,160 @@ msgstr "Sisesta selle struktuuriobjekti uus nimi."
 
 #: src/window_content/structure_actions.rs:145
 msgid "Drop"
-msgstr ""
+msgstr "Kustuta „DROP“ käsuga"
 
 #: src/window_content/structure_actions.rs:333
 msgid "Rename column"
-msgstr ""
+msgstr "Muuda veeru nime"
 
 #: src/window_content/structure_actions.rs:334
 msgid "Rename index"
-msgstr ""
+msgstr "Muuda indeksi nime"
 
 #: src/window_content/structure_actions.rs:335
 msgid "Rename constraint"
-msgstr ""
+msgstr "Muuda andmebaasipiirangu nime"
 
 #: src/window_content/structure_actions.rs:336
 msgid "Rename foreign key"
-msgstr ""
+msgstr "Muuda välisvõtme nime"
 
 #: src/window_content/structure_actions.rs:337
 msgid "Rename trigger"
-msgstr ""
+msgstr "Muuda andmebaasipäästiku nime"
 
 #: src/window_content/structure_actions.rs:343
 msgid "Drop column"
-msgstr ""
+msgstr "Kustuta „DROP“ käsu abil veerg"
 
 #: src/window_content/structure_actions.rs:344
 msgid "Drop index"
-msgstr ""
+msgstr "Kustuta „DROP“ käsu abil indeks"
 
 #: src/window_content/structure_actions.rs:345
 msgid "Drop constraint"
-msgstr ""
+msgstr "Kustuta „DROP“ käsu abil andmebaasipiirang"
 
 #: src/window_content/structure_actions.rs:346
 msgid "Drop foreign key"
-msgstr ""
+msgstr "Kustuta „DROP“ käsu abil välisvõti"
 
 #: src/window_content/structure_actions.rs:347
 msgid "Drop trigger"
-msgstr ""
+msgstr "Kustuta „DROP“ käsu abil andmebaasipäästik"
 
 #: src/window_content/structure_actions.rs:353
 #, rust-format
 msgid "Drop column {name} from table {table}?"
-msgstr ""
+msgstr "Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ veeru?"
 
 #: src/window_content/structure_actions.rs:354
 #, rust-format
 msgid "Drop index {name} from table {table}?"
-msgstr ""
+msgstr "Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ indeksi?"
 
 #: src/window_content/structure_actions.rs:355
 #, rust-format
 msgid "Drop constraint {name} from table {table}?"
 msgstr ""
+"Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ andmebaasipiirangu?"
 
 #: src/window_content/structure_actions.rs:356
 #, rust-format
 msgid "Drop foreign key {name} from table {table}?"
-msgstr ""
+msgstr "Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ välisvõtme?"
 
 #: src/window_content/structure_actions.rs:357
 #, rust-format
 msgid "Drop trigger {name} from table {table}?"
 msgstr ""
+"Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ andmebaasipäästiku?"
 
 #: src/window_content/structure_actions.rs:368
 msgid "Column renamed."
-msgstr ""
+msgstr "Veeru nimi on muudetud."
 
 #: src/window_content/structure_actions.rs:369
 msgid "Index renamed."
-msgstr ""
+msgstr "Indeksi nimi on muudetud."
 
 #: src/window_content/structure_actions.rs:370
 msgid "Constraint renamed."
-msgstr ""
+msgstr "Andmebaasipiirangu nimi on muudetud."
 
 #: src/window_content/structure_actions.rs:371
 msgid "Foreign key renamed."
-msgstr ""
+msgstr "Välisvõtme nimi on muudetud."
 
 #: src/window_content/structure_actions.rs:372
 msgid "Trigger renamed."
-msgstr ""
+msgstr "Andmbaasipäästiku nimi on muudetud."
 
 #: src/window_content/structure_actions.rs:377
 msgid "Column dropped with CASCADE."
-msgstr ""
+msgstr "Veerg on kustutatud „DROP“ käsuga kasutades „CASCADE“ lisatingimust."
 
 #: src/window_content/structure_actions.rs:378
 msgid "Index dropped with CASCADE."
-msgstr ""
+msgstr "Indeks on kustutatud „DROP“ käsuga kasutades „CASCADE“ lisatingimust."
 
 #: src/window_content/structure_actions.rs:379
 msgid "Constraint dropped with CASCADE."
 msgstr ""
+"Andmebaasipiirang on kustutatud „DROP“ käsuga kasutades „CASCADE“ "
+"lisatingimust."
 
 #: src/window_content/structure_actions.rs:380
 msgid "Foreign key dropped with CASCADE."
 msgstr ""
+"Välisvõti on kustutatud „DROP“ käsuga kasutades „CASCADE“ lisatingimust."
 
 #: src/window_content/structure_actions.rs:381
 msgid "Trigger dropped with CASCADE."
 msgstr ""
+"Andmebaasipäästik on kustutatud „DROP“ käsuga kasutades „CASCADE“ "
+"lisatingimust."
 
 #: src/window_content/structure_actions.rs:386
 msgid "Column dropped."
-msgstr ""
+msgstr "Veerg on kustutatud „DROP“ käsuga."
 
 #: src/window_content/structure_actions.rs:387
 msgid "Index dropped."
-msgstr ""
+msgstr "Indeks on kustutatud „DROP“ käsuga."
 
 #: src/window_content/structure_actions.rs:388
 msgid "Constraint dropped."
-msgstr ""
+msgstr "Andmebaasipiirang on kustutatud „DROP“ käsuga."
 
 #: src/window_content/structure_actions.rs:389
 msgid "Foreign key dropped."
-msgstr ""
+msgstr "Välisvõti on kustutatud „DROP“ käsuga."
 
 #: src/window_content/structure_actions.rs:390
 msgid "Trigger dropped."
-msgstr ""
+msgstr "Andmebaasipäästik on kustutatud „DROP“ käsuga."
 
 #: src/window_content/structure_actions.rs:401
 msgid "Dropping with CASCADE failed"
 msgstr ""
+"Kustutamine „DROP“ käsu abil kasutades „CASCADE“ lisatingimust ei õnnestunud"
 
 #: src/window_content/structure_actions.rs:403
 msgid "Dropping failed"
-msgstr ""
+msgstr "Kustutamine „DROP“ käsu abil ei õnnestunud"
 
 #: src/window_content/structure_actions.rs:426
 msgid "Drop with CASCADE"
-msgstr ""
+msgstr "Kustuta „DROP“ käsu abil kasutades „CASCADE“ lisatingimust"
 
 #: src/window_content/structure_actions.rs:465
 msgid ""
 "This may also drop dependent views, constraints, indexes, or other database "
 "objects. This cannot be undone."
 msgstr ""
+"Järgnevaga kustutatakse ka sõltuvad vaated, andmebaasipiirangud, indeksid ja "
+"muud andmebaasiobjektid. Seda tegevust ei saa tagasi pöörata."
 
 #: src/window_content/tabs.rs:60
 msgid "Close Other Tabs"
@@ -538,11 +558,11 @@ msgstr "Kasutajanimi on nõutav."
 #: src/models/completion.rs:119 src/models/completion.rs:244
 #: src/models/completion.rs:421 src/models/completion.rs:434
 msgid "Kind"
-msgstr ""
+msgstr "Objekti liik"
 
 #: src/models/completion.rs:121
 msgid "Signature"
-msgstr ""
+msgstr "Allkiri"
 
 #: src/models/completion.rs:167
 msgid "keyword"
@@ -855,7 +875,7 @@ msgstr "Muuda nime…"
 
 #: src/ui/components/sidebar.rs:538
 msgid "Truncate..."
-msgstr ""
+msgstr "Tühjenda sisu…"
 
 #: src/ui/components/sidebar.rs:541
 msgid "Delete..."
