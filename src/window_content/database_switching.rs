@@ -1,7 +1,6 @@
 use gettextrs::gettext;
 use libadwaita as adw;
 use relm4::prelude::*;
-use sqlx::PgPool;
 
 use crate::db;
 use crate::models::connection::SavedConnection;
@@ -87,7 +86,7 @@ impl WindowContent {
         &mut self,
         id: u64,
         database: String,
-        result: Result<PgPool, String>,
+        result: Result<db::postgres::PostgresConnection, String>,
         widgets: &mut WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
@@ -97,8 +96,8 @@ impl WindowContent {
 
         self.active_database_switch_request_id = None;
 
-        let pool = match result {
-            Ok(pool) => pool,
+        let postgres = match result {
+            Ok(postgres) => postgres,
             Err(error) => {
                 self.database_selector
                     .emit(DatabaseSelectorMsg::SetLoading(false));
@@ -111,8 +110,10 @@ impl WindowContent {
         };
 
         self.cancel_all_queries();
+        self.clear_browse_tabs(widgets);
         self.active_schema_request_id = None;
-        self.active_pool = Some(pool);
+        self.active_pool = Some(postgres.pool);
+        self.active_tunnel = postgres.tunnel;
         self.state.active_database = Some(database.clone());
         self.state.objects.clear();
         self.set_completion_catalog(crate::models::completion::CompletionCatalog::empty());

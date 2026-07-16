@@ -48,6 +48,7 @@ mod query_execution;
 mod structure_actions;
 mod tabs;
 
+use crate::db::ssh_tunnel::TunnelGuard;
 use object_actions::ObjectActionRequest;
 use query_execution::{QueryExecutionContext, QueryState, RunningQuery};
 use structure_actions::{StructureActionError, StructureActionRequest, StructureActionScope};
@@ -60,6 +61,7 @@ static NEXT_WINDOW_CONTENT_SUBSCRIPTION_ID: AtomicU64 = AtomicU64::new(0);
 pub struct WindowContent {
     state: AppState,
     active_pool: Option<PgPool>,
+    active_tunnel: Option<TunnelGuard>,
     active_connection_details: Option<ConnectionDetails>,
     connection_dialog: Option<Controller<ConnectionDialog>>,
     database_selector: Controller<DatabaseSelector>,
@@ -148,7 +150,7 @@ pub enum WindowContentMsg {
     DatabaseSwitchCompleted {
         id: u64,
         database: String,
-        result: Result<PgPool, String>,
+        result: Result<db::postgres::PostgresConnection, String>,
     },
     DatabaseSelectorOutput(DatabaseSelectorOutput),
     ConnectionDialogOutput(ConnectionDialogOutput),
@@ -218,7 +220,7 @@ pub enum WindowContentCommandOutput {
     DatabaseSwitched {
         id: u64,
         database: String,
-        result: Result<PgPool, String>,
+        result: Result<db::postgres::PostgresConnection, String>,
     },
     QueryExecuted {
         tab_id: u64,
@@ -405,6 +407,7 @@ impl Component for WindowContent {
                 ..AppState::default()
             },
             active_pool: None,
+            active_tunnel: None,
             active_connection_details: None,
             connection_dialog: None,
             database_selector,
@@ -756,10 +759,15 @@ impl Component for WindowContent {
             } => {
                 self.handle_database_switched(id, database, result, widgets, &sender);
             }
-            WindowContentMsg::ConnectionDialogOutput(ConnectionDialogOutput::Connected {
-                details,
-                pool,
-            }) => self.handle_connected(details, pool, widgets, &sender, root),
+            WindowContentMsg::ConnectionDialogOutput(ConnectionDialogOutput::Connected(
+                connected,
+            )) => self.handle_connected(
+                connected.details,
+                connected.connection,
+                widgets,
+                &sender,
+                root,
+            ),
             WindowContentMsg::ConnectionDialogOutput(ConnectionDialogOutput::Dismissed) => {
                 self.connection_dialog = None;
             }
@@ -983,15 +991,59 @@ fn copy_text_to_clipboard(text: &str) {
 
 async fn update_saved_password(details: ConnectionDetails) -> Result<(), String> {
     if details.saved.save_password {
-        if details.password.is_empty() {
-            return Ok(());
+        if !details.password.is_empty() {
+            credential_store::store_password(&details.saved, &details.password)
+                .await
+                .map_err(|error| error.to_string())?;
         }
-
-        credential_store::store_password(&details.saved, &details.password)
-            .await
-            .map_err(|error| error.to_string())?;
     } else {
         credential_store::delete_password(&details.saved.id)
+            .await
+            .map_err(|error| error.to_string())?;
+    }
+
+    let Some(config) = details.saved.ssh_tunnel.as_ref() else {
+        credential_store::delete_ssh_password(&details.saved.id)
+            .await
+            .map_err(|error| error.to_string())?;
+        credential_store::delete_ssh_key_passphrase(&details.saved.id)
+            .await
+            .map_err(|error| error.to_string())?;
+
+        return Ok(());
+    };
+
+    if config.save_secret {
+        match config.auth_method {
+            crate::models::connection::SshAuthMethod::Password => {
+                if !details.ssh_password.is_empty() {
+                    credential_store::store_ssh_password(&details.saved, &details.ssh_password)
+                        .await
+                        .map_err(|error| error.to_string())?;
+                }
+                credential_store::delete_ssh_key_passphrase(&details.saved.id)
+                    .await
+                    .map_err(|error| error.to_string())?;
+            }
+            crate::models::connection::SshAuthMethod::PrivateKey => {
+                if !details.ssh_key_passphrase.is_empty() {
+                    credential_store::store_ssh_key_passphrase(
+                        &details.saved,
+                        &details.ssh_key_passphrase,
+                    )
+                    .await
+                    .map_err(|error| error.to_string())?;
+                }
+                credential_store::delete_ssh_password(&details.saved.id)
+                    .await
+                    .map_err(|error| error.to_string())?;
+            }
+        }
+    } else {
+        credential_store::delete_ssh_password(&details.saved.id)
+            .await
+            .map_err(|error| error.to_string())?;
+        credential_store::delete_ssh_key_passphrase(&details.saved.id)
             .await
             .map_err(|error| error.to_string())?;
     }
@@ -1216,6 +1268,7 @@ impl WindowContent {
             .emit(DatabaseSelectorMsg::SetLoading(false));
 
         self.active_pool = None;
+        self.active_tunnel = None;
         self.active_connection_details = None;
         self.cancel_all_queries();
         self.active_schema_request_id = None;
@@ -1263,7 +1316,7 @@ impl WindowContent {
     fn handle_connected(
         &mut self,
         details: ConnectionDetails,
-        pool: PgPool,
+        postgres: db::postgres::PostgresConnection,
         widgets: &mut WindowContentWidgets,
         sender: &ComponentSender<Self>,
         root: &adw::ToolbarView,
@@ -1283,7 +1336,8 @@ impl WindowContent {
             });
         self.database_selector
             .emit(DatabaseSelectorMsg::SetLoading(true));
-        self.active_pool = Some(pool.clone());
+        self.active_pool = Some(postgres.pool.clone());
+        self.active_tunnel = postgres.tunnel;
         self.active_connection_details = Some(details.clone());
         self.connection_dialog = None;
         self.visible_page = VisiblePage::Workspace;
@@ -1326,6 +1380,11 @@ impl WindowContent {
         let database_list_request_id = self.allocate_database_list_request_id();
         self.active_database_list_request_id = Some(database_list_request_id);
 
+        let pool = self
+            .active_pool
+            .as_ref()
+            .expect("active pool to be set after connecting")
+            .clone();
         let database_pool = pool.clone();
         sender.oneshot_command(async move {
             WindowContentCommandOutput::DatabasesLoaded {

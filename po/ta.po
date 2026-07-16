@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-14 07:51+0200\n"
+"POT-Creation-Date: 2026-07-16 20:35+0200\n"
 "PO-Revision-Date: 2026-06-24 19:16+0000\n"
 "Last-Translator: தமிழ்நேரம் <tamilneram247@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/codd/ui/ta/>\n"
@@ -47,103 +47,103 @@ msgstr "மொழிபெயர்ப்பாளர்-வரவுகள்: 
 msgid "Lightweight PostgreSQL client"
 msgstr "இலகுரக பின்கிரிகவிமொ வாடிக்கையாளர்"
 
-#: src/window_content.rs:271 src/window_content.rs:338
+#: src/window_content.rs:273 src/window_content.rs:340
 msgid "Main Menu"
 msgstr "முதன்மை பட்டியல்"
 
-#: src/window_content.rs:304
+#: src/window_content.rs:306
 msgid "Objects"
 msgstr "பொருள்கள்"
 
-#: src/window_content.rs:308
+#: src/window_content.rs:310
 msgid "Back to connections"
 msgstr "பின்னே இணைப்புகளுக்கு"
 
-#: src/window_content.rs:315
+#: src/window_content.rs:317
 msgid "Refresh Objects"
 msgstr "பொருட்களைப் புதுப்பி"
 
-#: src/window_content.rs:345
+#: src/window_content.rs:347
 msgid "New Query Tab"
 msgstr "புதிய வினவல் தாவல்"
 
-#: src/window_content.rs:719 src/window_content.rs:1204
-#: src/window_content/database_switching.rs:65
+#: src/window_content.rs:722 src/window_content.rs:1256
+#: src/window_content/database_switching.rs:64
 msgid "Saving tabs failed"
 msgstr "தாவல்களைச் சேமிப்பதில் தோல்வி"
 
-#: src/window_content.rs:808
+#: src/window_content.rs:816
 msgid "Updating the saved password failed"
 msgstr "சேமித்த கடவுச்சொல்லைப் புதுப்பிக்க முடியவில்லை"
 
-#: src/window_content.rs:859 src/ui/components/table_browser.rs:828
+#: src/window_content.rs:867 src/ui/components/table_browser.rs:828
 msgid "CSV exported."
 msgstr "காபிம ஏற்றுமதி செய்யப்பட்டது."
 
-#: src/window_content.rs:1013
+#: src/window_content.rs:1065
 msgid "Hide Objects"
 msgstr "பொருள்களை மறை"
 
-#: src/window_content.rs:1014
+#: src/window_content.rs:1066
 msgid "Show Objects"
 msgstr "பொருள்களைக் காட்டு"
 
-#: src/window_content.rs:1239 src/ui/components/sidebar.rs:152
+#: src/window_content.rs:1292 src/ui/components/sidebar.rs:152
 #: src/ui/components/sidebar.rs:406 src/ui/components/sidebar.rs:420
 msgid "No connection"
 msgstr "இணைப்பு இல்லை"
 
-#: src/window_content.rs:1305
+#: src/window_content.rs:1359
 msgid "Connected to PostgreSQL."
 msgstr "பின்கிரிகவிமொ உடன் இணைக்கப்பட்டது."
 
-#: src/window_content.rs:1318
+#: src/window_content.rs:1372
 msgid "Connected, but saving the connection failed"
 msgstr "இணைக்கப்பட்டது, ஆனால் இணைப்பைச் சேமிப்பதில் தோல்வி"
 
-#: src/window_content.rs:1432
+#: src/window_content.rs:1491
 msgid "Disabling saved password failed"
 msgstr "சேமிக்கப்பட்ட கடவுச்சொல்லை முடக்குவது தோல்வியடைந்தது"
 
-#: src/window_content.rs:1447
+#: src/window_content.rs:1506
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr "வினவல் முடிவுகளை ஏற்றுமதி செய்வதற்கு முன் பின்கிரிகவிமொ உடன் இணை."
 
-#: src/window_content.rs:1455
+#: src/window_content.rs:1514
 msgid "Enter SQL before exporting query results."
 msgstr "வினவல் முடிவுகளை ஏற்றுமதி செய்வதற்கு முன் கவிமொ ஐ உள்ளிடவும்."
 
-#: src/window_content.rs:1499
+#: src/window_content.rs:1558
 msgid "The query did not return rows."
 msgstr "வினவல் வரிசைகளை வழங்கவில்லை."
 
-#: src/window_content.rs:1530
+#: src/window_content.rs:1589
 msgid "Schema load failed"
 msgstr "திட்ட ஏற்றம் தோல்வியடைந்தது"
 
-#: src/window_content.rs:1591
+#: src/window_content.rs:1650
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "கைஉரையை உருவாக்கும் முன் பின்கிரிகவிமொ உடன் இணை."
 
-#: src/window_content.rs:1631
+#: src/window_content.rs:1690
 msgid "Generating the table script failed"
 msgstr "அட்டவணை கைஉரையை உருவாக்குவது தோல்வியடைந்தது"
 
-#: src/window_content.rs:1679 src/ui/components/table_browser.rs:831
+#: src/window_content.rs:1738 src/ui/components/table_browser.rs:831
 msgid "Export failed"
 msgstr "ஏற்றுமதி தோல்வியடைந்தது"
 
-#: src/window_content.rs:1684 src/window_content/structure_actions.rs:423
-#: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:504
+#: src/window_content.rs:1743 src/window_content/structure_actions.rs:423
+#: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:955
 #: src/ui/components/table_browser.rs:1214
 msgid "Close"
 msgstr "மூடு"
 
-#: src/window_content.rs:1711
+#: src/window_content.rs:1770
 msgid "CSV export runs queries in a read-only transaction."
 msgstr "காபிம ஏற்றுமதி, படிக்க மட்டுமேயான பரிவர்த்தனையில் வினவல்களை இயக்குகிறது."
 
-#: src/window_content.rs:1713
+#: src/window_content.rs:1772
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
@@ -153,47 +153,47 @@ msgstr ""
 "உருவாக்குதல், உறுதி செய்தல் அல்லது பின்வாங்குதல் போன்ற பரிவர்த்தனை நிலையை எழுதும் அல்லது "
 "மாற்றும் அறிக்கைகளை ஏற்றுமதி செய்ய முடியாது."
 
-#: src/window_content.rs:1723
+#: src/window_content.rs:1782
 msgid "CREATE script generated."
 msgstr "உருவாக்கு கைஉரையை உருவாக்கப்பட்டது."
 
-#: src/window_content.rs:1724
+#: src/window_content.rs:1783
 msgid "SELECT script generated."
 msgstr "தேர்ந்தெடு கைஉரை உருவாக்கப்பட்டது."
 
-#: src/window_content.rs:1725
+#: src/window_content.rs:1784
 msgid "INSERT script generated."
 msgstr "செருகு கைஉரை உருவாக்கப்பட்டது."
 
-#: src/window_content.rs:1726
+#: src/window_content.rs:1785
 msgid "UPDATE script generated."
 msgstr "புதுப்பிப்பு கைஉரை உருவாக்கப்பட்டது."
 
-#: src/window_content.rs:1727
+#: src/window_content.rs:1786
 msgid "DELETE script generated."
 msgstr "நீக்கு கைஉரையை உருவாக்கப்பட்டது."
 
-#: src/window_content/database_switching.rs:57
+#: src/window_content/database_switching.rs:56
 msgid "Connect to PostgreSQL before switching databases."
 msgstr "தரவுத்தளங்களை மாற்றுவதற்கு முன் பின்கிரிகவிமொ உடன் இணை."
 
-#: src/window_content/database_switching.rs:107
+#: src/window_content/database_switching.rs:106
 msgid "Database switch failed"
 msgstr "தரவுத்தள மாற்றம் தோல்வியடைந்தது"
 
-#: src/window_content/database_switching.rs:153
+#: src/window_content/database_switching.rs:154
 msgid "Saving the selected database failed"
 msgstr "தேர்ந்தெடுக்கப்பட்ட தரவுத்தளத்தை சேமிப்பதில் தோல்வி"
 
-#: src/window_content/database_switching.rs:194
+#: src/window_content/database_switching.rs:195
 msgid "Migrating query history failed"
 msgstr "வினவல் வரலாற்றை நகர்த்த முடியவில்லை"
 
-#: src/window_content/database_switching.rs:223
+#: src/window_content/database_switching.rs:224
 msgid "Saving query history failed"
 msgstr "வினவல் வரலாற்றைச் சேமிப்பதில் தோல்வி"
 
-#: src/window_content/database_switching.rs:246
+#: src/window_content/database_switching.rs:247
 msgid "Clearing query history failed"
 msgstr "வினவல் வரலாற்றை அழிக்க முடியவில்லை"
 
@@ -206,9 +206,11 @@ msgstr "இந்த தரவுத்தள பொருளுக்கு ப
 #: src/window_content/object_actions.rs:174
 #: src/window_content/structure_actions.rs:88
 #: src/window_content/structure_actions.rs:145
+#: src/ui/components/connection_dialog.rs:871
+#: src/ui/components/connection_dialog.rs:906
 #: src/ui/components/csv_export_dialog.rs:55
 #: src/ui/components/csv_export_dialog.rs:91
-#: src/ui/components/start_screen.rs:320 src/ui/components/start_screen.rs:356
+#: src/ui/components/start_screen.rs:333 src/ui/components/start_screen.rs:369
 #: src/ui/components/editor.rs:254
 #: src/ui/components/table_browser/cell_editor.rs:93
 #: src/ui/components/table_browser/delete_row.rs:31
@@ -219,7 +221,7 @@ msgstr "கைவிடு"
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
 #: src/window_content/structure_actions.rs:89
-#: src/ui/components/start_screen.rs:321
+#: src/ui/components/start_screen.rs:334
 msgid "Rename"
 msgstr "மறுபெயரிடு"
 
@@ -515,25 +517,49 @@ msgstr "இந்த அட்டவணையை ஏற்ற தாவலைத
 msgid "Query"
 msgstr "வினவு"
 
-#: src/models/connection.rs:80
+#: src/models/connection.rs:83 src/ui/components/connection_dialog.rs:203
+msgid "Password"
+msgstr "கடவுச்சொல்"
+
+#: src/models/connection.rs:84
+msgid "Private Key"
+msgstr ""
+
+#: src/models/connection.rs:159
 msgid "Connection name is required."
 msgstr "இணைப்பு பெயர் தேவை."
 
-#: src/models/connection.rs:84
+#: src/models/connection.rs:163
 msgid "Host is required."
 msgstr "புரவலன் தேவை."
 
-#: src/models/connection.rs:89
+#: src/models/connection.rs:168
 msgid "Port must be a number between 1 and 65535."
 msgstr "துறைமுகம் 1 மற்றும் 65535 க்கு இடைப்பட்ட எண்ணாக இருக்க வேண்டும்."
 
-#: src/models/connection.rs:92
+#: src/models/connection.rs:171
 msgid "Default database is required."
 msgstr "இயல்புநிலை தரவுத்தளம் தேவை."
 
-#: src/models/connection.rs:96
+#: src/models/connection.rs:175
 msgid "Username is required."
 msgstr "பயனர் பெயர் தேவை."
+
+#: src/models/connection.rs:208
+msgid "SSH host is required."
+msgstr ""
+
+#: src/models/connection.rs:213
+msgid "SSH port must be a number between 1 and 65535."
+msgstr ""
+
+#: src/models/connection.rs:216
+msgid "SSH username is required."
+msgstr ""
+
+#: src/models/connection.rs:220
+msgid "Private key file is required."
+msgstr ""
 
 #: src/models/completion.rs:119 src/models/completion.rs:244
 #: src/models/completion.rs:421 src/models/completion.rs:434
@@ -582,91 +608,175 @@ msgstr "வகை"
 msgid "Schema"
 msgstr ""
 
-#: src/models/completion.rs:438 src/ui/components/connection_dialog.rs:109
+#: src/models/completion.rs:438 src/ui/components/connection_dialog.rs:152
 #: src/ui/components/table_structure/columns.rs:50
 msgid "Name"
 msgstr "பெயர்"
 
-#: src/ui/components/connection_dialog.rs:78
-#: src/ui/components/connection_dialog.rs:93
+#: src/ui/components/connection_dialog.rs:102
+msgid "SSH host key is not trusted yet. Fingerprint:"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:117
+#: src/ui/components/connection_dialog.rs:132
 msgid "PostgreSQL Connection"
 msgstr "பின்கிரிகவிமொ இணைப்பு"
 
-#: src/ui/components/connection_dialog.rs:106
+#: src/ui/components/connection_dialog.rs:149
 msgid "Connection"
 msgstr "இணைப்பு"
 
-#: src/ui/components/connection_dialog.rs:119
+#: src/ui/components/connection_dialog.rs:162
 msgid "Host"
 msgstr "விருந்தோம்பி"
 
-#: src/ui/components/connection_dialog.rs:129
+#: src/ui/components/connection_dialog.rs:172
 msgid "Port"
 msgstr "துறைமுகம்"
 
-#: src/ui/components/connection_dialog.rs:140
+#: src/ui/components/connection_dialog.rs:183
 msgid "Default Database"
 msgstr "இயல்புநிலை தரவுத்தளம்"
 
-#: src/ui/components/connection_dialog.rs:150
+#: src/ui/components/connection_dialog.rs:193
 msgid "Username"
 msgstr "பயனர் பெயர்"
 
-#: src/ui/components/connection_dialog.rs:160
-msgid "Password"
-msgstr "கடவுச்சொல்"
-
-#: src/ui/components/connection_dialog.rs:195
+#: src/ui/components/connection_dialog.rs:238
 msgid "Save Password"
 msgstr "கடவுச்சொல்லை சேமி"
 
-#: src/ui/components/connection_dialog.rs:221
+#: src/ui/components/connection_dialog.rs:252
+msgid "SSH Tunnel"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:255
+msgid "Use SSH Tunnel"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:266
+msgid "SSH Host"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:278
+msgid "SSH Port"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:291
+msgid "SSH Username"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:303
+msgid "Authentication"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:317
+msgid "SSH Password"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:329
+msgid "Private Key File"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:338
+msgid "Choose..."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:347
+msgid "Key Passphrase"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:359
+msgid "Save SSH Secret"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:387
 msgid "Test Connection"
 msgstr "சோதனை இணைப்பு"
 
-#: src/ui/components/connection_dialog.rs:228
+#: src/ui/components/connection_dialog.rs:394
 msgid "Connect"
 msgstr "இணை"
 
-#: src/ui/components/connection_dialog.rs:358
-#: src/ui/components/connection_dialog.rs:473
+#: src/ui/components/connection_dialog.rs:572
+#: src/ui/components/connection_dialog.rs:791
 msgid "Reading the saved password failed"
 msgstr "சேமித்த கடவுச்சொல்லைப் படிக்க முடியவில்லை"
 
-#: src/ui/components/connection_dialog.rs:364
+#: src/ui/components/connection_dialog.rs:579
 msgid "Connection test succeeded."
 msgstr "இணைப்புச் சோதனை வெற்றியடைந்தது."
 
-#: src/ui/components/connection_dialog.rs:369
+#: src/ui/components/connection_dialog.rs:593
 msgid "Connection test failed"
 msgstr "இணைப்புச் சோதனை தோல்வியடைந்தது"
 
-#: src/ui/components/connection_dialog.rs:378
+#: src/ui/components/connection_dialog.rs:612
 msgid "Connection failed"
 msgstr "இணைப்பு தோல்வியடைந்தது"
 
-#: src/ui/components/connection_dialog.rs:405
+#: src/ui/components/connection_dialog.rs:646
+#: src/ui/components/connection_dialog.rs:725
 msgid "Checking password storage availability."
 msgstr "கடவுச்சொல் சேமிப்பகத்தின் இருப்பைச் சரிபார்க்கிறது."
 
-#: src/ui/components/connection_dialog.rs:406
+#: src/ui/components/connection_dialog.rs:647
 msgid "Store this password in Keyring."
 msgstr "இந்த கடவுச்சொல்லை திறவுவளையத்தில் சேமி."
 
-#: src/ui/components/connection_dialog.rs:407
+#: src/ui/components/connection_dialog.rs:648
+#: src/ui/components/connection_dialog.rs:729
 msgid "Password storage is not available."
 msgstr "கடவுச்சொல் சேமிப்பு கிடைக்கவில்லை."
 
-#: src/ui/components/connection_dialog.rs:424
+#: src/ui/components/connection_dialog.rs:665
 msgid "Saved in Keyring. Enter a new password to replace it."
 msgstr "திறவுவளையத்தில் சேமிக்கப்பட்டது. அதை மாற்ற புதிய கடவுச்சொல்லை உள்ளிடவும்."
 
-#: src/ui/components/connection_dialog.rs:427
+#: src/ui/components/connection_dialog.rs:668
 msgid "No saved password was found. Enter a password to save it."
 msgstr ""
 "சேமிக்கப்பட்ட கடவுச்சொல் எதுவும் கிடைக்கவில்லை. அதைச் சேமிக்க கடவுச்சொல்லை உள்ளிடவும்."
 
-#: src/ui/components/connection_dialog.rs:499
+#: src/ui/components/connection_dialog.rs:693
+msgid "No private key selected."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:717
+msgid "Saving the trusted SSH host key failed"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:727
+msgid "Store the SSH password or key passphrase in Keyring."
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:811
+#: src/ui/components/connection_dialog.rs:825
+msgid "Reading the saved SSH secret failed"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:862
+msgid ""
+"This SSH host key has not been seen before. Trust it for this connection?"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:866
+msgid "Trust SSH Host Key?"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:872
+msgid "Trust"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:902
+msgid "Select Private Key"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:905
+msgid "Select"
+msgstr ""
+
+#: src/ui/components/connection_dialog.rs:950
 msgid "PostgreSQL returned the following error:"
 msgstr "பின்கிரிகவிமொ பின்வரும் பிழையை வழங்கியது:"
 
@@ -750,63 +860,63 @@ msgstr "உங்கள் தேடலுக்கு எந்த தரவு
 msgid "Loading..."
 msgstr "ஏற்றுகிறது..."
 
-#: src/ui/components/start_screen.rs:45
+#: src/ui/components/start_screen.rs:46
 msgid "Welcome to Codd"
 msgstr "கோட்க்கு வரவேற்கிறோம்"
 
-#: src/ui/components/start_screen.rs:46
+#: src/ui/components/start_screen.rs:47
 msgid "Add a PostgreSQL connection to get started"
 msgstr "தொடங்குவதற்கு பின்கிரிகவிமொ இணைப்பைச் சேர்"
 
-#: src/ui/components/start_screen.rs:50 src/ui/components/start_screen.rs:84
+#: src/ui/components/start_screen.rs:51 src/ui/components/start_screen.rs:85
 msgid "Add Connection..."
 msgstr "இணைப்பைச் சேர்..."
 
-#: src/ui/components/start_screen.rs:76
+#: src/ui/components/start_screen.rs:77
 msgid "Connections"
 msgstr "இணைப்புகள்"
 
-#: src/ui/components/start_screen.rs:160
+#: src/ui/components/start_screen.rs:161
 msgid "Renaming the connection failed"
 msgstr "இணைப்பை மறுபெயரிடுவதில் தோல்வி"
 
-#: src/ui/components/start_screen.rs:186
+#: src/ui/components/start_screen.rs:199
 msgid "Removing the connection failed"
 msgstr "இணைப்பை அகற்றுவது தோல்வியடைந்தது"
 
-#: src/ui/components/start_screen.rs:207
+#: src/ui/components/start_screen.rs:220
 msgid "Removing the saved password failed"
 msgstr "சேமித்த கடவுச்சொல்லை அகற்றுவது தோல்வியடைந்தது"
 
-#: src/ui/components/start_screen.rs:239
+#: src/ui/components/start_screen.rs:252
 msgid "Default database"
 msgstr "இயல்புநிலை தரவுத்தளம்"
 
-#: src/ui/components/start_screen.rs:254
+#: src/ui/components/start_screen.rs:267
 msgid "Rename connection"
 msgstr "இணைப்பை மறுபெயரிடு"
 
-#: src/ui/components/start_screen.rs:260
+#: src/ui/components/start_screen.rs:273
 msgid "Remove connection"
 msgstr "இணைப்பை அகற்று"
 
-#: src/ui/components/start_screen.rs:315
+#: src/ui/components/start_screen.rs:328
 msgid "Rename Connection"
 msgstr "இணைப்பை மறுபெயரிடு"
 
-#: src/ui/components/start_screen.rs:316
+#: src/ui/components/start_screen.rs:329
 msgid "Choose a new name for this connection."
 msgstr "இந்த இணைப்பிற்கு புதிய பெயரைத் தேர்வு செய்யவும்."
 
-#: src/ui/components/start_screen.rs:348
+#: src/ui/components/start_screen.rs:361
 msgid "Remove Connection"
 msgstr "இணைப்பை அகற்று"
 
-#: src/ui/components/start_screen.rs:351
+#: src/ui/components/start_screen.rs:364
 msgid "Remove the saved connection"
 msgstr "சேமித்த இணைப்பை அகற்று"
 
-#: src/ui/components/start_screen.rs:357
+#: src/ui/components/start_screen.rs:370
 msgid "Remove"
 msgstr "அகற்று"
 
@@ -1015,11 +1125,11 @@ msgid "The statement returned rows, but there are no columns to display."
 msgstr ""
 
 #: src/ui/components/results.rs:406
-#, fuzzy, rust-format
+#, rust-format
 msgid "{rows} row affected"
 msgid_plural "{rows} rows affected"
-msgstr[0] "வரிசை பாதிக்கப்பட்டது"
-msgstr[1] "வரிசைகள் பாதிக்கப்பட்டுள்ளன"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/ui/components/results.rs:408
 msgid "The statement completed successfully."

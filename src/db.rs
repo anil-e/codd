@@ -4,6 +4,7 @@ pub mod object_actions;
 pub mod postgres;
 pub mod query;
 pub mod schema;
+pub mod ssh_tunnel;
 pub mod structure;
 pub mod structure_actions;
 pub mod table_scripts;

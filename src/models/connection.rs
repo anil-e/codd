@@ -11,6 +11,8 @@ pub struct SavedConnection {
     pub username: String,
     #[serde(default)]
     pub save_password: bool,
+    #[serde(default)]
+    pub ssh_tunnel: Option<SshTunnelConfig>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -23,12 +25,24 @@ pub struct ConnectionForm {
     pub username: String,
     pub password: String,
     pub save_password: bool,
+    pub ssh_enabled: bool,
+    pub ssh_host: String,
+    pub ssh_port: String,
+    pub ssh_username: String,
+    pub ssh_auth_method: SshAuthMethod,
+    pub ssh_password: String,
+    pub ssh_private_key_path: String,
+    pub ssh_key_passphrase: String,
+    pub ssh_save_secret: bool,
+    pub ssh_host_key_fingerprint: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ConnectionDetails {
     pub saved: SavedConnection,
     pub password: String,
+    pub ssh_password: String,
+    pub ssh_key_passphrase: String,
 }
 
 impl ConnectionDetails {
@@ -37,6 +51,38 @@ impl ConnectionDetails {
         details.saved.database = database.into();
 
         details
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SshTunnelConfig {
+    pub host: String,
+    pub port: u16,
+    pub username: String,
+    #[serde(default)]
+    pub auth_method: SshAuthMethod,
+    #[serde(default)]
+    pub private_key_path: String,
+    #[serde(default)]
+    pub save_secret: bool,
+    #[serde(default)]
+    pub host_key_fingerprint: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum SshAuthMethod {
+    #[default]
+    Password,
+    PrivateKey,
+}
+
+impl SshAuthMethod {
+    pub fn label(self) -> String {
+        match self {
+            Self::Password => gettext("Password"),
+            Self::PrivateKey => gettext("Private Key"),
+        }
     }
 }
 
@@ -51,12 +97,24 @@ impl Default for ConnectionForm {
             username: String::new(),
             password: String::new(),
             save_password: false,
+            ssh_enabled: false,
+            ssh_host: String::new(),
+            ssh_port: "22".to_string(),
+            ssh_username: String::new(),
+            ssh_auth_method: SshAuthMethod::Password,
+            ssh_password: String::new(),
+            ssh_private_key_path: String::new(),
+            ssh_key_passphrase: String::new(),
+            ssh_save_secret: false,
+            ssh_host_key_fingerprint: None,
         }
     }
 }
 
 impl ConnectionForm {
     pub fn from_saved(connection: &SavedConnection) -> Self {
+        let ssh_tunnel = connection.ssh_tunnel.as_ref();
+
         Self {
             id: Some(connection.id.clone()),
             name: connection.name.clone(),
@@ -66,6 +124,27 @@ impl ConnectionForm {
             username: connection.username.clone(),
             password: String::new(),
             save_password: connection.save_password,
+            ssh_enabled: ssh_tunnel.is_some(),
+            ssh_host: ssh_tunnel
+                .map(|config| config.host.clone())
+                .unwrap_or_default(),
+            ssh_port: ssh_tunnel
+                .map(|config| config.port.to_string())
+                .unwrap_or_else(|| "22".to_string()),
+            ssh_username: ssh_tunnel
+                .map(|config| config.username.clone())
+                .unwrap_or_default(),
+            ssh_auth_method: ssh_tunnel
+                .map(|config| config.auth_method)
+                .unwrap_or_default(),
+            ssh_password: String::new(),
+            ssh_private_key_path: ssh_tunnel
+                .map(|config| config.private_key_path.clone())
+                .unwrap_or_default(),
+            ssh_key_passphrase: String::new(),
+            ssh_save_secret: ssh_tunnel.is_some_and(|config| config.save_secret),
+            ssh_host_key_fingerprint: ssh_tunnel
+                .and_then(|config| config.host_key_fingerprint.clone()),
         }
     }
 
@@ -96,6 +175,12 @@ impl ConnectionForm {
             return Err(gettext("Username is required."));
         }
 
+        let ssh_tunnel = if self.ssh_enabled {
+            Some(self.validate_ssh_tunnel()?)
+        } else {
+            None
+        };
+
         Ok(ConnectionDetails {
             saved: SavedConnection {
                 id: self.id.clone().unwrap_or_else(connection_id),
@@ -105,8 +190,44 @@ impl ConnectionForm {
                 database: database.to_string(),
                 username: username.to_string(),
                 save_password: self.save_password,
+                ssh_tunnel,
             },
             password: self.password.clone(),
+            ssh_password: self.ssh_password.clone(),
+            ssh_key_passphrase: self.ssh_key_passphrase.clone(),
+        })
+    }
+
+    fn validate_ssh_tunnel(&self) -> Result<SshTunnelConfig, String> {
+        let host = self.ssh_host.trim();
+        let port = self.ssh_port.trim();
+        let username = self.ssh_username.trim();
+        let private_key_path = self.ssh_private_key_path.trim();
+
+        if host.is_empty() {
+            return Err(gettext("SSH host is required."));
+        }
+
+        let port = port
+            .parse::<u16>()
+            .map_err(|_| gettext("SSH port must be a number between 1 and 65535."))?;
+
+        if username.is_empty() {
+            return Err(gettext("SSH username is required."));
+        }
+
+        if self.ssh_auth_method == SshAuthMethod::PrivateKey && private_key_path.is_empty() {
+            return Err(gettext("Private key file is required."));
+        }
+
+        Ok(SshTunnelConfig {
+            host: host.to_string(),
+            port,
+            username: username.to_string(),
+            auth_method: self.ssh_auth_method,
+            private_key_path: private_key_path.to_string(),
+            save_secret: self.ssh_save_secret,
+            host_key_fingerprint: self.ssh_host_key_fingerprint.clone(),
         })
     }
 }
@@ -117,7 +238,7 @@ fn connection_id() -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{ConnectionForm, SavedConnection};
+    use super::{ConnectionForm, SavedConnection, SshAuthMethod, SshTunnelConfig};
 
     #[test]
     fn saved_connection_defaults_save_password_for_legacy_json() {
@@ -134,18 +255,14 @@ mod tests {
         .expect("legacy connection json to deserialize");
 
         assert!(!connection.save_password);
+        assert!(connection.ssh_tunnel.is_none());
     }
 
     #[test]
     fn connection_form_copies_save_password_from_saved_connection() {
         let connection = SavedConnection {
-            id: "pg-1".to_string(),
-            name: "Local".to_string(),
-            host: "localhost".to_string(),
-            port: 5432,
-            database: "postgres".to_string(),
-            username: "anil".to_string(),
             save_password: true,
+            ..saved_connection()
         };
 
         let form = ConnectionForm::from_saved(&connection);
@@ -165,11 +282,94 @@ mod tests {
             username: " anil ".to_string(),
             password: "secret".to_string(),
             save_password: true,
+            ..ConnectionForm::default()
         };
 
         let details = form.validate().expect("form to validate");
 
         assert!(details.saved.save_password);
         assert_eq!(details.password, "secret");
+        assert!(details.saved.ssh_tunnel.is_none());
+    }
+
+    #[test]
+    fn connection_form_copies_ssh_fields_without_secrets() {
+        let connection = SavedConnection {
+            name: "Remote".to_string(),
+            host: "db.internal".to_string(),
+            username: "postgres".to_string(),
+            ssh_tunnel: Some(private_key_tunnel_config()),
+            ..saved_connection()
+        };
+
+        let form = ConnectionForm::from_saved(&connection);
+
+        assert!(form.ssh_enabled);
+        assert_eq!(form.ssh_host, "bastion.example.com");
+        assert_eq!(form.ssh_auth_method, SshAuthMethod::PrivateKey);
+        assert!(form.ssh_password.is_empty());
+        assert!(form.ssh_key_passphrase.is_empty());
+    }
+
+    #[test]
+    fn saved_connection_ignores_legacy_ssh_enabled_field() {
+        let connection: SavedConnection = serde_json::from_str(
+            r#"{
+                "id": "pg-1",
+                "name": "Remote",
+                "host": "db.internal",
+                "port": 5432,
+                "database": "postgres",
+                "username": "postgres",
+                "ssh_tunnel": {
+                    "enabled": true,
+                    "host": "bastion.example.com",
+                    "port": 22,
+                    "username": "anil",
+                    "auth_method": "password"
+                }
+            }"#,
+        )
+        .expect("connection json with legacy ssh enabled field to deserialize");
+
+        assert!(connection.ssh_tunnel.is_some());
+    }
+
+    #[test]
+    fn ssh_private_key_requires_key_path() {
+        let form = ConnectionForm {
+            ssh_enabled: true,
+            ssh_host: "bastion.example.com".to_string(),
+            ssh_username: "anil".to_string(),
+            ssh_auth_method: SshAuthMethod::PrivateKey,
+            ..ConnectionForm::default()
+        };
+
+        assert!(form.validate().is_err());
+    }
+
+    fn saved_connection() -> SavedConnection {
+        SavedConnection {
+            id: "pg-1".to_string(),
+            name: "Local".to_string(),
+            host: "localhost".to_string(),
+            port: 5432,
+            database: "postgres".to_string(),
+            username: "anil".to_string(),
+            save_password: false,
+            ssh_tunnel: None,
+        }
+    }
+
+    fn private_key_tunnel_config() -> SshTunnelConfig {
+        SshTunnelConfig {
+            host: "bastion.example.com".to_string(),
+            port: 22,
+            username: "anil".to_string(),
+            auth_method: SshAuthMethod::PrivateKey,
+            private_key_path: "/home/anil/.ssh/id_ed25519".to_string(),
+            save_secret: true,
+            host_key_fingerprint: Some("SHA256:abc".to_string()),
+        }
     }
 }

@@ -22,6 +22,7 @@ pub enum StartScreenMsg {
 }
 
 #[derive(Debug)]
+#[allow(clippy::large_enum_variant)]
 pub enum StartScreenOutput {
     NewConnection,
     OpenConnection(SavedConnection),
@@ -170,13 +171,25 @@ impl Component for StartScreen {
                         self.render(widgets, &sender);
                         let _ = sender.output(StartScreenOutput::ConnectionsChanged(connections));
 
-                        if connection.save_password {
+                        if connection.save_password
+                            || connection
+                                .ssh_tunnel
+                                .as_ref()
+                                .is_some_and(|config| config.save_secret)
+                        {
                             sender.oneshot_command(async move {
-                                StartScreenCommandOutput::PasswordDeleteFinished(
-                                    credential_store::delete_password(&connection.id)
-                                        .await
-                                        .map_err(|error| error.to_string()),
-                                )
+                                let result = async {
+                                    credential_store::delete_password(&connection.id).await?;
+                                    credential_store::delete_ssh_password(&connection.id).await?;
+                                    credential_store::delete_ssh_key_passphrase(&connection.id)
+                                        .await?;
+
+                                    Ok::<(), credential_store::CredentialError>(())
+                                }
+                                .await
+                                .map_err(|error| error.to_string());
+
+                                StartScreenCommandOutput::PasswordDeleteFinished(result)
                             });
                         }
                     }
