@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-16 20:35+0200\n"
-"PO-Revision-Date: 2026-07-15 09:01+0000\n"
+"PO-Revision-Date: 2026-07-17 18:02+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -543,7 +543,7 @@ msgstr "Salasõna"
 
 #: src/models/connection.rs:84
 msgid "Private Key"
-msgstr ""
+msgstr "Privaatvõti"
 
 #: src/models/connection.rs:159
 msgid "Connection name is required."
@@ -567,19 +567,19 @@ msgstr "Kasutajanimi on nõutav."
 
 #: src/models/connection.rs:208
 msgid "SSH host is required."
-msgstr ""
+msgstr "SSH hosti/serveri nimi on nõutav."
 
 #: src/models/connection.rs:213
 msgid "SSH port must be a number between 1 and 65535."
-msgstr ""
+msgstr "SSH pordinumber peab olema vahemikus 1 kuni 65535."
 
 #: src/models/connection.rs:216
 msgid "SSH username is required."
-msgstr ""
+msgstr "SSH kasutajanimi on nõutav."
 
 #: src/models/connection.rs:220
 msgid "Private key file is required."
-msgstr ""
+msgstr "Privaatvõtme fail on nõutav."
 
 #: src/models/completion.rs:119 src/models/completion.rs:244
 #: src/models/completion.rs:421 src/models/completion.rs:434
@@ -636,6 +636,7 @@ msgstr "Nimi"
 #: src/ui/components/connection_dialog.rs:102
 msgid "SSH host key is not trusted yet. Fingerprint:"
 msgstr ""
+"SSH hosti/serveri võti pole veel märgitud usaldusväärseks. Sõrmejälg on:"
 
 #: src/ui/components/connection_dialog.rs:117
 #: src/ui/components/connection_dialog.rs:132
@@ -668,47 +669,47 @@ msgstr "Salvesta salasõna"
 
 #: src/ui/components/connection_dialog.rs:252
 msgid "SSH Tunnel"
-msgstr ""
+msgstr "SSH tunnel"
 
 #: src/ui/components/connection_dialog.rs:255
 msgid "Use SSH Tunnel"
-msgstr ""
+msgstr "Kasuta SSH tunnelit"
 
 #: src/ui/components/connection_dialog.rs:266
 msgid "SSH Host"
-msgstr ""
+msgstr "SSH host/server"
 
 #: src/ui/components/connection_dialog.rs:278
 msgid "SSH Port"
-msgstr ""
+msgstr "SSH port"
 
 #: src/ui/components/connection_dialog.rs:291
 msgid "SSH Username"
-msgstr ""
+msgstr "SSH kasutajanimi"
 
 #: src/ui/components/connection_dialog.rs:303
 msgid "Authentication"
-msgstr ""
+msgstr "Autentimine"
 
 #: src/ui/components/connection_dialog.rs:317
 msgid "SSH Password"
-msgstr ""
+msgstr "SSH salasõna"
 
 #: src/ui/components/connection_dialog.rs:329
 msgid "Private Key File"
-msgstr ""
+msgstr "Privaatvõtme fail"
 
 #: src/ui/components/connection_dialog.rs:338
 msgid "Choose..."
-msgstr ""
+msgstr "Vali…"
 
 #: src/ui/components/connection_dialog.rs:347
 msgid "Key Passphrase"
-msgstr ""
+msgstr "Võtme salafraas"
 
 #: src/ui/components/connection_dialog.rs:359
 msgid "Save SSH Secret"
-msgstr ""
+msgstr "Salvesta SSH saladus/salasõna"
 
 #: src/ui/components/connection_dialog.rs:387
 msgid "Test Connection"
@@ -760,41 +761,43 @@ msgstr "Ühtegi salvestatud salasõna ei leidu. Salvestamiseks sisesta salasõna
 
 #: src/ui/components/connection_dialog.rs:693
 msgid "No private key selected."
-msgstr ""
+msgstr "Ühtegi privaatvõtit pole valitud."
 
 #: src/ui/components/connection_dialog.rs:717
 msgid "Saving the trusted SSH host key failed"
-msgstr ""
+msgstr "Usaldusväärse SSH hosti/serveri salvestamine ei õnnestunud"
 
 #: src/ui/components/connection_dialog.rs:727
 msgid "Store the SSH password or key passphrase in Keyring."
-msgstr ""
+msgstr "Salvesta SSH salasõna või võtme salafraas võtmerõngasse."
 
 #: src/ui/components/connection_dialog.rs:811
 #: src/ui/components/connection_dialog.rs:825
 msgid "Reading the saved SSH secret failed"
-msgstr ""
+msgstr "Salvestatud SSH saladuse/salasõna lugemine ei õnnestunud"
 
 #: src/ui/components/connection_dialog.rs:862
 msgid ""
 "This SSH host key has not been seen before. Trust it for this connection?"
 msgstr ""
+"Seda SSH hosti/serveri võtit pole varem näha olnud. Kas usaldad seda antud "
+"ühenduse jaoks?"
 
 #: src/ui/components/connection_dialog.rs:866
 msgid "Trust SSH Host Key?"
-msgstr ""
+msgstr "Kas usaldad hosti/serveri SSH-võtit?"
 
 #: src/ui/components/connection_dialog.rs:872
 msgid "Trust"
-msgstr ""
+msgstr "Usalda"
 
 #: src/ui/components/connection_dialog.rs:902
 msgid "Select Private Key"
-msgstr ""
+msgstr "Vali privaatvõti"
 
 #: src/ui/components/connection_dialog.rs:905
 msgid "Select"
-msgstr ""
+msgstr "Vali"
 
 #: src/ui/components/connection_dialog.rs:950
 msgid "PostgreSQL returned the following error:"
