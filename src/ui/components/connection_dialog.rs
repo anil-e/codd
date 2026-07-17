@@ -360,11 +360,11 @@ impl Component for ConnectionDialog {
                                     #[watch]
                                     set_subtitle: &model.save_ssh_secret_subtitle(),
                                     #[watch]
-                                    set_visible: model.form.ssh_enabled,
+                                    set_visible: model.form.ssh_enabled && model.form.ssh_auth_method != SshAuthMethod::Agent,
                                     #[watch]
                                     set_active: model.form.ssh_save_secret,
                                     #[watch]
-                                    set_sensitive: !model.is_busy && model.can_save_password(),
+                                    set_sensitive: !model.is_busy && model.can_save_ssh_secret(),
                                     connect_active_notify[sender] => move |row| {
                                         sender.input(ConnectionDialogMsg::SshSaveSecretChanged(row.is_active()));
                                     },
@@ -500,7 +500,7 @@ impl Component for ConnectionDialog {
                 self.form.ssh_key_passphrase = value;
             }
             ConnectionDialogMsg::SshSaveSecretChanged(value) => {
-                self.form.ssh_save_secret = value && self.can_save_password();
+                self.form.ssh_save_secret = value && self.can_save_ssh_secret();
             }
             ConnectionDialogMsg::TrustSshHostKeyAndConnect(fingerprint) => {
                 self.form.ssh_host_key_fingerprint = Some(fingerprint);
@@ -627,8 +627,12 @@ impl ConnectionDialog {
                 || (!self.form.ssh_host.trim().is_empty()
                     && self.form.ssh_port.trim().parse::<u16>().is_ok()
                     && !self.form.ssh_username.trim().is_empty()
-                    && (self.form.ssh_auth_method == SshAuthMethod::Password
-                        || !self.form.ssh_private_key_path.trim().is_empty())))
+                    && match self.form.ssh_auth_method {
+                        SshAuthMethod::Password | SshAuthMethod::Agent => true,
+                        SshAuthMethod::PrivateKey => {
+                            !self.form.ssh_private_key_path.trim().is_empty()
+                        }
+                    }))
     }
 
     fn validated_details(&self, widgets: &ConnectionDialogWidgets) -> Option<ConnectionDetails> {
@@ -675,10 +679,15 @@ impl ConnectionDialog {
         self.credential_state == CredentialState::Available
     }
 
+    fn can_save_ssh_secret(&self) -> bool {
+        self.can_save_password() && self.form.ssh_auth_method != SshAuthMethod::Agent
+    }
+
     fn ssh_auth_method_index(&self) -> u32 {
         match self.form.ssh_auth_method {
             SshAuthMethod::Password => 0,
             SshAuthMethod::PrivateKey => 1,
+            SshAuthMethod::Agent => 2,
         }
     }
 
@@ -734,13 +743,15 @@ impl ConnectionDialog {
 fn ssh_auth_method_model() -> gtk::StringList {
     let password = SshAuthMethod::Password.label();
     let private_key = SshAuthMethod::PrivateKey.label();
+    let agent = SshAuthMethod::Agent.label();
 
-    gtk::StringList::new(&[password.as_str(), private_key.as_str()])
+    gtk::StringList::new(&[password.as_str(), private_key.as_str(), agent.as_str()])
 }
 
 fn ssh_auth_method_from_index(index: u32) -> SshAuthMethod {
     match index {
         1 => SshAuthMethod::PrivateKey,
+        2 => SshAuthMethod::Agent,
         _ => SshAuthMethod::Password,
     }
 }

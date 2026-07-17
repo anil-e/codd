@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-16 20:35+0200\n"
+"POT-Creation-Date: 2026-07-17 19:25+0200\n"
 "PO-Revision-Date: 2026-07-15 09:01+0000\n"
 "Last-Translator: Francisco Vásquez Cuevas <fvasquez@fvtronics.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/codd/ui/es/>\n"
@@ -68,7 +68,7 @@ msgstr "Refrescar objetos"
 msgid "New Query Tab"
 msgstr "Nueva pestaña de consulta"
 
-#: src/window_content.rs:722 src/window_content.rs:1256
+#: src/window_content.rs:722 src/window_content.rs:1264
 #: src/window_content/database_switching.rs:64
 msgid "Saving tabs failed"
 msgstr "No se pudo guardar las pestañas"
@@ -81,75 +81,75 @@ msgstr "No se pudo actualizar la contraseña guardada"
 msgid "CSV exported."
 msgstr "Archivo CSV exportado."
 
-#: src/window_content.rs:1065
+#: src/window_content.rs:1073
 msgid "Hide Objects"
 msgstr "Ocultar objetos"
 
-#: src/window_content.rs:1066
+#: src/window_content.rs:1074
 msgid "Show Objects"
 msgstr "Mostrar objetos"
 
-#: src/window_content.rs:1292 src/ui/components/sidebar.rs:152
+#: src/window_content.rs:1300 src/ui/components/sidebar.rs:152
 #: src/ui/components/sidebar.rs:406 src/ui/components/sidebar.rs:420
 msgid "No connection"
 msgstr "Sin conexión"
 
-#: src/window_content.rs:1359
+#: src/window_content.rs:1367
 msgid "Connected to PostgreSQL."
 msgstr "Conectado a PostgreSQL."
 
-#: src/window_content.rs:1372
+#: src/window_content.rs:1380
 msgid "Connected, but saving the connection failed"
 msgstr "Conectado, pero no se pudo guardar la conexión"
 
-#: src/window_content.rs:1491
+#: src/window_content.rs:1499
 msgid "Disabling saved password failed"
 msgstr "No se pudo desactivar la contraseña guardada"
 
-#: src/window_content.rs:1506
+#: src/window_content.rs:1514
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr ""
 "Debe conectarse a PostgreSQL antes de exportar los resultados de una "
 "consulta."
 
-#: src/window_content.rs:1514
+#: src/window_content.rs:1522
 msgid "Enter SQL before exporting query results."
 msgstr "Ingrese SQL antes de exportar los resultados de una consulta."
 
-#: src/window_content.rs:1558
+#: src/window_content.rs:1566
 msgid "The query did not return rows."
 msgstr "La consulta no devolvió filas."
 
-#: src/window_content.rs:1589
+#: src/window_content.rs:1597
 msgid "Schema load failed"
 msgstr "No se pudo cargar el esquema"
 
 # script is an accepted anglocism in this context
-#: src/window_content.rs:1650
+#: src/window_content.rs:1658
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "Debe conectarse a PostgreSQL antes de generar un script."
 
-#: src/window_content.rs:1690
+#: src/window_content.rs:1698
 msgid "Generating the table script failed"
 msgstr "No se pudo generar el script de la tabla"
 
-#: src/window_content.rs:1738 src/ui/components/table_browser.rs:831
+#: src/window_content.rs:1746 src/ui/components/table_browser.rs:831
 msgid "Export failed"
 msgstr "La exportación falló"
 
-#: src/window_content.rs:1743 src/window_content/structure_actions.rs:423
-#: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:955
+#: src/window_content.rs:1751 src/window_content/structure_actions.rs:423
+#: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:969
 #: src/ui/components/table_browser.rs:1214
 msgid "Close"
 msgstr "Cerrar"
 
-#: src/window_content.rs:1770
+#: src/window_content.rs:1778
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
 "La exportación a CSV ejecuta las consultas en una transacción de solo "
 "lectura."
 
-#: src/window_content.rs:1772
+#: src/window_content.rs:1780
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
@@ -159,23 +159,23 @@ msgstr ""
 "datos o cambian el estado de la transacción, como UPDATE, INSERT, DELETE, "
 "CREATE, COMMIT o ROLLBACK, no se pueden exportar."
 
-#: src/window_content.rs:1782
+#: src/window_content.rs:1790
 msgid "CREATE script generated."
 msgstr "Script CREATE generado."
 
-#: src/window_content.rs:1783
+#: src/window_content.rs:1791
 msgid "SELECT script generated."
 msgstr "Script SELECT generado."
 
-#: src/window_content.rs:1784
+#: src/window_content.rs:1792
 msgid "INSERT script generated."
 msgstr "Script INSERT generado."
 
-#: src/window_content.rs:1785
+#: src/window_content.rs:1793
 msgid "UPDATE script generated."
 msgstr "Script UPDATE generado."
 
-#: src/window_content.rs:1786
+#: src/window_content.rs:1794
 msgid "DELETE script generated."
 msgstr "Script DELETE generado."
 
@@ -212,8 +212,8 @@ msgstr "Elija un nuevo nombre para este objeto de base de datos."
 #: src/window_content/object_actions.rs:174
 #: src/window_content/structure_actions.rs:88
 #: src/window_content/structure_actions.rs:145
-#: src/ui/components/connection_dialog.rs:871
-#: src/ui/components/connection_dialog.rs:906
+#: src/ui/components/connection_dialog.rs:885
+#: src/ui/components/connection_dialog.rs:920
 #: src/ui/components/csv_export_dialog.rs:55
 #: src/ui/components/csv_export_dialog.rs:91
 #: src/ui/components/start_screen.rs:333 src/ui/components/start_screen.rs:369
@@ -531,49 +531,53 @@ msgstr "Selecciona la pestaña para cargar esta tabla."
 msgid "Query"
 msgstr "Consulta"
 
-#: src/models/connection.rs:83 src/ui/components/connection_dialog.rs:203
+#: src/models/connection.rs:84 src/ui/components/connection_dialog.rs:203
 msgid "Password"
 msgstr "Contraseña"
 
-#: src/models/connection.rs:84
+#: src/models/connection.rs:85
 msgid "Private Key"
 msgstr ""
 
-#: src/models/connection.rs:159
+#: src/models/connection.rs:86
+msgid "SSH Agent"
+msgstr ""
+
+#: src/models/connection.rs:161
 msgid "Connection name is required."
 msgstr "El nombre de la conexión es obligatorio."
 
 # Host is left untranslated, it is usually understood that way.
-#: src/models/connection.rs:163
+#: src/models/connection.rs:165
 msgid "Host is required."
 msgstr "El host es obligatorio."
 
-#: src/models/connection.rs:168
+#: src/models/connection.rs:170
 msgid "Port must be a number between 1 and 65535."
 msgstr "El puerto debe ser un número entre 1 y 65535."
 
-#: src/models/connection.rs:171
+#: src/models/connection.rs:173
 msgid "Default database is required."
 msgstr "La base de datos por defecto es obligatoria."
 
-#: src/models/connection.rs:175
+#: src/models/connection.rs:177
 msgid "Username is required."
 msgstr "El nombre de usuario es obligatorio."
 
 # Host is left untranslated, it is usually understood that way.
-#: src/models/connection.rs:208
+#: src/models/connection.rs:210
 msgid "SSH host is required."
 msgstr ""
 
-#: src/models/connection.rs:213
+#: src/models/connection.rs:215
 msgid "SSH port must be a number between 1 and 65535."
 msgstr ""
 
-#: src/models/connection.rs:216
+#: src/models/connection.rs:218
 msgid "SSH username is required."
 msgstr ""
 
-#: src/models/connection.rs:220
+#: src/models/connection.rs:222
 msgid "Private key file is required."
 msgstr ""
 
@@ -716,88 +720,88 @@ msgstr "Probar conexión"
 msgid "Connect"
 msgstr "Conectar"
 
-#: src/ui/components/connection_dialog.rs:572
-#: src/ui/components/connection_dialog.rs:791
+#: src/ui/components/connection_dialog.rs:575
+#: src/ui/components/connection_dialog.rs:805
 msgid "Reading the saved password failed"
 msgstr "No se pudo leer la contraseña guardada"
 
-#: src/ui/components/connection_dialog.rs:579
+#: src/ui/components/connection_dialog.rs:582
 msgid "Connection test succeeded."
 msgstr "La prueba de conexión se realizó correctamente."
 
-#: src/ui/components/connection_dialog.rs:593
+#: src/ui/components/connection_dialog.rs:596
 msgid "Connection test failed"
 msgstr "La prueba de conexión falló"
 
-#: src/ui/components/connection_dialog.rs:612
+#: src/ui/components/connection_dialog.rs:615
 msgid "Connection failed"
 msgstr "La conexión falló"
 
-#: src/ui/components/connection_dialog.rs:646
-#: src/ui/components/connection_dialog.rs:725
+#: src/ui/components/connection_dialog.rs:653
+#: src/ui/components/connection_dialog.rs:737
 msgid "Checking password storage availability."
 msgstr "Verificando la disponibilidad del depósito de claves."
 
-#: src/ui/components/connection_dialog.rs:647
+#: src/ui/components/connection_dialog.rs:654
 msgid "Store this password in Keyring."
 msgstr "Guardar esta contraseña en el depósito de claves."
 
-#: src/ui/components/connection_dialog.rs:648
-#: src/ui/components/connection_dialog.rs:729
+#: src/ui/components/connection_dialog.rs:655
+#: src/ui/components/connection_dialog.rs:741
 msgid "Password storage is not available."
 msgstr "El depósito de claves no está disponible."
 
-#: src/ui/components/connection_dialog.rs:665
+#: src/ui/components/connection_dialog.rs:672
 msgid "Saved in Keyring. Enter a new password to replace it."
 msgstr ""
 "Guardada en el depósito de claves. Ingrese una contraseña nueva para "
 "reemplazarla."
 
-#: src/ui/components/connection_dialog.rs:668
+#: src/ui/components/connection_dialog.rs:675
 msgid "No saved password was found. Enter a password to save it."
 msgstr ""
 "No se encontró una contraseña almacenada. Ingrese una contraseña para "
 "guardarla."
 
-#: src/ui/components/connection_dialog.rs:693
+#: src/ui/components/connection_dialog.rs:705
 msgid "No private key selected."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:717
+#: src/ui/components/connection_dialog.rs:729
 msgid "Saving the trusted SSH host key failed"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:727
+#: src/ui/components/connection_dialog.rs:739
 msgid "Store the SSH password or key passphrase in Keyring."
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:811
 #: src/ui/components/connection_dialog.rs:825
+#: src/ui/components/connection_dialog.rs:839
 msgid "Reading the saved SSH secret failed"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:862
+#: src/ui/components/connection_dialog.rs:876
 msgid ""
 "This SSH host key has not been seen before. Trust it for this connection?"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:866
+#: src/ui/components/connection_dialog.rs:880
 msgid "Trust SSH Host Key?"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:872
+#: src/ui/components/connection_dialog.rs:886
 msgid "Trust"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:902
+#: src/ui/components/connection_dialog.rs:916
 msgid "Select Private Key"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:905
+#: src/ui/components/connection_dialog.rs:919
 msgid "Select"
 msgstr ""
 
-#: src/ui/components/connection_dialog.rs:950
+#: src/ui/components/connection_dialog.rs:964
 msgid "PostgreSQL returned the following error:"
 msgstr "PostgreSQL devolvió el siguiente error:"
 

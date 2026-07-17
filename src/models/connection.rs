@@ -75,6 +75,7 @@ pub enum SshAuthMethod {
     #[default]
     Password,
     PrivateKey,
+    Agent,
 }
 
 impl SshAuthMethod {
@@ -82,6 +83,7 @@ impl SshAuthMethod {
         match self {
             Self::Password => gettext("Password"),
             Self::PrivateKey => gettext("Private Key"),
+            Self::Agent => gettext("SSH Agent"),
         }
     }
 }
@@ -220,13 +222,22 @@ impl ConnectionForm {
             return Err(gettext("Private key file is required."));
         }
 
+        let save_secret = match self.ssh_auth_method {
+            SshAuthMethod::Password | SshAuthMethod::PrivateKey => self.ssh_save_secret,
+            SshAuthMethod::Agent => false,
+        };
+        let private_key_path = match self.ssh_auth_method {
+            SshAuthMethod::PrivateKey => private_key_path.to_string(),
+            SshAuthMethod::Password | SshAuthMethod::Agent => String::new(),
+        };
+
         Ok(SshTunnelConfig {
             host: host.to_string(),
             port,
             username: username.to_string(),
             auth_method: self.ssh_auth_method,
-            private_key_path: private_key_path.to_string(),
-            save_secret: self.ssh_save_secret,
+            private_key_path,
+            save_secret,
             host_key_fingerprint: self.ssh_host_key_fingerprint.clone(),
         })
     }
@@ -346,6 +357,98 @@ mod tests {
         };
 
         assert!(form.validate().is_err());
+    }
+
+    #[test]
+    fn ssh_agent_auth_method_serializes_as_agent() {
+        let serialized =
+            serde_json::to_string(&SshAuthMethod::Agent).expect("auth method to serialize");
+        let deserialized: SshAuthMethod =
+            serde_json::from_str(&serialized).expect("auth method to deserialize");
+
+        assert_eq!(serialized, r#""agent""#);
+        assert_eq!(deserialized, SshAuthMethod::Agent);
+    }
+
+    #[test]
+    fn ssh_agent_auth_validates_without_private_key_path() {
+        let form = ConnectionForm {
+            name: "Remote".to_string(),
+            username: "postgres".to_string(),
+            ssh_enabled: true,
+            ssh_host: "bastion.example.com".to_string(),
+            ssh_username: "anil".to_string(),
+            ssh_auth_method: SshAuthMethod::Agent,
+            ..ConnectionForm::default()
+        };
+
+        let details = form.validate().expect("agent auth form to validate");
+        let config = details
+            .saved
+            .ssh_tunnel
+            .expect("validated details to include ssh tunnel");
+
+        assert_eq!(config.auth_method, SshAuthMethod::Agent);
+        assert!(config.private_key_path.is_empty());
+    }
+
+    #[test]
+    fn ssh_agent_auth_does_not_persist_save_secret() {
+        let form = ConnectionForm {
+            name: "Remote".to_string(),
+            username: "postgres".to_string(),
+            ssh_enabled: true,
+            ssh_host: "bastion.example.com".to_string(),
+            ssh_username: "anil".to_string(),
+            ssh_auth_method: SshAuthMethod::Agent,
+            ssh_save_secret: true,
+            ..ConnectionForm::default()
+        };
+
+        let details = form.validate().expect("agent auth form to validate");
+        let config = details
+            .saved
+            .ssh_tunnel
+            .expect("validated details to include ssh tunnel");
+
+        assert!(!config.save_secret);
+    }
+
+    #[test]
+    fn ssh_agent_auth_does_not_persist_private_key_path() {
+        let form = ConnectionForm {
+            name: "Remote".to_string(),
+            username: "postgres".to_string(),
+            ssh_enabled: true,
+            ssh_host: "bastion.example.com".to_string(),
+            ssh_username: "anil".to_string(),
+            ssh_auth_method: SshAuthMethod::Agent,
+            ssh_private_key_path: "/home/anil/.ssh/id_ed25519".to_string(),
+            ..ConnectionForm::default()
+        };
+
+        let details = form.validate().expect("agent auth form to validate");
+        let config = details
+            .saved
+            .ssh_tunnel
+            .expect("validated details to include ssh tunnel");
+
+        assert!(config.private_key_path.is_empty());
+    }
+
+    #[test]
+    fn connection_form_copies_ssh_agent_method_from_saved_connection() {
+        let connection = SavedConnection {
+            ssh_tunnel: Some(SshTunnelConfig {
+                auth_method: SshAuthMethod::Agent,
+                ..private_key_tunnel_config()
+            }),
+            ..saved_connection()
+        };
+
+        let form = ConnectionForm::from_saved(&connection);
+
+        assert_eq!(form.ssh_auth_method, SshAuthMethod::Agent);
     }
 
     fn saved_connection() -> SavedConnection {

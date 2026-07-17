@@ -4,7 +4,12 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use russh::client::{self, AuthResult};
-use russh::keys::{HashAlg, PrivateKeyWithHashAlg, load_secret_key, ssh_key::PublicKey};
+use russh::keys::{
+    HashAlg, PrivateKeyWithHashAlg,
+    agent::{AgentIdentity, client::AgentClient},
+    load_secret_key,
+    ssh_key::PublicKey,
+};
 use russh::{ChannelMsg, Disconnect};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
@@ -19,10 +24,13 @@ pub enum SshTunnelError {
     UntrustedHostKey(String),
     HostKeyChanged { expected: String, actual: String },
     AuthenticationFailed,
+    AgentUnavailable(String),
+    AgentHasNoIdentities,
     TimedOut,
     Io(std::io::Error),
     Russh(russh::Error),
     Key(russh::keys::Error),
+    AgentAuth(russh::AgentAuthError),
 }
 
 impl fmt::Display for SshTunnelError {
@@ -38,10 +46,18 @@ impl fmt::Display for SshTunnelError {
                 "SSH host key changed. Expected {expected}, got {actual}"
             ),
             Self::AuthenticationFailed => write!(formatter, "SSH authentication failed"),
+            Self::AgentUnavailable(error) => {
+                write!(formatter, "SSH agent is not available: {error}")
+            }
+            Self::AgentHasNoIdentities => write!(formatter, "SSH agent has no loaded identities"),
             Self::TimedOut => write!(formatter, "SSH connection timed out"),
             Self::Io(error) => write!(formatter, "{error}"),
             Self::Russh(error) => write!(formatter, "{error}"),
             Self::Key(error) => write!(formatter, "{error}"),
+            Self::AgentAuth(error) => write!(
+                formatter,
+                "SSH agent signing failed. The agent may have refused the request or confirmation was denied: {error}"
+            ),
         }
     }
 }
@@ -65,6 +81,12 @@ impl From<russh::Error> for SshTunnelError {
 impl From<russh::keys::Error> for SshTunnelError {
     fn from(error: russh::keys::Error) -> Self {
         Self::Key(error)
+    }
+}
+
+impl From<russh::AgentAuthError> for SshTunnelError {
+    fn from(error: russh::AgentAuthError) -> Self {
+        Self::AgentAuth(error)
     }
 }
 
@@ -244,10 +266,58 @@ async fn authenticate(
                 )
                 .await?
         }
+        SshAuthMethod::Agent => authenticate_with_agent(session, &config.username).await?,
     };
 
     if matches!(result, AuthResult::Success) {
         return Ok(());
+    }
+
+    Err(SshTunnelError::AuthenticationFailed)
+}
+
+async fn authenticate_with_agent(
+    session: &mut client::Handle<HostKeyVerifier>,
+    username: &str,
+) -> Result<AuthResult, SshTunnelError> {
+    let mut agent = AgentClient::connect_env()
+        .await
+        .map_err(|e| SshTunnelError::AgentUnavailable(e.to_string()))?;
+
+    let identities = agent.request_identities().await?;
+
+    if identities.is_empty() {
+        return Err(SshTunnelError::AgentHasNoIdentities);
+    }
+
+    let hash_alg = session.best_supported_rsa_hash().await?.flatten();
+
+    for identity in &identities {
+        let AgentIdentity::PublicKey { key, .. } = identity else {
+            continue;
+        };
+
+        let result = session
+            .authenticate_publickey_with(username, key.clone(), hash_alg, &mut agent)
+            .await?;
+
+        if matches!(result, AuthResult::Success) {
+            return Ok(result);
+        }
+    }
+
+    for identity in identities {
+        let AgentIdentity::Certificate { certificate, .. } = identity else {
+            continue;
+        };
+
+        let result = session
+            .authenticate_certificate_with(username, certificate, hash_alg, &mut agent)
+            .await?;
+
+        if matches!(result, AuthResult::Success) {
+            return Ok(result);
+        }
     }
 
     Err(SshTunnelError::AuthenticationFailed)

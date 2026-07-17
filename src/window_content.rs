@@ -1038,6 +1038,14 @@ async fn update_saved_password(details: ConnectionDetails) -> Result<(), String>
                     .await
                     .map_err(|error| error.to_string())?;
             }
+            crate::models::connection::SshAuthMethod::Agent => {
+                credential_store::delete_ssh_password(&details.saved.id)
+                    .await
+                    .map_err(|error| error.to_string())?;
+                credential_store::delete_ssh_key_passphrase(&details.saved.id)
+                    .await
+                    .map_err(|error| error.to_string())?;
+            }
         }
     } else {
         credential_store::delete_ssh_password(&details.saved.id)
