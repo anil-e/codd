@@ -358,6 +358,7 @@ impl Component for TableBrowser {
                 gtk::Button {
                     set_icon_name: "first-symbolic",
                     set_tooltip_text: Some(&gettext("First page")),
+                    set_valign: gtk::Align::Center,
                     add_css_class: "flat",
                     #[watch]
                     set_sensitive: model.can_go_previous(),
@@ -367,6 +368,7 @@ impl Component for TableBrowser {
                 gtk::Button {
                     set_icon_name: "go-previous-symbolic",
                     set_tooltip_text: Some(&gettext("Previous page")),
+                    set_valign: gtk::Align::Center,
                     add_css_class: "flat",
                     #[watch]
                     set_sensitive: model.can_go_previous(),
@@ -378,6 +380,7 @@ impl Component for TableBrowser {
                 },
 
                 gtk::Spinner {
+                    set_valign: gtk::Align::Center,
                     #[watch]
                     set_visible: model.is_loading,
                     #[watch]
@@ -385,6 +388,7 @@ impl Component for TableBrowser {
                 },
 
                 gtk::Label {
+                    set_valign: gtk::Align::Center,
                     add_css_class: "caption",
                     add_css_class: "dim-label",
                     #[watch]
@@ -398,6 +402,7 @@ impl Component for TableBrowser {
                 gtk::Button {
                     set_icon_name: "go-next-symbolic",
                     set_tooltip_text: Some(&gettext("Next page")),
+                    set_valign: gtk::Align::Center,
                     add_css_class: "flat",
                     #[watch]
                     set_sensitive: model.can_go_next(),
@@ -407,6 +412,7 @@ impl Component for TableBrowser {
                 gtk::Button {
                     set_icon_name: "last-symbolic",
                     set_tooltip_text: Some(&gettext("Last page")),
+                    set_valign: gtk::Align::Center,
                     add_css_class: "flat",
                     #[watch]
                     set_sensitive: model.can_go_next(),
@@ -414,12 +420,14 @@ impl Component for TableBrowser {
                 },
 
                 gtk::Label {
+                    set_valign: gtk::Align::Center,
                     add_css_class: "caption",
                     add_css_class: "dim-label",
                     set_label: &gettext("Rows"),
                 },
 
                 gtk::DropDown {
+                    set_valign: gtk::Align::Center,
                     add_css_class: "compact",
                     set_tooltip_text: Some(&gettext("Rows per page")),
                     set_model: Some(&page_size_model()),

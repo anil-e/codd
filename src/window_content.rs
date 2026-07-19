@@ -4,7 +4,7 @@ use libadwaita::prelude::*;
 
 use relm4::Sender;
 use relm4::gtk;
-use relm4::gtk::glib;
+use relm4::gtk::{gio, glib};
 use relm4::prelude::*;
 use sqlx::PgPool;
 use std::cell::Cell;
@@ -60,6 +60,7 @@ static NEXT_WINDOW_CONTENT_SUBSCRIPTION_ID: AtomicU64 = AtomicU64::new(0);
 
 pub struct WindowContent {
     state: AppState,
+    app_settings: gio::Settings,
     active_pool: Option<PgPool>,
     active_tunnel: Option<TunnelGuard>,
     active_connection_details: Option<ConnectionDetails>,
@@ -389,6 +390,7 @@ impl Component for WindowContent {
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         let connections = connection_store::load_connections();
+        let app_settings = settings::app_settings();
         let start_screen = StartScreen::builder()
             .launch(connections.clone())
             .forward(sender.input_sender(), WindowContentMsg::StartScreenOutput);
@@ -406,6 +408,7 @@ impl Component for WindowContent {
                 connections,
                 ..AppState::default()
             },
+            app_settings,
             active_pool: None,
             active_tunnel: None,
             active_connection_details: None,
@@ -436,7 +439,16 @@ impl Component for WindowContent {
             session_save_scheduled: false,
             tab_view_signals_blocked: tab_view_signals_blocked.clone(),
         };
+        let content_root = root.clone();
         let widgets = view_output!();
+
+        sync_compact_mode(&content_root, model.app_settings.boolean("compact-mode"));
+        model.app_settings.connect_changed(Some("compact-mode"), {
+            let root = content_root.clone();
+            move |settings, _| {
+                sync_compact_mode(&root, settings.boolean("compact-mode"));
+            }
+        });
 
         model.sidebar.widget().set_vexpand(true);
         model.add_query_tab(&widgets, &sender);
@@ -1750,6 +1762,14 @@ fn show_export_error_dialog(widgets: &WindowContentWidgets, error: &str) {
 
     dialog.add_response("close", &gettext("Close"));
     dialog.present(widgets.toast_overlay.root().as_ref());
+}
+
+fn sync_compact_mode(root: &adw::ToolbarView, compact_mode: bool) {
+    if compact_mode {
+        root.add_css_class("compact-mode");
+    } else {
+        root.remove_css_class("compact-mode");
+    }
 }
 
 async fn load_schema_result(pool: &PgPool) -> Result<SchemaLoadResult, String> {

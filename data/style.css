@@ -3,6 +3,30 @@
   border-radius: 6px;
 }
 
+.data-cell {
+  padding: 7px 14px;
+}
+
+.compact-mode .data-cell {
+  padding: 0 4px;
+}
+
+.compact-mode columnview.query-results-table listview row,
+.compact-mode columnview.data-table listview row {
+  min-height: 0;
+}
+
+.compact-mode columnview.data-table header button,
+.compact-mode columnview.query-results-table header button {
+  min-height: 24px;
+  padding: 2px 6px;
+}
+
+.compact-mode columnview.data-table header label,
+.compact-mode columnview.query-results-table header label {
+  font-size: 0.9em;
+}
+
 .query-cell:hover {
   background-color: alpha(@window_fg_color, 0.07);
 }
@@ -64,6 +88,17 @@ columnview.query-results-table listview row:hover {
   padding-top: 3px;
 }
 
+.compact-mode .object-tree-schema-row,
+.compact-mode .object-tree-schema-row > box > list > row,
+.compact-mode .object-tree-schema-row > box > list > row > box.header {
+  min-height: 28px;
+}
+
+.compact-mode .object-tree-schema-row > box > list > row > box.header {
+  padding-bottom: 0;
+  padding-top: 0;
+}
+
 .object-tree-object-row {
   min-height: 32px;
   border-radius: 6px;
@@ -79,6 +114,16 @@ columnview.query-results-table listview row:hover {
   padding-left: 1px;
   padding-right: 1px;
   padding-top: 2px;
+}
+
+.compact-mode .object-tree-object-row,
+.compact-mode .object-tree-object-row > box.header {
+  min-height: 24px;
+}
+
+.compact-mode .object-tree-object-row > box.header {
+  padding-bottom: 0;
+  padding-top: 0;
 }
 
 .object-tree row.object-tree-object-row:hover {
@@ -129,6 +174,23 @@ columnview.query-results-table listview row:hover {
   background-color: @view_bg_color;
 }
 
+.compact-mode .results-table-scroller {
+  margin-bottom: 4px;
+}
+
+.compact-mode .results-footer {
+  margin: 2px 8px 6px;
+}
+
+.compact-mode .results-footer button,
+.compact-mode .results-footer spinbutton,
+.compact-mode .results-footer spinbutton button,
+.compact-mode .results-footer spinbutton text {
+  min-height: 26px;
+  padding-bottom: 2px;
+  padding-top: 2px;
+}
+
 .table-browser {
   background-color: @view_bg_color;
 }
@@ -142,9 +204,40 @@ columnview.query-results-table listview row:hover {
   font-size: 0.98em;
 }
 
+.compact-mode .table-browser-header {
+  margin: 4px 8px;
+}
+
+.compact-mode .table-browser-header .heading {
+  font-size: 0.94em;
+}
+
+.compact-mode .table-browser-header .caption {
+  font-size: 0.82em;
+}
+
+.compact-mode .table-browser-header button {
+  min-height: 28px;
+  min-width: 28px;
+  padding: 2px 6px;
+}
+
 .table-mode-switcher button {
   margin-bottom: 2px;
   margin-top: 2px;
+}
+
+.compact-mode .table-mode-switcher {
+  margin-bottom: 2px;
+  margin-top: 2px;
+}
+
+.compact-mode .table-mode-switcher button {
+  margin-bottom: 0;
+  margin-top: 0;
+  min-height: 26px;
+  padding-bottom: 2px;
+  padding-top: 2px;
 }
 
 .table-browser-scroller,
@@ -158,16 +251,39 @@ columnview.query-results-table listview row:hover {
   border-top: 1px solid alpha(@borders, 0.65);
 }
 
+.compact-mode .table-browser-footer {
+  margin: 2px 8px 4px;
+}
+
 .table-browser-footer button {
   min-height: 28px;
   min-width: 28px;
   padding: 3px 6px;
 }
 
+.compact-mode .table-browser-footer button {
+  min-height: 24px;
+  min-width: 24px;
+  padding: 1px 4px;
+}
+
 .table-browser-footer dropdown button {
   min-height: 28px;
   padding-top: 3px;
   padding-bottom: 3px;
+}
+
+.compact-mode .table-browser-footer dropdown button {
+  min-height: 24px;
+  padding-bottom: 1px;
+  padding-top: 1px;
+}
+
+.compact-mode .table-browser-footer .caption {
+  font-size: 0.82em;
+  min-height: 24px;
+  padding-bottom: 3px;
+  padding-top: 3px;
 }
 
 .cell-type-boolean              { color: #0b7d3b; }

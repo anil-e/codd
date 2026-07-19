@@ -125,12 +125,9 @@ fn text_column(
             .ellipsize(gtk::pango::EllipsizeMode::End)
             .single_line_mode(true)
             .lines(1)
-            .margin_top(4)
-            .margin_bottom(4)
-            .margin_start(8)
-            .margin_end(8)
             .build();
         label.add_css_class("query-cell");
+        label.add_css_class("data-cell");
         label.add_controller({
             let gesture = gtk::GestureClick::new();
             let label = label.clone();

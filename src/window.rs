@@ -4,6 +4,7 @@ use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk::glib;
+use relm4::gtk::glib::variant::ToVariant;
 use relm4::prelude::*;
 
 use crate::app_window::{AppWindow as ExtraAppWindow, AppWindowInit, AppWindowOutput};
@@ -143,6 +144,43 @@ impl Component for AppWindow {
 
 fn setup_app_actions(sender: &ComponentSender<AppWindow>) {
     let app = relm4::main_adw_application();
+    let app_settings = settings::app_settings();
+
+    let action = gtk::gio::SimpleAction::new_stateful(
+        "compact-mode",
+        None,
+        &app_settings.boolean("compact-mode").to_variant(),
+    );
+
+    action.connect_activate({
+        let app_settings = app_settings.clone();
+        move |action, _| {
+            let compact_mode = !app_settings.boolean("compact-mode");
+            let _ = app_settings.set_boolean("compact-mode", compact_mode);
+            action.set_state(&compact_mode.to_variant());
+        }
+    });
+
+    action.connect_change_state({
+        let app_settings = app_settings.clone();
+        move |action, value| {
+            let Some(compact_mode) = value.and_then(|value| value.get::<bool>()) else {
+                return;
+            };
+
+            let _ = app_settings.set_boolean("compact-mode", compact_mode);
+            action.set_state(&compact_mode.to_variant());
+        }
+    });
+
+    app_settings.connect_changed(Some("compact-mode"), {
+        let action = action.clone();
+        move |settings, _| {
+            action.set_state(&settings.boolean("compact-mode").to_variant());
+        }
+    });
+
+    app.add_action(&action);
 
     let action = gtk::gio::SimpleAction::new("new-window", None);
     let s = sender.clone();

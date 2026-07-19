@@ -580,13 +580,10 @@ fn cell_factory(
             .lines(1)
             .width_chars(12)
             .max_width_chars(28)
-            .margin_top(4)
-            .margin_bottom(4)
-            .margin_start(8)
-            .margin_end(8)
             .build();
 
         label.add_css_class("query-cell");
+        label.add_css_class("data-cell");
         label.add_css_class("result-cell");
 
         label.add_controller({

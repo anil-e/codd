@@ -11,6 +11,11 @@
       <summary>Window height</summary>
       <description>Default height of the main application window.</description>
     </key>
+    <key name="compact-mode" type="b">
+      <default>false</default>
+      <summary>Compact mode</summary>
+      <description>Whether data-heavy views use denser spacing.</description>
+    </key>
   </schema>
 
   <schema id="io.github.anil_e.Codd.connection-state">
