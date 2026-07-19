@@ -1,5 +1,5 @@
 project('codd', 'rust',
-          version: '0.12.0',
+          version: '0.13.0',
     meson_version: '>= 1.1.0',
   default_options: [ 'warning_level=2', 'werror=false', ],
 )
