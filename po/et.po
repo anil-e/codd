@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-17 20:08+0200\n"
-"PO-Revision-Date: 2026-07-17 18:02+0000\n"
+"PO-Revision-Date: 2026-07-22 19:10+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -28,7 +28,7 @@ msgstr "Uus ake_n"
 
 #: src/menus.rs:38
 msgid "Compact Mode"
-msgstr ""
+msgstr "Kompaktne vaade"
 
 #: src/menus.rs:39
 msgid "_Keyboard Shortcuts"
@@ -551,7 +551,7 @@ msgstr "Privaatvõti"
 
 #: src/models/connection.rs:86
 msgid "SSH Agent"
-msgstr ""
+msgstr "SSH agent"
 
 #: src/models/connection.rs:161
 msgid "Connection name is required."
