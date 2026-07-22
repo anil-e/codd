@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-17 20:08+0200\n"
-"PO-Revision-Date: 2026-07-15 09:01+0000\n"
-"Last-Translator: Francisco Vásquez Cuevas <fvasquez@fvtronics.com>\n"
+"PO-Revision-Date: 2026-07-23 20:01+0000\n"
+"Last-Translator: Guillem Servera <guillem@gservera.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/codd/ui/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -29,7 +29,7 @@ msgstr "Nueva _ventana"
 
 #: src/menus.rs:38
 msgid "Compact Mode"
-msgstr ""
+msgstr "Modo compacto"
 
 #: src/menus.rs:39
 msgid "_Keyboard Shortcuts"
@@ -541,11 +541,11 @@ msgstr "Contraseña"
 
 #: src/models/connection.rs:85
 msgid "Private Key"
-msgstr ""
+msgstr "Clave privada"
 
 #: src/models/connection.rs:86
 msgid "SSH Agent"
-msgstr ""
+msgstr "Agente SSH"
 
 #: src/models/connection.rs:161
 msgid "Connection name is required."
@@ -571,19 +571,19 @@ msgstr "El nombre de usuario es obligatorio."
 # Host is left untranslated, it is usually understood that way.
 #: src/models/connection.rs:210
 msgid "SSH host is required."
-msgstr ""
+msgstr "Se requiere un servidor SSH."
 
 #: src/models/connection.rs:215
 msgid "SSH port must be a number between 1 and 65535."
-msgstr ""
+msgstr "El puerto SSH debe ser un número entre 1 y 65535."
 
 #: src/models/connection.rs:218
 msgid "SSH username is required."
-msgstr ""
+msgstr "Se requiere un nombre de usuario SSH."
 
 #: src/models/connection.rs:222
 msgid "Private key file is required."
-msgstr ""
+msgstr "Se requiere un archivo de clave privada."
 
 #: src/models/completion.rs:119 src/models/completion.rs:244
 #: src/models/completion.rs:421 src/models/completion.rs:434
@@ -639,7 +639,7 @@ msgstr "Nombre"
 
 #: src/ui/components/connection_dialog.rs:102
 msgid "SSH host key is not trusted yet. Fingerprint:"
-msgstr ""
+msgstr "El servidor SSH no es de confianza todavía. Huella:"
 
 #: src/ui/components/connection_dialog.rs:117
 #: src/ui/components/connection_dialog.rs:132
@@ -673,48 +673,48 @@ msgstr "Guardar contraseña"
 
 #: src/ui/components/connection_dialog.rs:252
 msgid "SSH Tunnel"
-msgstr ""
+msgstr "Túnel SSH"
 
 #: src/ui/components/connection_dialog.rs:255
 msgid "Use SSH Tunnel"
-msgstr ""
+msgstr "Usar túnel SSH"
 
 # Host is left untranslated, it is usually understood that way.
 #: src/ui/components/connection_dialog.rs:266
 msgid "SSH Host"
-msgstr ""
+msgstr "Host SSH"
 
 #: src/ui/components/connection_dialog.rs:278
 msgid "SSH Port"
-msgstr ""
+msgstr "Puerto SSH"
 
 #: src/ui/components/connection_dialog.rs:291
 msgid "SSH Username"
-msgstr ""
+msgstr "Usuario SSH"
 
 #: src/ui/components/connection_dialog.rs:303
 msgid "Authentication"
-msgstr ""
+msgstr "Autenticación"
 
 #: src/ui/components/connection_dialog.rs:317
 msgid "SSH Password"
-msgstr ""
+msgstr "Contraseña SSH"
 
 #: src/ui/components/connection_dialog.rs:329
 msgid "Private Key File"
-msgstr ""
+msgstr "Archivo de clave privada"
 
 #: src/ui/components/connection_dialog.rs:338
 msgid "Choose..."
-msgstr ""
+msgstr "Seleccionar..."
 
 #: src/ui/components/connection_dialog.rs:347
 msgid "Key Passphrase"
-msgstr ""
+msgstr "Frase de paso de la clave"
 
 #: src/ui/components/connection_dialog.rs:359
 msgid "Save SSH Secret"
-msgstr ""
+msgstr "Guardar el secreto SSH"
 
 #: src/ui/components/connection_dialog.rs:387
 msgid "Test Connection"
@@ -769,41 +769,42 @@ msgstr ""
 
 #: src/ui/components/connection_dialog.rs:702
 msgid "No private key selected."
-msgstr ""
+msgstr "No se ha seleccionado clave privada."
 
 #: src/ui/components/connection_dialog.rs:726
 msgid "Saving the trusted SSH host key failed"
-msgstr ""
+msgstr "No se ha podido guardar la clave del host SSH de confianza"
 
 #: src/ui/components/connection_dialog.rs:736
 msgid "Store the SSH password or key passphrase in Keyring."
-msgstr ""
+msgstr "Guardar la contraseña o frase de paso de SSH en Keyring."
 
 #: src/ui/components/connection_dialog.rs:822
 #: src/ui/components/connection_dialog.rs:836
 msgid "Reading the saved SSH secret failed"
-msgstr ""
+msgstr "No se ha podido leer el secreto SSH guardado"
 
 #: src/ui/components/connection_dialog.rs:873
 msgid ""
 "This SSH host key has not been seen before. Trust it for this connection?"
 msgstr ""
+"Todavía no se ha conectado a este host SSH. ¿Confía en él para esta conexión?"
 
 #: src/ui/components/connection_dialog.rs:877
 msgid "Trust SSH Host Key?"
-msgstr ""
+msgstr "¿Confiar en este servidor SSH?"
 
 #: src/ui/components/connection_dialog.rs:883
 msgid "Trust"
-msgstr ""
+msgstr "Confiar"
 
 #: src/ui/components/connection_dialog.rs:913
 msgid "Select Private Key"
-msgstr ""
+msgstr "Seleccionar clave privada"
 
 #: src/ui/components/connection_dialog.rs:916
 msgid "Select"
-msgstr ""
+msgstr "Seleccionar"
 
 #: src/ui/components/connection_dialog.rs:961
 msgid "PostgreSQL returned the following error:"
