@@ -8,94 +8,95 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-17 20:08+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-07-27 06:22+0000\n"
+"Last-Translator: Дмитрий <cyansair05@gmail.com>\n"
+"Language-Team: Russian <https://hosted.weblate.org/projects/codd/ui/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
-msgstr ""
+msgstr "Новое подключение"
 
 #: src/menus.rs:32
 msgid "_New Window"
-msgstr ""
+msgstr "Новое окно"
 
 #: src/menus.rs:38
 msgid "Compact Mode"
-msgstr ""
+msgstr "Компактный режим"
 
 #: src/menus.rs:39
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "Горячие клавиши"
 
 #: src/menus.rs:40
 msgid "_About Codd"
-msgstr ""
+msgstr "О Codd"
 
 #: src/menus.rs:41
 msgid "_Quit"
-msgstr ""
+msgstr "Закрыть"
 
 #: src/window.rs:233
 msgid "translator-credits"
-msgstr ""
+msgstr "Переводчики"
 
 #: src/window.rs:235 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
-msgstr ""
+msgstr "Легковесный клиент PostgreSQL"
 
 #: src/window_content.rs:274 src/window_content.rs:341
 msgid "Main Menu"
-msgstr ""
+msgstr "Главное меню"
 
 #: src/window_content.rs:307
 msgid "Objects"
-msgstr ""
+msgstr "Объекты"
 
 #: src/window_content.rs:311
 msgid "Back to connections"
-msgstr ""
+msgstr "К списку подключений"
 
 #: src/window_content.rs:318
 msgid "Refresh Objects"
-msgstr ""
+msgstr "Обновить объекты"
 
 #: src/window_content.rs:348
 msgid "New Query Tab"
-msgstr ""
+msgstr "Новый запрос"
 
 #: src/window_content.rs:734 src/window_content.rs:1276
 #: src/window_content/database_switching.rs:64
 msgid "Saving tabs failed"
-msgstr ""
+msgstr "Ошибка сохранения вкладок"
 
 #: src/window_content.rs:828
 msgid "Updating the saved password failed"
-msgstr ""
+msgstr "Не удалось обновить пароль"
 
 #: src/window_content.rs:879 src/ui/components/table_browser.rs:828
 msgid "CSV exported."
-msgstr ""
+msgstr "CSV экспортирован."
 
 #: src/window_content.rs:1085
 msgid "Hide Objects"
-msgstr ""
+msgstr "Скрыть Объекты"
 
 #: src/window_content.rs:1086
 msgid "Show Objects"
-msgstr ""
+msgstr "Показать Объекты"
 
 #: src/window_content.rs:1312 src/ui/components/sidebar.rs:152
 #: src/ui/components/sidebar.rs:406 src/ui/components/sidebar.rs:420
 msgid "No connection"
-msgstr ""
+msgstr "Нет подключения"
 
 #: src/window_content.rs:1379
 msgid "Connected to PostgreSQL."
