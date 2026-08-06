@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-17 20:08+0200\n"
-"PO-Revision-Date: 2026-07-06 08:01+0000\n"
+"PO-Revision-Date: 2026-07-29 14:01+0000\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/codd/ui/fi/>\n"
 "Language: fi\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -28,7 +28,7 @@ msgstr "_Uusi ikkuna"
 
 #: src/menus.rs:38
 msgid "Compact Mode"
-msgstr ""
+msgstr "Tiivis tila"
 
 #: src/menus.rs:39
 msgid "_Keyboard Shortcuts"
@@ -107,7 +107,7 @@ msgstr "Yhdistetty, mutta yhteyden tallentaminen epäonnistui"
 
 #: src/window_content.rs:1511
 msgid "Disabling saved password failed"
-msgstr ""
+msgstr "Tallennetun salasanan poistaminen käytöstä epäonnistui"
 
 #: src/window_content.rs:1526
 msgid "Connect to PostgreSQL before exporting query results."
@@ -115,7 +115,7 @@ msgstr "Yhdistä PostgreSQL:ään ennen kyselyn tulosten vientiä."
 
 #: src/window_content.rs:1534
 msgid "Enter SQL before exporting query results."
-msgstr ""
+msgstr "Kirjoita SQL ennen kyselytulosten viemistä."
 
 #: src/window_content.rs:1578
 msgid "The query did not return rows."
@@ -156,23 +156,23 @@ msgstr ""
 
 #: src/window_content.rs:1810
 msgid "CREATE script generated."
-msgstr ""
+msgstr "CREATE-komentosarja luotu."
 
 #: src/window_content.rs:1811
 msgid "SELECT script generated."
-msgstr ""
+msgstr "SELECT-komentosarja luotu."
 
 #: src/window_content.rs:1812
 msgid "INSERT script generated."
-msgstr ""
+msgstr "INSERT-komentosarja luotu."
 
 #: src/window_content.rs:1813
 msgid "UPDATE script generated."
-msgstr ""
+msgstr "UPDATE-komentosarja luotu."
 
 #: src/window_content.rs:1814
 msgid "DELETE script generated."
-msgstr ""
+msgstr "DELETE-komentosarja luotu."
 
 #: src/window_content/database_switching.rs:56
 msgid "Connect to PostgreSQL before switching databases."
@@ -192,15 +192,15 @@ msgstr ""
 
 #: src/window_content/database_switching.rs:224
 msgid "Saving query history failed"
-msgstr ""
+msgstr "Kyselyhistorian tallentaminen epäonnistui"
 
 #: src/window_content/database_switching.rs:247
 msgid "Clearing query history failed"
-msgstr ""
+msgstr "Kyselyhistorian tyhjentäminen epäonnistui"
 
 #: src/window_content/object_actions.rs:60
 msgid "Choose a new name for this database object."
-msgstr ""
+msgstr "Valitse uusi nimi tälle tietokantaobjektille."
 
 #: src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
@@ -236,11 +236,11 @@ msgstr ""
 
 #: src/window_content/object_actions.rs:156
 msgid "Cascade"
-msgstr ""
+msgstr "Porrasta"
 
 #: src/window_content/object_actions.rs:158
 msgid "Also truncate tables that have foreign-key references to this table."
-msgstr ""
+msgstr "Typistä myös taulut, joissa on viiteavainviittauksia tähän tauluun."
 
 #: src/window_content/object_actions.rs:313
 msgid "Rename Table"
@@ -252,7 +252,7 @@ msgstr "Nimeä näkymä uudelleen"
 
 #: src/window_content/object_actions.rs:316
 msgid "Truncate Table"
-msgstr ""
+msgstr "Typistä taulu"
 
 #: src/window_content/object_actions.rs:318
 msgid "Delete Table"
@@ -268,6 +268,8 @@ msgid ""
 "Remove all rows from {table}?\n"
 "This cannot be undone."
 msgstr ""
+"Poistetaanko kaikki rivit taulusta {table}?\n"
+"Tätä ei voi perua."
 
 #: src/window_content/object_actions.rs:332
 #, rust-format
@@ -275,6 +277,8 @@ msgid ""
 "Delete table {name}?\n"
 "This cannot be undone."
 msgstr ""
+"Poistetaanko taulu {name}?\n"
+"Tätä ei voi perua."
 
 #: src/window_content/object_actions.rs:334
 #, rust-format
@@ -282,10 +286,12 @@ msgid ""
 "Delete view {name}?\n"
 "This cannot be undone."
 msgstr ""
+"Poistetaanko näkymä {name}?\n"
+"Tätä ei voi perua."
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
-msgstr ""
+msgstr "Typistä"
 
 #: src/window_content/object_actions.rs:346
 #: src/ui/components/table_browser/delete_row.rs:32
@@ -299,7 +305,7 @@ msgstr "Tietokantaobjekti nimetty uudelleen."
 #: src/window_content/object_actions.rs:354
 #, rust-format
 msgid "Table truncated: {table}"
-msgstr ""
+msgstr "Taulu typistetty: {table}"
 
 #: src/window_content/object_actions.rs:356
 msgid "Database object deleted."
@@ -312,7 +318,7 @@ msgstr "Nimeäminen uudelleen epäonnistui"
 
 #: src/window_content/object_actions.rs:363
 msgid "Truncating failed"
-msgstr ""
+msgstr "Typistäminen epäonnistui"
 
 #: src/window_content/object_actions.rs:364
 msgid "Deleting failed"
@@ -353,140 +359,140 @@ msgstr "Pudota"
 
 #: src/window_content/structure_actions.rs:333
 msgid "Rename column"
-msgstr ""
+msgstr "Nimeä sarake uudelleen"
 
 #: src/window_content/structure_actions.rs:334
 msgid "Rename index"
-msgstr ""
+msgstr "Nimeä indeksi uudelleen"
 
 #: src/window_content/structure_actions.rs:335
 msgid "Rename constraint"
-msgstr ""
+msgstr "Nimeä rajoite uudelleen"
 
 #: src/window_content/structure_actions.rs:336
 msgid "Rename foreign key"
-msgstr ""
+msgstr "Nimeä viiteavain uudelleen"
 
 #: src/window_content/structure_actions.rs:337
 msgid "Rename trigger"
-msgstr ""
+msgstr "Nimeä liipaisin uudelleen"
 
 #: src/window_content/structure_actions.rs:343
 msgid "Drop column"
-msgstr ""
+msgstr "Pudota sarake"
 
 #: src/window_content/structure_actions.rs:344
 msgid "Drop index"
-msgstr ""
+msgstr "Pudota indeksi"
 
 #: src/window_content/structure_actions.rs:345
 msgid "Drop constraint"
-msgstr ""
+msgstr "Pudota rajoite"
 
 #: src/window_content/structure_actions.rs:346
 msgid "Drop foreign key"
-msgstr ""
+msgstr "Pudota viiteavain"
 
 #: src/window_content/structure_actions.rs:347
 msgid "Drop trigger"
-msgstr ""
+msgstr "Pudota liipaisin"
 
 #: src/window_content/structure_actions.rs:353
 #, rust-format
 msgid "Drop column {name} from table {table}?"
-msgstr ""
+msgstr "Pudotetaanko sarake {name} taulusta {table}?"
 
 #: src/window_content/structure_actions.rs:354
 #, rust-format
 msgid "Drop index {name} from table {table}?"
-msgstr ""
+msgstr "Pudotetaanko indeksi {name} taulusta {table}?"
 
 #: src/window_content/structure_actions.rs:355
 #, rust-format
 msgid "Drop constraint {name} from table {table}?"
-msgstr ""
+msgstr "Pudotetaanko rajoite {name} taulusta {table}?"
 
 #: src/window_content/structure_actions.rs:356
 #, rust-format
 msgid "Drop foreign key {name} from table {table}?"
-msgstr ""
+msgstr "Pudotetaanko viiteavain {name} taulusta {table}?"
 
 #: src/window_content/structure_actions.rs:357
 #, rust-format
 msgid "Drop trigger {name} from table {table}?"
-msgstr ""
+msgstr "Pudotetaanko liipaisin {name} taulusta {table}?"
 
 #: src/window_content/structure_actions.rs:368
 msgid "Column renamed."
-msgstr ""
+msgstr "Sarake nimetty uudelleen."
 
 #: src/window_content/structure_actions.rs:369
 msgid "Index renamed."
-msgstr ""
+msgstr "Indeksi nimetty uudelleen."
 
 #: src/window_content/structure_actions.rs:370
 msgid "Constraint renamed."
-msgstr ""
+msgstr "Rajoite nimetty uudelleen."
 
 #: src/window_content/structure_actions.rs:371
 msgid "Foreign key renamed."
-msgstr ""
+msgstr "Viiteavain nimetty uudelleen."
 
 #: src/window_content/structure_actions.rs:372
 msgid "Trigger renamed."
-msgstr ""
+msgstr "Liipaisin nimetty uudelleen."
 
 #: src/window_content/structure_actions.rs:377
 msgid "Column dropped with CASCADE."
-msgstr ""
+msgstr "Sarake pudotettu CASCADE-porrastuksella."
 
 #: src/window_content/structure_actions.rs:378
 msgid "Index dropped with CASCADE."
-msgstr ""
+msgstr "Indeksi pudotettu CASCADE-porrastuksella."
 
 #: src/window_content/structure_actions.rs:379
 msgid "Constraint dropped with CASCADE."
-msgstr ""
+msgstr "Rajoite pudotettu CASCADE-porrastuksella."
 
 #: src/window_content/structure_actions.rs:380
 msgid "Foreign key dropped with CASCADE."
-msgstr ""
+msgstr "Viiteavain pudotettu CASCADE-porrastuksella."
 
 #: src/window_content/structure_actions.rs:381
 msgid "Trigger dropped with CASCADE."
-msgstr ""
+msgstr "Liipaisin pudotettu CASCADE-porrastuksella."
 
 #: src/window_content/structure_actions.rs:386
 msgid "Column dropped."
-msgstr ""
+msgstr "Sarake pudotettu."
 
 #: src/window_content/structure_actions.rs:387
 msgid "Index dropped."
-msgstr ""
+msgstr "Indeksi pudotettu."
 
 #: src/window_content/structure_actions.rs:388
 msgid "Constraint dropped."
-msgstr ""
+msgstr "Rajoite pudotettu."
 
 #: src/window_content/structure_actions.rs:389
 msgid "Foreign key dropped."
-msgstr ""
+msgstr "Viiteavain pudotettu."
 
 #: src/window_content/structure_actions.rs:390
 msgid "Trigger dropped."
-msgstr ""
+msgstr "Liipaisin pudotettu."
 
 #: src/window_content/structure_actions.rs:401
 msgid "Dropping with CASCADE failed"
-msgstr ""
+msgstr "Pudottaminen CASCADE-porrastuksella epäonnistui"
 
 #: src/window_content/structure_actions.rs:403
 msgid "Dropping failed"
-msgstr ""
+msgstr "Pudottaminen epäonnistui"
 
 #: src/window_content/structure_actions.rs:426
 msgid "Drop with CASCADE"
-msgstr ""
+msgstr "Pudota CASCADE-porrastuksella"
 
 #: src/window_content/structure_actions.rs:465
 msgid ""
@@ -522,11 +528,11 @@ msgstr "Salasana"
 
 #: src/models/connection.rs:85
 msgid "Private Key"
-msgstr ""
+msgstr "Yksityinen avain"
 
 #: src/models/connection.rs:86
 msgid "SSH Agent"
-msgstr ""
+msgstr "SSH-agentti"
 
 #: src/models/connection.rs:161
 msgid "Connection name is required."
@@ -550,19 +556,19 @@ msgstr "Käyttäjätunnus on pakollinen."
 
 #: src/models/connection.rs:210
 msgid "SSH host is required."
-msgstr ""
+msgstr "SSH-palvelin vaaditaan."
 
 #: src/models/connection.rs:215
 msgid "SSH port must be a number between 1 and 65535."
-msgstr ""
+msgstr "SSH-portin tulee olla numero välillä 1-65535."
 
 #: src/models/connection.rs:218
 msgid "SSH username is required."
-msgstr ""
+msgstr "SSH-käyttäjätunnus vaaditaan."
 
 #: src/models/connection.rs:222
 msgid "Private key file is required."
-msgstr ""
+msgstr "Yksityisen avaimen tiedosto vaaditaan."
 
 #: src/models/completion.rs:119 src/models/completion.rs:244
 #: src/models/completion.rs:421 src/models/completion.rs:434
@@ -618,7 +624,7 @@ msgstr "Nimi"
 
 #: src/ui/components/connection_dialog.rs:102
 msgid "SSH host key is not trusted yet. Fingerprint:"
-msgstr ""
+msgstr "SSH-palvelimen avaimeen ei luoteta vielä. Sormenjälki:"
 
 #: src/ui/components/connection_dialog.rs:117
 #: src/ui/components/connection_dialog.rs:132
@@ -651,47 +657,47 @@ msgstr "Tallenna salasana"
 
 #: src/ui/components/connection_dialog.rs:252
 msgid "SSH Tunnel"
-msgstr ""
+msgstr "SSH-tunneli"
 
 #: src/ui/components/connection_dialog.rs:255
 msgid "Use SSH Tunnel"
-msgstr ""
+msgstr "Käytä SSH-tunnelia"
 
 #: src/ui/components/connection_dialog.rs:266
 msgid "SSH Host"
-msgstr ""
+msgstr "SSH-palvelin"
 
 #: src/ui/components/connection_dialog.rs:278
 msgid "SSH Port"
-msgstr ""
+msgstr "SSH-portti"
 
 #: src/ui/components/connection_dialog.rs:291
 msgid "SSH Username"
-msgstr ""
+msgstr "SSH-käyttäjätunnus"
 
 #: src/ui/components/connection_dialog.rs:303
 msgid "Authentication"
-msgstr ""
+msgstr "Todennus"
 
 #: src/ui/components/connection_dialog.rs:317
 msgid "SSH Password"
-msgstr ""
+msgstr "SSH-salasana"
 
 #: src/ui/components/connection_dialog.rs:329
 msgid "Private Key File"
-msgstr ""
+msgstr "Yksityisen avaimen tiedosto"
 
 #: src/ui/components/connection_dialog.rs:338
 msgid "Choose..."
-msgstr ""
+msgstr "Valitse…"
 
 #: src/ui/components/connection_dialog.rs:347
 msgid "Key Passphrase"
-msgstr ""
+msgstr "Avaimen tunnuslause"
 
 #: src/ui/components/connection_dialog.rs:359
 msgid "Save SSH Secret"
-msgstr ""
+msgstr "Tallenna SSH-salaisuus"
 
 #: src/ui/components/connection_dialog.rs:387
 msgid "Test Connection"
@@ -742,7 +748,7 @@ msgstr ""
 
 #: src/ui/components/connection_dialog.rs:702
 msgid "No private key selected."
-msgstr ""
+msgstr "Yksityistä avainta ei ole valittu."
 
 #: src/ui/components/connection_dialog.rs:726
 msgid "Saving the trusted SSH host key failed"
@@ -750,33 +756,35 @@ msgstr ""
 
 #: src/ui/components/connection_dialog.rs:736
 msgid "Store the SSH password or key passphrase in Keyring."
-msgstr ""
+msgstr "Tallenna SSH-salasana tai avaimen tunnuslause avainnippuun."
 
 #: src/ui/components/connection_dialog.rs:822
 #: src/ui/components/connection_dialog.rs:836
 msgid "Reading the saved SSH secret failed"
-msgstr ""
+msgstr "Tallennetun SSH-salaisuuden lukeminen epäonnistui"
 
 #: src/ui/components/connection_dialog.rs:873
 msgid ""
 "This SSH host key has not been seen before. Trust it for this connection?"
 msgstr ""
+"Tätä SSH-palvelimen avainta ei ole tavattu aiemmin. Luotetaanko siihen tämän "
+"yhteyden kohdalla?"
 
 #: src/ui/components/connection_dialog.rs:877
 msgid "Trust SSH Host Key?"
-msgstr ""
+msgstr "Luotatko SSH-palvelimen avaimeen?"
 
 #: src/ui/components/connection_dialog.rs:883
 msgid "Trust"
-msgstr ""
+msgstr "Luota"
 
 #: src/ui/components/connection_dialog.rs:913
 msgid "Select Private Key"
-msgstr ""
+msgstr "Valitse yksityinen avain"
 
 #: src/ui/components/connection_dialog.rs:916
 msgid "Select"
-msgstr ""
+msgstr "Valitse"
 
 #: src/ui/components/connection_dialog.rs:961
 msgid "PostgreSQL returned the following error:"
@@ -845,7 +853,7 @@ msgstr "Vaihda tietokanta"
 
 #: src/ui/components/database_selector.rs:103
 msgid "Refresh Databases"
-msgstr ""
+msgstr "Päivitä tietokannat"
 
 #: src/ui/components/database_selector.rs:113
 msgid "Search databases"
@@ -967,7 +975,7 @@ msgstr "Nimeä uudelleen..."
 
 #: src/ui/components/sidebar.rs:538
 msgid "Truncate..."
-msgstr ""
+msgstr "Typistä…"
 
 #: src/ui/components/sidebar.rs:541
 msgid "Delete..."
@@ -975,23 +983,23 @@ msgstr "Poista..."
 
 #: src/ui/components/sidebar.rs:550
 msgid "CREATE Script"
-msgstr ""
+msgstr "CREATE-komentosarja"
 
 #: src/ui/components/sidebar.rs:554
 msgid "SELECT Script"
-msgstr ""
+msgstr "SELECT-komentosarja"
 
 #: src/ui/components/sidebar.rs:558
 msgid "INSERT Script"
-msgstr ""
+msgstr "INSERT-komentosarja"
 
 #: src/ui/components/sidebar.rs:562
 msgid "UPDATE Script"
-msgstr ""
+msgstr "UPDATE-komentosarja"
 
 #: src/ui/components/sidebar.rs:566
 msgid "DELETE Script"
-msgstr ""
+msgstr "DELETE-komentosarja"
 
 #: src/ui/components/sidebar.rs:574
 msgid "Copy Table Name"
@@ -1117,11 +1125,11 @@ msgstr "Kysely ei palauttanut rivejä."
 
 #: src/ui/components/results.rs:385
 msgid "Query returned no columns."
-msgstr ""
+msgstr "Kysely ei palauttanut sarakkeita."
 
 #: src/ui/components/results.rs:391
 msgid "The statement returned rows, but there are no columns to display."
-msgstr ""
+msgstr "Kysely palautti rivejä, mutta näytettäviä sarakkeita ei ole."
 
 #: src/ui/components/results.rs:406
 #, rust-format
@@ -1139,8 +1147,8 @@ msgstr ""
 #, rust-format
 msgid "{rows}{limit_suffix} row"
 msgid_plural "{rows}{limit_suffix} rows"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{rows}{limit_suffix} rivi"
+msgstr[1] "{rows}{limit_suffix} riviä"
 
 #: src/ui/components/results.rs:678 src/ui/components/table_browser.rs:1298
 msgid "Copy Cell"
@@ -1192,7 +1200,7 @@ msgstr "Rivit"
 
 #: src/ui/components/table_browser.rs:424
 msgid "Rows per page"
-msgstr ""
+msgstr "Rivejä sivua kohden"
 
 #: src/ui/components/table_browser.rs:492
 msgid "Select a table"
@@ -1200,7 +1208,7 @@ msgstr "Valitse taulu"
 
 #: src/ui/components/table_browser.rs:494
 msgid "Choose a table or view from the sidebar to browse its rows."
-msgstr ""
+msgstr "Valitse taulu tai näkymä sivupalkista selataksesi sen rivejä."
 
 #: src/ui/components/table_browser.rs:700
 msgid "Loading table failed"
@@ -1258,7 +1266,7 @@ msgstr "Suodattimet"
 #: src/ui/components/table_browser.rs:1118
 #, rust-format
 msgid "Filters ({count})"
-msgstr ""
+msgstr "Suodattimet ({count})"
 
 #: src/ui/components/table_browser.rs:1132
 msgid "No rows"
@@ -1279,7 +1287,7 @@ msgstr "Kopioi näytetty sivu"
 
 #: src/ui/components/table_browser.rs:1309
 msgid "Delete Row..."
-msgstr ""
+msgstr "Poista rivi…"
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
@@ -1295,11 +1303,11 @@ msgstr ""
 
 #: src/ui/components/table_browser/cell_editor.rs:51
 msgid "This column is not nullable."
-msgstr ""
+msgstr "Tämä sarake ei ole nollattava."
 
 #: src/ui/components/table_browser/cell_editor.rs:94
 msgid "Set NULL"
-msgstr ""
+msgstr "Aseta NULL"
 
 #: src/ui/components/table_browser/delete_row.rs:25
 msgid "Delete Row?"
@@ -1339,11 +1347,11 @@ msgstr "Lataa taulu ennen suodatinten lisäämistä."
 
 #: src/ui/components/table_browser/filters.rs:57
 msgid "This table has no filterable columns."
-msgstr ""
+msgstr "Tässä taulussa ei ole suodatettavia sarakkeita."
 
 #: src/ui/components/table_browser/filters.rs:64
 msgid "No filters applied."
-msgstr ""
+msgstr "Suodattimia ei ole käytössä."
 
 #: src/ui/components/table_browser/filters.rs:86
 msgid "Missing custom SQL filter"
@@ -1663,6 +1671,8 @@ msgstr ""
 #: data/io.github.anil_e.Codd.metainfo.xml.in:61
 msgid "Use table actions like rename, truncate and delete"
 msgstr ""
+"Käytä taulutoimintoja kuten uudelleennimeämisestä, typistämistä ja "
+"poistamista"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:65
 msgid "Manage saved PostgreSQL connections"
