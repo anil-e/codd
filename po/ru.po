@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-17 20:08+0200\n"
-"PO-Revision-Date: 2026-07-27 06:22+0000\n"
+"PO-Revision-Date: 2026-08-14 09:51+0000\n"
 "Last-Translator: Дмитрий <cyansair05@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/codd/ui/ru/>\n"
 "Language: ru\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -100,53 +100,54 @@ msgstr "Нет подключения"
 
 #: src/window_content.rs:1379
 msgid "Connected to PostgreSQL."
-msgstr ""
+msgstr "Подключиться к PostgreSQL."
 
 #: src/window_content.rs:1392
 msgid "Connected, but saving the connection failed"
-msgstr ""
+msgstr "Подключено, но подключение не сохранено"
 
 #: src/window_content.rs:1511
 msgid "Disabling saved password failed"
-msgstr ""
+msgstr "Не удалось отключить сохранение паролей"
 
 #: src/window_content.rs:1526
 msgid "Connect to PostgreSQL before exporting query results."
-msgstr ""
+msgstr "Подключитесь к PostgreSQL перед экспортом запроса."
 
 #: src/window_content.rs:1534
 msgid "Enter SQL before exporting query results."
-msgstr ""
+msgstr "Введите SQL-запрос перед экспортом результатов."
 
 #: src/window_content.rs:1578
 msgid "The query did not return rows."
-msgstr ""
+msgstr "Запрос не вернул строк."
 
 #: src/window_content.rs:1609
 msgid "Schema load failed"
-msgstr ""
+msgstr "Не удалось загрузить схему"
 
 #: src/window_content.rs:1670
 msgid "Connect to PostgreSQL before generating a script."
-msgstr ""
+msgstr "Подключитесь к PostgreSQL перед созданием скрипта."
 
 #: src/window_content.rs:1710
 msgid "Generating the table script failed"
-msgstr ""
+msgstr "Не удалось сгенерировать скрипт таблицы"
 
 #: src/window_content.rs:1758 src/ui/components/table_browser.rs:831
 msgid "Export failed"
-msgstr ""
+msgstr "Ошибка экспорта"
 
 #: src/window_content.rs:1763 src/window_content/structure_actions.rs:423
 #: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:966
 #: src/ui/components/table_browser.rs:1214
 msgid "Close"
-msgstr ""
+msgstr "Закрыть"
 
 #: src/window_content.rs:1798
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
+"Экспорт в CSV выполняет запросы в транзакции, доступной только для чтения."
 
 #: src/window_content.rs:1800
 msgid ""
@@ -154,54 +155,57 @@ msgid ""
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
 "be exported."
 msgstr ""
+"Для экспорта используйте запрос SELECT. Операторы, которые записывают данные "
+"или изменяют состояние транзакции (например, UPDATE, INSERT, DELETE, CREATE, "
+"COMMIT или ROLLBACK), экспортировать нельзя."
 
 #: src/window_content.rs:1810
 msgid "CREATE script generated."
-msgstr ""
+msgstr "Сформирован скрипт CREATE."
 
 #: src/window_content.rs:1811
 msgid "SELECT script generated."
-msgstr ""
+msgstr "Сформирован скрипт SELECT."
 
 #: src/window_content.rs:1812
 msgid "INSERT script generated."
-msgstr ""
+msgstr "Сформирован скрипт INSERT."
 
 #: src/window_content.rs:1813
 msgid "UPDATE script generated."
-msgstr ""
+msgstr "Сформирован скрипт UPDATE."
 
 #: src/window_content.rs:1814
 msgid "DELETE script generated."
-msgstr ""
+msgstr "Сформирован скрипт DELETE."
 
 #: src/window_content/database_switching.rs:56
 msgid "Connect to PostgreSQL before switching databases."
-msgstr ""
+msgstr "Подключитесь к PostgreSQL перед переключением баз данных."
 
 #: src/window_content/database_switching.rs:106
 msgid "Database switch failed"
-msgstr ""
+msgstr "Ошибка переключения базы данных"
 
 #: src/window_content/database_switching.rs:154
 msgid "Saving the selected database failed"
-msgstr ""
+msgstr "Не удалось сохранить выбранную базу данных"
 
 #: src/window_content/database_switching.rs:195
 msgid "Migrating query history failed"
-msgstr ""
+msgstr "Не удалось перенести историю запросов"
 
 #: src/window_content/database_switching.rs:224
 msgid "Saving query history failed"
-msgstr ""
+msgstr "Не удалось сохранить историю запросов"
 
 #: src/window_content/database_switching.rs:247
 msgid "Clearing query history failed"
-msgstr ""
+msgstr "Не удалось очистить историю запросов"
 
 #: src/window_content/object_actions.rs:60
 msgid "Choose a new name for this database object."
-msgstr ""
+msgstr "Выберите новое имя для этого объекта базы данных."
 
 #: src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
@@ -218,50 +222,54 @@ msgstr ""
 #: src/ui/components/table_browser/delete_row.rs:31
 #: src/ui/components/table_browser/insert_row.rs:147
 msgid "Cancel"
-msgstr ""
+msgstr "Отмена"
 
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
 #: src/window_content/structure_actions.rs:89
 #: src/ui/components/start_screen.rs:334
 msgid "Rename"
-msgstr ""
+msgstr "Переименовать"
 
 #: src/window_content/object_actions.rs:149
 msgid "Restart identity"
-msgstr ""
+msgstr "Перезапустить идентификацию"
 
 #: src/window_content/object_actions.rs:151
+#, fuzzy
 msgid "Reset sequences owned by columns of the truncated table."
-msgstr ""
+msgstr "Сбросить последовательности, связанные со столбцами усеченной таблицы."
 
 #: src/window_content/object_actions.rs:156
 msgid "Cascade"
-msgstr ""
+msgstr "Каскад"
 
 #: src/window_content/object_actions.rs:158
 msgid "Also truncate tables that have foreign-key references to this table."
 msgstr ""
+"Также очистите таблицы, содержащие внешние ключи, ссылающиеся на эту таблицу."
 
 #: src/window_content/object_actions.rs:313
 msgid "Rename Table"
-msgstr ""
+msgstr "Переименовать таблицу"
 
 #: src/window_content/object_actions.rs:314
+#, fuzzy
 msgid "Rename View"
-msgstr ""
+msgstr "Переименовать представление"
 
 #: src/window_content/object_actions.rs:316
 msgid "Truncate Table"
-msgstr ""
+msgstr "Очистить таблицу"
 
 #: src/window_content/object_actions.rs:318
 msgid "Delete Table"
-msgstr ""
+msgstr "Удалить таблицу"
 
 #: src/window_content/object_actions.rs:319
+#, fuzzy
 msgid "Delete View"
-msgstr ""
+msgstr "Удалить представление"
 
 #: src/window_content/object_actions.rs:327
 #, rust-format
@@ -269,6 +277,8 @@ msgid ""
 "Remove all rows from {table}?\n"
 "This cannot be undone."
 msgstr ""
+"Удалить все строки из {table}?\n"
+"Это действие нельзя отменить."
 
 #: src/window_content/object_actions.rs:332
 #, rust-format
@@ -276,77 +286,81 @@ msgid ""
 "Delete table {name}?\n"
 "This cannot be undone."
 msgstr ""
+"Удалить таблицу {name}?\n"
+"Это действие нельзя отменить."
 
 #: src/window_content/object_actions.rs:334
-#, rust-format
+#, fuzzy, rust-format
 msgid ""
 "Delete view {name}?\n"
 "This cannot be undone."
 msgstr ""
+"Удалить представление «{name}»?\n"
+"Это действие нельзя отменить."
 
 #: src/window_content/object_actions.rs:345
 msgid "Truncate"
-msgstr ""
+msgstr "Обрезать"
 
 #: src/window_content/object_actions.rs:346
 #: src/ui/components/table_browser/delete_row.rs:32
 msgid "Delete"
-msgstr ""
+msgstr "Удалить"
 
 #: src/window_content/object_actions.rs:352
 msgid "Database object renamed."
-msgstr ""
+msgstr "Объект базы данных переименован."
 
 #: src/window_content/object_actions.rs:354
 #, rust-format
 msgid "Table truncated: {table}"
-msgstr ""
+msgstr "Таблица обрезана: {table}"
 
 #: src/window_content/object_actions.rs:356
 msgid "Database object deleted."
-msgstr ""
+msgstr "Объект базы данных удален."
 
 #: src/window_content/object_actions.rs:362
 #: src/window_content/structure_actions.rs:398
 msgid "Renaming failed"
-msgstr ""
+msgstr "Не удалось переименовать"
 
 #: src/window_content/object_actions.rs:363
 msgid "Truncating failed"
-msgstr ""
+msgstr "Ошибка при обрезании"
 
 #: src/window_content/object_actions.rs:364
 msgid "Deleting failed"
-msgstr ""
+msgstr "Ошибка при удалении"
 
 #: src/window_content/object_actions.rs:379
 #: src/window_content/structure_actions.rs:295
 msgid "Enter a valid object name."
-msgstr ""
+msgstr "Введите допустимое имя объекта."
 
 #: src/window_content/query_execution.rs:58
 msgid "Row limit reached. Query execution stopped."
-msgstr ""
+msgstr "Достигнут лимит строк. Выполнение запроса остановлено."
 
 #: src/window_content/query_execution.rs:67 src/ui/components/results.rs:417
 msgid "Query failed"
-msgstr ""
+msgstr "Ошибка выполнения запроса"
 
 #: src/window_content/query_execution.rs:109
 msgid "A query is already running."
-msgstr ""
+msgstr "Запрос уже выполняется."
 
 #: src/window_content/query_execution.rs:115
 msgid "Connect to PostgreSQL before running a query."
-msgstr ""
+msgstr "Подключитесь к PostgreSQL перед выполнением запроса."
 
 #: src/window_content/query_execution.rs:123
 msgid "Enter SQL before running a query."
-msgstr ""
+msgstr "Введите SQL перед выполнением запроса."
 
 #: src/window_content/structure_actions.rs:83
 msgid "Choose a new name for this structure item."
-msgstr ""
+msgstr "Выберите новое имя для этого элемента структуры."
 
 #: src/window_content/structure_actions.rs:145
 msgid "Drop"
@@ -354,7 +368,7 @@ msgstr ""
 
 #: src/window_content/structure_actions.rs:333
 msgid "Rename column"
-msgstr ""
+msgstr "Переименовать столбец"
 
 #: src/window_content/structure_actions.rs:334
 msgid "Rename index"
