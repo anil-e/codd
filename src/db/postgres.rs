@@ -136,11 +136,16 @@ fn connect_options(
 ) -> Result<PgConnectOptions, sqlx::Error> {
     let url = pgpass_connection_url(details, database);
     let mut options = PgConnectOptions::from_str(url.as_str())?
-        .host(&endpoint.host)
         .port(endpoint.port)
         .database(database)
         .username(&details.saved.username)
         .ssl_mode(PgSslMode::Prefer);
+
+    if endpoint.host.starts_with('/') {
+        options = options.socket(&endpoint.host);
+    } else {
+        options = options.host(&endpoint.host);
+    }
 
     if !details.password.is_empty() {
         options = options.password(&details.password);
@@ -151,8 +156,14 @@ fn connect_options(
 
 fn pgpass_connection_url(details: &ConnectionDetails, database: &str) -> Url {
     let mut url = Url::parse("postgres://").expect("static PostgreSQL URL to parse");
+    let host = if details.saved.host.starts_with('/') {
+        "localhost"
+    } else {
+        &details.saved.host
+    };
+
     url.query_pairs_mut()
-        .append_pair("host", &details.saved.host)
+        .append_pair("host", host)
         .append_pair("port", &details.saved.port.to_string())
         .append_pair("dbname", database)
         .append_pair("user", &details.saved.username);
@@ -241,6 +252,24 @@ mod tests {
         assert_eq!(
             options.get_socket().map(|path| path.as_path()),
             Some(std::path::Path::new("/var/run/postgresql"))
+        );
+    }
+
+    #[test]
+    fn pgpass_url_uses_localhost_for_unix_socket_targets() {
+        let mut details = connection_details();
+        details.saved.host = "/var/run/postgresql".to_string();
+        let url = pgpass_connection_url(&details, "postgres");
+        let parameters = url.query_pairs().into_owned().collect::<Vec<_>>();
+
+        assert_eq!(
+            parameters,
+            vec![
+                ("host".to_string(), "localhost".to_string()),
+                ("port".to_string(), "5432".to_string()),
+                ("dbname".to_string(), "postgres".to_string()),
+                ("user".to_string(), "anil".to_string()),
+            ]
         );
     }
 
