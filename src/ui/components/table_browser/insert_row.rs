@@ -215,6 +215,33 @@ fn show_insert_row_dialog(
         .child(&list)
         .build();
 
+    let content = gtk::Box::new(gtk::Orientation::Vertical, 12);
+    if let Some(error) = error {
+        let icon = gtk::Image::builder()
+            .icon_name("dialog-error-symbolic")
+            .valign(gtk::Align::Start)
+            .margin_top(2)
+            .build();
+        icon.add_css_class("error");
+
+        let message = gtk::Label::builder()
+            .label(error)
+            .hexpand(true)
+            .selectable(true)
+            .wrap(true)
+            .wrap_mode(gtk::pango::WrapMode::WordChar)
+            .xalign(0.0)
+            .build();
+        message.add_css_class("error");
+
+        let error_box = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+        error_box.append(&icon);
+        error_box.append(&message);
+        content.append(&error_box);
+    }
+
+    content.append(&scroller);
+
     let heading = match (kind, error) {
         (InsertRowKind::Insert, Some(_)) => {
             gettext("Inserting row into {name} failed").replace("{name}", &object.qualified_name())
@@ -224,7 +251,7 @@ fn show_insert_row_dialog(
         (InsertRowKind::Insert, None) => gettext("Insert Row"),
         (InsertRowKind::Duplicate, None) => gettext("Duplicate Row"),
     };
-    let body = error.map(str::to_string).unwrap_or_else(|| match kind {
+    let body = error.map(|_| String::new()).unwrap_or_else(|| match kind {
         InsertRowKind::Insert => gettext(
             "Enter values for the new row. Columns can also use DEFAULT or NULL when available.",
         ),
@@ -240,7 +267,7 @@ fn show_insert_row_dialog(
     let dialog = adw::AlertDialog::builder()
         .heading(heading)
         .body(body)
-        .extra_child(&scroller)
+        .extra_child(&content)
         .build();
 
     dialog.add_responses(&[("cancel", &gettext("Cancel")), ("insert", &confirm_label)]);
