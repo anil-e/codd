@@ -55,6 +55,11 @@ pub(super) fn setup_tab_context_menu(
     sender: &ComponentSender<WindowContent>,
 ) {
     let menu = gio::Menu::new();
+    menu.append(
+        Some(&gettext("Open in New Tab")),
+        Some("tab.open-in-new-tab"),
+    );
+
     menu.append(Some(&gettext("Close")), Some("tab.close"));
     menu.append(
         Some(&gettext("Close Other Tabs")),
@@ -81,6 +86,21 @@ pub(super) fn setup_tab_context_menu(
     });
 
     action_group.add_action(&close_action);
+
+    let open_in_new_tab_action = gio::SimpleAction::new("open-in-new-tab", None);
+
+    open_in_new_tab_action.connect_activate({
+        let sender = sender.clone();
+        let current_tab = current_tab.clone();
+
+        move |_, _| {
+            sender.input(WindowContentMsg::OpenBrowseTabFromMenu(
+                current_tab.borrow().clone(),
+            ));
+        }
+    });
+
+    action_group.add_action(&open_in_new_tab_action);
 
     let close_other_tabs_action = gio::SimpleAction::new("close-other-tabs", None);
 
@@ -110,6 +130,7 @@ pub(super) fn setup_tab_context_menu(
 
     tab_view.connect_setup_menu({
         let close_action = close_action.clone();
+        let open_in_new_tab_action = open_in_new_tab_action.clone();
         let close_all_action = close_all_action.clone();
         let close_other_tabs_action = close_other_tabs_action.clone();
         let current_tab = current_tab.clone();
@@ -120,6 +141,14 @@ pub(super) fn setup_tab_context_menu(
             let can_close_multiple = tab_view.n_pages() > 1;
 
             *current_tab.borrow_mut() = widget_name;
+
+            let can_open_in_new_tab = current_tab
+                .borrow()
+                .as_deref()
+                .and_then(|name| tab_id_from_widget_name(Some(name), "browse-tab-"))
+                .is_some();
+
+            open_in_new_tab_action.set_enabled(can_open_in_new_tab);
             close_action.set_enabled(has_target_tab && can_close_multiple);
             close_other_tabs_action.set_enabled(has_target_tab && can_close_multiple);
             close_all_action.set_enabled(can_close_multiple);
@@ -647,6 +676,28 @@ impl WindowContent {
         self.workspace_navigation = WorkspaceNavigation::from_sidebar_visibility(
             workspace_split_view(widgets).shows_sidebar(),
         );
+    }
+
+    pub(super) fn add_browse_tab_from_widget_name(
+        &mut self,
+        widget_name: Option<&str>,
+        widgets: &WindowContentWidgets,
+        sender: &ComponentSender<Self>,
+    ) {
+        let Some(tab_id) = tab_id_from_widget_name(widget_name, "browse-tab-") else {
+            return;
+        };
+
+        let Some(object) = self
+            .browse_tabs
+            .iter()
+            .find(|tab| tab.id == tab_id)
+            .map(|tab| tab.object.clone())
+        else {
+            return;
+        };
+
+        self.add_browse_tab(object, widgets, sender);
     }
 
     pub(super) fn add_browse_tab(

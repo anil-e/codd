@@ -38,6 +38,7 @@ pub enum ObjectAction {
 #[derive(Debug)]
 pub enum ObjectSidebarOutput {
     OpenObject(DatabaseObject),
+    OpenObjectInNewTab(DatabaseObject),
     CopyText {
         text: String,
         message: String,
@@ -432,6 +433,22 @@ fn object_action_group(
     sender: ComponentSender<ObjectSidebar>,
 ) -> gtk::gio::SimpleActionGroup {
     let action_group = gtk::gio::SimpleActionGroup::new();
+
+    let open_in_new_tab_action = gtk::gio::SimpleAction::new("open-in-new-tab", None);
+
+    open_in_new_tab_action.connect_activate({
+        let sender = sender.clone();
+        let object = object.clone();
+
+        move |_, _| {
+            sender
+                .output(ObjectSidebarOutput::OpenObjectInNewTab(object.clone()))
+                .ok();
+        }
+    });
+
+    action_group.add_action(&open_in_new_tab_action);
+
     let copy_actions = [
         (
             "copy-name",
@@ -512,6 +529,14 @@ fn object_action_group(
 
 fn object_menu(kind: &DatabaseObjectKind) -> gtk::gio::Menu {
     let menu = gtk::gio::Menu::new();
+
+    let open_section = gtk::gio::Menu::new();
+    open_section.append(
+        Some(&gettext("Open in New Tab")),
+        Some("object.open-in-new-tab"),
+    );
+    menu.append_section(None, &open_section);
+
     let copy_section = gtk::gio::Menu::new();
 
     copy_section.append(

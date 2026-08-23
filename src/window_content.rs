@@ -139,6 +139,7 @@ pub enum WindowContentMsg {
     CloseTabFromMenu(Option<String>),
     CloseOtherTabsFromMenu(Option<String>),
     CloseAllTabs,
+    OpenBrowseTabFromMenu(Option<String>),
     QueryTabTitleChanged(u64),
     RunQuery,
     CancelQuery,
@@ -555,6 +556,10 @@ impl Component for WindowContent {
                 self.close_all_tabs(widgets, &sender);
                 self.schedule_session_save(&sender);
             }
+            WindowContentMsg::OpenBrowseTabFromMenu(widget_name) => {
+                self.add_browse_tab_from_widget_name(widget_name.as_deref(), widgets, &sender);
+                self.schedule_session_save(&sender);
+            }
             WindowContentMsg::QueryTabTitleChanged(tab_id) => {
                 self.update_query_tab_title(tab_id);
                 self.schedule_session_save(&sender);
@@ -785,6 +790,10 @@ impl Component for WindowContent {
             }
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::OpenObject(object)) => {
                 self.open_table_browser(object, widgets, &sender);
+                self.schedule_session_save(&sender);
+            }
+            WindowContentMsg::SidebarOutput(ObjectSidebarOutput::OpenObjectInNewTab(object)) => {
+                self.add_browse_tab(object, widgets, &sender);
                 self.schedule_session_save(&sender);
             }
             WindowContentMsg::SidebarOutput(ObjectSidebarOutput::CopyText { text, message }) => {

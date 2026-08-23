@@ -26,7 +26,7 @@ pub enum SavedSessionTab {
     },
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(tag = "type", content = "id")]
 pub enum SavedSessionTabId {
     Query(u64),

@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
@@ -54,7 +55,12 @@ fn parse_session(content: &str) -> io::Result<SavedSession> {
 }
 
 fn prune_session(session: &mut SavedSession) {
-    session.tabs.retain(valid_tab);
+    let mut tab_ids = HashSet::new();
+
+    session
+        .tabs
+        .retain(|tab| valid_tab(tab) && tab_ids.insert(tab.id()));
+
     session.tabs.truncate(MAX_TABS_PER_SESSION);
 
     for tab in &mut session.tabs {
@@ -190,6 +196,63 @@ mod tests {
             &session.tabs[1],
             SavedSessionTab::Query { row_limit, .. } if *row_limit == MAX_QUERY_RESULT_ROW_LIMIT
         ));
+    }
+
+    #[test]
+    fn keeps_browse_tabs_for_the_same_object() {
+        let mut session = parse_session(
+            r#"{
+                "connection_id": "pg-1",
+                "database": "postgres",
+                "active_tab": { "type": "Browse", "id": 2 },
+                "tabs": [
+                    {
+                        "type": "Browse",
+                        "id": 1,
+                        "object": { "schema": "public", "name": "users", "kind": "table" }
+                    },
+                    {
+                        "type": "Browse",
+                        "id": 2,
+                        "object": { "schema": "public", "name": "users", "kind": "table" }
+                    }
+                ]
+            }"#,
+        )
+        .expect("session to parse");
+
+        super::prune_session(&mut session);
+
+        assert_eq!(session.tabs.len(), 2);
+        assert_eq!(session.active_tab, Some(SavedSessionTabId::Browse(2)));
+    }
+
+    #[test]
+    fn removes_tabs_with_duplicate_ids() {
+        let mut session = parse_session(
+            r#"{
+                "connection_id": "pg-1",
+                "database": "postgres",
+                "active_tab": { "type": "Browse", "id": 1 },
+                "tabs": [
+                    {
+                        "type": "Browse",
+                        "id": 1,
+                        "object": { "schema": "public", "name": "users", "kind": "table" }
+                    },
+                    {
+                        "type": "Browse",
+                        "id": 1,
+                        "object": { "schema": "public", "name": "orders", "kind": "table" }
+                    }
+                ]
+            }"#,
+        )
+        .expect("session to parse");
+
+        super::prune_session(&mut session);
+
+        assert_eq!(session.tabs.len(), 1);
     }
 
     #[test]

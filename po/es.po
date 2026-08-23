@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-17 20:08+0200\n"
+"POT-Creation-Date: 2026-08-23 12:17+0200\n"
 "PO-Revision-Date: 2026-07-23 20:01+0000\n"
 "Last-Translator: Guillem Servera <guillem@gservera.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/codd/ui/es/>\n"
@@ -43,117 +43,117 @@ msgstr "Acerca de _Codd"
 msgid "_Quit"
 msgstr "_Salir"
 
-#: src/window.rs:233
+#: src/window.rs:248
 msgid "translator-credits"
 msgstr "Francisco Vásquez <fvasquez.public@fvtronics.com>"
 
-#: src/window.rs:235 data/io.github.anil_e.Codd.desktop.in:4
+#: src/window.rs:250 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
 msgstr "Cliente ligero de PostgreSQL"
 
-#: src/window_content.rs:274 src/window_content.rs:341
+#: src/window_content.rs:275 src/window_content.rs:342
 msgid "Main Menu"
 msgstr "Menú principal"
 
-#: src/window_content.rs:307
+#: src/window_content.rs:308
 msgid "Objects"
 msgstr "Objetos"
 
-#: src/window_content.rs:311
+#: src/window_content.rs:312
 msgid "Back to connections"
 msgstr "Volver a conexiones"
 
-#: src/window_content.rs:318
+#: src/window_content.rs:319
 msgid "Refresh Objects"
 msgstr "Refrescar objetos"
 
-#: src/window_content.rs:348
+#: src/window_content.rs:349
 msgid "New Query Tab"
 msgstr "Nueva pestaña de consulta"
 
-#: src/window_content.rs:734 src/window_content.rs:1276
+#: src/window_content.rs:739 src/window_content.rs:1285
 #: src/window_content/database_switching.rs:64
 msgid "Saving tabs failed"
 msgstr "No se pudo guardar las pestañas"
 
-#: src/window_content.rs:828
+#: src/window_content.rs:837
 msgid "Updating the saved password failed"
 msgstr "No se pudo actualizar la contraseña guardada"
 
-#: src/window_content.rs:879 src/ui/components/table_browser.rs:828
+#: src/window_content.rs:888 src/ui/components/table_browser.rs:836
 msgid "CSV exported."
 msgstr "Archivo CSV exportado."
 
-#: src/window_content.rs:1085
+#: src/window_content.rs:1094
 msgid "Hide Objects"
 msgstr "Ocultar objetos"
 
-#: src/window_content.rs:1086
+#: src/window_content.rs:1095
 msgid "Show Objects"
 msgstr "Mostrar objetos"
 
-#: src/window_content.rs:1312 src/ui/components/sidebar.rs:152
-#: src/ui/components/sidebar.rs:406 src/ui/components/sidebar.rs:420
+#: src/window_content.rs:1321 src/ui/components/sidebar.rs:153
+#: src/ui/components/sidebar.rs:407 src/ui/components/sidebar.rs:421
 msgid "No connection"
 msgstr "Sin conexión"
 
-#: src/window_content.rs:1379
+#: src/window_content.rs:1388
 msgid "Connected to PostgreSQL."
 msgstr "Conectado a PostgreSQL."
 
-#: src/window_content.rs:1392
+#: src/window_content.rs:1401
 msgid "Connected, but saving the connection failed"
 msgstr "Conectado, pero no se pudo guardar la conexión"
 
-#: src/window_content.rs:1511
+#: src/window_content.rs:1520
 msgid "Disabling saved password failed"
 msgstr "No se pudo desactivar la contraseña guardada"
 
-#: src/window_content.rs:1526
+#: src/window_content.rs:1535
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr ""
 "Debe conectarse a PostgreSQL antes de exportar los resultados de una "
 "consulta."
 
-#: src/window_content.rs:1534
+#: src/window_content.rs:1543
 msgid "Enter SQL before exporting query results."
 msgstr "Ingrese SQL antes de exportar los resultados de una consulta."
 
-#: src/window_content.rs:1578
+#: src/window_content.rs:1587
 msgid "The query did not return rows."
 msgstr "La consulta no devolvió filas."
 
-#: src/window_content.rs:1609
+#: src/window_content.rs:1618
 msgid "Schema load failed"
 msgstr "No se pudo cargar el esquema"
 
 # script is an accepted anglocism in this context
-#: src/window_content.rs:1670
+#: src/window_content.rs:1679
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "Debe conectarse a PostgreSQL antes de generar un script."
 
-#: src/window_content.rs:1710
+#: src/window_content.rs:1719
 msgid "Generating the table script failed"
 msgstr "No se pudo generar el script de la tabla"
 
-#: src/window_content.rs:1758 src/ui/components/table_browser.rs:831
+#: src/window_content.rs:1767 src/ui/components/table_browser.rs:839
 msgid "Export failed"
 msgstr "La exportación falló"
 
-#: src/window_content.rs:1763 src/window_content/structure_actions.rs:423
-#: src/window_content/tabs.rs:58 src/ui/components/connection_dialog.rs:966
-#: src/ui/components/table_browser.rs:1214
+#: src/window_content.rs:1772 src/window_content/structure_actions.rs:423
+#: src/window_content/tabs.rs:63 src/ui/components/connection_dialog.rs:966
+#: src/ui/components/table_browser.rs:1222
 msgid "Close"
 msgstr "Cerrar"
 
-#: src/window_content.rs:1798
+#: src/window_content.rs:1807
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
 "La exportación a CSV ejecuta las consultas en una transacción de solo "
 "lectura."
 
-#: src/window_content.rs:1800
+#: src/window_content.rs:1809
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
@@ -163,23 +163,23 @@ msgstr ""
 "datos o cambian el estado de la transacción, como UPDATE, INSERT, DELETE, "
 "CREATE, COMMIT o ROLLBACK, no se pueden exportar."
 
-#: src/window_content.rs:1810
+#: src/window_content.rs:1819
 msgid "CREATE script generated."
 msgstr "Script CREATE generado."
 
-#: src/window_content.rs:1811
+#: src/window_content.rs:1820
 msgid "SELECT script generated."
 msgstr "Script SELECT generado."
 
-#: src/window_content.rs:1812
+#: src/window_content.rs:1821
 msgid "INSERT script generated."
 msgstr "Script INSERT generado."
 
-#: src/window_content.rs:1813
+#: src/window_content.rs:1822
 msgid "UPDATE script generated."
 msgstr "Script UPDATE generado."
 
-#: src/window_content.rs:1814
+#: src/window_content.rs:1823
 msgid "DELETE script generated."
 msgstr "Script DELETE generado."
 
@@ -513,25 +513,29 @@ msgstr ""
 "Esto también podría eliminar vistas, restricciones, índices u otros objetos "
 "de base de datos dependientes. Esto no se puede deshacer."
 
-#: src/window_content/tabs.rs:60
+#: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:534
+msgid "Open in New Tab"
+msgstr ""
+
+#: src/window_content/tabs.rs:65
 msgid "Close Other Tabs"
 msgstr "Cerrar las otras pestañas"
 
-#: src/window_content/tabs.rs:64
+#: src/window_content/tabs.rs:69
 msgid "Close All"
 msgstr "Cerrar todas"
 
-#: src/window_content/tabs.rs:689 src/models/completion.rs:423
-#: src/ui/components/table_browser.rs:1107 src/ui/components/table_view.rs:408
+#: src/window_content/tabs.rs:740 src/models/completion.rs:423
+#: src/ui/components/table_browser.rs:1115 src/ui/components/table_view.rs:408
 #: src/ui/components/table_view.rs:429
 msgid "Table"
 msgstr "Tabla"
 
-#: src/window_content/tabs.rs:690
+#: src/window_content/tabs.rs:741
 msgid "Select the tab to load this table."
 msgstr "Selecciona la pestaña para cargar esta tabla."
 
-#: src/window_content/tabs.rs:983
+#: src/window_content/tabs.rs:1034
 msgid "Query"
 msgstr "Consulta"
 
@@ -884,7 +888,7 @@ msgid "No databases match your search."
 msgstr "Ninguna base de datos coincide con su búsqueda."
 
 #: src/ui/components/database_selector.rs:237
-#: src/ui/components/table_browser.rs:1124
+#: src/ui/components/table_browser.rs:1132
 msgid "Loading..."
 msgstr "Cargando..."
 
@@ -948,108 +952,108 @@ msgstr "Eliminar la conexión guardada"
 msgid "Remove"
 msgstr "Eliminar"
 
-#: src/ui/components/sidebar.rs:95
+#: src/ui/components/sidebar.rs:96
 msgid "Search objects"
 msgstr "Buscar objetos"
 
-#: src/ui/components/sidebar.rs:121
+#: src/ui/components/sidebar.rs:122
 msgid "No objects match your search."
 msgstr "Ningún objeto coincide con su búsqueda."
 
-#: src/ui/components/sidebar.rs:174
+#: src/ui/components/sidebar.rs:175
 msgid "Loading schema..."
 msgstr "Cargando esquema..."
 
-#: src/ui/components/sidebar.rs:185 src/ui/components/sidebar.rs:408
-#: src/ui/components/sidebar.rs:422
+#: src/ui/components/sidebar.rs:186 src/ui/components/sidebar.rs:409
+#: src/ui/components/sidebar.rs:423
 msgid "No tables or views found"
 msgstr "No se han encontrado tablas o vistas"
 
-#: src/ui/components/sidebar.rs:393
+#: src/ui/components/sidebar.rs:394
 msgid "Loading schema"
 msgstr "Cargando esquema"
 
-#: src/ui/components/sidebar.rs:395
+#: src/ui/components/sidebar.rs:396
 msgid "No objects available"
 msgstr "No hay objetos disponibles"
 
-#: src/ui/components/sidebar.rs:404
+#: src/ui/components/sidebar.rs:405
 msgid "Fetching tables and views for the current connection."
 msgstr "Obteniendo tablas y vistas para la conexión actual."
 
-#: src/ui/components/sidebar.rs:407
+#: src/ui/components/sidebar.rs:408
 msgid "Connect to PostgreSQL to browse database objects."
 msgstr "Conéctese a PostgreSQL para explorar objetos de base de datos."
 
-#: src/ui/components/sidebar.rs:410
+#: src/ui/components/sidebar.rs:411
 msgid "The selected database does not currently expose tables or views."
 msgstr "La base de datos seleccionada no expone tablas ni vistas actualmente."
 
-#: src/ui/components/sidebar.rs:529
+#: src/ui/components/sidebar.rs:553
 msgid "Scripts"
 msgstr "Scripts"
 
-#: src/ui/components/sidebar.rs:533 src/ui/components/table_structure.rs:403
+#: src/ui/components/sidebar.rs:557 src/ui/components/table_structure.rs:403
 msgid "Rename..."
 msgstr "Renombrar..."
 
-#: src/ui/components/sidebar.rs:538
+#: src/ui/components/sidebar.rs:562
 msgid "Truncate..."
 msgstr "Truncar..."
 
-#: src/ui/components/sidebar.rs:541
+#: src/ui/components/sidebar.rs:565
 msgid "Delete..."
 msgstr "Eliminar..."
 
-#: src/ui/components/sidebar.rs:550
+#: src/ui/components/sidebar.rs:574
 msgid "CREATE Script"
 msgstr "Script CREATE"
 
-#: src/ui/components/sidebar.rs:554
+#: src/ui/components/sidebar.rs:578
 msgid "SELECT Script"
 msgstr "Script SELECT"
 
-#: src/ui/components/sidebar.rs:558
+#: src/ui/components/sidebar.rs:582
 msgid "INSERT Script"
 msgstr "Script INSERT"
 
-#: src/ui/components/sidebar.rs:562
+#: src/ui/components/sidebar.rs:586
 msgid "UPDATE Script"
 msgstr "Script UPDATE"
 
-#: src/ui/components/sidebar.rs:566
+#: src/ui/components/sidebar.rs:590
 msgid "DELETE Script"
 msgstr "Script DELETE"
 
-#: src/ui/components/sidebar.rs:574
+#: src/ui/components/sidebar.rs:598
 msgid "Copy Table Name"
 msgstr "Copiar nombre de tabla"
 
-#: src/ui/components/sidebar.rs:575
+#: src/ui/components/sidebar.rs:599
 msgid "Copy Qualified Table Name"
 msgstr "Copiar nombre cualificado de tabla"
 
-#: src/ui/components/sidebar.rs:576
+#: src/ui/components/sidebar.rs:600
 msgid "Copy View Name"
 msgstr "Copiar nombre de vista"
 
-#: src/ui/components/sidebar.rs:577
+#: src/ui/components/sidebar.rs:601
 msgid "Copy Qualified View Name"
 msgstr "Copiar nombre cualificado de vista"
 
-#: src/ui/components/sidebar.rs:583
+#: src/ui/components/sidebar.rs:607
 msgid "Table name copied."
 msgstr "Nombre de tabla copiado."
 
-#: src/ui/components/sidebar.rs:584
+#: src/ui/components/sidebar.rs:608
 msgid "Qualified table name copied."
 msgstr "Nombre cualificado de tabla copiado."
 
-#: src/ui/components/sidebar.rs:585
+#: src/ui/components/sidebar.rs:609
 msgid "View name copied."
 msgstr "Nombre de vista copiado."
 
-#: src/ui/components/sidebar.rs:586
+#: src/ui/components/sidebar.rs:610
 msgid "Qualified view name copied."
 msgstr "Nombre cualificado de vista copiado."
 
@@ -1123,15 +1127,15 @@ msgstr "Consulta cancelada"
 msgid "The query was cancelled."
 msgstr "La consulta fue cancelada."
 
-#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:777
+#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:785
 msgid "Cell copied."
 msgstr "Celda copiada."
 
-#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:788
+#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:796
 msgid "Row copied."
 msgstr "Fila copiada."
 
-#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:799
+#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:807
 msgid "Column copied."
 msgstr "Columna copiada."
 
@@ -1170,23 +1174,23 @@ msgid_plural "{rows}{limit_suffix} rows"
 msgstr[0] "{rows}{limit_suffix} fila"
 msgstr[1] "{rows}{limit_suffix} filas"
 
-#: src/ui/components/results.rs:678 src/ui/components/table_browser.rs:1298
+#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1306
 msgid "Copy Cell"
 msgstr "Copiar celda"
 
-#: src/ui/components/results.rs:679 src/ui/components/table_browser.rs:1299
+#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1307
 msgid "Copy Row"
 msgstr "Copiar fila"
 
-#: src/ui/components/results.rs:680 src/ui/components/table_browser.rs:1300
+#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1308
 msgid "Copy Column"
 msgstr "Copiar columna"
 
-#: src/ui/components/results.rs:682
+#: src/ui/components/results.rs:678
 msgid "Copy Displayed Results"
 msgstr "Copiar resultados mostrados"
 
-#: src/ui/components/results.rs:685 src/ui/components/table_browser.rs:1305
+#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1313
 msgid "Export CSV..."
 msgstr "Exportar CSV..."
 
@@ -1202,110 +1206,110 @@ msgstr "Actualizar"
 msgid "First page"
 msgstr "Primera página"
 
-#: src/ui/components/table_browser.rs:369
+#: src/ui/components/table_browser.rs:370
 msgid "Previous page"
 msgstr "Página anterior"
 
-#: src/ui/components/table_browser.rs:400
+#: src/ui/components/table_browser.rs:404
 msgid "Next page"
 msgstr "Página siguiente"
 
-#: src/ui/components/table_browser.rs:409
+#: src/ui/components/table_browser.rs:414
 msgid "Last page"
 msgstr "Última página"
 
-#: src/ui/components/table_browser.rs:419
+#: src/ui/components/table_browser.rs:426
 msgid "Rows"
 msgstr "Filas"
 
-#: src/ui/components/table_browser.rs:424
+#: src/ui/components/table_browser.rs:432
 msgid "Rows per page"
 msgstr "Filas por página"
 
-#: src/ui/components/table_browser.rs:492
+#: src/ui/components/table_browser.rs:500
 msgid "Select a table"
 msgstr "Seleccione una tabla"
 
-#: src/ui/components/table_browser.rs:494
+#: src/ui/components/table_browser.rs:502
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr "Elija una tabla o vista en el panel lateral para explorar sus filas."
 
-#: src/ui/components/table_browser.rs:700
+#: src/ui/components/table_browser.rs:708
 msgid "Loading table failed"
 msgstr "No se pudo cargar la tabla"
 
-#: src/ui/components/table_browser.rs:728
+#: src/ui/components/table_browser.rs:736
 msgid "Loading last page failed"
 msgstr "No se pudo cargar la última página"
 
-#: src/ui/components/table_browser.rs:763
+#: src/ui/components/table_browser.rs:771
 msgid "Saving cell failed"
 msgstr "No se pudo guardar la celda"
 
-#: src/ui/components/table_browser.rs:808
+#: src/ui/components/table_browser.rs:816
 msgid "Page copied."
 msgstr "Página copiada."
 
-#: src/ui/components/table_browser.rs:859
+#: src/ui/components/table_browser.rs:867
 msgid "Row inserted."
 msgstr "Fila insertada."
 
-#: src/ui/components/table_browser.rs:872
+#: src/ui/components/table_browser.rs:880
 msgid "Inserting row failed"
 msgstr "No se pudo insertar la fila"
 
-#: src/ui/components/table_browser.rs:875
-#: src/ui/components/table_browser.rs:919
+#: src/ui/components/table_browser.rs:883
+#: src/ui/components/table_browser.rs:927
 msgid "Reloading table failed"
 msgstr "No se pudo recargar la tabla"
 
-#: src/ui/components/table_browser.rs:902
+#: src/ui/components/table_browser.rs:910
 msgid "Row deleted."
 msgstr "Fila eliminada."
 
-#: src/ui/components/table_browser.rs:916
+#: src/ui/components/table_browser.rs:924
 msgid "Deleting row failed"
 msgstr "No se pudo eliminar la fila"
 
-#: src/ui/components/table_browser.rs:1083
+#: src/ui/components/table_browser.rs:1091
 msgid "Filter cannot be applied"
 msgstr "El filtro no puede aplicarse"
 
-#: src/ui/components/table_browser.rs:1098
+#: src/ui/components/table_browser.rs:1106
 msgid "Table Browser"
 msgstr "Explorador de tablas"
 
-#: src/ui/components/table_browser.rs:1108 src/ui/components/table_view.rs:430
+#: src/ui/components/table_browser.rs:1116 src/ui/components/table_view.rs:430
 msgid "View"
 msgstr "Vista"
 
-#: src/ui/components/table_browser.rs:1116
+#: src/ui/components/table_browser.rs:1124
 msgid "Filters"
 msgstr "Filtros"
 
-#: src/ui/components/table_browser.rs:1118
+#: src/ui/components/table_browser.rs:1126
 #, rust-format
 msgid "Filters ({count})"
 msgstr "Filtros ({count})"
 
-#: src/ui/components/table_browser.rs:1132
+#: src/ui/components/table_browser.rs:1140
 msgid "No rows"
 msgstr "Sin filas"
 
-#: src/ui/components/table_browser.rs:1138
+#: src/ui/components/table_browser.rs:1146
 #, rust-format
 msgid "{first}-{last} rows"
 msgstr "{first}-{last} filas"
 
-#: src/ui/components/table_browser.rs:1294
+#: src/ui/components/table_browser.rs:1302
 msgid "Edit Value"
 msgstr "Editar valor"
 
-#: src/ui/components/table_browser.rs:1302
+#: src/ui/components/table_browser.rs:1310
 msgid "Copy Displayed Page"
 msgstr "Copiar página mostrada"
 
-#: src/ui/components/table_browser.rs:1309
+#: src/ui/components/table_browser.rs:1317
 msgid "Delete Row..."
 msgstr "Eliminar fila…"
 
@@ -1567,11 +1571,11 @@ msgstr "No"
 msgid "Key"
 msgstr "Clave"
 
-#: src/ui/components/table_structure/columns.rs:209
+#: src/ui/components/table_structure/columns.rs:206
 msgid "Generated"
 msgstr "Generada"
 
-#: src/ui/components/table_structure/columns.rs:217
+#: src/ui/components/table_structure/columns.rs:214
 #: src/ui/components/table_structure/sections.rs:254
 msgid "Primary"
 msgstr "Primaria"
