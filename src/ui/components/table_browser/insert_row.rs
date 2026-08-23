@@ -5,10 +5,11 @@ use relm4::gtk;
 use relm4::prelude::*;
 
 use crate::db;
-use crate::models::database_object::DatabaseObjectKind;
+use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::table_browser::{ColumnTypeGroup, TableColumn, TableInsertValue};
 use crate::ui::components::table_browser::{
-    InsertRowResult, TableBrowser, TableBrowserCommandOutput, TableBrowserMsg,
+    InsertRowRequest, InsertRowResult, TableBrowser, TableBrowserCommandOutput, TableBrowserMsg,
+    TableBrowserOutput,
 };
 
 const COLUMN_LABEL_WIDTH: i32 = 210;
@@ -32,7 +33,7 @@ enum InsertValueInput {
     },
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum InsertMode {
     Value,
     Null,
@@ -44,6 +45,7 @@ impl TableBrowser {
         let Some(page) = self.page.as_ref() else {
             return;
         };
+
         if page.object.kind != DatabaseObjectKind::Table {
             return;
         }
@@ -51,54 +53,78 @@ impl TableBrowser {
         show_insert_row_dialog(
             root.root().and_downcast::<gtk::Window>().as_ref(),
             &page.columns,
+            None,
+            None,
+            &page.object,
             sender,
         );
     }
 
-    pub(super) fn insert_row(
-        &mut self,
-        values: Vec<TableInsertValue>,
+    pub(super) fn reopen_insert_row_dialog(
+        &self,
+        root: &gtk::Box,
+        request: InsertRowRequest,
+        error: &str,
         sender: &ComponentSender<Self>,
     ) {
-        let Some(pool) = self.pool.clone() else {
+        if !self.insert_request_is_current(&request) {
+            self.show_warning(
+                root,
+                &gettext("Inserting row failed"),
+                &gettext("The submitted row is no longer valid."),
+            );
+
             return;
-        };
-        let Some(page) = self.page.clone() else {
+        }
+
+        show_insert_row_dialog(
+            root.root().and_downcast::<gtk::Window>().as_ref(),
+            &request.columns,
+            Some(&request.values),
+            Some(error),
+            &request.object,
+            sender,
+        );
+    }
+
+    pub(super) fn insert_request_is_current(&self, request: &InsertRowRequest) -> bool {
+        insert_request_matches(self.object.as_ref(), &self.available_columns, request)
+    }
+
+    pub(super) fn insert_row(&mut self, request: InsertRowRequest, sender: &ComponentSender<Self>) {
+        let Some(pool) = self.pool.clone() else {
             return;
         };
 
         self.is_loading = true;
+        let _ = sender.output(TableBrowserOutput::InsertRunningChanged(true));
+
         let id = self.allocate_request_id();
         self.active_insert_request_id = Some(id);
         self.active_delete_request_id = None;
-        let offset = self.offset;
-        let page_size = self.page_size;
-        let filters = self.active_filters.clone();
-        let sort = self.sort.clone();
 
         sender.oneshot_command(async move {
-            if let Err(error) =
-                db::browser::insert_table_row(&pool, &page.object, &page.columns, &values).await
+            if let Err(error) = db::browser::insert_table_row(
+                &pool,
+                &request.object,
+                &request.columns,
+                &request.values,
+            )
+            .await
             {
                 return TableBrowserCommandOutput::RowInserted {
                     id,
-                    result: InsertRowResult::InsertFailed(error.to_string()),
+                    result: InsertRowResult::InsertFailed {
+                        error: error.to_string(),
+                        request,
+                    },
                 };
             }
 
-            let result = db::browser::load_table_page(
-                &pool,
-                &page.object,
-                offset,
-                page_size,
-                &filters,
-                sort.as_ref(),
-            )
-            .await
-            .map(InsertRowResult::Inserted)
-            .unwrap_or_else(|error| InsertRowResult::ReloadFailed(error.to_string()));
-
-            TableBrowserCommandOutput::RowInserted { id, result }
+            TableBrowserCommandOutput::RowInserted {
+                id,
+                result: InsertRowResult::Inserted,
+            }
         });
     }
 }
@@ -106,6 +132,9 @@ impl TableBrowser {
 fn show_insert_row_dialog(
     parent: Option<&gtk::Window>,
     columns: &[TableColumn],
+    initial_values: Option<&[TableInsertValue]>,
+    error: Option<&str>,
+    object: &DatabaseObject,
     sender: &ComponentSender<TableBrowser>,
 ) {
     let list = gtk::ListBox::new();
@@ -117,7 +146,11 @@ fn show_insert_row_dialog(
 
     for (index, column) in columns.iter().enumerate() {
         if column.is_insertable() {
-            let input = insertable_column_row(index, column);
+            let input = insertable_column_row(
+                index,
+                column,
+                initial_values.and_then(|values| values.get(index)),
+            );
             list.append(&input.row);
             inputs.push(input.input);
         } else {
@@ -135,11 +168,20 @@ fn show_insert_row_dialog(
         .child(&list)
         .build();
 
-    let dialog = adw::AlertDialog::builder()
-        .heading(gettext("Insert Row"))
-        .body(gettext(
+    let heading = error
+        .map(|_| {
+            gettext("Inserting row into {name} failed").replace("{name}", &object.qualified_name())
+        })
+        .unwrap_or_else(|| gettext("Insert Row"));
+    let body = error.map(str::to_string).unwrap_or_else(|| {
+        gettext(
             "Enter values for the new row. Columns can also use DEFAULT or NULL when available.",
-        ))
+        )
+    });
+
+    let dialog = adw::AlertDialog::builder()
+        .heading(heading)
+        .body(body)
         .extra_child(&scroller)
         .build();
 
@@ -152,6 +194,7 @@ fn show_insert_row_dialog(
 
     let inputs = std::rc::Rc::new(inputs);
     let columns = std::rc::Rc::new(columns.to_vec());
+    let object = object.clone();
 
     sync_insert_response(&dialog, &columns, &inputs);
     for input in inputs.iter() {
@@ -183,7 +226,11 @@ fn show_insert_row_dialog(
         }
 
         let values = insert_values(&columns, &inputs);
-        sender.input(TableBrowserMsg::InsertRowConfirmed(values));
+        sender.input(TableBrowserMsg::InsertRowConfirmed(InsertRowRequest {
+            object,
+            columns: columns.as_ref().clone(),
+            values,
+        }));
     });
 }
 
@@ -192,17 +239,21 @@ struct InsertColumnRow {
     input: InsertColumnInput,
 }
 
-fn insertable_column_row(index: usize, column: &TableColumn) -> InsertColumnRow {
+fn insertable_column_row(
+    index: usize,
+    column: &TableColumn,
+    initial_value: Option<&TableInsertValue>,
+) -> InsertColumnRow {
     let row = gtk::ListBoxRow::new();
     let grid = row_grid();
     row.set_child(Some(&grid));
 
     grid.attach(&column_label(column, column_subtitle(column)), 0, 0, 1, 1);
 
-    let value = value_input(column);
+    let value = value_input(column, initial_value);
     grid.attach(&value.widget(), 1, 0, 1, 1);
 
-    let (mode, modes) = mode_dropdown(column);
+    let (mode, modes) = mode_dropdown(column, initial_value);
     mode.set_sensitive(modes.len() > 1);
     grid.attach(&mode, 2, 0, 1, 1);
 
@@ -241,7 +292,10 @@ fn readonly_column_row(column: &TableColumn) -> gtk::ListBoxRow {
     row
 }
 
-fn mode_dropdown(column: &TableColumn) -> (gtk::DropDown, Vec<InsertMode>) {
+fn mode_dropdown(
+    column: &TableColumn,
+    initial_value: Option<&TableInsertValue>,
+) -> (gtk::DropDown, Vec<InsertMode>) {
     let mut labels = vec![gettext("Value")];
     let mut modes = vec![InsertMode::Value];
     if column.is_nullable {
@@ -253,7 +307,7 @@ fn mode_dropdown(column: &TableColumn) -> (gtk::DropDown, Vec<InsertMode>) {
         modes.push(InsertMode::Default);
     }
 
-    let selected = if column.has_default {
+    let default_mode = if column.has_default {
         modes
             .iter()
             .position(|mode| *mode == InsertMode::Default)
@@ -266,6 +320,10 @@ fn mode_dropdown(column: &TableColumn) -> (gtk::DropDown, Vec<InsertMode>) {
     } else {
         0
     };
+    let selected = initial_value
+        .map(insert_mode_for_value)
+        .and_then(|mode| modes.iter().position(|candidate| *candidate == mode))
+        .unwrap_or(default_mode);
 
     let borrowed = labels.iter().map(String::as_str).collect::<Vec<_>>();
     let dropdown = gtk::DropDown::builder()
@@ -301,22 +359,27 @@ impl InsertColumnInput {
 }
 
 impl InsertValueInput {
-    fn text(column: &TableColumn) -> Self {
+    fn text(column: &TableColumn, initial_value: Option<&TableInsertValue>) -> Self {
         let entry = gtk::Entry::builder()
             .width_request(VALUE_ENTRY_MIN_WIDTH)
             .hexpand(true)
             .placeholder_text(value_placeholder(column))
             .build();
 
+        if let Some(value) = insert_value_text(initial_value) {
+            entry.set_text(value);
+        }
+
         Self::Text(entry)
     }
 
-    fn boolean() -> Self {
+    fn boolean(initial_value: Option<&TableInsertValue>) -> Self {
         let values = vec!["false".to_string(), "true".to_string()];
         let borrowed = values.iter().map(String::as_str).collect::<Vec<_>>();
+        let selected = boolean_selection(initial_value);
         let dropdown = gtk::DropDown::builder()
             .model(&gtk::StringList::new(&borrowed))
-            .selected(0)
+            .selected(selected)
             .width_request(VALUE_ENTRY_MIN_WIDTH)
             .hexpand(true)
             .build();
@@ -361,12 +424,39 @@ impl InsertValueInput {
     }
 }
 
-fn value_input(column: &TableColumn) -> InsertValueInput {
+fn value_input(column: &TableColumn, initial_value: Option<&TableInsertValue>) -> InsertValueInput {
     if column.type_group == ColumnTypeGroup::Boolean {
-        return InsertValueInput::boolean();
+        return InsertValueInput::boolean(initial_value);
     }
 
-    InsertValueInput::text(column)
+    InsertValueInput::text(column, initial_value)
+}
+
+fn insert_mode_for_value(value: &TableInsertValue) -> InsertMode {
+    match value {
+        TableInsertValue::Default => InsertMode::Default,
+        TableInsertValue::Null => InsertMode::Null,
+        TableInsertValue::Value(_) => InsertMode::Value,
+    }
+}
+
+fn insert_value_text(value: Option<&TableInsertValue>) -> Option<&str> {
+    match value {
+        Some(TableInsertValue::Value(value)) => Some(value),
+        Some(TableInsertValue::Default | TableInsertValue::Null) | None => None,
+    }
+}
+
+fn boolean_selection(value: Option<&TableInsertValue>) -> u32 {
+    (insert_value_text(value) == Some("true")) as u32
+}
+
+fn insert_request_matches(
+    object: Option<&DatabaseObject>,
+    columns: &[TableColumn],
+    request: &InsertRowRequest,
+) -> bool {
+    object == Some(&request.object) && columns == request.columns
 }
 
 fn row_grid() -> gtk::Grid {
@@ -486,4 +576,87 @@ fn insert_values(columns: &[TableColumn], inputs: &[InsertColumnInput]) -> Vec<T
     }
 
     values
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        InsertMode, InsertRowRequest, boolean_selection, insert_mode_for_value,
+        insert_request_matches, insert_value_text,
+    };
+    use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
+    use crate::models::table_browser::{ColumnTypeGroup, TableColumn, TableInsertValue};
+
+    #[test]
+    fn restores_insert_modes_from_saved_values() {
+        assert_eq!(
+            insert_mode_for_value(&TableInsertValue::Default),
+            InsertMode::Default
+        );
+        assert_eq!(
+            insert_mode_for_value(&TableInsertValue::Null),
+            InsertMode::Null
+        );
+        assert_eq!(
+            insert_mode_for_value(&TableInsertValue::Value("value".to_string())),
+            InsertMode::Value
+        );
+    }
+
+    #[test]
+    fn restores_text_values_from_saved_values() {
+        assert_eq!(
+            insert_value_text(Some(&TableInsertValue::Value("value".to_string()))),
+            Some("value")
+        );
+        assert_eq!(insert_value_text(Some(&TableInsertValue::Default)), None);
+        assert_eq!(insert_value_text(Some(&TableInsertValue::Null)), None);
+    }
+
+    #[test]
+    fn restores_boolean_selection_from_saved_values() {
+        assert_eq!(
+            boolean_selection(Some(&TableInsertValue::Value("true".to_string()))),
+            1
+        );
+        assert_eq!(
+            boolean_selection(Some(&TableInsertValue::Value("false".to_string()))),
+            0
+        );
+        assert_eq!(boolean_selection(Some(&TableInsertValue::Null)), 0);
+    }
+
+    #[test]
+    fn rejects_insert_requests_for_changed_columns() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "users".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let column = TableColumn {
+            name: "name".to_string(),
+            display_type: "text".to_string(),
+            type_name: "text".to_string(),
+            enum_values: Vec::new(),
+            type_group: ColumnTypeGroup::Text,
+            is_nullable: false,
+            is_primary_key: false,
+            has_default: false,
+            is_identity: false,
+            is_generated: false,
+            ordinal_position: 1,
+        };
+        let request = InsertRowRequest {
+            object: object.clone(),
+            columns: vec![column.clone()],
+            values: vec![TableInsertValue::Value("Ada".to_string())],
+        };
+
+        assert!(insert_request_matches(
+            Some(&object),
+            std::slice::from_ref(&column),
+            &request
+        ));
+        assert!(!insert_request_matches(Some(&object), &[], &request));
+    }
 }

@@ -16,6 +16,7 @@ pub struct TableView {
     object: Option<DatabaseObject>,
     mode: TableViewMode,
     structure_loaded: bool,
+    insert_running: bool,
     can_delete_selected_row: bool,
     browser: Controller<TableBrowser>,
     structure: Controller<TableStructureView>,
@@ -140,7 +141,7 @@ impl Component for TableView {
                     #[watch]
                     set_visible: model.can_insert_rows(),
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content,
+                    set_sensitive: model.mode == TableViewMode::Content && !model.insert_running,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::InsertRow,
@@ -154,7 +155,7 @@ impl Component for TableView {
                     #[watch]
                     set_visible: model.can_insert_rows(),
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && model.can_delete_selected_row,
+                    set_sensitive: model.mode == TableViewMode::Content && !model.insert_running && model.can_delete_selected_row,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::DeleteRow,
@@ -165,7 +166,7 @@ impl Component for TableView {
                     set_icon_name: "filter-symbolic",
                     add_css_class: "flat",
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content,
+                    set_sensitive: model.mode == TableViewMode::Content && !model.insert_running,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::ToggleFilters,
@@ -176,7 +177,7 @@ impl Component for TableView {
                     set_icon_name: "document-save-symbolic",
                     add_css_class: "flat",
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content,
+                    set_sensitive: model.mode == TableViewMode::Content && !model.insert_running,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::ExportCsv,
@@ -186,6 +187,8 @@ impl Component for TableView {
                     set_icon_name: "view-refresh-symbolic",
                     set_tooltip_text: Some(&gettext("Refresh")),
                     add_css_class: "flat",
+                    #[watch]
+                    set_sensitive: model.mode != TableViewMode::Content || !model.insert_running,
                     connect_clicked => TableViewMsg::Refresh,
                 },
             },
@@ -216,6 +219,7 @@ impl Component for TableView {
             object: None,
             mode: TableViewMode::Content,
             structure_loaded: false,
+            insert_running: false,
             can_delete_selected_row: false,
             browser,
             structure,
@@ -258,6 +262,7 @@ impl Component for TableView {
                 self.pool = Some(pool.clone());
                 self.object = Some(object.clone());
                 self.mode = TableViewMode::Content;
+                self.insert_running = false;
                 self.can_delete_selected_row = false;
                 self.structure_loaded = false;
                 widgets.mode_stack.set_visible_child_name("content");
@@ -355,6 +360,10 @@ impl Component for TableView {
             TableViewMsg::BrowserOutput(TableBrowserOutput::Deleted(message)) => {
                 let _ = sender.output(TableViewOutput::Deleted(message));
                 return;
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::InsertRunningChanged(running)) => {
+                self.insert_running = running;
             }
 
             TableViewMsg::BrowserOutput(TableBrowserOutput::SelectionChanged(can_delete)) => {

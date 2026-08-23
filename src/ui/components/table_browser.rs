@@ -54,6 +54,7 @@ pub struct TableBrowser {
     active_request_id: Option<u64>,
     active_last_page_request_id: Option<u64>,
     active_insert_request_id: Option<u64>,
+    insert_reload_pending: bool,
     active_delete_request_id: Option<u64>,
     active_abort_handle: Option<AbortHandle>,
     table_rows: gio::ListStore,
@@ -158,7 +159,7 @@ pub enum TableBrowserMsg {
     },
     CsvExported(Result<(), String>),
     InsertRowRequested,
-    InsertRowConfirmed(Vec<TableInsertValue>),
+    InsertRowConfirmed(InsertRowRequest),
     RowInserted {
         id: u64,
         result: InsertRowResult,
@@ -187,6 +188,7 @@ pub enum TableBrowserOutput {
     Exported(String),
     Inserted(String),
     Deleted(String),
+    InsertRunningChanged(bool),
     SelectionChanged(bool),
 }
 
@@ -219,9 +221,18 @@ pub enum TableBrowserCommandOutput {
 
 #[derive(Debug)]
 pub enum InsertRowResult {
-    Inserted(TablePage),
-    InsertFailed(String),
-    ReloadFailed(String),
+    Inserted,
+    InsertFailed {
+        error: String,
+        request: InsertRowRequest,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InsertRowRequest {
+    object: DatabaseObject,
+    columns: Vec<TableColumn>,
+    values: Vec<TableInsertValue>,
 }
 
 #[derive(Debug)]
@@ -514,6 +525,7 @@ impl Component for TableBrowser {
             active_request_id: None,
             active_last_page_request_id: None,
             active_insert_request_id: None,
+            insert_reload_pending: false,
             active_delete_request_id: None,
             active_abort_handle: None,
             table_rows,
@@ -683,6 +695,10 @@ impl Component for TableBrowser {
                 self.active_abort_handle = None;
                 self.is_loading = false;
 
+                if std::mem::take(&mut self.insert_reload_pending) {
+                    let _ = sender.output(TableBrowserOutput::InsertRunningChanged(false));
+                }
+
                 match result {
                     Ok(page) => {
                         self.is_error = false;
@@ -844,13 +860,23 @@ impl Component for TableBrowser {
             }
 
             TableBrowserMsg::InsertRowRequested => {
+                if self.is_loading || self.active_insert_request_id.is_some() {
+                    return;
+                }
+
                 self.open_insert_row_dialog(root, &sender);
                 return;
             }
 
-            TableBrowserMsg::InsertRowConfirmed(values) => {
+            TableBrowserMsg::InsertRowConfirmed(request) => {
+                if self.active_insert_request_id.is_some()
+                    || !self.insert_request_is_current(&request)
+                {
+                    return;
+                }
+
                 self.clear_selection();
-                self.insert_row(values, &sender);
+                self.insert_row(request, &sender);
             }
 
             TableBrowserMsg::RowInserted { id, result } => {
@@ -862,25 +888,17 @@ impl Component for TableBrowser {
                 self.is_loading = false;
 
                 match result {
-                    InsertRowResult::Inserted(page) => {
+                    InsertRowResult::Inserted => {
                         let _ =
                             sender.output(TableBrowserOutput::Inserted(gettext("Row inserted.")));
-                        self.is_error = false;
-                        self.status_title.clear();
-                        self.status_description = None;
-                        self.available_columns.clone_from(&page.columns);
-                        self.page = Some(page);
-                        self.page_generation = self.page_generation.wrapping_add(1);
-                        self.clear_selection();
-                        render_table(self, &sender);
-                        self.rebuild_filters(widgets, &sender);
-                        set_stack_child(widgets, true);
+
+                        self.insert_reload_pending = true;
+                        self.load_page(widgets, &sender);
                     }
-                    InsertRowResult::InsertFailed(error) => {
-                        self.show_warning(root, &gettext("Inserting row failed"), &error);
-                    }
-                    InsertRowResult::ReloadFailed(error) => {
-                        self.show_warning(root, &gettext("Reloading table failed"), &error)
+                    InsertRowResult::InsertFailed { error, request } => {
+                        let _ = sender.output(TableBrowserOutput::InsertRunningChanged(false));
+
+                        self.reopen_insert_row_dialog(root, request, &error, &sender);
                     }
                 }
             }

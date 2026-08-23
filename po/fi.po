@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-23 12:17+0200\n"
+"POT-Creation-Date: 2026-08-23 12:53+0200\n"
 "PO-Revision-Date: 2026-07-29 14:01+0000\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/codd/ui/fi/>\n"
@@ -80,7 +80,7 @@ msgstr "Välilehtien tallentaminen epäonnistui"
 msgid "Updating the saved password failed"
 msgstr "Tallennetun salasanan päivittäminen epäonnistui"
 
-#: src/window_content.rs:888 src/ui/components/table_browser.rs:836
+#: src/window_content.rs:888 src/ui/components/table_browser.rs:852
 msgid "CSV exported."
 msgstr "CSV viety."
 
@@ -133,13 +133,13 @@ msgstr "Yhdistä PostgreSQL:ään ennen skriptin luontia."
 msgid "Generating the table script failed"
 msgstr ""
 
-#: src/window_content.rs:1767 src/ui/components/table_browser.rs:839
+#: src/window_content.rs:1767 src/ui/components/table_browser.rs:855
 msgid "Export failed"
 msgstr "Vienti epäonnistui"
 
 #: src/window_content.rs:1772 src/window_content/structure_actions.rs:423
 #: src/window_content/tabs.rs:63 src/ui/components/connection_dialog.rs:966
-#: src/ui/components/table_browser.rs:1222
+#: src/ui/components/table_browser.rs:1240
 msgid "Close"
 msgstr "Sulje"
 
@@ -215,7 +215,7 @@ msgstr "Valitse uusi nimi tälle tietokantaobjektille."
 #: src/ui/components/editor.rs:254
 #: src/ui/components/table_browser/cell_editor.rs:93
 #: src/ui/components/table_browser/delete_row.rs:31
-#: src/ui/components/table_browser/insert_row.rs:147
+#: src/ui/components/table_browser/insert_row.rs:189
 msgid "Cancel"
 msgstr "Peru"
 
@@ -500,7 +500,7 @@ msgid ""
 "objects. This cannot be undone."
 msgstr ""
 
-#: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:534
+#: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:535
 msgid "Open in New Tab"
 msgstr ""
 
@@ -513,8 +513,8 @@ msgid "Close All"
 msgstr "Sulje kaikki"
 
 #: src/window_content/tabs.rs:740 src/models/completion.rs:423
-#: src/ui/components/table_browser.rs:1115 src/ui/components/table_view.rs:408
-#: src/ui/components/table_view.rs:429
+#: src/ui/components/table_browser.rs:1133 src/ui/components/table_view.rs:417
+#: src/ui/components/table_view.rs:438
 msgid "Table"
 msgstr "Taulu"
 
@@ -815,7 +815,7 @@ msgid "Row limit"
 msgstr "Riviraja"
 
 #: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:217
-#: src/ui/components/table_browser.rs:290 src/ui/components/table_view.rs:175
+#: src/ui/components/table_browser.rs:301 src/ui/components/table_view.rs:176
 msgid "Export CSV"
 msgstr "Vie CSV"
 
@@ -824,7 +824,7 @@ msgid "Choose how many rows to export and which delimiter to use."
 msgstr "Valitse kuinka monta riviä viedään ja mitä erotinta käytetään."
 
 #: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:221
-#: src/ui/components/table_browser.rs:294
+#: src/ui/components/table_browser.rs:305
 msgid "Export"
 msgstr "Vie"
 
@@ -868,7 +868,7 @@ msgid "No databases match your search."
 msgstr "Hakuasi vastaavia tietokantoja ei löytynyt."
 
 #: src/ui/components/database_selector.rs:237
-#: src/ui/components/table_browser.rs:1132
+#: src/ui/components/table_browser.rs:1150
 msgid "Loading..."
 msgstr "Ladataan..."
 
@@ -969,71 +969,71 @@ msgstr "Yhdistä PostgreSQL:ään selataksesi tietokantaobjekteja."
 msgid "The selected database does not currently expose tables or views."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:553
+#: src/ui/components/sidebar.rs:554
 msgid "Scripts"
 msgstr "Skriptit"
 
-#: src/ui/components/sidebar.rs:557 src/ui/components/table_structure.rs:403
+#: src/ui/components/sidebar.rs:558 src/ui/components/table_structure.rs:403
 msgid "Rename..."
 msgstr "Nimeä uudelleen..."
 
-#: src/ui/components/sidebar.rs:562
+#: src/ui/components/sidebar.rs:563
 msgid "Truncate..."
 msgstr "Typistä…"
 
-#: src/ui/components/sidebar.rs:565
+#: src/ui/components/sidebar.rs:566
 msgid "Delete..."
 msgstr "Poista..."
 
-#: src/ui/components/sidebar.rs:574
+#: src/ui/components/sidebar.rs:575
 msgid "CREATE Script"
 msgstr "CREATE-komentosarja"
 
-#: src/ui/components/sidebar.rs:578
+#: src/ui/components/sidebar.rs:579
 msgid "SELECT Script"
 msgstr "SELECT-komentosarja"
 
-#: src/ui/components/sidebar.rs:582
+#: src/ui/components/sidebar.rs:583
 msgid "INSERT Script"
 msgstr "INSERT-komentosarja"
 
-#: src/ui/components/sidebar.rs:586
+#: src/ui/components/sidebar.rs:587
 msgid "UPDATE Script"
 msgstr "UPDATE-komentosarja"
 
-#: src/ui/components/sidebar.rs:590
+#: src/ui/components/sidebar.rs:591
 msgid "DELETE Script"
 msgstr "DELETE-komentosarja"
 
-#: src/ui/components/sidebar.rs:598
+#: src/ui/components/sidebar.rs:599
 msgid "Copy Table Name"
 msgstr "Kopioi taulun nimi"
 
-#: src/ui/components/sidebar.rs:599
+#: src/ui/components/sidebar.rs:600
 msgid "Copy Qualified Table Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:600
+#: src/ui/components/sidebar.rs:601
 msgid "Copy View Name"
 msgstr "Kopioi näkymän nimi"
 
-#: src/ui/components/sidebar.rs:601
+#: src/ui/components/sidebar.rs:602
 msgid "Copy Qualified View Name"
 msgstr ""
 
-#: src/ui/components/sidebar.rs:607
+#: src/ui/components/sidebar.rs:608
 msgid "Table name copied."
 msgstr "Taulun nimi kopioitu."
 
-#: src/ui/components/sidebar.rs:608
+#: src/ui/components/sidebar.rs:609
 msgid "Qualified table name copied."
 msgstr ""
 
-#: src/ui/components/sidebar.rs:609
+#: src/ui/components/sidebar.rs:610
 msgid "View name copied."
 msgstr "Näkymän nimi kopioitu."
 
-#: src/ui/components/sidebar.rs:610
+#: src/ui/components/sidebar.rs:611
 msgid "Qualified view name copied."
 msgstr ""
 
@@ -1107,15 +1107,15 @@ msgstr "Kysely peruttu"
 msgid "The query was cancelled."
 msgstr "Kysely peruttiin."
 
-#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:785
+#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:801
 msgid "Cell copied."
 msgstr "Solu kopioitu."
 
-#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:796
+#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:812
 msgid "Row copied."
 msgstr "Rivi kopioitu."
 
-#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:807
+#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:823
 msgid "Column copied."
 msgstr "Sarake kopioitu."
 
@@ -1154,15 +1154,15 @@ msgid_plural "{rows}{limit_suffix} rows"
 msgstr[0] "{rows}{limit_suffix} rivi"
 msgstr[1] "{rows}{limit_suffix} riviä"
 
-#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1306
+#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1324
 msgid "Copy Cell"
 msgstr "Kopioi solu"
 
-#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1307
+#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1325
 msgid "Copy Row"
 msgstr "Kopioi rivi"
 
-#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1308
+#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1326
 msgid "Copy Column"
 msgstr "Kopioi sarake"
 
@@ -1170,133 +1170,128 @@ msgstr "Kopioi sarake"
 msgid "Copy Displayed Results"
 msgstr "Kopioi näytetyt tulokset"
 
-#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1313
+#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1331
 msgid "Export CSV..."
 msgstr "Vie CSV..."
 
-#: src/ui/components/table_browser.rs:282 src/ui/components/table_view.rs:164
+#: src/ui/components/table_browser.rs:293 src/ui/components/table_view.rs:165
 msgid "Show or edit filters"
 msgstr "Näytä tai muokkaa suodattimia"
 
-#: src/ui/components/table_browser.rs:300 src/ui/components/table_view.rs:187
+#: src/ui/components/table_browser.rs:311 src/ui/components/table_view.rs:188
 msgid "Refresh"
 msgstr "Päivitä"
 
-#: src/ui/components/table_browser.rs:360
+#: src/ui/components/table_browser.rs:371
 msgid "First page"
 msgstr "Ensimmäinen sivu"
 
-#: src/ui/components/table_browser.rs:370
+#: src/ui/components/table_browser.rs:381
 msgid "Previous page"
 msgstr "Edellinen sivu"
 
-#: src/ui/components/table_browser.rs:404
+#: src/ui/components/table_browser.rs:415
 msgid "Next page"
 msgstr "Seuraava sivu"
 
-#: src/ui/components/table_browser.rs:414
+#: src/ui/components/table_browser.rs:425
 msgid "Last page"
 msgstr "Viimeinen sivu"
 
-#: src/ui/components/table_browser.rs:426
+#: src/ui/components/table_browser.rs:437
 msgid "Rows"
 msgstr "Rivit"
 
-#: src/ui/components/table_browser.rs:432
+#: src/ui/components/table_browser.rs:443
 msgid "Rows per page"
 msgstr "Rivejä sivua kohden"
 
-#: src/ui/components/table_browser.rs:500
+#: src/ui/components/table_browser.rs:511
 msgid "Select a table"
 msgstr "Valitse taulu"
 
-#: src/ui/components/table_browser.rs:502
+#: src/ui/components/table_browser.rs:513
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr "Valitse taulu tai näkymä sivupalkista selataksesi sen rivejä."
 
-#: src/ui/components/table_browser.rs:708
+#: src/ui/components/table_browser.rs:724
 msgid "Loading table failed"
 msgstr "Taulun lataaminen epäonnistui"
 
-#: src/ui/components/table_browser.rs:736
+#: src/ui/components/table_browser.rs:752
 msgid "Loading last page failed"
 msgstr "Viimeisen sivun lataaminen epäonnistui"
 
-#: src/ui/components/table_browser.rs:771
+#: src/ui/components/table_browser.rs:787
 msgid "Saving cell failed"
 msgstr "Solun tallentaminen epäonnistui"
 
-#: src/ui/components/table_browser.rs:816
+#: src/ui/components/table_browser.rs:832
 msgid "Page copied."
 msgstr "Sivu kopioitu."
 
-#: src/ui/components/table_browser.rs:867
+#: src/ui/components/table_browser.rs:893
 msgid "Row inserted."
 msgstr "Rivi lisätty."
 
-#: src/ui/components/table_browser.rs:880
-msgid "Inserting row failed"
-msgstr "Rivin lisääminen epäonnistui"
-
-#: src/ui/components/table_browser.rs:883
-#: src/ui/components/table_browser.rs:927
-msgid "Reloading table failed"
-msgstr "Taulun lataaminen uudelleen epäonnistui"
-
-#: src/ui/components/table_browser.rs:910
+#: src/ui/components/table_browser.rs:928
 msgid "Row deleted."
 msgstr "Rivi poistettu."
 
-#: src/ui/components/table_browser.rs:924
+#: src/ui/components/table_browser.rs:942
 msgid "Deleting row failed"
 msgstr "Rivin poistaminen epäonnistui"
 
-#: src/ui/components/table_browser.rs:1091
+#: src/ui/components/table_browser.rs:945
+msgid "Reloading table failed"
+msgstr "Taulun lataaminen uudelleen epäonnistui"
+
+#: src/ui/components/table_browser.rs:1109
 msgid "Filter cannot be applied"
 msgstr "Suodatinta ei voi toteuttaa"
 
-#: src/ui/components/table_browser.rs:1106
+#: src/ui/components/table_browser.rs:1124
 msgid "Table Browser"
 msgstr "Tauluselain"
 
-#: src/ui/components/table_browser.rs:1116 src/ui/components/table_view.rs:430
+#: src/ui/components/table_browser.rs:1134 src/ui/components/table_view.rs:439
 msgid "View"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:1124
+#: src/ui/components/table_browser.rs:1142
 msgid "Filters"
 msgstr "Suodattimet"
 
-#: src/ui/components/table_browser.rs:1126
+#: src/ui/components/table_browser.rs:1144
 #, rust-format
 msgid "Filters ({count})"
 msgstr "Suodattimet ({count})"
 
-#: src/ui/components/table_browser.rs:1140
+#: src/ui/components/table_browser.rs:1158
 msgid "No rows"
 msgstr "Ei rivejä"
 
-#: src/ui/components/table_browser.rs:1146
+#: src/ui/components/table_browser.rs:1164
 #, rust-format
 msgid "{first}-{last} rows"
 msgstr "{first}-{last} riviä"
 
-#: src/ui/components/table_browser.rs:1302
+#: src/ui/components/table_browser.rs:1320
 msgid "Edit Value"
 msgstr "Muokkaa arvoa"
 
-#: src/ui/components/table_browser.rs:1310
+#: src/ui/components/table_browser.rs:1328
 msgid "Copy Displayed Page"
 msgstr "Kopioi näytetty sivu"
 
-#: src/ui/components/table_browser.rs:1317
+#: src/ui/components/table_browser.rs:1335
 msgid "Delete Row..."
 msgstr "Poista rivi…"
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
-#: src/ui/components/table_browser/insert_row.rs:245
-#: src/ui/components/table_browser/insert_row.rs:450
+#: src/ui/components/table_browser/insert_row.rs:299
+#: src/ui/components/table_browser/insert_row.rs:540
 msgid "Value"
 msgstr "Arvo"
 
@@ -1381,101 +1376,114 @@ msgstr "Lisää suodatin"
 msgid "Custom SQL"
 msgstr "Mukautettu SQL"
 
-#: src/ui/components/table_browser/insert_row.rs:139
-#: src/ui/components/table_view.rs:138
+#: src/ui/components/table_browser/insert_row.rs:73
+msgid "Inserting row failed"
+msgstr "Rivin lisääminen epäonnistui"
+
+#: src/ui/components/table_browser/insert_row.rs:74
+msgid "The submitted row is no longer valid."
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:173
+#, rust-format
+msgid "Inserting row into {name} failed"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:175
+#: src/ui/components/table_view.rs:139
 msgid "Insert Row"
 msgstr "Lisää rivi"
 
-#: src/ui/components/table_browser/insert_row.rs:141
+#: src/ui/components/table_browser/insert_row.rs:178
 msgid ""
 "Enter values for the new row. Columns can also use DEFAULT or NULL when "
 "available."
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:148
+#: src/ui/components/table_browser/insert_row.rs:190
 msgid "Insert"
 msgstr "Lisää"
 
-#: src/ui/components/table_browser/insert_row.rs:248
+#: src/ui/components/table_browser/insert_row.rs:302
 msgid "NULL"
 msgstr "NULL"
 
-#: src/ui/components/table_browser/insert_row.rs:252
+#: src/ui/components/table_browser/insert_row.rs:306
 #: src/ui/components/table_structure/columns.rs:83
 msgid "Default"
 msgstr "Oletus"
 
-#: src/ui/components/table_browser/insert_row.rs:282
+#: src/ui/components/table_browser/insert_row.rs:340
 msgid "Skipped"
 msgstr "Ohitettu"
 
-#: src/ui/components/table_browser/insert_row.rs:417
+#: src/ui/components/table_browser/insert_row.rs:507
 msgid "Required"
 msgstr "Pakollinen"
 
-#: src/ui/components/table_browser/insert_row.rs:419
+#: src/ui/components/table_browser/insert_row.rs:509
 msgid "Default or NULL allowed"
 msgstr "Oletus tai NULL sallittu"
 
-#: src/ui/components/table_browser/insert_row.rs:421
+#: src/ui/components/table_browser/insert_row.rs:511
 msgid "Default allowed"
 msgstr "Oletus sallittu"
 
-#: src/ui/components/table_browser/insert_row.rs:423
+#: src/ui/components/table_browser/insert_row.rs:513
 msgid "NULL allowed"
 msgstr "NULL sallittu"
 
-#: src/ui/components/table_browser/insert_row.rs:431
+#: src/ui/components/table_browser/insert_row.rs:521
 msgid "Required column with unsupported type"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:434
+#: src/ui/components/table_browser/insert_row.rs:524
 msgid "Generated column"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:437
+#: src/ui/components/table_browser/insert_row.rs:527
 msgid "Identity column"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:440
+#: src/ui/components/table_browser/insert_row.rs:530
 msgid "Unsupported column type"
 msgstr "Ei-tuettu sarakkeen tyyppi"
 
-#: src/ui/components/table_browser/insert_row.rs:443
+#: src/ui/components/table_browser/insert_row.rs:533
 msgid "Read-only column"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:448
+#: src/ui/components/table_browser/insert_row.rs:538
 msgid "Required value"
 msgstr ""
 
-#: src/ui/components/table_browser/loading.rs:35
+#: src/ui/components/table_browser/loading.rs:34
 msgid "Loading rows"
 msgstr "Ladataan rivejä"
 
-#: src/ui/components/table_browser/loading.rs:36
+#: src/ui/components/table_browser/loading.rs:35
 msgid "Fetching the selected page from PostgreSQL."
 msgstr "Noudetaan valittu sivu PostgreSQL:stä."
 
-#: src/ui/components/table_browser/loading.rs:66
-#: src/ui/components/table_browser/loading.rs:104
+#: src/ui/components/table_browser/loading.rs:65
+#: src/ui/components/table_browser/loading.rs:102
 #: src/ui/components/table_structure.rs:321
 msgid "Loading cancelled"
 msgstr "Lataus peruttiin"
 
-#: src/ui/components/table_browser/loading.rs:124
+#: src/ui/components/table_browser/loading.rs:122
 #, rust-format
 msgid ""
 "The table {name} could not be found. It may have been renamed or dropped."
 msgstr ""
 
-#: src/ui/components/table_browser/loading.rs:128
+#: src/ui/components/table_browser/loading.rs:126
 #, rust-format
 msgid ""
 "The view {name} could not be found. It may have been renamed or dropped."
 msgstr ""
 
-#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:231
+#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:235
 msgid "Structure"
 msgstr "Rakenne"
 
@@ -1614,11 +1622,11 @@ msgstr ""
 msgid "Deferrable"
 msgstr ""
 
-#: src/ui/components/table_view.rs:151
+#: src/ui/components/table_view.rs:152
 msgid "Delete selected row"
 msgstr "Poista valittu rivi"
 
-#: src/ui/components/table_view.rs:227
+#: src/ui/components/table_view.rs:231
 msgid "Content"
 msgstr "Sisältö"
 

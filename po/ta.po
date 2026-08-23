@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-23 12:17+0200\n"
+"POT-Creation-Date: 2026-08-23 12:53+0200\n"
 "PO-Revision-Date: 2026-06-24 19:16+0000\n"
 "Last-Translator: தமிழ்நேரம் <tamilneram247@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/codd/ui/ta/>\n"
@@ -80,7 +80,7 @@ msgstr "தாவல்களைச் சேமிப்பதில் தோ�
 msgid "Updating the saved password failed"
 msgstr "சேமித்த கடவுச்சொல்லைப் புதுப்பிக்க முடியவில்லை"
 
-#: src/window_content.rs:888 src/ui/components/table_browser.rs:836
+#: src/window_content.rs:888 src/ui/components/table_browser.rs:852
 msgid "CSV exported."
 msgstr "காபிம ஏற்றுமதி செய்யப்பட்டது."
 
@@ -133,13 +133,13 @@ msgstr "கைஉரையை உருவாக்கும் முன் ப
 msgid "Generating the table script failed"
 msgstr "அட்டவணை கைஉரையை உருவாக்குவது தோல்வியடைந்தது"
 
-#: src/window_content.rs:1767 src/ui/components/table_browser.rs:839
+#: src/window_content.rs:1767 src/ui/components/table_browser.rs:855
 msgid "Export failed"
 msgstr "ஏற்றுமதி தோல்வியடைந்தது"
 
 #: src/window_content.rs:1772 src/window_content/structure_actions.rs:423
 #: src/window_content/tabs.rs:63 src/ui/components/connection_dialog.rs:966
-#: src/ui/components/table_browser.rs:1222
+#: src/ui/components/table_browser.rs:1240
 msgid "Close"
 msgstr "மூடு"
 
@@ -218,7 +218,7 @@ msgstr "இந்த தரவுத்தள பொருளுக்கு ப
 #: src/ui/components/editor.rs:254
 #: src/ui/components/table_browser/cell_editor.rs:93
 #: src/ui/components/table_browser/delete_row.rs:31
-#: src/ui/components/table_browser/insert_row.rs:147
+#: src/ui/components/table_browser/insert_row.rs:189
 msgid "Cancel"
 msgstr "கைவிடு"
 
@@ -499,7 +499,7 @@ msgstr ""
 "இது சார்பு பார்வைகள், கட்டுப்பாடுகள், குறியீடுகள் அல்லது பிற தரவுத்தள பொருட்களையும் "
 "கைவிடலாம். இதை செயல்தவிர்க்க முடியாது."
 
-#: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:534
+#: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:535
 msgid "Open in New Tab"
 msgstr ""
 
@@ -512,8 +512,8 @@ msgid "Close All"
 msgstr "அனைத்தையும் மூடு"
 
 #: src/window_content/tabs.rs:740 src/models/completion.rs:423
-#: src/ui/components/table_browser.rs:1115 src/ui/components/table_view.rs:408
-#: src/ui/components/table_view.rs:429
+#: src/ui/components/table_browser.rs:1133 src/ui/components/table_view.rs:417
+#: src/ui/components/table_view.rs:438
 msgid "Table"
 msgstr "அட்டவணை"
 
@@ -813,7 +813,7 @@ msgid "Row limit"
 msgstr "வரிசை வரம்பு"
 
 #: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:217
-#: src/ui/components/table_browser.rs:290 src/ui/components/table_view.rs:175
+#: src/ui/components/table_browser.rs:301 src/ui/components/table_view.rs:176
 msgid "Export CSV"
 msgstr "ஏற்றுமதி காபிம"
 
@@ -824,7 +824,7 @@ msgstr ""
 "தேர்வுசெய்யவும்."
 
 #: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:221
-#: src/ui/components/table_browser.rs:294
+#: src/ui/components/table_browser.rs:305
 msgid "Export"
 msgstr "ஏற்றுமதி"
 
@@ -868,7 +868,7 @@ msgid "No databases match your search."
 msgstr "உங்கள் தேடலுக்கு எந்த தரவுத்தளமும் பொருந்தவில்லை."
 
 #: src/ui/components/database_selector.rs:237
-#: src/ui/components/table_browser.rs:1132
+#: src/ui/components/table_browser.rs:1150
 msgid "Loading..."
 msgstr "ஏற்றுகிறது..."
 
@@ -970,71 +970,71 @@ msgid "The selected database does not currently expose tables or views."
 msgstr ""
 "தேர்ந்தெடுக்கப்பட்ட தரவுத்தளமானது தற்போது அட்டவணைகள் அல்லது காட்சிகளை வெளிப்படுத்தவில்லை."
 
-#: src/ui/components/sidebar.rs:553
+#: src/ui/components/sidebar.rs:554
 msgid "Scripts"
 msgstr "கைஉரைகள்"
 
-#: src/ui/components/sidebar.rs:557 src/ui/components/table_structure.rs:403
+#: src/ui/components/sidebar.rs:558 src/ui/components/table_structure.rs:403
 msgid "Rename..."
 msgstr "மறுபெயரிடு..."
 
-#: src/ui/components/sidebar.rs:562
+#: src/ui/components/sidebar.rs:563
 msgid "Truncate..."
 msgstr "துண்டி..."
 
-#: src/ui/components/sidebar.rs:565
+#: src/ui/components/sidebar.rs:566
 msgid "Delete..."
 msgstr "நீக்கு..."
 
-#: src/ui/components/sidebar.rs:574
+#: src/ui/components/sidebar.rs:575
 msgid "CREATE Script"
 msgstr "உருவாக்கு கைஉரை"
 
-#: src/ui/components/sidebar.rs:578
+#: src/ui/components/sidebar.rs:579
 msgid "SELECT Script"
 msgstr "தேர்ந்தெடு கைஉரை"
 
-#: src/ui/components/sidebar.rs:582
+#: src/ui/components/sidebar.rs:583
 msgid "INSERT Script"
 msgstr "செருகு கைஉரை"
 
-#: src/ui/components/sidebar.rs:586
+#: src/ui/components/sidebar.rs:587
 msgid "UPDATE Script"
 msgstr "புதுப்பி கைஉரை"
 
-#: src/ui/components/sidebar.rs:590
+#: src/ui/components/sidebar.rs:591
 msgid "DELETE Script"
 msgstr "நீக்கு கைஉரை"
 
-#: src/ui/components/sidebar.rs:598
+#: src/ui/components/sidebar.rs:599
 msgid "Copy Table Name"
 msgstr "அட்டவணையின் பெயரை நகலெடு"
 
-#: src/ui/components/sidebar.rs:599
+#: src/ui/components/sidebar.rs:600
 msgid "Copy Qualified Table Name"
 msgstr "தகுதியான அட்டவணையின் பெயரை நகலெடு"
 
-#: src/ui/components/sidebar.rs:600
+#: src/ui/components/sidebar.rs:601
 msgid "Copy View Name"
 msgstr "காட்சிப் பெயரை நகலெடு"
 
-#: src/ui/components/sidebar.rs:601
+#: src/ui/components/sidebar.rs:602
 msgid "Copy Qualified View Name"
 msgstr "தகுதியான பார்வை பெயரை நகலெடு"
 
-#: src/ui/components/sidebar.rs:607
+#: src/ui/components/sidebar.rs:608
 msgid "Table name copied."
 msgstr "அட்டவணையின் பெயர் நகலெடுக்கப்பட்டது."
 
-#: src/ui/components/sidebar.rs:608
+#: src/ui/components/sidebar.rs:609
 msgid "Qualified table name copied."
 msgstr "தகுதியான அட்டவணையின் பெயர் நகலெடுக்கப்பட்டது."
 
-#: src/ui/components/sidebar.rs:609
+#: src/ui/components/sidebar.rs:610
 msgid "View name copied."
 msgstr "நகலெடுக்கப்பட்ட பெயரைக் காண்க."
 
-#: src/ui/components/sidebar.rs:610
+#: src/ui/components/sidebar.rs:611
 msgid "Qualified view name copied."
 msgstr "தகுதியான பார்வையின் பெயர் நகலெடுக்கப்பட்டது."
 
@@ -1108,15 +1108,15 @@ msgstr "வினவல் கைவிடப்பட்டது"
 msgid "The query was cancelled."
 msgstr "வினவல் கைவிடப்பட்டது."
 
-#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:785
+#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:801
 msgid "Cell copied."
 msgstr "செல் நகலெடுக்கப்பட்டது."
 
-#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:796
+#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:812
 msgid "Row copied."
 msgstr "வரிசை நகலெடுக்கப்பட்டது."
 
-#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:807
+#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:823
 msgid "Column copied."
 msgstr "நெடுவரிசை நகலெடுக்கப்பட்டது."
 
@@ -1155,15 +1155,15 @@ msgid_plural "{rows}{limit_suffix} rows"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1306
+#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1324
 msgid "Copy Cell"
 msgstr "கலத்தை நகலெடு"
 
-#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1307
+#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1325
 msgid "Copy Row"
 msgstr "வரிசையை நகலெடு"
 
-#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1308
+#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1326
 msgid "Copy Column"
 msgstr "நெடுவரிசையை நகலெடு"
 
@@ -1171,134 +1171,129 @@ msgstr "நெடுவரிசையை நகலெடு"
 msgid "Copy Displayed Results"
 msgstr "நகல் காட்டப்பட்ட முடிவுகள்"
 
-#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1313
+#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1331
 msgid "Export CSV..."
 msgstr "காபிம ஐ ஏற்றுமதி செய்..."
 
-#: src/ui/components/table_browser.rs:282 src/ui/components/table_view.rs:164
+#: src/ui/components/table_browser.rs:293 src/ui/components/table_view.rs:165
 msgid "Show or edit filters"
 msgstr "வடிப்பான்களைக் காட்டு அல்லது திருத்து"
 
-#: src/ui/components/table_browser.rs:300 src/ui/components/table_view.rs:187
+#: src/ui/components/table_browser.rs:311 src/ui/components/table_view.rs:188
 msgid "Refresh"
 msgstr "புதுப்பிப்பு"
 
-#: src/ui/components/table_browser.rs:360
+#: src/ui/components/table_browser.rs:371
 msgid "First page"
 msgstr "முதல் பக்கம்"
 
-#: src/ui/components/table_browser.rs:370
+#: src/ui/components/table_browser.rs:381
 msgid "Previous page"
 msgstr "முந்தைய பக்கம்"
 
-#: src/ui/components/table_browser.rs:404
+#: src/ui/components/table_browser.rs:415
 msgid "Next page"
 msgstr "அடுத்த பக்கம்"
 
-#: src/ui/components/table_browser.rs:414
+#: src/ui/components/table_browser.rs:425
 msgid "Last page"
 msgstr "கடைசி பக்கம்"
 
-#: src/ui/components/table_browser.rs:426
+#: src/ui/components/table_browser.rs:437
 msgid "Rows"
 msgstr "வரிசைகள்"
 
-#: src/ui/components/table_browser.rs:432
+#: src/ui/components/table_browser.rs:443
 msgid "Rows per page"
 msgstr "ஒரு பக்கத்திற்கு வரிசைகள்"
 
-#: src/ui/components/table_browser.rs:500
+#: src/ui/components/table_browser.rs:511
 msgid "Select a table"
 msgstr "ஒரு அட்டவணையைத் தேர்ந்தெடு"
 
-#: src/ui/components/table_browser.rs:502
+#: src/ui/components/table_browser.rs:513
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr ""
 "அதன் வரிசைகளை உலவ பக்கப்பட்டியில் இருந்து ஒரு அட்டவணை அல்லது பார்வையைத் தேர்வு செய்."
 
-#: src/ui/components/table_browser.rs:708
+#: src/ui/components/table_browser.rs:724
 msgid "Loading table failed"
 msgstr "அட்டவணையை ஏற்றுவதில் தோல்வி"
 
-#: src/ui/components/table_browser.rs:736
+#: src/ui/components/table_browser.rs:752
 msgid "Loading last page failed"
 msgstr "கடைசிப் பக்கத்தை ஏற்றுவதில் தோல்வி"
 
-#: src/ui/components/table_browser.rs:771
+#: src/ui/components/table_browser.rs:787
 msgid "Saving cell failed"
 msgstr "கலத்தைச் சேமிப்பதில் தோல்வி"
 
-#: src/ui/components/table_browser.rs:816
+#: src/ui/components/table_browser.rs:832
 msgid "Page copied."
 msgstr "பக்கம் நகலெடுக்கப்பட்டது."
 
-#: src/ui/components/table_browser.rs:867
+#: src/ui/components/table_browser.rs:893
 msgid "Row inserted."
 msgstr "வரிசை செருகப்பட்டது."
 
-#: src/ui/components/table_browser.rs:880
-msgid "Inserting row failed"
-msgstr "வரிசையைச் செருகுவதில் தோல்வி"
-
-#: src/ui/components/table_browser.rs:883
-#: src/ui/components/table_browser.rs:927
-msgid "Reloading table failed"
-msgstr "அட்டவணையை மீண்டும் ஏற்றுவது தோல்வியடைந்தது"
-
-#: src/ui/components/table_browser.rs:910
+#: src/ui/components/table_browser.rs:928
 msgid "Row deleted."
 msgstr "வரிசை நீக்கப்பட்டது."
 
-#: src/ui/components/table_browser.rs:924
+#: src/ui/components/table_browser.rs:942
 msgid "Deleting row failed"
 msgstr "வரிசையை நீக்க முடியவில்லை"
 
-#: src/ui/components/table_browser.rs:1091
+#: src/ui/components/table_browser.rs:945
+msgid "Reloading table failed"
+msgstr "அட்டவணையை மீண்டும் ஏற்றுவது தோல்வியடைந்தது"
+
+#: src/ui/components/table_browser.rs:1109
 msgid "Filter cannot be applied"
 msgstr "வடிகட்டியைப் பயன்படுத்த முடியாது"
 
-#: src/ui/components/table_browser.rs:1106
+#: src/ui/components/table_browser.rs:1124
 msgid "Table Browser"
 msgstr "அட்டவணை உலாவி"
 
-#: src/ui/components/table_browser.rs:1116 src/ui/components/table_view.rs:430
+#: src/ui/components/table_browser.rs:1134 src/ui/components/table_view.rs:439
 msgid "View"
 msgstr "பார்வை"
 
-#: src/ui/components/table_browser.rs:1124
+#: src/ui/components/table_browser.rs:1142
 msgid "Filters"
 msgstr "வடிப்பான்கள்"
 
-#: src/ui/components/table_browser.rs:1126
+#: src/ui/components/table_browser.rs:1144
 #, rust-format
 msgid "Filters ({count})"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:1140
+#: src/ui/components/table_browser.rs:1158
 msgid "No rows"
 msgstr "வரிசைகள் இல்லை"
 
-#: src/ui/components/table_browser.rs:1146
+#: src/ui/components/table_browser.rs:1164
 #, rust-format
 msgid "{first}-{last} rows"
 msgstr "{first}-{last} வரிசைகள்"
 
-#: src/ui/components/table_browser.rs:1302
+#: src/ui/components/table_browser.rs:1320
 msgid "Edit Value"
 msgstr "மதிப்பைத் திருத்து"
 
-#: src/ui/components/table_browser.rs:1310
+#: src/ui/components/table_browser.rs:1328
 msgid "Copy Displayed Page"
 msgstr "காட்டப்பட்ட பக்கத்தை நகலெடு"
 
-#: src/ui/components/table_browser.rs:1317
+#: src/ui/components/table_browser.rs:1335
 msgid "Delete Row..."
 msgstr "வரிசையை நீக்கு..."
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
-#: src/ui/components/table_browser/insert_row.rs:245
-#: src/ui/components/table_browser/insert_row.rs:450
+#: src/ui/components/table_browser/insert_row.rs:299
+#: src/ui/components/table_browser/insert_row.rs:540
 msgid "Value"
 msgstr "மதிப்பு"
 
@@ -1385,12 +1380,25 @@ msgstr "வடிகட்டியைச் சேர்"
 msgid "Custom SQL"
 msgstr "தனிப்பயன் கவிமொ"
 
-#: src/ui/components/table_browser/insert_row.rs:139
-#: src/ui/components/table_view.rs:138
+#: src/ui/components/table_browser/insert_row.rs:73
+msgid "Inserting row failed"
+msgstr "வரிசையைச் செருகுவதில் தோல்வி"
+
+#: src/ui/components/table_browser/insert_row.rs:74
+msgid "The submitted row is no longer valid."
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:173
+#, rust-format
+msgid "Inserting row into {name} failed"
+msgstr ""
+
+#: src/ui/components/table_browser/insert_row.rs:175
+#: src/ui/components/table_view.rs:139
 msgid "Insert Row"
 msgstr "வரிசையைச் செருகு"
 
-#: src/ui/components/table_browser/insert_row.rs:141
+#: src/ui/components/table_browser/insert_row.rs:178
 msgid ""
 "Enter values for the new row. Columns can also use DEFAULT or NULL when "
 "available."
@@ -1398,78 +1406,78 @@ msgstr ""
 "புதிய வரிசைக்கான மதிப்புகளை உள்ளிடவும். நெடுவரிசைகள் இருக்கும் போது இயல்புநிலை அல்லது "
 "சுழி ஐயும் பயன்படுத்தலாம்."
 
-#: src/ui/components/table_browser/insert_row.rs:148
+#: src/ui/components/table_browser/insert_row.rs:190
 msgid "Insert"
 msgstr "செருகு"
 
-#: src/ui/components/table_browser/insert_row.rs:248
+#: src/ui/components/table_browser/insert_row.rs:302
 msgid "NULL"
 msgstr "சுழி"
 
-#: src/ui/components/table_browser/insert_row.rs:252
+#: src/ui/components/table_browser/insert_row.rs:306
 #: src/ui/components/table_structure/columns.rs:83
 msgid "Default"
 msgstr "இயல்புநிலை"
 
-#: src/ui/components/table_browser/insert_row.rs:282
+#: src/ui/components/table_browser/insert_row.rs:340
 msgid "Skipped"
 msgstr "தவிர்க்கப்பட்டது"
 
-#: src/ui/components/table_browser/insert_row.rs:417
+#: src/ui/components/table_browser/insert_row.rs:507
 msgid "Required"
 msgstr "தேவை"
 
-#: src/ui/components/table_browser/insert_row.rs:419
+#: src/ui/components/table_browser/insert_row.rs:509
 msgid "Default or NULL allowed"
 msgstr "இயல்புநிலை அல்லது சுழி அனுமதிக்கப்படுகிறது"
 
-#: src/ui/components/table_browser/insert_row.rs:421
+#: src/ui/components/table_browser/insert_row.rs:511
 msgid "Default allowed"
 msgstr "இயல்புநிலை அனுமதிக்கப்படுகிறது"
 
-#: src/ui/components/table_browser/insert_row.rs:423
+#: src/ui/components/table_browser/insert_row.rs:513
 msgid "NULL allowed"
 msgstr "சுழி அனுமதிக்கப்படுகிறது"
 
-#: src/ui/components/table_browser/insert_row.rs:431
+#: src/ui/components/table_browser/insert_row.rs:521
 msgid "Required column with unsupported type"
 msgstr "ஆதரிக்கப்படாத வகையுடன் தேவையான நெடுவரிசை"
 
-#: src/ui/components/table_browser/insert_row.rs:434
+#: src/ui/components/table_browser/insert_row.rs:524
 msgid "Generated column"
 msgstr "உருவாக்கப்பட்ட நெடுவரிசை"
 
-#: src/ui/components/table_browser/insert_row.rs:437
+#: src/ui/components/table_browser/insert_row.rs:527
 msgid "Identity column"
 msgstr "அடையாள நெடுவரிசை"
 
-#: src/ui/components/table_browser/insert_row.rs:440
+#: src/ui/components/table_browser/insert_row.rs:530
 msgid "Unsupported column type"
 msgstr "ஆதரிக்கப்படாத நெடுவரிசை வகை"
 
-#: src/ui/components/table_browser/insert_row.rs:443
+#: src/ui/components/table_browser/insert_row.rs:533
 msgid "Read-only column"
 msgstr "படிக்க மட்டும் நெடுவரிசை"
 
-#: src/ui/components/table_browser/insert_row.rs:448
+#: src/ui/components/table_browser/insert_row.rs:538
 msgid "Required value"
 msgstr "தேவையான மதிப்பு"
 
-#: src/ui/components/table_browser/loading.rs:35
+#: src/ui/components/table_browser/loading.rs:34
 msgid "Loading rows"
 msgstr "வரிசைகளை ஏற்றுகிறது"
 
-#: src/ui/components/table_browser/loading.rs:36
+#: src/ui/components/table_browser/loading.rs:35
 msgid "Fetching the selected page from PostgreSQL."
 msgstr "பின்கிரிகவிமொ இலிருந்து தேர்ந்தெடுக்கப்பட்ட பக்கத்தைப் பெறுகிறது."
 
-#: src/ui/components/table_browser/loading.rs:66
-#: src/ui/components/table_browser/loading.rs:104
+#: src/ui/components/table_browser/loading.rs:65
+#: src/ui/components/table_browser/loading.rs:102
 #: src/ui/components/table_structure.rs:321
 msgid "Loading cancelled"
 msgstr "ஏற்றுதல் கைவிடுயப்பட்டது"
 
-#: src/ui/components/table_browser/loading.rs:124
+#: src/ui/components/table_browser/loading.rs:122
 #, rust-format
 msgid ""
 "The table {name} could not be found. It may have been renamed or dropped."
@@ -1477,7 +1485,7 @@ msgstr ""
 "அட்டவணை {name} கண்டுபிடிக்க முடியவில்லை. இது மறுபெயரிடப்பட்டிருக்கலாம் அல்லது "
 "கைவிடப்பட்டிருக்கலாம்."
 
-#: src/ui/components/table_browser/loading.rs:128
+#: src/ui/components/table_browser/loading.rs:126
 #, rust-format
 msgid ""
 "The view {name} could not be found. It may have been renamed or dropped."
@@ -1485,7 +1493,7 @@ msgstr ""
 "பார்வை {name} கண்டுபிடிக்க முடியவில்லை. இது மறுபெயரிடப்பட்டிருக்கலாம் அல்லது "
 "கைவிடப்பட்டிருக்கலாம்."
 
-#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:231
+#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:235
 msgid "Structure"
 msgstr "கட்டமைப்பு"
 
@@ -1624,11 +1632,11 @@ msgstr "ஒத்திவைக்கப்பட்டது"
 msgid "Deferrable"
 msgstr "ஒத்திவைக்கக்கூடியது"
 
-#: src/ui/components/table_view.rs:151
+#: src/ui/components/table_view.rs:152
 msgid "Delete selected row"
 msgstr "தேர்ந்தெடுக்கப்பட்ட வரிசையை நீக்கு"
 
-#: src/ui/components/table_view.rs:227
+#: src/ui/components/table_view.rs:231
 msgid "Content"
 msgstr "உள்ளடக்கம்"
 
