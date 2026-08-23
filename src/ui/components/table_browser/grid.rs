@@ -45,8 +45,10 @@ struct CellFactoryContext {
     copy_target: Rc<Cell<Option<CopyTarget>>>,
     edit_target: Rc<RefCell<Option<EditTarget>>>,
     edit_action: gio::SimpleAction,
+    duplicate_action: gio::SimpleAction,
     delete_action: gio::SimpleAction,
     selection: gtk::SingleSelection,
+    busy: Rc<Cell<bool>>,
 }
 
 pub(super) fn clear_columns(view: &gtk::ColumnView) {
@@ -64,6 +66,7 @@ fn cell_factory(
     type_group: ColumnTypeGroup,
     is_dark: bool,
     can_edit: bool,
+    can_duplicate: bool,
     can_delete: bool,
     context: CellFactoryContext,
 ) -> gtk::SignalListItemFactory {
@@ -130,8 +133,15 @@ fn cell_factory(
                         column_index,
                     });
                     context.selection.set_selected(row.index as u32);
-                    context.edit_action.set_enabled(can_edit);
-                    context.delete_action.set_enabled(can_delete);
+                    context
+                        .edit_action
+                        .set_enabled(!context.busy.get() && can_edit);
+                    context
+                        .duplicate_action
+                        .set_enabled(!context.busy.get() && can_duplicate);
+                    context
+                        .delete_action
+                        .set_enabled(!context.busy.get() && can_delete);
                     show_context_menu(&label, &context.context_popover, x, y);
                 }
             });
@@ -238,7 +248,20 @@ fn sync_columns(
 ) {
     let column_keys = columns
         .iter()
-        .map(|column| format!("{}\u{1f}{}", column.name, column.display_type))
+        .map(|column| {
+            format!(
+                "{}\u{1f}{}\u{1f}{}\u{1f}{}\u{1f}{}\u{1f}{}\u{1f}{}\u{1f}{}\u{1f}{}",
+                column.name,
+                column.display_type,
+                column.type_name,
+                column.enum_values.join("\u{1e}"),
+                column.is_nullable,
+                column.is_primary_key,
+                column.has_default,
+                column.is_identity,
+                column.is_generated,
+            )
+        })
         .collect::<Vec<_>>();
 
     if table_browser.rendered_columns == column_keys {
@@ -253,14 +276,20 @@ fn sync_columns(
         page.object.kind == DatabaseObjectKind::Table
             && page.columns.iter().any(|column| column.is_primary_key)
     });
+    let can_duplicate = table_browser
+        .page
+        .as_ref()
+        .is_some_and(|page| page.object.kind == DatabaseObjectKind::Table);
     let context = CellFactoryContext {
         sender: sender.clone(),
         context_popover: table_browser.context_popover.clone(),
         copy_target: table_browser.copy_target.clone(),
         edit_target: table_browser.edit_target.clone(),
         edit_action: table_browser.edit_action.clone(),
+        duplicate_action: table_browser.duplicate_action.clone(),
         delete_action: table_browser.delete_action.clone(),
         selection: table_browser.selection.clone(),
+        busy: table_browser.context_busy.clone(),
     };
     let can_delete = table_browser.can_delete_rows();
 
@@ -271,6 +300,7 @@ fn sync_columns(
             column.type_group,
             is_dark,
             can_edit,
+            can_duplicate,
             can_delete,
             context.clone(),
         );

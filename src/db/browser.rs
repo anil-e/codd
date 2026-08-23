@@ -250,11 +250,13 @@ mod tests {
             uuid_column("public_id", true),
             enum_column("status", false),
             numeric_column("amount", false),
+            array_column("tags"),
+            range_column("active_period"),
         ];
 
         assert_eq!(
             table_page_sql(&object, &columns, 0, 100).unwrap(),
-            "SELECT \"public_id\"::text AS \"public_id\", \"status\"::text AS \"status\", \"amount\"::text AS \"amount\" FROM \"public\".\"orders\" ORDER BY \"public_id\" LIMIT 101 OFFSET 0"
+            "SELECT \"public_id\"::text AS \"public_id\", \"status\"::text AS \"status\", \"amount\"::text AS \"amount\", \"tags\"::text AS \"tags\", \"active_period\"::text AS \"active_period\" FROM \"public\".\"orders\" ORDER BY \"public_id\" LIMIT 101 OFFSET 0"
         );
     }
 
@@ -853,6 +855,8 @@ mod tests {
             type_name: "text".to_string(),
             enum_values: Vec::new(),
             type_group: ColumnTypeGroup::Text,
+            is_array: false,
+            is_range: false,
             is_nullable: false,
             is_primary_key,
             has_default: false,
@@ -909,6 +913,24 @@ mod tests {
             type_name: "numeric".to_string(),
             type_group: ColumnTypeGroup::Numeric,
             ..column(name, is_primary_key)
+        }
+    }
+
+    fn array_column(name: &str) -> TableColumn {
+        TableColumn {
+            display_type: "text[]".to_string(),
+            type_name: "_text".to_string(),
+            is_array: true,
+            ..column(name, false)
+        }
+    }
+
+    fn range_column(name: &str) -> TableColumn {
+        TableColumn {
+            display_type: "tstzrange".to_string(),
+            type_name: "tstzrange".to_string(),
+            is_range: true,
+            ..column(name, false)
         }
     }
 

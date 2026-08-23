@@ -5,7 +5,7 @@ use relm4::prelude::*;
 use crate::db;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::ui::components::table_browser::{
-    TableBrowser, TableBrowserCommandOutput, TableBrowserWidgets,
+    TableBrowser, TableBrowserCommandOutput, TableBrowserOutput, TableBrowserWidgets,
 };
 
 use super::grid::render_table;
@@ -28,8 +28,10 @@ impl TableBrowser {
         close_popover(&mut self.edit_popover);
 
         self.active_last_page_request_id = None;
-        self.active_delete_request_id = None;
         self.is_loading = true;
+        self.context_busy.set(true);
+        let _ = sender.output(TableBrowserOutput::BusyChanged(true));
+
         self.is_error = false;
         self.status_title = gettext("Loading rows");
         self.status_description = Some(gettext("Fetching the selected page from PostgreSQL."));
@@ -81,7 +83,9 @@ impl TableBrowser {
         }
 
         self.is_loading = true;
-        self.active_delete_request_id = None;
+        self.context_busy.set(true);
+        let _ = sender.output(TableBrowserOutput::BusyChanged(true));
+
         let id = self.allocate_request_id();
         let page_size = self.page_size;
         let filters = self.active_filters.clone();

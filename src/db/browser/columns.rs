@@ -8,6 +8,8 @@ struct TableColumnRow {
     display_type: String,
     type_name: String,
     enum_values: Option<Vec<String>>,
+    is_array: bool,
+    is_range: bool,
     is_nullable: bool,
     is_primary_key: bool,
     has_default: bool,
@@ -28,6 +30,14 @@ pub async fn load_table_columns(
             t.typname AS type_name,
             array_agg(e.enumlabel ORDER BY e.enumsortorder)
                 FILTER (WHERE e.enumlabel IS NOT NULL) AS enum_values,
+            (
+                t.typcategory = 'A'
+                OR COALESCE(base_type.typcategory = 'A', FALSE)
+            ) AS is_array,
+            (
+                t.typtype IN ('r', 'm')
+                OR COALESCE(base_type.typtype IN ('r', 'm'), FALSE)
+            ) AS is_range,
             NOT a.attnotnull AS is_nullable,
             EXISTS (
                 SELECT 1
@@ -44,6 +54,7 @@ pub async fn load_table_columns(
         JOIN pg_namespace n ON n.oid = c.relnamespace
         JOIN pg_attribute a ON a.attrelid = c.oid
         JOIN pg_type t ON t.oid = a.atttypid
+        LEFT JOIN pg_type base_type ON base_type.oid = NULLIF(t.typbasetype, 0)
         LEFT JOIN pg_enum e ON e.enumtypid = t.oid
         LEFT JOIN pg_attrdef ad ON ad.adrelid = c.oid
             AND ad.adnum = a.attnum
@@ -58,6 +69,10 @@ pub async fn load_table_columns(
             a.atttypid,
             a.atttypmod,
             t.typname,
+            t.typcategory,
+            t.typtype,
+            base_type.typcategory,
+            base_type.typtype,
             a.attnotnull,
             ad.oid,
             a.attidentity,
@@ -78,6 +93,8 @@ pub async fn load_table_columns(
             display_type: row.display_type,
             enum_values: row.enum_values.unwrap_or_default(),
             type_group: ColumnTypeGroup::from_postgres_type(&row.type_name),
+            is_array: row.is_array,
+            is_range: row.is_range,
             type_name: row.type_name,
             is_nullable: row.is_nullable,
             is_primary_key: row.is_primary_key,

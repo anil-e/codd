@@ -54,7 +54,6 @@ pub struct TableBrowser {
     active_request_id: Option<u64>,
     active_last_page_request_id: Option<u64>,
     active_insert_request_id: Option<u64>,
-    insert_reload_pending: bool,
     active_delete_request_id: Option<u64>,
     active_abort_handle: Option<AbortHandle>,
     table_rows: gio::ListStore,
@@ -66,7 +65,9 @@ pub struct TableBrowser {
     copy_target: Rc<Cell<Option<CopyTarget>>>,
     edit_target: Rc<RefCell<Option<EditTarget>>>,
     edit_action: gio::SimpleAction,
+    duplicate_action: gio::SimpleAction,
     delete_action: gio::SimpleAction,
+    context_busy: Rc<Cell<bool>>,
     context_popover: gtk::PopoverMenu,
     style_manager: adw::StyleManager,
     dark_notify_handler: Option<glib::SignalHandlerId>,
@@ -159,6 +160,7 @@ pub enum TableBrowserMsg {
     },
     CsvExported(Result<(), String>),
     InsertRowRequested,
+    DuplicateSelectedRowRequested,
     InsertRowConfirmed(InsertRowRequest),
     RowInserted {
         id: u64,
@@ -188,8 +190,11 @@ pub enum TableBrowserOutput {
     Exported(String),
     Inserted(String),
     Deleted(String),
-    InsertRunningChanged(bool),
-    SelectionChanged(bool),
+    BusyChanged(bool),
+    SelectionChanged {
+        can_delete: bool,
+        can_duplicate: bool,
+    },
 }
 
 #[derive(Debug)]
@@ -221,15 +226,22 @@ pub enum TableBrowserCommandOutput {
 
 #[derive(Debug)]
 pub enum InsertRowResult {
-    Inserted,
+    Inserted(InsertRowKind),
     InsertFailed {
         error: String,
         request: InsertRowRequest,
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum InsertRowKind {
+    Insert,
+    Duplicate,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InsertRowRequest {
+    kind: InsertRowKind,
     object: DatabaseObject,
     columns: Vec<TableColumn>,
     values: Vec<TableInsertValue>,
@@ -237,9 +249,8 @@ pub struct InsertRowRequest {
 
 #[derive(Debug)]
 pub enum DeleteRowResult {
-    Deleted(TablePage),
+    Deleted { previous_page: bool },
     DeleteFailed(String),
-    ReloadFailed(String),
 }
 
 #[relm4::component(pub)]
@@ -484,12 +495,13 @@ impl Component for TableBrowser {
 
         let copy_target = Rc::new(Cell::new(None));
         let edit_target = Rc::new(RefCell::new(None));
+        let context_busy = Rc::new(Cell::new(false));
 
         let context_popover = gtk::PopoverMenu::from_model(Some(&context_menu()));
         context_popover.set_has_arrow(false);
         context_popover.set_parent(&root);
 
-        let (context_action_group, edit_action, delete_action) =
+        let (context_action_group, edit_action, duplicate_action, delete_action) =
             context_action_group(copy_target.clone(), edit_target.clone(), sender.clone());
 
         root.insert_action_group("browser", Some(&context_action_group));
@@ -525,7 +537,6 @@ impl Component for TableBrowser {
             active_request_id: None,
             active_last_page_request_id: None,
             active_insert_request_id: None,
-            insert_reload_pending: false,
             active_delete_request_id: None,
             active_abort_handle: None,
             table_rows,
@@ -537,7 +548,9 @@ impl Component for TableBrowser {
             copy_target,
             edit_target,
             edit_action,
+            duplicate_action,
             delete_action,
+            context_busy,
             context_popover,
             style_manager,
             dark_notify_handler: Some(dark_notify_handler),
@@ -693,11 +706,10 @@ impl Component for TableBrowser {
                 self.close_context_menu();
                 self.active_request_id = None;
                 self.active_abort_handle = None;
-                self.is_loading = false;
-
-                if std::mem::take(&mut self.insert_reload_pending) {
-                    let _ = sender.output(TableBrowserOutput::InsertRunningChanged(false));
-                }
+                self.is_loading = self.active_insert_request_id.is_some()
+                    || self.active_delete_request_id.is_some();
+                self.context_busy.set(self.is_loading);
+                let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
 
                 match result {
                     Ok(page) => {
@@ -749,6 +761,9 @@ impl Component for TableBrowser {
                     }
 
                     Err(error) => {
+                        self.context_busy.set(false);
+                        let _ = sender.output(TableBrowserOutput::BusyChanged(false));
+
                         self.show_warning(root, &gettext("Loading last page failed"), &error);
                     }
                 }
@@ -860,7 +875,10 @@ impl Component for TableBrowser {
             }
 
             TableBrowserMsg::InsertRowRequested => {
-                if self.is_loading || self.active_insert_request_id.is_some() {
+                if self.is_loading
+                    || self.active_insert_request_id.is_some()
+                    || self.active_delete_request_id.is_some()
+                {
                     return;
                 }
 
@@ -868,8 +886,21 @@ impl Component for TableBrowser {
                 return;
             }
 
+            TableBrowserMsg::DuplicateSelectedRowRequested => {
+                if self.is_loading
+                    || self.active_insert_request_id.is_some()
+                    || self.active_delete_request_id.is_some()
+                {
+                    return;
+                }
+
+                self.open_duplicate_row_dialog(root, &sender);
+                return;
+            }
+
             TableBrowserMsg::InsertRowConfirmed(request) => {
                 if self.active_insert_request_id.is_some()
+                    || self.active_delete_request_id.is_some()
                     || !self.insert_request_is_current(&request)
                 {
                     return;
@@ -885,18 +916,23 @@ impl Component for TableBrowser {
                 }
 
                 self.active_insert_request_id = None;
-                self.is_loading = false;
+                self.is_loading =
+                    self.active_request_id.is_some() || self.active_last_page_request_id.is_some();
 
                 match result {
-                    InsertRowResult::Inserted => {
-                        let _ =
-                            sender.output(TableBrowserOutput::Inserted(gettext("Row inserted.")));
+                    InsertRowResult::Inserted(kind) => {
+                        let message = match kind {
+                            InsertRowKind::Insert => gettext("Row inserted."),
+                            InsertRowKind::Duplicate => gettext("Row duplicated."),
+                        };
 
-                        self.insert_reload_pending = true;
+                        let _ = sender.output(TableBrowserOutput::Inserted(message));
+
                         self.load_page(widgets, &sender);
                     }
                     InsertRowResult::InsertFailed { error, request } => {
-                        let _ = sender.output(TableBrowserOutput::InsertRunningChanged(false));
+                        self.context_busy.set(self.is_loading);
+                        let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
 
                         self.reopen_insert_row_dialog(root, request, &error, &sender);
                     }
@@ -921,36 +957,38 @@ impl Component for TableBrowser {
                 }
 
                 self.active_delete_request_id = None;
-                self.is_loading = false;
+                self.is_loading =
+                    self.active_request_id.is_some() || self.active_last_page_request_id.is_some();
 
                 match result {
-                    DeleteRowResult::Deleted(page) => {
+                    DeleteRowResult::Deleted { previous_page } => {
                         let _ = sender.output(TableBrowserOutput::Deleted(gettext("Row deleted.")));
-                        self.is_error = false;
-                        self.status_title.clear();
-                        self.status_description = None;
-                        self.offset = page.offset;
-                        self.available_columns.clone_from(&page.columns);
-                        self.page = Some(page);
-                        self.page_generation = self.page_generation.wrapping_add(1);
+
+                        if previous_page {
+                            self.offset = self.offset.saturating_sub(self.page_size);
+                        }
+
                         self.clear_selection();
-                        render_table(self, &sender);
-                        self.rebuild_filters(widgets, &sender);
-                        set_stack_child(widgets, true);
+                        self.load_page(widgets, &sender);
                     }
                     DeleteRowResult::DeleteFailed(error) => {
+                        self.context_busy.set(self.is_loading);
+                        let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
+                        let _ = sender.output(TableBrowserOutput::SelectionChanged {
+                            can_delete: self.can_delete_selected_row(),
+                            can_duplicate: self.can_duplicate_selected_row(),
+                        });
+
                         self.show_warning(root, &gettext("Deleting row failed"), &error);
-                    }
-                    DeleteRowResult::ReloadFailed(error) => {
-                        self.show_warning(root, &gettext("Reloading table failed"), &error)
                     }
                 }
             }
 
             TableBrowserMsg::SelectionChanged => {
-                let _ = sender.output(TableBrowserOutput::SelectionChanged(
-                    self.can_delete_selected_row(),
-                ));
+                let _ = sender.output(TableBrowserOutput::SelectionChanged {
+                    can_delete: self.can_delete_selected_row(),
+                    can_duplicate: self.can_duplicate_selected_row(),
+                });
                 return;
             }
 
@@ -1067,6 +1105,7 @@ impl TableBrowser {
         self.copy_target.set(None);
         self.edit_target.borrow_mut().take();
         self.edit_action.set_enabled(false);
+        self.duplicate_action.set_enabled(false);
         self.delete_action.set_enabled(false);
     }
 
@@ -1220,6 +1259,16 @@ impl TableBrowser {
         !self.is_loading && self.can_delete_rows() && self.selected_row().is_some()
     }
 
+    fn can_duplicate_selected_row(&self) -> bool {
+        let Some(page) = self.page.as_ref() else {
+            return false;
+        };
+
+        !self.is_loading
+            && page.object.kind == DatabaseObjectKind::Table
+            && self.selected_row().is_some()
+    }
+
     fn status_icon_name(&self) -> &'static str {
         if self.is_error {
             "dialog-error-symbolic"
@@ -1318,6 +1367,10 @@ fn context_menu() -> gio::Menu {
 
     let edit_section = gio::Menu::new();
     edit_section.append(Some(&gettext("Edit Value")), Some("browser.edit-cell"));
+    edit_section.append(
+        Some(&gettext("Duplicate Row")),
+        Some("browser.duplicate-row"),
+    );
     menu.append_section(None, &edit_section);
 
     let copy_section = gio::Menu::new();
@@ -1366,7 +1419,12 @@ fn context_action_group(
     copy_target: Rc<Cell<Option<CopyTarget>>>,
     edit_target: Rc<RefCell<Option<EditTarget>>>,
     sender: ComponentSender<TableBrowser>,
-) -> (gio::SimpleActionGroup, gio::SimpleAction, gio::SimpleAction) {
+) -> (
+    gio::SimpleActionGroup,
+    gio::SimpleAction,
+    gio::SimpleAction,
+    gio::SimpleAction,
+) {
     let action_group = gio::SimpleActionGroup::new();
     let edit_action = gio::SimpleAction::new("edit-cell", None);
     edit_action.set_enabled(false);
@@ -1387,6 +1445,17 @@ fn context_action_group(
         }
     });
     action_group.add_action(&edit_action);
+
+    let duplicate_action = gio::SimpleAction::new("duplicate-row", None);
+    duplicate_action.set_enabled(false);
+    duplicate_action.connect_activate({
+        let sender = sender.clone();
+
+        move |_, _| {
+            sender.input(TableBrowserMsg::DuplicateSelectedRowRequested);
+        }
+    });
+    action_group.add_action(&duplicate_action);
 
     let delete_action = gio::SimpleAction::new("delete-row", None);
     delete_action.set_enabled(false);
@@ -1434,7 +1503,7 @@ fn context_action_group(
         action_group.add_action(&simple_action);
     }
 
-    (action_group, edit_action, delete_action)
+    (action_group, edit_action, duplicate_action, delete_action)
 }
 
 fn csv_filename_for_object(object: &DatabaseObject) -> String {

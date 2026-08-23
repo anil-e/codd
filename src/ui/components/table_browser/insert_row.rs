@@ -6,10 +6,10 @@ use relm4::prelude::*;
 
 use crate::db;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
-use crate::models::table_browser::{ColumnTypeGroup, TableColumn, TableInsertValue};
+use crate::models::table_browser::{ColumnTypeGroup, TableCell, TableColumn, TableInsertValue};
 use crate::ui::components::table_browser::{
-    InsertRowRequest, InsertRowResult, TableBrowser, TableBrowserCommandOutput, TableBrowserMsg,
-    TableBrowserOutput,
+    InsertRowKind, InsertRowRequest, InsertRowResult, TableBrowser, TableBrowserCommandOutput,
+    TableBrowserMsg, TableBrowserOutput,
 };
 
 const COLUMN_LABEL_WIDTH: i32 = 210;
@@ -56,6 +56,45 @@ impl TableBrowser {
             None,
             None,
             &page.object,
+            InsertRowKind::Insert,
+            sender,
+        );
+    }
+
+    pub(super) fn open_duplicate_row_dialog(
+        &self,
+        root: &gtk::Box,
+        sender: &ComponentSender<Self>,
+    ) {
+        let Some(page) = self.page.as_ref() else {
+            return;
+        };
+
+        if page.object.kind != DatabaseObjectKind::Table {
+            return;
+        }
+
+        let Some((_, row)) = self.selected_row() else {
+            return;
+        };
+
+        let Some(values) = duplicate_values(&page.columns, &row) else {
+            self.show_warning(
+                root,
+                &gettext("Duplicating row failed"),
+                &gettext("This row contains values that cannot be duplicated safely."),
+            );
+
+            return;
+        };
+
+        show_insert_row_dialog(
+            root.root().and_downcast::<gtk::Window>().as_ref(),
+            &page.columns,
+            Some(&values),
+            None,
+            &page.object,
+            InsertRowKind::Duplicate,
             sender,
         );
     }
@@ -68,9 +107,14 @@ impl TableBrowser {
         sender: &ComponentSender<Self>,
     ) {
         if !self.insert_request_is_current(&request) {
+            let heading = match request.kind {
+                InsertRowKind::Insert => gettext("Inserting row failed"),
+                InsertRowKind::Duplicate => gettext("Duplicating row failed"),
+            };
+
             self.show_warning(
                 root,
-                &gettext("Inserting row failed"),
+                &heading,
                 &gettext("The submitted row is no longer valid."),
             );
 
@@ -83,6 +127,7 @@ impl TableBrowser {
             Some(&request.values),
             Some(error),
             &request.object,
+            request.kind,
             sender,
         );
     }
@@ -97,7 +142,8 @@ impl TableBrowser {
         };
 
         self.is_loading = true;
-        let _ = sender.output(TableBrowserOutput::InsertRunningChanged(true));
+        self.context_busy.set(true);
+        let _ = sender.output(TableBrowserOutput::BusyChanged(true));
 
         let id = self.allocate_request_id();
         self.active_insert_request_id = Some(id);
@@ -123,7 +169,7 @@ impl TableBrowser {
 
             TableBrowserCommandOutput::RowInserted {
                 id,
-                result: InsertRowResult::Inserted,
+                result: InsertRowResult::Inserted(request.kind),
             }
         });
     }
@@ -135,6 +181,7 @@ fn show_insert_row_dialog(
     initial_values: Option<&[TableInsertValue]>,
     error: Option<&str>,
     object: &DatabaseObject,
+    kind: InsertRowKind,
     sender: &ComponentSender<TableBrowser>,
 ) {
     let list = gtk::ListBox::new();
@@ -168,16 +215,27 @@ fn show_insert_row_dialog(
         .child(&list)
         .build();
 
-    let heading = error
-        .map(|_| {
+    let heading = match (kind, error) {
+        (InsertRowKind::Insert, Some(_)) => {
             gettext("Inserting row into {name} failed").replace("{name}", &object.qualified_name())
-        })
-        .unwrap_or_else(|| gettext("Insert Row"));
-    let body = error.map(str::to_string).unwrap_or_else(|| {
-        gettext(
+        }
+        (InsertRowKind::Duplicate, Some(_)) => gettext("Duplicating row into {name} failed")
+            .replace("{name}", &object.qualified_name()),
+        (InsertRowKind::Insert, None) => gettext("Insert Row"),
+        (InsertRowKind::Duplicate, None) => gettext("Duplicate Row"),
+    };
+    let body = error.map(str::to_string).unwrap_or_else(|| match kind {
+        InsertRowKind::Insert => gettext(
             "Enter values for the new row. Columns can also use DEFAULT or NULL when available.",
-        )
+        ),
+        InsertRowKind::Duplicate => {
+            gettext("Review the copied values before inserting the duplicate row.")
+        }
     });
+    let confirm_label = match kind {
+        InsertRowKind::Insert => gettext("Insert"),
+        InsertRowKind::Duplicate => gettext("Duplicate"),
+    };
 
     let dialog = adw::AlertDialog::builder()
         .heading(heading)
@@ -185,10 +243,7 @@ fn show_insert_row_dialog(
         .extra_child(&scroller)
         .build();
 
-    dialog.add_responses(&[
-        ("cancel", &gettext("Cancel")),
-        ("insert", &gettext("Insert")),
-    ]);
+    dialog.add_responses(&[("cancel", &gettext("Cancel")), ("insert", &confirm_label)]);
     dialog.set_default_response(Some("insert"));
     dialog.set_response_appearance("insert", adw::ResponseAppearance::Suggested);
 
@@ -227,6 +282,7 @@ fn show_insert_row_dialog(
 
         let values = insert_values(&columns, &inputs);
         sender.input(TableBrowserMsg::InsertRowConfirmed(InsertRowRequest {
+            kind,
             object,
             columns: columns.as_ref().clone(),
             values,
@@ -578,14 +634,67 @@ fn insert_values(columns: &[TableColumn], inputs: &[InsertColumnInput]) -> Vec<T
     values
 }
 
+pub(super) fn can_duplicate_row(columns: &[TableColumn], row: &[TableCell]) -> bool {
+    columns.len() == row.len()
+        && columns.iter().zip(row).all(|(column, cell)| {
+            if column.is_identity
+                || column.is_generated
+                || column.is_primary_key && column.has_default
+            {
+                return true;
+            }
+
+            column.is_insertable() && (cell.is_null || duplicate_value_is_round_trip_safe(column))
+        })
+}
+
+fn duplicate_values(columns: &[TableColumn], row: &[TableCell]) -> Option<Vec<TableInsertValue>> {
+    if !can_duplicate_row(columns, row) {
+        return None;
+    }
+
+    let values = columns
+        .iter()
+        .zip(row)
+        .map(|(column, cell)| {
+            if column.is_identity
+                || column.is_generated
+                || column.has_default && column.is_primary_key
+            {
+                TableInsertValue::Default
+            } else if cell.is_null {
+                TableInsertValue::Null
+            } else {
+                TableInsertValue::Value(cell.value.clone())
+            }
+        })
+        .collect();
+
+    Some(values)
+}
+
+fn duplicate_value_is_round_trip_safe(column: &TableColumn) -> bool {
+    let type_name = column.type_name.to_ascii_lowercase();
+
+    type_name != "char"
+        && (column.uses_text_display()
+            || matches!(
+                column.type_group,
+                ColumnTypeGroup::Boolean
+                    | ColumnTypeGroup::DateTime
+                    | ColumnTypeGroup::Numeric
+                    | ColumnTypeGroup::Text
+            ))
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
-        InsertMode, InsertRowRequest, boolean_selection, insert_mode_for_value,
-        insert_request_matches, insert_value_text,
+        InsertMode, InsertRowKind, InsertRowRequest, boolean_selection, can_duplicate_row,
+        duplicate_values, insert_mode_for_value, insert_request_matches, insert_value_text,
     };
     use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
-    use crate::models::table_browser::{ColumnTypeGroup, TableColumn, TableInsertValue};
+    use crate::models::table_browser::{ColumnTypeGroup, TableCell, TableColumn, TableInsertValue};
 
     #[test]
     fn restores_insert_modes_from_saved_values() {
@@ -639,6 +748,8 @@ mod tests {
             type_name: "text".to_string(),
             enum_values: Vec::new(),
             type_group: ColumnTypeGroup::Text,
+            is_array: false,
+            is_range: false,
             is_nullable: false,
             is_primary_key: false,
             has_default: false,
@@ -647,6 +758,7 @@ mod tests {
             ordinal_position: 1,
         };
         let request = InsertRowRequest {
+            kind: InsertRowKind::Insert,
             object: object.clone(),
             columns: vec![column.clone()],
             values: vec![TableInsertValue::Value("Ada".to_string())],
@@ -658,5 +770,146 @@ mod tests {
             &request
         ));
         assert!(!insert_request_matches(Some(&object), &[], &request));
+    }
+
+    #[test]
+    fn duplicates_values_and_preserves_natural_primary_keys() {
+        let columns = [
+            test_column("id", true, false, false),
+            test_column("name", false, false, false),
+            test_column("note", false, false, false),
+            test_column("generated", false, true, false),
+            test_column("identity", true, false, true),
+        ];
+        let row = [
+            TableCell::new("42".to_string()),
+            TableCell::new("Ada".to_string()),
+            TableCell::null(),
+            TableCell::new("ignored".to_string()),
+            TableCell::new("99".to_string()),
+        ];
+
+        assert_eq!(
+            duplicate_values(&columns, &row),
+            Some(vec![
+                TableInsertValue::Value("42".to_string()),
+                TableInsertValue::Value("Ada".to_string()),
+                TableInsertValue::Null,
+                TableInsertValue::Default,
+                TableInsertValue::Default,
+            ])
+        );
+    }
+
+    #[test]
+    fn rejects_binary_values_and_mismatched_rows() {
+        let mut binary_column = test_column("payload", false, false, false);
+        binary_column.type_group = ColumnTypeGroup::Binary;
+        binary_column.type_name = "bytea".to_string();
+
+        let null_row = [TableCell::null()];
+
+        assert!(!can_duplicate_row(&[binary_column.clone()], &null_row));
+        assert_eq!(duplicate_values(&[binary_column], &null_row), None);
+        assert!(!can_duplicate_row(&[], &null_row));
+    }
+
+    #[test]
+    fn allows_default_backed_binary_primary_keys() {
+        let mut column = test_column("id", true, false, false);
+        column.type_group = ColumnTypeGroup::Binary;
+        column.type_name = "bytea".to_string();
+        column.has_default = true;
+
+        let row = [TableCell::new("ignored".to_string())];
+
+        assert!(can_duplicate_row(std::slice::from_ref(&column), &row));
+        assert_eq!(
+            duplicate_values(&[column], &row),
+            Some(vec![TableInsertValue::Default])
+        );
+    }
+
+    #[test]
+    fn accepts_datetime_values() {
+        for type_name in ["date", "time", "timetz", "timestamp", "timestamptz"] {
+            let mut column = test_column("starts_at", false, false, false);
+            column.type_group = ColumnTypeGroup::DateTime;
+            column.type_name = type_name.to_string();
+
+            let row = [TableCell::new("12:00:00".to_string())];
+
+            assert!(can_duplicate_row(&[column], &row));
+        }
+    }
+
+    #[test]
+    fn accepts_money_values() {
+        let mut column = test_column("amount", false, false, false);
+        column.type_group = ColumnTypeGroup::Numeric;
+        column.type_name = "money".to_string();
+
+        let row = [TableCell::new("1.234,56 €".to_string())];
+
+        assert!(can_duplicate_row(&[column], &row));
+    }
+
+    #[test]
+    fn rejects_postgres_internal_char_values() {
+        let mut column = test_column("internal", false, false, false);
+        column.type_name = "char".to_string();
+
+        let row = [TableCell::new("\u{80}".to_string())];
+
+        assert!(!can_duplicate_row(&[column], &row));
+    }
+
+    #[test]
+    fn accepts_array_and_range_values() {
+        let mut array = test_column("dates", false, false, false);
+        array.type_group = ColumnTypeGroup::Other;
+        array.type_name = "_date".to_string();
+        array.display_type = "date[]".to_string();
+        array.is_array = true;
+        let mut range = test_column("period", false, false, false);
+        range.type_group = ColumnTypeGroup::Other;
+        range.type_name = "daterange".to_string();
+        range.is_range = true;
+        let row = [
+            TableCell::new("{2024-01-02,2024-02-03}".to_string()),
+            TableCell::new("[2024-01-02,2024-02-03)".to_string()),
+        ];
+
+        assert!(can_duplicate_row(&[array.clone(), range.clone()], &row));
+        assert_eq!(
+            duplicate_values(&[array, range], &row),
+            Some(vec![
+                TableInsertValue::Value("{2024-01-02,2024-02-03}".to_string()),
+                TableInsertValue::Value("[2024-01-02,2024-02-03)".to_string()),
+            ])
+        );
+    }
+
+    fn test_column(
+        name: &str,
+        is_primary_key: bool,
+        is_generated: bool,
+        is_identity: bool,
+    ) -> TableColumn {
+        TableColumn {
+            name: name.to_string(),
+            display_type: "text".to_string(),
+            type_name: "text".to_string(),
+            enum_values: Vec::new(),
+            type_group: ColumnTypeGroup::Text,
+            is_array: false,
+            is_range: false,
+            is_nullable: true,
+            is_primary_key,
+            has_default: false,
+            is_identity,
+            is_generated,
+            ordinal_position: 1,
+        }
     }
 }

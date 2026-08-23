@@ -37,6 +37,8 @@ pub struct TableColumn {
     pub type_name: String,
     pub enum_values: Vec<String>,
     pub type_group: ColumnTypeGroup,
+    pub is_array: bool,
+    pub is_range: bool,
     pub is_nullable: bool,
     pub is_primary_key: bool,
     pub has_default: bool,
@@ -59,10 +61,14 @@ impl TableColumn {
     }
 
     pub fn uses_text_display(&self) -> bool {
-        matches!(
-            self.type_name.to_ascii_lowercase().as_str(),
-            "numeric" | "decimal" | "money" | "inet" | "cidr" | "macaddr" | "macaddr8"
-        ) || self.type_name.eq_ignore_ascii_case("uuid")
+        self.is_array
+            || self.is_range
+            || matches!(self.type_group, ColumnTypeGroup::Json)
+            || matches!(
+                self.type_name.to_ascii_lowercase().as_str(),
+                "numeric" | "decimal" | "money" | "inet" | "cidr" | "macaddr" | "macaddr8"
+            )
+            || self.type_name.eq_ignore_ascii_case("uuid")
             || !self.enum_values.is_empty()
     }
 }
@@ -284,6 +290,36 @@ mod tests {
     }
 
     #[test]
+    fn uses_text_display_for_postgres_special_types() {
+        let mut column = column("jsonb");
+        column.type_group = ColumnTypeGroup::Json;
+
+        assert!(column.uses_text_display());
+    }
+
+    #[test]
+    fn keeps_native_display_for_datetime_types() {
+        assert!(!column("date").uses_text_display());
+        assert!(!column("timetz").uses_text_display());
+    }
+
+    #[test]
+    fn uses_text_display_for_arrays_and_ranges() {
+        let mut array = column("_int4");
+        array.is_array = true;
+        let mut range = column("daterange");
+        range.is_range = true;
+
+        assert!(array.uses_text_display());
+        assert!(range.uses_text_display());
+    }
+
+    #[test]
+    fn keeps_native_display_for_unrecognized_postgres_types() {
+        assert!(!column("custom_type").uses_text_display());
+    }
+
+    #[test]
     fn keeps_native_display_for_basic_numeric_types() {
         assert!(!column("int8").uses_text_display());
         assert!(!column("float8").uses_text_display());
@@ -296,6 +332,8 @@ mod tests {
             type_name: type_name.to_string(),
             enum_values: Vec::new(),
             type_group: ColumnTypeGroup::from_postgres_type(type_name),
+            is_array: false,
+            is_range: false,
             is_nullable: false,
             is_primary_key: false,
             has_default: false,

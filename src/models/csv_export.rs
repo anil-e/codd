@@ -202,6 +202,8 @@ mod tests {
             type_name: "text".to_string(),
             enum_values: Vec::new(),
             type_group: ColumnTypeGroup::Text,
+            is_array: false,
+            is_range: false,
             is_nullable: false,
             is_primary_key: false,
             has_default: false,

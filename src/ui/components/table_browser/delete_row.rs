@@ -74,17 +74,15 @@ impl TableBrowser {
 
         self.close_context_menu();
         self.is_loading = true;
-        let _ = sender.output(TableBrowserOutput::SelectionChanged(false));
+        self.context_busy.set(true);
+        let _ = sender.output(TableBrowserOutput::BusyChanged(true));
+        let _ = sender.output(TableBrowserOutput::SelectionChanged {
+            can_delete: false,
+            can_duplicate: false,
+        });
         let id = self.allocate_request_id();
         self.active_delete_request_id = Some(id);
-        let page_size = self.page_size;
-        let filters = self.active_filters.clone();
-        let sort = self.sort.clone();
-        let offset = if page.rows.len() == 1 {
-            self.offset.saturating_sub(self.page_size)
-        } else {
-            self.offset
-        };
+        let previous_page = page.rows.len() == 1;
 
         sender.oneshot_command(async move {
             if let Err(error) =
@@ -96,19 +94,10 @@ impl TableBrowser {
                 };
             }
 
-            let result = db::browser::load_table_page(
-                &pool,
-                &page.object,
-                offset,
-                page_size,
-                &filters,
-                sort.as_ref(),
-            )
-            .await
-            .map(DeleteRowResult::Deleted)
-            .unwrap_or_else(|error| DeleteRowResult::ReloadFailed(error.to_string()));
-
-            TableBrowserCommandOutput::RowDeleted { id, result }
+            TableBrowserCommandOutput::RowDeleted {
+                id,
+                result: DeleteRowResult::Deleted { previous_page },
+            }
         });
     }
 }
