@@ -33,35 +33,35 @@
   </branding>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.13.1/images/flathub/screenshot-query.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.14.0/images/flathub/screenshot-query.png</image>
       <caption>Run SQL queries with syntax highlighting and result previews</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.13.1/images/flathub/screenshot-table-browser.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.14.0/images/flathub/screenshot-table-browser.png</image>
       <caption>Browse PostgreSQL table data with pagination and filters</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.13.1/images/flathub/screenshot-insert-row.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.14.0/images/flathub/screenshot-insert-row.png</image>
       <caption>Insert new table rows with defaults, NULL values and PostgreSQL type validation</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.13.1/images/flathub/screenshot-structure-columns.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.14.0/images/flathub/screenshot-structure-columns.png</image>
       <caption>Inspect table columns, data types, nullability, defaults and primary keys</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.13.1/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.14.0/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
       <caption>Review indexes, constraints, foreign keys and triggers in the structure view</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.13.1/images/flathub/screenshot-drop-constraint.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.14.0/images/flathub/screenshot-drop-constraint.png</image>
       <caption>Edit table structure from native context menus</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.13.1/images/flathub/screenshot-truncate.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.14.0/images/flathub/screenshot-truncate.png</image>
       <caption>Use table actions like rename, truncate and delete</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.13.1/images/flathub/screenshot-start.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.14.0/images/flathub/screenshot-start.png</image>
       <caption>Manage saved PostgreSQL connections</caption>
     </screenshot>
   </screenshots>
@@ -72,13 +72,26 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.14.0" date="2026-08-23">
+      <description translate="no">
+        <p>This release adds row duplication, multiple tabs for tables and views, and PostgreSQL password file support.</p>
+
+        <ul>
+          <li>Selected table rows can now be duplicated from the toolbar or context menu, with copied values available for review before insertion.</li>
+          <li>Tables and views can now be opened in additional tabs from their context menus.</li>
+          <li>Connections can now use credentials from PostgreSQL .pgpass files, including direct Unix-socket and SSH-tunneled connections.</li>
+          <li>Failed row insertions and duplications now preserve entered values and show selectable database errors.</li>
+          <li>Translations were updated.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.13.1" date="2026-07-27">
       <description translate="no">
         <p>This maintenance release updates translations.</p>
 
         <ul>
           <li>Catalan and Russian translations are now included in builds.</li>
-          <li>German, Spanish, Fininsh and Estonian translations were updated.</li>
+          <li>German, Spanish, Finnish and Estonian translations were updated.</li>
         </ul>
       </description>
     </release>
