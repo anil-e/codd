@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-23 15:23+0200\n"
-"PO-Revision-Date: 2026-07-22 19:10+0000\n"
+"PO-Revision-Date: 2026-08-24 14:51+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -521,7 +521,7 @@ msgstr ""
 
 #: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:535
 msgid "Open in New Tab"
-msgstr ""
+msgstr "Ava uuel vahekaardil"
 
 #: src/window_content/tabs.rs:65
 msgid "Close Other Tabs"
@@ -1257,7 +1257,7 @@ msgstr "Rida on lisatud."
 
 #: src/ui/components/table_browser.rs:926
 msgid "Row duplicated."
-msgstr ""
+msgstr "Rea koopia on tehtud."
 
 #: src/ui/components/table_browser.rs:965
 msgid "Row deleted."
@@ -1304,7 +1304,7 @@ msgstr "Muuda väärtust"
 #: src/ui/components/table_browser.rs:1371
 #: src/ui/components/table_browser/insert_row.rs:225
 msgid "Duplicate Row"
-msgstr ""
+msgstr "Tee reast koopia"
 
 #: src/ui/components/table_browser.rs:1381
 msgid "Copy Displayed Page"
@@ -1407,11 +1407,12 @@ msgstr "Kohandatud SQL"
 #: src/ui/components/table_browser/insert_row.rs:84
 #: src/ui/components/table_browser/insert_row.rs:112
 msgid "Duplicating row failed"
-msgstr ""
+msgstr "Reast koopia tegemine ei õnnestunud"
 
 #: src/ui/components/table_browser/insert_row.rs:85
 msgid "This row contains values that cannot be duplicated safely."
 msgstr ""
+"Selles reas on väärtusi, millest koopia tegemine ohutul viisil pole võimalik."
 
 #: src/ui/components/table_browser/insert_row.rs:111
 msgid "Inserting row failed"
@@ -1419,17 +1420,17 @@ msgstr "Rea lisamine ei õnnestunud"
 
 #: src/ui/components/table_browser/insert_row.rs:118
 msgid "The submitted row is no longer valid."
-msgstr ""
+msgstr "Edastatud rida pole enam kehtiv."
 
 #: src/ui/components/table_browser/insert_row.rs:220
 #, rust-format
 msgid "Inserting row into {name} failed"
-msgstr ""
+msgstr "Rea lisamine „{name}“ tabelisse ei õnnestunud"
 
 #: src/ui/components/table_browser/insert_row.rs:222
 #, rust-format
 msgid "Duplicating row into {name} failed"
-msgstr ""
+msgstr "Rea koopia lisamine „{name}“ tabelisse ei õnnestunud"
 
 #: src/ui/components/table_browser/insert_row.rs:224
 #: src/ui/components/table_view.rs:141
@@ -1446,7 +1447,7 @@ msgstr ""
 
 #: src/ui/components/table_browser/insert_row.rs:232
 msgid "Review the copied values before inserting the duplicate row."
-msgstr ""
+msgstr "Enne koopia sisestamist vaata väärtused üle."
 
 #: src/ui/components/table_browser/insert_row.rs:236
 msgid "Insert"
@@ -1454,7 +1455,7 @@ msgstr "Lisa"
 
 #: src/ui/components/table_browser/insert_row.rs:237
 msgid "Duplicate"
-msgstr ""
+msgstr "Tee koopia"
 
 #: src/ui/components/table_browser/insert_row.rs:358
 msgid "NULL"
@@ -1680,7 +1681,7 @@ msgstr "Edasilükatav"
 
 #: src/ui/components/table_view.rs:154
 msgid "Duplicate selected row"
-msgstr ""
+msgstr "Tee valitud reast koopia"
 
 #: src/ui/components/table_view.rs:165
 msgid "Delete selected row"
