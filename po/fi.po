@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-23 15:23+0200\n"
-"PO-Revision-Date: 2026-07-29 14:01+0000\n"
+"PO-Revision-Date: 2026-10-07 20:51+0000\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/codd/ui/fi/>\n"
 "Language: fi\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.10.1.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -502,7 +502,7 @@ msgstr ""
 
 #: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:535
 msgid "Open in New Tab"
-msgstr ""
+msgstr "Avaa uudessa välilehdessä"
 
 #: src/window_content/tabs.rs:65
 msgid "Close Other Tabs"
@@ -520,7 +520,7 @@ msgstr "Taulu"
 
 #: src/window_content/tabs.rs:741
 msgid "Select the tab to load this table."
-msgstr ""
+msgstr "Valitse välilehti ladataksesi tämän taulun."
 
 #: src/window_content/tabs.rs:1034
 msgid "Query"
@@ -967,7 +967,7 @@ msgstr "Yhdistä PostgreSQL:ään selataksesi tietokantaobjekteja."
 
 #: src/ui/components/sidebar.rs:411
 msgid "The selected database does not currently expose tables or views."
-msgstr ""
+msgstr "Valittu tietokanta ei tällä hetkellä paljasta tauluja tai näkymiä."
 
 #: src/ui/components/sidebar.rs:554
 msgid "Scripts"
@@ -1503,12 +1503,14 @@ msgstr "Lataus peruttiin"
 msgid ""
 "The table {name} could not be found. It may have been renamed or dropped."
 msgstr ""
+"Taulua {name} ei löytynyt. Se saattaa olla nimetty uudelleen tai pudotettu."
 
 #: src/ui/components/table_browser/loading.rs:130
 #, rust-format
 msgid ""
 "The view {name} could not be found. It may have been renamed or dropped."
 msgstr ""
+"Näkymää {name} ei löytynyt. Se saattaa olla nimetty uudelleen tai pudotettu."
 
 #: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:249
 msgid "Structure"
@@ -1623,7 +1625,7 @@ msgstr "Ei liipaisimia"
 #: src/ui/components/table_structure/sections.rs:236
 #, rust-format
 msgid "{title} ({count})"
-msgstr ""
+msgstr "{title} ({count})"
 
 #: src/ui/components/table_structure/sections.rs:256
 msgid "Unique"
@@ -1678,6 +1680,9 @@ msgid ""
 "It focuses on saved connections, database browsing, SQL execution, and "
 "native result previews without trying to become a multi-database suite."
 msgstr ""
+"Siinä on kiinnitetty huomiota tallennettuihin yhteyksiin, tietokannan "
+"selaamiseen, SQL:n suorittamiseen ja natiiviin tulosten esikatseluun ilman, "
+"että tarkoitus on olla kaikenkattava tietokantatyökalu."
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:25
 msgid "Anil Erdogan"
