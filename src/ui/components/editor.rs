@@ -14,6 +14,9 @@ pub struct SqlEditor {
     history_preview_buffer: sourceview5::Buffer,
     completion_provider: SqlCompletionProvider,
     is_running: bool,
+    editable: bool,
+    document_warning: Option<String>,
+    can_reload_document: bool,
     has_selection: bool,
     history: Vec<QueryHistoryEntry>,
     selected_history_index: Option<usize>,
@@ -24,6 +27,9 @@ pub struct SqlEditor {
 
 #[derive(Debug)]
 pub enum SqlEditorMsg {
+    SetEditable(bool),
+    SetDocumentWarning(Option<String>, bool),
+    DocumentWarningAction,
     SetRunning(bool),
     SelectionChanged(bool),
     SetHistory(Vec<QueryHistoryEntry>),
@@ -38,6 +44,8 @@ pub enum SqlEditorMsg {
 
 #[derive(Debug)]
 pub enum SqlEditorOutput {
+    ReloadRequested,
+    SaveAsRequested,
     RunRequested,
     CancelRequested,
     HistorySelected(String),
@@ -57,6 +65,16 @@ impl Component for SqlEditor {
             set_spacing: 0,
             add_css_class: "editor-pane",
 
+            adw::Banner {
+                #[watch]
+                set_title: model.document_warning.as_deref().unwrap_or_default(),
+                #[watch]
+                set_revealed: model.document_warning.is_some(),
+                #[watch]
+                set_button_label: Some(&model.document_warning_action_label()),
+                connect_button_clicked => SqlEditorMsg::DocumentWarningAction,
+            },
+
             gtk::ScrolledWindow {
                 set_hexpand: true,
                 set_vexpand: true,
@@ -69,6 +87,8 @@ impl Component for SqlEditor {
                 #[name = "source_view"]
                 sourceview5::View {
                     set_buffer: Some(&model.buffer),
+                    #[watch]
+                    set_editable: model.editable,
                     set_monospace: true,
                     set_show_line_numbers: true,
                     set_highlight_current_line: true,
@@ -246,7 +266,7 @@ impl Component for SqlEditor {
                     #[watch]
                     set_visible: !model.is_running,
                     #[watch]
-                    set_sensitive: !model.is_running,
+                    set_sensitive: !model.is_running && model.editable,
                     connect_clicked => SqlEditorMsg::RunRequested,
                 },
 
@@ -291,6 +311,9 @@ impl Component for SqlEditor {
             history_preview_buffer,
             completion_provider,
             is_running: false,
+            editable: true,
+            document_warning: None,
+            can_reload_document: false,
             has_selection: false,
             history: Vec::new(),
             selected_history_index: None,
@@ -316,6 +339,19 @@ impl Component for SqlEditor {
         _root: &Self::Root,
     ) {
         match msg {
+            SqlEditorMsg::SetDocumentWarning(warning, can_reload) => {
+                self.document_warning = warning;
+                self.can_reload_document = can_reload;
+            }
+            SqlEditorMsg::DocumentWarningAction => {
+                let output = if self.can_reload_document {
+                    SqlEditorOutput::ReloadRequested
+                } else {
+                    SqlEditorOutput::SaveAsRequested
+                };
+                let _ = sender.output(output);
+            }
+            SqlEditorMsg::SetEditable(editable) => self.editable = editable,
             SqlEditorMsg::SetRunning(is_running) => {
                 self.is_running = is_running;
             }
@@ -340,7 +376,7 @@ impl Component for SqlEditor {
             }
 
             SqlEditorMsg::RunRequested => {
-                if !self.is_running {
+                if !self.is_running && self.editable {
                     let _ = sender.output(SqlEditorOutput::RunRequested);
                 }
             }
@@ -381,6 +417,13 @@ impl Component for SqlEditor {
 }
 
 impl SqlEditor {
+    fn document_warning_action_label(&self) -> String {
+        if self.can_reload_document {
+            gettext("Reload")
+        } else {
+            gettext("Save As")
+        }
+    }
     fn render_history(&mut self, widgets: &SqlEditorWidgets) {
         clear_history_list(&widgets.history_list);
 
