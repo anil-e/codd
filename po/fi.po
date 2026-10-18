@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-23 15:23+0200\n"
+"POT-Creation-Date: 2026-10-18 16:20+0200\n"
 "PO-Revision-Date: 2026-10-07 20:51+0000\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/codd/ui/fi/>\n"
@@ -22,187 +22,230 @@ msgstr ""
 msgid "_New Connection"
 msgstr "_Uusi yhteys"
 
-#: src/menus.rs:32
+#: src/menus.rs:26
+msgid "_Open SQL Files..."
+msgstr ""
+
+#: src/menus.rs:29
+msgid "_Save"
+msgstr ""
+
+#: src/menus.rs:30
+msgid "Save _As..."
+msgstr ""
+
+#: src/menus.rs:41
 msgid "_New Window"
 msgstr "_Uusi ikkuna"
 
-#: src/menus.rs:38
+#: src/menus.rs:47
 msgid "Compact Mode"
 msgstr "Tiivis tila"
 
-#: src/menus.rs:39
+#: src/menus.rs:48
 msgid "_Keyboard Shortcuts"
 msgstr "_Pikanäppäimet"
 
-#: src/menus.rs:40
+#: src/menus.rs:49
 msgid "_About Codd"
 msgstr "_Tietoja - Codd"
 
-#: src/menus.rs:41
+#: src/menus.rs:50
 msgid "_Quit"
 msgstr "_Lopeta"
 
-#: src/window.rs:248
+#: src/window.rs:543
 msgid "translator-credits"
 msgstr "Jiri Grönroos"
 
-#: src/window.rs:250 data/io.github.anil_e.Codd.desktop.in:4
+#: src/window.rs:545 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
 msgstr "Kevyt PostgreSQL-asiakasohjelmisto"
 
-#: src/window_content.rs:275 src/window_content.rs:342
+#: src/window_content.rs:296 src/window_content.rs:363
 msgid "Main Menu"
 msgstr "Päävalikko"
 
-#: src/window_content.rs:308
+#: src/window_content.rs:329
 msgid "Objects"
 msgstr "Objektit"
 
-#: src/window_content.rs:312
+#: src/window_content.rs:333
 msgid "Back to connections"
 msgstr "Takaisin yhteyksiin"
 
-#: src/window_content.rs:319
+#: src/window_content.rs:340
 msgid "Refresh Objects"
 msgstr "Päivitä objektit"
 
-#: src/window_content.rs:349
+#: src/window_content.rs:370
 msgid "New Query Tab"
 msgstr "Uusi kyselyvälilehti"
 
-#: src/window_content.rs:739 src/window_content.rs:1285
-#: src/window_content/database_switching.rs:64
+#: src/window_content.rs:831 src/window_content.rs:1392
+#: src/window_content/database_switching.rs:70
+#: src/window_content/database_switching.rs:134
 msgid "Saving tabs failed"
 msgstr "Välilehtien tallentaminen epäonnistui"
 
-#: src/window_content.rs:837
+#: src/window_content.rs:929
 msgid "Updating the saved password failed"
 msgstr "Tallennetun salasanan päivittäminen epäonnistui"
 
-#: src/window_content.rs:888 src/ui/components/table_browser.rs:867
+#: src/window_content.rs:982 src/ui/components/table_browser.rs:867
 msgid "CSV exported."
 msgstr "CSV viety."
 
-#: src/window_content.rs:1094
+#: src/window_content.rs:1191
 msgid "Hide Objects"
 msgstr "Piilota objektit"
 
-#: src/window_content.rs:1095
+#: src/window_content.rs:1192
 msgid "Show Objects"
 msgstr "Näytä objektit"
 
-#: src/window_content.rs:1321 src/ui/components/sidebar.rs:153
+#: src/window_content.rs:1382
+msgid "Waiting for the file operation before disconnecting."
+msgstr ""
+
+#: src/window_content.rs:1431 src/ui/components/sidebar.rs:153
 #: src/ui/components/sidebar.rs:407 src/ui/components/sidebar.rs:421
 msgid "No connection"
 msgstr "Ei yhteyttä"
 
-#: src/window_content.rs:1388
+#: src/window_content.rs:1505
 msgid "Connected to PostgreSQL."
 msgstr "Yhdistetty PostgreSQL:ään."
 
-#: src/window_content.rs:1401
+#: src/window_content.rs:1518
 msgid "Connected, but saving the connection failed"
 msgstr "Yhdistetty, mutta yhteyden tallentaminen epäonnistui"
 
-#: src/window_content.rs:1520
+#: src/window_content.rs:1607
+msgid ""
+"Some scratch tabs exceed the session recovery limits. Save them as SQL files "
+"before leaving this workspace."
+msgstr ""
+
+#: src/window_content.rs:1669
 msgid "Disabling saved password failed"
 msgstr "Tallennetun salasanan poistaminen käytöstä epäonnistui"
 
-#: src/window_content.rs:1535
+#: src/window_content.rs:1684
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr "Yhdistä PostgreSQL:ään ennen kyselyn tulosten vientiä."
 
-#: src/window_content.rs:1543
+#: src/window_content.rs:1692
 msgid "Enter SQL before exporting query results."
 msgstr "Kirjoita SQL ennen kyselytulosten viemistä."
 
-#: src/window_content.rs:1587
+#: src/window_content.rs:1736
 msgid "The query did not return rows."
 msgstr "Kysely ei palauttanut rivejä."
 
-#: src/window_content.rs:1618
+#: src/window_content.rs:1767
 msgid "Schema load failed"
 msgstr "Skeeman lataaminen epäonnistui"
 
-#: src/window_content.rs:1679
+#: src/window_content.rs:1828
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "Yhdistä PostgreSQL:ään ennen skriptin luontia."
 
-#: src/window_content.rs:1719
+#: src/window_content.rs:1868
 msgid "Generating the table script failed"
 msgstr ""
 
-#: src/window_content.rs:1767 src/ui/components/table_browser.rs:870
+#: src/window_content.rs:1916 src/ui/components/table_browser.rs:870
 msgid "Export failed"
 msgstr "Vienti epäonnistui"
 
-#: src/window_content.rs:1772 src/window_content/structure_actions.rs:423
-#: src/window_content/tabs.rs:63 src/ui/components/connection_dialog.rs:966
+#: src/window_content.rs:1921 src/window_content/documents.rs:2193
+#: src/window_content/structure_actions.rs:423 src/window_content/tabs.rs:94
+#: src/ui/components/connection_dialog.rs:966
 #: src/ui/components/table_browser.rs:1289
 msgid "Close"
 msgstr "Sulje"
 
-#: src/window_content.rs:1807
+#: src/window_content.rs:1956
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
 
-#: src/window_content.rs:1809
+#: src/window_content.rs:1958
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
 "be exported."
 msgstr ""
 
-#: src/window_content.rs:1819
+#: src/window_content.rs:1968
 msgid "CREATE script generated."
 msgstr "CREATE-komentosarja luotu."
 
-#: src/window_content.rs:1820
+#: src/window_content.rs:1969
 msgid "SELECT script generated."
 msgstr "SELECT-komentosarja luotu."
 
-#: src/window_content.rs:1821
+#: src/window_content.rs:1970
 msgid "INSERT script generated."
 msgstr "INSERT-komentosarja luotu."
 
-#: src/window_content.rs:1822
+#: src/window_content.rs:1971
 msgid "UPDATE script generated."
 msgstr "UPDATE-komentosarja luotu."
 
-#: src/window_content.rs:1823
+#: src/window_content.rs:1972
 msgid "DELETE script generated."
 msgstr "DELETE-komentosarja luotu."
 
-#: src/window_content/database_switching.rs:56
+#: src/window_content/database_switching.rs:52
+msgid "Finish the file operation before switching databases."
+msgstr ""
+
+#: src/window_content/database_switching.rs:62
 msgid "Connect to PostgreSQL before switching databases."
 msgstr "Yhdistä PostgreSQL:ään ennen tietokantojen välillä vaihtamista."
 
-#: src/window_content/database_switching.rs:106
+#: src/window_content/database_switching.rs:123
 msgid "Database switch failed"
 msgstr "Tietokannan vaihtaminen epäonnistui"
 
-#: src/window_content/database_switching.rs:154
+#: src/window_content/database_switching.rs:181
 msgid "Saving the selected database failed"
 msgstr "Valitun tietokannan tallentaminen epäonnistui"
 
-#: src/window_content/database_switching.rs:195
+#: src/window_content/database_switching.rs:222
 msgid "Migrating query history failed"
 msgstr ""
 
-#: src/window_content/database_switching.rs:224
+#: src/window_content/database_switching.rs:251
 msgid "Saving query history failed"
 msgstr "Kyselyhistorian tallentaminen epäonnistui"
 
-#: src/window_content/database_switching.rs:247
+#: src/window_content/database_switching.rs:274
 msgid "Clearing query history failed"
 msgstr "Kyselyhistorian tyhjentäminen epäonnistui"
 
-#: src/window_content/object_actions.rs:60
-msgid "Choose a new name for this database object."
-msgstr "Valitse uusi nimi tälle tietokantaobjektille."
+#: src/window_content/documents.rs:80
+msgid "Recovered Script (Save As Required)"
+msgstr ""
 
-#: src/window_content/object_actions.rs:65
+#: src/window_content/documents.rs:93
+msgid "File changed on disk. Reload to read the latest version."
+msgstr ""
+
+#: src/window_content/documents.rs:605
+msgid "Open SQL Files"
+msgstr ""
+
+#: src/window_content/documents.rs:608
+msgid "Open"
+msgstr ""
+
+#: src/window_content/documents.rs:609 src/window_content/documents.rs:745
+#: src/window_content/documents.rs:1100 src/window_content/documents.rs:1268
+#: src/window_content/documents.rs:1436 src/window_content/documents.rs:1553
+#: src/window_content/documents.rs:1577 src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
 #: src/window_content/object_actions.rs:174
 #: src/window_content/structure_actions.rs:88
@@ -212,12 +255,158 @@ msgstr "Valitse uusi nimi tälle tietokantaobjektille."
 #: src/ui/components/csv_export_dialog.rs:55
 #: src/ui/components/csv_export_dialog.rs:91
 #: src/ui/components/start_screen.rs:333 src/ui/components/start_screen.rs:369
-#: src/ui/components/editor.rs:254
+#: src/ui/components/editor.rs:274
 #: src/ui/components/table_browser/cell_editor.rs:93
 #: src/ui/components/table_browser/delete_row.rs:31
-#: src/ui/components/table_browser/insert_row.rs:246
+#: src/ui/components/table_browser/insert_row.rs:273
 msgid "Cancel"
 msgstr "Peru"
+
+#: src/window_content/documents.rs:643
+msgid "Connect to PostgreSQL to open the queued SQL files."
+msgstr ""
+
+#: src/window_content/documents.rs:741
+msgid "Save SQL File"
+msgstr ""
+
+#: src/window_content/documents.rs:744 src/window_content/documents.rs:1102
+#: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
+#: src/ui/components/table_browser/cell_editor.rs:99
+msgid "Save"
+msgstr "Tallenna"
+
+#: src/window_content/documents.rs:1035
+msgid ""
+"Wait for the current file or database operation to finish, then try closing "
+"again."
+msgstr ""
+
+#: src/window_content/documents.rs:1092
+msgid "Save Changes?"
+msgstr ""
+
+#: src/window_content/documents.rs:1096
+msgid "Unsaved changes will be lost if you discard them."
+msgstr ""
+
+#: src/window_content/documents.rs:1101
+msgid "Discard"
+msgstr ""
+
+#: src/window_content/documents.rs:1219 src/window_content/documents.rs:1937
+#: src/window_content/documents.rs:1995
+msgid "Saving Tabs Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:1262
+msgid "Reload SQL File?"
+msgstr ""
+
+#: src/window_content/documents.rs:1264
+msgid "Reloading discards your unsaved changes and cannot be undone."
+msgstr ""
+
+#: src/window_content/documents.rs:1269 src/window_content/tabs.rs:103
+#: src/ui/components/editor.rs:422
+msgid "Reload"
+msgstr ""
+
+#: src/window_content/documents.rs:1432
+msgid "Opening SQL File Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:1437 src/window_content/documents.rs:2008
+msgid "Retry"
+msgstr ""
+
+#: src/window_content/documents.rs:1546
+msgid "Saving SQL File Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:1549
+msgid "Check the file permissions or use Save As to choose another location."
+msgstr ""
+
+#: src/window_content/documents.rs:1554 src/window_content/documents.rs:1578
+#: src/window_content/tabs.rs:102 src/ui/components/editor.rs:424
+msgid "Save As"
+msgstr ""
+
+#: src/window_content/documents.rs:1573
+msgid "File Changed on Disk"
+msgstr ""
+
+#: src/window_content/documents.rs:1574
+msgid ""
+"The file was changed, deleted, or cannot be verified. Save a copy, or "
+"explicitly replace the latest verified version."
+msgstr ""
+
+#: src/window_content/documents.rs:1583
+msgid "Overwrite"
+msgstr ""
+
+#: src/window_content/documents.rs:1588
+msgid "Recreate File"
+msgstr ""
+
+#: src/window_content/documents.rs:1946
+msgid "Restoring SQL Files Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2000 src/window_content/documents.rs:2030
+msgid "Saving SQL Recovery Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2003
+msgid ""
+"The file was saved, but newer edits cannot be recovered after a crash. Retry "
+"before removing the scratch-session backup."
+msgstr ""
+
+#: src/window_content/documents.rs:2007
+msgid "Keep Editing Without Recovery"
+msgstr ""
+
+#: src/window_content/documents.rs:2069
+msgid "Closing SQL Files Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2111
+msgid "Restoring SQL Recovery Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2173
+msgid "SQL Files"
+msgstr ""
+
+#: src/window_content/documents.rs:2178
+msgid "All Files"
+msgstr ""
+
+#: src/window_content/documents.rs:2204
+msgid "Some SQL Recovery Files Could Not Be Restored"
+msgstr ""
+
+#: src/window_content/documents.rs:2212
+#, rust-format
+msgid ""
+"One recovery file could not be restored. Valid recovery files were processed "
+"normally, and the unreadable file was left untouched."
+msgid_plural ""
+"{count} recovery files could not be restored. Valid recovery files were "
+"processed normally, and the unreadable files were left untouched."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/window_content/documents.rs:2225
+msgid "See the application logs for the remaining recovery warnings."
+msgstr ""
+
+#: src/window_content/object_actions.rs:60
+msgid "Choose a new name for this database object."
+msgstr "Valitse uusi nimi tälle tietokantaobjektille."
 
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
@@ -500,29 +689,40 @@ msgid ""
 "objects. This cannot be undone."
 msgstr ""
 
-#: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:535
+#: src/window_content/tabs.rs:90 src/ui/components/sidebar.rs:535
 msgid "Open in New Tab"
 msgstr "Avaa uudessa välilehdessä"
 
-#: src/window_content/tabs.rs:65
+#: src/window_content/tabs.rs:96
 msgid "Close Other Tabs"
 msgstr "Sulje muut välilehdet"
 
-#: src/window_content/tabs.rs:69
+#: src/window_content/tabs.rs:100
 msgid "Close All"
 msgstr "Sulje kaikki"
 
-#: src/window_content/tabs.rs:740 src/models/completion.rs:423
+#: src/window_content/tabs.rs:549
+msgid ""
+"This recovered script has no writable file target. Use Save As to keep it."
+msgstr ""
+
+#: src/window_content/tabs.rs:553
+msgid ""
+"The file changed on disk or is unavailable. Reload to read the latest "
+"version."
+msgstr ""
+
+#: src/window_content/tabs.rs:753 src/models/completion.rs:423
 #: src/ui/components/table_browser.rs:1172 src/ui/components/table_view.rs:443
 #: src/ui/components/table_view.rs:464
 msgid "Table"
 msgstr "Taulu"
 
-#: src/window_content/tabs.rs:741
+#: src/window_content/tabs.rs:754
 msgid "Select the tab to load this table."
 msgstr "Valitse välilehti ladataksesi tämän taulun."
 
-#: src/window_content/tabs.rs:1034
+#: src/window_content/tabs.rs:1062
 msgid "Query"
 msgstr "Kysely"
 
@@ -832,11 +1032,6 @@ msgstr "Vie"
 msgid "Save CSV"
 msgstr "Tallenna CSV"
 
-#: src/ui/components/csv_export_dialog.rs:90
-#: src/ui/components/table_browser/cell_editor.rs:99
-msgid "Save"
-msgstr "Tallenna"
-
 #: src/ui/components/csv_export_dialog.rs:98
 msgid "CSV Files"
 msgstr "CSV-tiedostot"
@@ -1037,41 +1232,41 @@ msgstr "Näkymän nimi kopioitu."
 msgid "Qualified view name copied."
 msgstr ""
 
-#: src/ui/components/editor.rs:116
+#: src/ui/components/editor.rs:136
 msgid "Query History"
 msgstr "Kyselyhistoria"
 
-#: src/ui/components/editor.rs:120
+#: src/ui/components/editor.rs:140
 msgid "History"
 msgstr "Historia"
 
-#: src/ui/components/editor.rs:200
+#: src/ui/components/editor.rs:220
 #: src/ui/components/table_browser/filters.rs:438
 msgid "Clear"
 msgstr "Tyhjennä"
 
-#: src/ui/components/editor.rs:213
+#: src/ui/components/editor.rs:233
 #: src/ui/components/table_browser/filters.rs:442
 msgid "Apply"
 msgstr "Toteuta"
 
-#: src/ui/components/editor.rs:229
+#: src/ui/components/editor.rs:249
 msgid "Selection will be executed"
 msgstr "Valinta suoritetaan"
 
-#: src/ui/components/editor.rs:239
+#: src/ui/components/editor.rs:259
 msgid "Execute selection or statement"
 msgstr "Suorita valinta tai lauseke"
 
-#: src/ui/components/editor.rs:243
+#: src/ui/components/editor.rs:263
 msgid "Execute"
 msgstr "Suorita"
 
-#: src/ui/components/editor.rs:394
+#: src/ui/components/editor.rs:437
 msgid "No query history yet."
 msgstr "Ei kyselyhistoriaa vielä."
 
-#: src/ui/components/editor.rs:499
+#: src/ui/components/editor.rs:542
 msgid "Unknown time"
 msgstr "Tuntematon aika"
 
@@ -1281,7 +1476,7 @@ msgid "Edit Value"
 msgstr "Muokkaa arvoa"
 
 #: src/ui/components/table_browser.rs:1371
-#: src/ui/components/table_browser/insert_row.rs:225
+#: src/ui/components/table_browser/insert_row.rs:252
 msgid "Duplicate Row"
 msgstr ""
 
@@ -1295,8 +1490,8 @@ msgstr "Poista rivi…"
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
-#: src/ui/components/table_browser/insert_row.rs:355
-#: src/ui/components/table_browser/insert_row.rs:596
+#: src/ui/components/table_browser/insert_row.rs:382
+#: src/ui/components/table_browser/insert_row.rs:623
 msgid "Value"
 msgstr "Arvo"
 
@@ -1398,89 +1593,89 @@ msgstr "Rivin lisääminen epäonnistui"
 msgid "The submitted row is no longer valid."
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:220
+#: src/ui/components/table_browser/insert_row.rs:247
 #, rust-format
 msgid "Inserting row into {name} failed"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:222
+#: src/ui/components/table_browser/insert_row.rs:249
 #, rust-format
 msgid "Duplicating row into {name} failed"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:224
+#: src/ui/components/table_browser/insert_row.rs:251
 #: src/ui/components/table_view.rs:141
 msgid "Insert Row"
 msgstr "Lisää rivi"
 
-#: src/ui/components/table_browser/insert_row.rs:229
+#: src/ui/components/table_browser/insert_row.rs:256
 msgid ""
 "Enter values for the new row. Columns can also use DEFAULT or NULL when "
 "available."
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:232
+#: src/ui/components/table_browser/insert_row.rs:259
 msgid "Review the copied values before inserting the duplicate row."
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:236
+#: src/ui/components/table_browser/insert_row.rs:263
 msgid "Insert"
 msgstr "Lisää"
 
-#: src/ui/components/table_browser/insert_row.rs:237
+#: src/ui/components/table_browser/insert_row.rs:264
 msgid "Duplicate"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:358
+#: src/ui/components/table_browser/insert_row.rs:385
 msgid "NULL"
 msgstr "NULL"
 
-#: src/ui/components/table_browser/insert_row.rs:362
+#: src/ui/components/table_browser/insert_row.rs:389
 #: src/ui/components/table_structure/columns.rs:83
 msgid "Default"
 msgstr "Oletus"
 
-#: src/ui/components/table_browser/insert_row.rs:396
+#: src/ui/components/table_browser/insert_row.rs:423
 msgid "Skipped"
 msgstr "Ohitettu"
 
-#: src/ui/components/table_browser/insert_row.rs:563
+#: src/ui/components/table_browser/insert_row.rs:590
 msgid "Required"
 msgstr "Pakollinen"
 
-#: src/ui/components/table_browser/insert_row.rs:565
+#: src/ui/components/table_browser/insert_row.rs:592
 msgid "Default or NULL allowed"
 msgstr "Oletus tai NULL sallittu"
 
-#: src/ui/components/table_browser/insert_row.rs:567
+#: src/ui/components/table_browser/insert_row.rs:594
 msgid "Default allowed"
 msgstr "Oletus sallittu"
 
-#: src/ui/components/table_browser/insert_row.rs:569
+#: src/ui/components/table_browser/insert_row.rs:596
 msgid "NULL allowed"
 msgstr "NULL sallittu"
 
-#: src/ui/components/table_browser/insert_row.rs:577
+#: src/ui/components/table_browser/insert_row.rs:604
 msgid "Required column with unsupported type"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:580
+#: src/ui/components/table_browser/insert_row.rs:607
 msgid "Generated column"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:583
+#: src/ui/components/table_browser/insert_row.rs:610
 msgid "Identity column"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:586
+#: src/ui/components/table_browser/insert_row.rs:613
 msgid "Unsupported column type"
 msgstr "Ei-tuettu sarakkeen tyyppi"
 
-#: src/ui/components/table_browser/insert_row.rs:589
+#: src/ui/components/table_browser/insert_row.rs:616
 msgid "Read-only column"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:594
+#: src/ui/components/table_browser/insert_row.rs:621
 msgid "Required value"
 msgstr ""
 
@@ -1663,7 +1858,7 @@ msgstr "Poista valittu rivi"
 msgid "Content"
 msgstr "Sisältö"
 
-#: data/io.github.anil_e.Codd.desktop.in:10
+#: data/io.github.anil_e.Codd.desktop.in:11
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
 msgstr "PostgreSQL;SQL;Database;Query;GNOME;tietokanta;kanta;kysely;"
 
@@ -1798,20 +1993,35 @@ msgstr "Kysely"
 
 #: data/ui/shortcuts-dialog.ui:83
 msgctxt "shortcut window"
+msgid "Open SQL Files"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:89
+msgctxt "shortcut window"
+msgid "Save SQL File"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:95
+msgctxt "shortcut window"
+msgid "Save SQL File As"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:101
+msgctxt "shortcut window"
 msgid "Execute"
 msgstr "Suorita"
 
-#: data/ui/shortcuts-dialog.ui:89
+#: data/ui/shortcuts-dialog.ui:107
 msgctxt "shortcut window"
 msgid "Cancel Running Query"
 msgstr "Peru käynnissä oleva kysely"
 
-#: data/ui/shortcuts-dialog.ui:95
+#: data/ui/shortcuts-dialog.ui:113
 msgctxt "shortcut window"
 msgid "Focus SQL Editor"
 msgstr "Kohdista SQL-muokkaimeen"
 
-#: data/ui/shortcuts-dialog.ui:101
+#: data/ui/shortcuts-dialog.ui:119
 msgctxt "shortcut window"
 msgid "Show Suggestions"
 msgstr "Näytä ehdotukset"

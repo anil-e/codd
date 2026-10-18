@@ -2,9 +2,10 @@
 Type=Application
 Name=Codd
 Comment=Lightweight PostgreSQL client
-Exec=codd
+Exec=codd %U
 Icon=io.github.anil_e.Codd
 StartupNotify=true
 Terminal=false
 Categories=Development;Database;GTK;
+MimeType=application/sql;
 Keywords=PostgreSQL;SQL;Database;Query;GNOME;

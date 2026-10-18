@@ -3,6 +3,7 @@ src/menus.rs
 src/window.rs
 src/window_content.rs
 src/window_content/database_switching.rs
+src/window_content/documents.rs
 src/window_content/object_actions.rs
 src/window_content/query_execution.rs
 src/window_content/structure_actions.rs

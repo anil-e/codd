@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-23 15:23+0200\n"
+"POT-Creation-Date: 2026-10-18 16:20+0200\n"
 "PO-Revision-Date: 2026-06-24 19:16+0000\n"
 "Last-Translator: தமிழ்நேரம் <tamilneram247@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/codd/ui/ta/>\n"
@@ -22,132 +22,156 @@ msgstr ""
 msgid "_New Connection"
 msgstr "புதிய இணைப்பு"
 
-#: src/menus.rs:32
+#: src/menus.rs:26
+msgid "_Open SQL Files..."
+msgstr ""
+
+#: src/menus.rs:29
+msgid "_Save"
+msgstr ""
+
+#: src/menus.rs:30
+msgid "Save _As..."
+msgstr ""
+
+#: src/menus.rs:41
 msgid "_New Window"
 msgstr "புதிய சாளரம்"
 
-#: src/menus.rs:38
+#: src/menus.rs:47
 msgid "Compact Mode"
 msgstr ""
 
-#: src/menus.rs:39
+#: src/menus.rs:48
 msgid "_Keyboard Shortcuts"
 msgstr "விசைப்பலகை குறுக்குவழிகள்"
 
-#: src/menus.rs:40
+#: src/menus.rs:49
 msgid "_About Codd"
 msgstr "கோட் பற்றி"
 
-#: src/menus.rs:41
+#: src/menus.rs:50
 msgid "_Quit"
 msgstr "விடு"
 
-#: src/window.rs:248
+#: src/window.rs:543
 msgid "translator-credits"
 msgstr "மொழிபெயர்ப்பாளர்-வரவுகள்: [தமிழ்நேரம்](TamilNeram.github.io)"
 
-#: src/window.rs:250 data/io.github.anil_e.Codd.desktop.in:4
+#: src/window.rs:545 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
 msgstr "இலகுரக பின்கிரிகவிமொ வாடிக்கையாளர்"
 
-#: src/window_content.rs:275 src/window_content.rs:342
+#: src/window_content.rs:296 src/window_content.rs:363
 msgid "Main Menu"
 msgstr "முதன்மை பட்டியல்"
 
-#: src/window_content.rs:308
+#: src/window_content.rs:329
 msgid "Objects"
 msgstr "பொருள்கள்"
 
-#: src/window_content.rs:312
+#: src/window_content.rs:333
 msgid "Back to connections"
 msgstr "பின்னே இணைப்புகளுக்கு"
 
-#: src/window_content.rs:319
+#: src/window_content.rs:340
 msgid "Refresh Objects"
 msgstr "பொருட்களைப் புதுப்பி"
 
-#: src/window_content.rs:349
+#: src/window_content.rs:370
 msgid "New Query Tab"
 msgstr "புதிய வினவல் தாவல்"
 
-#: src/window_content.rs:739 src/window_content.rs:1285
-#: src/window_content/database_switching.rs:64
+#: src/window_content.rs:831 src/window_content.rs:1392
+#: src/window_content/database_switching.rs:70
+#: src/window_content/database_switching.rs:134
 msgid "Saving tabs failed"
 msgstr "தாவல்களைச் சேமிப்பதில் தோல்வி"
 
-#: src/window_content.rs:837
+#: src/window_content.rs:929
 msgid "Updating the saved password failed"
 msgstr "சேமித்த கடவுச்சொல்லைப் புதுப்பிக்க முடியவில்லை"
 
-#: src/window_content.rs:888 src/ui/components/table_browser.rs:867
+#: src/window_content.rs:982 src/ui/components/table_browser.rs:867
 msgid "CSV exported."
 msgstr "காபிம ஏற்றுமதி செய்யப்பட்டது."
 
-#: src/window_content.rs:1094
+#: src/window_content.rs:1191
 msgid "Hide Objects"
 msgstr "பொருள்களை மறை"
 
-#: src/window_content.rs:1095
+#: src/window_content.rs:1192
 msgid "Show Objects"
 msgstr "பொருள்களைக் காட்டு"
 
-#: src/window_content.rs:1321 src/ui/components/sidebar.rs:153
+#: src/window_content.rs:1382
+msgid "Waiting for the file operation before disconnecting."
+msgstr ""
+
+#: src/window_content.rs:1431 src/ui/components/sidebar.rs:153
 #: src/ui/components/sidebar.rs:407 src/ui/components/sidebar.rs:421
 msgid "No connection"
 msgstr "இணைப்பு இல்லை"
 
-#: src/window_content.rs:1388
+#: src/window_content.rs:1505
 msgid "Connected to PostgreSQL."
 msgstr "பின்கிரிகவிமொ உடன் இணைக்கப்பட்டது."
 
-#: src/window_content.rs:1401
+#: src/window_content.rs:1518
 msgid "Connected, but saving the connection failed"
 msgstr "இணைக்கப்பட்டது, ஆனால் இணைப்பைச் சேமிப்பதில் தோல்வி"
 
-#: src/window_content.rs:1520
+#: src/window_content.rs:1607
+msgid ""
+"Some scratch tabs exceed the session recovery limits. Save them as SQL files "
+"before leaving this workspace."
+msgstr ""
+
+#: src/window_content.rs:1669
 msgid "Disabling saved password failed"
 msgstr "சேமிக்கப்பட்ட கடவுச்சொல்லை முடக்குவது தோல்வியடைந்தது"
 
-#: src/window_content.rs:1535
+#: src/window_content.rs:1684
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr "வினவல் முடிவுகளை ஏற்றுமதி செய்வதற்கு முன் பின்கிரிகவிமொ உடன் இணை."
 
-#: src/window_content.rs:1543
+#: src/window_content.rs:1692
 msgid "Enter SQL before exporting query results."
 msgstr "வினவல் முடிவுகளை ஏற்றுமதி செய்வதற்கு முன் கவிமொ ஐ உள்ளிடவும்."
 
-#: src/window_content.rs:1587
+#: src/window_content.rs:1736
 msgid "The query did not return rows."
 msgstr "வினவல் வரிசைகளை வழங்கவில்லை."
 
-#: src/window_content.rs:1618
+#: src/window_content.rs:1767
 msgid "Schema load failed"
 msgstr "திட்ட ஏற்றம் தோல்வியடைந்தது"
 
-#: src/window_content.rs:1679
+#: src/window_content.rs:1828
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "கைஉரையை உருவாக்கும் முன் பின்கிரிகவிமொ உடன் இணை."
 
-#: src/window_content.rs:1719
+#: src/window_content.rs:1868
 msgid "Generating the table script failed"
 msgstr "அட்டவணை கைஉரையை உருவாக்குவது தோல்வியடைந்தது"
 
-#: src/window_content.rs:1767 src/ui/components/table_browser.rs:870
+#: src/window_content.rs:1916 src/ui/components/table_browser.rs:870
 msgid "Export failed"
 msgstr "ஏற்றுமதி தோல்வியடைந்தது"
 
-#: src/window_content.rs:1772 src/window_content/structure_actions.rs:423
-#: src/window_content/tabs.rs:63 src/ui/components/connection_dialog.rs:966
+#: src/window_content.rs:1921 src/window_content/documents.rs:2193
+#: src/window_content/structure_actions.rs:423 src/window_content/tabs.rs:94
+#: src/ui/components/connection_dialog.rs:966
 #: src/ui/components/table_browser.rs:1289
 msgid "Close"
 msgstr "மூடு"
 
-#: src/window_content.rs:1807
+#: src/window_content.rs:1956
 msgid "CSV export runs queries in a read-only transaction."
 msgstr "காபிம ஏற்றுமதி, படிக்க மட்டுமேயான பரிவர்த்தனையில் வினவல்களை இயக்குகிறது."
 
-#: src/window_content.rs:1809
+#: src/window_content.rs:1958
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
@@ -157,55 +181,74 @@ msgstr ""
 "உருவாக்குதல், உறுதி செய்தல் அல்லது பின்வாங்குதல் போன்ற பரிவர்த்தனை நிலையை எழுதும் அல்லது "
 "மாற்றும் அறிக்கைகளை ஏற்றுமதி செய்ய முடியாது."
 
-#: src/window_content.rs:1819
+#: src/window_content.rs:1968
 msgid "CREATE script generated."
 msgstr "உருவாக்கு கைஉரையை உருவாக்கப்பட்டது."
 
-#: src/window_content.rs:1820
+#: src/window_content.rs:1969
 msgid "SELECT script generated."
 msgstr "தேர்ந்தெடு கைஉரை உருவாக்கப்பட்டது."
 
-#: src/window_content.rs:1821
+#: src/window_content.rs:1970
 msgid "INSERT script generated."
 msgstr "செருகு கைஉரை உருவாக்கப்பட்டது."
 
-#: src/window_content.rs:1822
+#: src/window_content.rs:1971
 msgid "UPDATE script generated."
 msgstr "புதுப்பிப்பு கைஉரை உருவாக்கப்பட்டது."
 
-#: src/window_content.rs:1823
+#: src/window_content.rs:1972
 msgid "DELETE script generated."
 msgstr "நீக்கு கைஉரையை உருவாக்கப்பட்டது."
 
-#: src/window_content/database_switching.rs:56
+#: src/window_content/database_switching.rs:52
+msgid "Finish the file operation before switching databases."
+msgstr ""
+
+#: src/window_content/database_switching.rs:62
 msgid "Connect to PostgreSQL before switching databases."
 msgstr "தரவுத்தளங்களை மாற்றுவதற்கு முன் பின்கிரிகவிமொ உடன் இணை."
 
-#: src/window_content/database_switching.rs:106
+#: src/window_content/database_switching.rs:123
 msgid "Database switch failed"
 msgstr "தரவுத்தள மாற்றம் தோல்வியடைந்தது"
 
-#: src/window_content/database_switching.rs:154
+#: src/window_content/database_switching.rs:181
 msgid "Saving the selected database failed"
 msgstr "தேர்ந்தெடுக்கப்பட்ட தரவுத்தளத்தை சேமிப்பதில் தோல்வி"
 
-#: src/window_content/database_switching.rs:195
+#: src/window_content/database_switching.rs:222
 msgid "Migrating query history failed"
 msgstr "வினவல் வரலாற்றை நகர்த்த முடியவில்லை"
 
-#: src/window_content/database_switching.rs:224
+#: src/window_content/database_switching.rs:251
 msgid "Saving query history failed"
 msgstr "வினவல் வரலாற்றைச் சேமிப்பதில் தோல்வி"
 
-#: src/window_content/database_switching.rs:247
+#: src/window_content/database_switching.rs:274
 msgid "Clearing query history failed"
 msgstr "வினவல் வரலாற்றை அழிக்க முடியவில்லை"
 
-#: src/window_content/object_actions.rs:60
-msgid "Choose a new name for this database object."
-msgstr "இந்த தரவுத்தள பொருளுக்கு புதிய பெயரைத் தேர்வு செய்."
+#: src/window_content/documents.rs:80
+msgid "Recovered Script (Save As Required)"
+msgstr ""
 
-#: src/window_content/object_actions.rs:65
+#: src/window_content/documents.rs:93
+msgid "File changed on disk. Reload to read the latest version."
+msgstr ""
+
+#: src/window_content/documents.rs:605
+msgid "Open SQL Files"
+msgstr ""
+
+#: src/window_content/documents.rs:608
+msgid "Open"
+msgstr ""
+
+#: src/window_content/documents.rs:609 src/window_content/documents.rs:745
+#: src/window_content/documents.rs:1100 src/window_content/documents.rs:1268
+#: src/window_content/documents.rs:1436 src/window_content/documents.rs:1553
+#: src/window_content/documents.rs:1577 src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
 #: src/window_content/object_actions.rs:174
 #: src/window_content/structure_actions.rs:88
@@ -215,12 +258,158 @@ msgstr "இந்த தரவுத்தள பொருளுக்கு ப
 #: src/ui/components/csv_export_dialog.rs:55
 #: src/ui/components/csv_export_dialog.rs:91
 #: src/ui/components/start_screen.rs:333 src/ui/components/start_screen.rs:369
-#: src/ui/components/editor.rs:254
+#: src/ui/components/editor.rs:274
 #: src/ui/components/table_browser/cell_editor.rs:93
 #: src/ui/components/table_browser/delete_row.rs:31
-#: src/ui/components/table_browser/insert_row.rs:246
+#: src/ui/components/table_browser/insert_row.rs:273
 msgid "Cancel"
 msgstr "கைவிடு"
+
+#: src/window_content/documents.rs:643
+msgid "Connect to PostgreSQL to open the queued SQL files."
+msgstr ""
+
+#: src/window_content/documents.rs:741
+msgid "Save SQL File"
+msgstr ""
+
+#: src/window_content/documents.rs:744 src/window_content/documents.rs:1102
+#: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
+#: src/ui/components/table_browser/cell_editor.rs:99
+msgid "Save"
+msgstr "சேமி"
+
+#: src/window_content/documents.rs:1035
+msgid ""
+"Wait for the current file or database operation to finish, then try closing "
+"again."
+msgstr ""
+
+#: src/window_content/documents.rs:1092
+msgid "Save Changes?"
+msgstr ""
+
+#: src/window_content/documents.rs:1096
+msgid "Unsaved changes will be lost if you discard them."
+msgstr ""
+
+#: src/window_content/documents.rs:1101
+msgid "Discard"
+msgstr ""
+
+#: src/window_content/documents.rs:1219 src/window_content/documents.rs:1937
+#: src/window_content/documents.rs:1995
+msgid "Saving Tabs Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:1262
+msgid "Reload SQL File?"
+msgstr ""
+
+#: src/window_content/documents.rs:1264
+msgid "Reloading discards your unsaved changes and cannot be undone."
+msgstr ""
+
+#: src/window_content/documents.rs:1269 src/window_content/tabs.rs:103
+#: src/ui/components/editor.rs:422
+msgid "Reload"
+msgstr ""
+
+#: src/window_content/documents.rs:1432
+msgid "Opening SQL File Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:1437 src/window_content/documents.rs:2008
+msgid "Retry"
+msgstr ""
+
+#: src/window_content/documents.rs:1546
+msgid "Saving SQL File Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:1549
+msgid "Check the file permissions or use Save As to choose another location."
+msgstr ""
+
+#: src/window_content/documents.rs:1554 src/window_content/documents.rs:1578
+#: src/window_content/tabs.rs:102 src/ui/components/editor.rs:424
+msgid "Save As"
+msgstr ""
+
+#: src/window_content/documents.rs:1573
+msgid "File Changed on Disk"
+msgstr ""
+
+#: src/window_content/documents.rs:1574
+msgid ""
+"The file was changed, deleted, or cannot be verified. Save a copy, or "
+"explicitly replace the latest verified version."
+msgstr ""
+
+#: src/window_content/documents.rs:1583
+msgid "Overwrite"
+msgstr ""
+
+#: src/window_content/documents.rs:1588
+msgid "Recreate File"
+msgstr ""
+
+#: src/window_content/documents.rs:1946
+msgid "Restoring SQL Files Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2000 src/window_content/documents.rs:2030
+msgid "Saving SQL Recovery Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2003
+msgid ""
+"The file was saved, but newer edits cannot be recovered after a crash. Retry "
+"before removing the scratch-session backup."
+msgstr ""
+
+#: src/window_content/documents.rs:2007
+msgid "Keep Editing Without Recovery"
+msgstr ""
+
+#: src/window_content/documents.rs:2069
+msgid "Closing SQL Files Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2111
+msgid "Restoring SQL Recovery Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2173
+msgid "SQL Files"
+msgstr ""
+
+#: src/window_content/documents.rs:2178
+msgid "All Files"
+msgstr ""
+
+#: src/window_content/documents.rs:2204
+msgid "Some SQL Recovery Files Could Not Be Restored"
+msgstr ""
+
+#: src/window_content/documents.rs:2212
+#, rust-format
+msgid ""
+"One recovery file could not be restored. Valid recovery files were processed "
+"normally, and the unreadable file was left untouched."
+msgid_plural ""
+"{count} recovery files could not be restored. Valid recovery files were "
+"processed normally, and the unreadable files were left untouched."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/window_content/documents.rs:2225
+msgid "See the application logs for the remaining recovery warnings."
+msgstr ""
+
+#: src/window_content/object_actions.rs:60
+msgid "Choose a new name for this database object."
+msgstr "இந்த தரவுத்தள பொருளுக்கு புதிய பெயரைத் தேர்வு செய்."
 
 #: src/window_content/object_actions.rs:66
 #: src/window_content/object_actions.rs:344
@@ -499,29 +688,40 @@ msgstr ""
 "இது சார்பு பார்வைகள், கட்டுப்பாடுகள், குறியீடுகள் அல்லது பிற தரவுத்தள பொருட்களையும் "
 "கைவிடலாம். இதை செயல்தவிர்க்க முடியாது."
 
-#: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:535
+#: src/window_content/tabs.rs:90 src/ui/components/sidebar.rs:535
 msgid "Open in New Tab"
 msgstr ""
 
-#: src/window_content/tabs.rs:65
+#: src/window_content/tabs.rs:96
 msgid "Close Other Tabs"
 msgstr "மற்ற தாவல்களை மூடு"
 
-#: src/window_content/tabs.rs:69
+#: src/window_content/tabs.rs:100
 msgid "Close All"
 msgstr "அனைத்தையும் மூடு"
 
-#: src/window_content/tabs.rs:740 src/models/completion.rs:423
+#: src/window_content/tabs.rs:549
+msgid ""
+"This recovered script has no writable file target. Use Save As to keep it."
+msgstr ""
+
+#: src/window_content/tabs.rs:553
+msgid ""
+"The file changed on disk or is unavailable. Reload to read the latest "
+"version."
+msgstr ""
+
+#: src/window_content/tabs.rs:753 src/models/completion.rs:423
 #: src/ui/components/table_browser.rs:1172 src/ui/components/table_view.rs:443
 #: src/ui/components/table_view.rs:464
 msgid "Table"
 msgstr "அட்டவணை"
 
-#: src/window_content/tabs.rs:741
+#: src/window_content/tabs.rs:754
 msgid "Select the tab to load this table."
 msgstr "இந்த அட்டவணையை ஏற்ற தாவலைத் தேர்ந்தெடு."
 
-#: src/window_content/tabs.rs:1034
+#: src/window_content/tabs.rs:1062
 msgid "Query"
 msgstr "வினவு"
 
@@ -832,11 +1032,6 @@ msgstr "ஏற்றுமதி"
 msgid "Save CSV"
 msgstr "காபிம ஐ சேமி"
 
-#: src/ui/components/csv_export_dialog.rs:90
-#: src/ui/components/table_browser/cell_editor.rs:99
-msgid "Save"
-msgstr "சேமி"
-
 #: src/ui/components/csv_export_dialog.rs:98
 msgid "CSV Files"
 msgstr "காபிம கோப்புகள்"
@@ -1038,41 +1233,41 @@ msgstr "நகலெடுக்கப்பட்ட பெயரைக் க�
 msgid "Qualified view name copied."
 msgstr "தகுதியான பார்வையின் பெயர் நகலெடுக்கப்பட்டது."
 
-#: src/ui/components/editor.rs:116
+#: src/ui/components/editor.rs:136
 msgid "Query History"
 msgstr "வினவல் வரலாறு"
 
-#: src/ui/components/editor.rs:120
+#: src/ui/components/editor.rs:140
 msgid "History"
 msgstr "வரலாறு"
 
-#: src/ui/components/editor.rs:200
+#: src/ui/components/editor.rs:220
 #: src/ui/components/table_browser/filters.rs:438
 msgid "Clear"
 msgstr "தெளிவு"
 
-#: src/ui/components/editor.rs:213
+#: src/ui/components/editor.rs:233
 #: src/ui/components/table_browser/filters.rs:442
 msgid "Apply"
 msgstr "இடு"
 
-#: src/ui/components/editor.rs:229
+#: src/ui/components/editor.rs:249
 msgid "Selection will be executed"
 msgstr "தேர்வு செயல்படுத்தப்படும்"
 
-#: src/ui/components/editor.rs:239
+#: src/ui/components/editor.rs:259
 msgid "Execute selection or statement"
 msgstr "தேர்வு அல்லது அறிக்கையை இயக்கு"
 
-#: src/ui/components/editor.rs:243
+#: src/ui/components/editor.rs:263
 msgid "Execute"
 msgstr "செயல்படுத்து"
 
-#: src/ui/components/editor.rs:394
+#: src/ui/components/editor.rs:437
 msgid "No query history yet."
 msgstr "இதுவரை வினவல் வரலாறு இல்லை."
 
-#: src/ui/components/editor.rs:499
+#: src/ui/components/editor.rs:542
 msgid "Unknown time"
 msgstr "தெரியாத நேரம்"
 
@@ -1283,7 +1478,7 @@ msgid "Edit Value"
 msgstr "மதிப்பைத் திருத்து"
 
 #: src/ui/components/table_browser.rs:1371
-#: src/ui/components/table_browser/insert_row.rs:225
+#: src/ui/components/table_browser/insert_row.rs:252
 msgid "Duplicate Row"
 msgstr ""
 
@@ -1297,8 +1492,8 @@ msgstr "வரிசையை நீக்கு..."
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
-#: src/ui/components/table_browser/insert_row.rs:355
-#: src/ui/components/table_browser/insert_row.rs:596
+#: src/ui/components/table_browser/insert_row.rs:382
+#: src/ui/components/table_browser/insert_row.rs:623
 msgid "Value"
 msgstr "மதிப்பு"
 
@@ -1402,22 +1597,22 @@ msgstr "வரிசையைச் செருகுவதில் தோல�
 msgid "The submitted row is no longer valid."
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:220
+#: src/ui/components/table_browser/insert_row.rs:247
 #, rust-format
 msgid "Inserting row into {name} failed"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:222
+#: src/ui/components/table_browser/insert_row.rs:249
 #, rust-format
 msgid "Duplicating row into {name} failed"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:224
+#: src/ui/components/table_browser/insert_row.rs:251
 #: src/ui/components/table_view.rs:141
 msgid "Insert Row"
 msgstr "வரிசையைச் செருகு"
 
-#: src/ui/components/table_browser/insert_row.rs:229
+#: src/ui/components/table_browser/insert_row.rs:256
 msgid ""
 "Enter values for the new row. Columns can also use DEFAULT or NULL when "
 "available."
@@ -1425,68 +1620,68 @@ msgstr ""
 "புதிய வரிசைக்கான மதிப்புகளை உள்ளிடவும். நெடுவரிசைகள் இருக்கும் போது இயல்புநிலை அல்லது "
 "சுழி ஐயும் பயன்படுத்தலாம்."
 
-#: src/ui/components/table_browser/insert_row.rs:232
+#: src/ui/components/table_browser/insert_row.rs:259
 msgid "Review the copied values before inserting the duplicate row."
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:236
+#: src/ui/components/table_browser/insert_row.rs:263
 msgid "Insert"
 msgstr "செருகு"
 
-#: src/ui/components/table_browser/insert_row.rs:237
+#: src/ui/components/table_browser/insert_row.rs:264
 msgid "Duplicate"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:358
+#: src/ui/components/table_browser/insert_row.rs:385
 msgid "NULL"
 msgstr "சுழி"
 
-#: src/ui/components/table_browser/insert_row.rs:362
+#: src/ui/components/table_browser/insert_row.rs:389
 #: src/ui/components/table_structure/columns.rs:83
 msgid "Default"
 msgstr "இயல்புநிலை"
 
-#: src/ui/components/table_browser/insert_row.rs:396
+#: src/ui/components/table_browser/insert_row.rs:423
 msgid "Skipped"
 msgstr "தவிர்க்கப்பட்டது"
 
-#: src/ui/components/table_browser/insert_row.rs:563
+#: src/ui/components/table_browser/insert_row.rs:590
 msgid "Required"
 msgstr "தேவை"
 
-#: src/ui/components/table_browser/insert_row.rs:565
+#: src/ui/components/table_browser/insert_row.rs:592
 msgid "Default or NULL allowed"
 msgstr "இயல்புநிலை அல்லது சுழி அனுமதிக்கப்படுகிறது"
 
-#: src/ui/components/table_browser/insert_row.rs:567
+#: src/ui/components/table_browser/insert_row.rs:594
 msgid "Default allowed"
 msgstr "இயல்புநிலை அனுமதிக்கப்படுகிறது"
 
-#: src/ui/components/table_browser/insert_row.rs:569
+#: src/ui/components/table_browser/insert_row.rs:596
 msgid "NULL allowed"
 msgstr "சுழி அனுமதிக்கப்படுகிறது"
 
-#: src/ui/components/table_browser/insert_row.rs:577
+#: src/ui/components/table_browser/insert_row.rs:604
 msgid "Required column with unsupported type"
 msgstr "ஆதரிக்கப்படாத வகையுடன் தேவையான நெடுவரிசை"
 
-#: src/ui/components/table_browser/insert_row.rs:580
+#: src/ui/components/table_browser/insert_row.rs:607
 msgid "Generated column"
 msgstr "உருவாக்கப்பட்ட நெடுவரிசை"
 
-#: src/ui/components/table_browser/insert_row.rs:583
+#: src/ui/components/table_browser/insert_row.rs:610
 msgid "Identity column"
 msgstr "அடையாள நெடுவரிசை"
 
-#: src/ui/components/table_browser/insert_row.rs:586
+#: src/ui/components/table_browser/insert_row.rs:613
 msgid "Unsupported column type"
 msgstr "ஆதரிக்கப்படாத நெடுவரிசை வகை"
 
-#: src/ui/components/table_browser/insert_row.rs:589
+#: src/ui/components/table_browser/insert_row.rs:616
 msgid "Read-only column"
 msgstr "படிக்க மட்டும் நெடுவரிசை"
 
-#: src/ui/components/table_browser/insert_row.rs:594
+#: src/ui/components/table_browser/insert_row.rs:621
 msgid "Required value"
 msgstr "தேவையான மதிப்பு"
 
@@ -1671,7 +1866,7 @@ msgstr "தேர்ந்தெடுக்கப்பட்ட வரிச�
 msgid "Content"
 msgstr "உள்ளடக்கம்"
 
-#: data/io.github.anil_e.Codd.desktop.in:10
+#: data/io.github.anil_e.Codd.desktop.in:11
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
 msgstr "பின்கிரிகவிமொ;கவிமொ;தரவுதளம்;வினாவல்;குனோம்;"
 
@@ -1809,20 +2004,35 @@ msgstr "வினவு"
 
 #: data/ui/shortcuts-dialog.ui:83
 msgctxt "shortcut window"
+msgid "Open SQL Files"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:89
+msgctxt "shortcut window"
+msgid "Save SQL File"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:95
+msgctxt "shortcut window"
+msgid "Save SQL File As"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:101
+msgctxt "shortcut window"
 msgid "Execute"
 msgstr "செயல்படுத்து"
 
-#: data/ui/shortcuts-dialog.ui:89
+#: data/ui/shortcuts-dialog.ui:107
 msgctxt "shortcut window"
 msgid "Cancel Running Query"
 msgstr "வினவல் இயங்குவதை நீக்கறல்"
 
-#: data/ui/shortcuts-dialog.ui:95
+#: data/ui/shortcuts-dialog.ui:113
 msgctxt "shortcut window"
 msgid "Focus SQL Editor"
 msgstr "கவனம் கவிமொ திருத்தி"
 
-#: data/ui/shortcuts-dialog.ui:101
+#: data/ui/shortcuts-dialog.ui:119
 msgctxt "shortcut window"
 msgid "Show Suggestions"
 msgstr ""

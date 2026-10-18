@@ -4,6 +4,9 @@ use relm4::gtk;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WindowAction {
+    OpenSqlFiles,
+    SaveSqlFile,
+    SaveSqlFileAs,
     OpenConnectionDialog,
     NewQueryTab,
     CloseActiveTab,
@@ -19,6 +22,24 @@ pub fn setup_window_actions(
     root: &adw::ApplicationWindow,
     emit: impl Fn(WindowAction) + Clone + 'static,
 ) {
+    add_window_action(
+        root,
+        "open-sql-file",
+        WindowAction::OpenSqlFiles,
+        emit.clone(),
+    );
+    add_window_action(
+        root,
+        "save-sql-file",
+        WindowAction::SaveSqlFile,
+        emit.clone(),
+    );
+    add_window_action(
+        root,
+        "save-sql-file-as",
+        WindowAction::SaveSqlFileAs,
+        emit.clone(),
+    );
     add_window_action(
         root,
         "new-connection",
@@ -63,6 +84,21 @@ pub fn setup_window_actions(
         emit.clone(),
     );
     add_window_action(root, "search", WindowAction::FocusObjectSearch, emit);
+    set_file_actions_enabled(root, false, false);
+}
+
+pub fn set_file_actions_enabled(root: &adw::ApplicationWindow, can_save: bool, can_save_as: bool) {
+    for (name, enabled) in [
+        ("save-sql-file", can_save),
+        ("save-sql-file-as", can_save_as),
+    ] {
+        if let Some(action) = root
+            .lookup_action(name)
+            .and_downcast::<gtk::gio::SimpleAction>()
+        {
+            action.set_enabled(enabled);
+        }
+    }
 }
 
 fn add_window_action(

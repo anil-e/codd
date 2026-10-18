@@ -1,4 +1,5 @@
 use std::cell::{Cell, RefCell};
+use std::collections::HashSet;
 use std::rc::Rc;
 
 use gettextrs::gettext;
@@ -27,6 +28,36 @@ use super::{
     BrowseTab, QueryResultsMsg, QueryState, QueryTab, StructureActionScope, WindowContent,
     WindowContentMsg, WindowContentWidgets, WorkspaceNavigation, workspace_split_view,
 };
+
+thread_local! {
+    static SESSION_TAB_IDS: RefCell<SessionTabIds> = RefCell::new(SessionTabIds::default());
+}
+
+#[derive(Default)]
+struct SessionTabIds {
+    next: u64,
+    reserved: HashSet<u64>,
+}
+
+impl SessionTabIds {
+    fn reserve(&mut self, id: u64) {
+        self.reserved.insert(id);
+        self.next = self.next.max(id.saturating_add(1));
+    }
+
+    fn allocate(&mut self) -> u64 {
+        while self.reserved.contains(&self.next) {
+            self.next = self.next.wrapping_add(1);
+        }
+        let id = self.next;
+        self.reserve(id);
+        id
+    }
+}
+
+pub(super) fn reserve_query_session_id(id: u64) {
+    SESSION_TAB_IDS.with(|ids| ids.borrow_mut().reserve(id));
+}
 
 pub(super) fn selected_query_tab_id(widgets: &WindowContentWidgets) -> Option<u64> {
     widgets
@@ -67,19 +98,39 @@ pub(super) fn setup_tab_context_menu(
     );
 
     menu.append(Some(&gettext("Close All")), Some("tab.close-all"));
+    menu.append(Some(&gettext("Save")), Some("tab.save"));
+    menu.append(Some(&gettext("Save As")), Some("tab.save-as"));
+    menu.append(Some(&gettext("Reload")), Some("tab.reload"));
     tab_view.set_menu_model(Some(&menu));
 
     let current_tab = Rc::new(RefCell::new(None::<String>));
     let action_group = gio::SimpleActionGroup::new();
+    let mut file_actions = Vec::new();
+    for name in ["save", "save-as", "reload"] {
+        let action = gio::SimpleAction::new(name, None);
+        let current_tab = current_tab.clone();
+        let sender = sender.input_sender().clone();
+        action.connect_activate(move |_, _| {
+            let target = current_tab.borrow().clone();
+            let msg = if name == "reload" {
+                super::documents::DocumentMsg::ReloadTab(target)
+            } else {
+                super::documents::DocumentMsg::SaveTab(target, name == "save-as")
+            };
+            let _ = sender.send(WindowContentMsg::Document(msg));
+        });
+        action_group.add_action(&action);
+        file_actions.push(action);
+    }
 
     let close_action = gio::SimpleAction::new("close", None);
 
     close_action.connect_activate({
-        let sender = sender.clone();
+        let sender = sender.input_sender().clone();
         let current_tab = current_tab.clone();
 
         move |_, _| {
-            sender.input(WindowContentMsg::CloseTabFromMenu(
+            let _ = sender.send(WindowContentMsg::CloseTabFromMenu(
                 current_tab.borrow().clone(),
             ));
         }
@@ -90,11 +141,11 @@ pub(super) fn setup_tab_context_menu(
     let open_in_new_tab_action = gio::SimpleAction::new("open-in-new-tab", None);
 
     open_in_new_tab_action.connect_activate({
-        let sender = sender.clone();
+        let sender = sender.input_sender().clone();
         let current_tab = current_tab.clone();
 
         move |_, _| {
-            sender.input(WindowContentMsg::OpenBrowseTabFromMenu(
+            let _ = sender.send(WindowContentMsg::OpenBrowseTabFromMenu(
                 current_tab.borrow().clone(),
             ));
         }
@@ -105,11 +156,11 @@ pub(super) fn setup_tab_context_menu(
     let close_other_tabs_action = gio::SimpleAction::new("close-other-tabs", None);
 
     close_other_tabs_action.connect_activate({
-        let sender = sender.clone();
+        let sender = sender.input_sender().clone();
         let current_tab = current_tab.clone();
 
         move |_, _| {
-            sender.input(WindowContentMsg::CloseOtherTabsFromMenu(
+            let _ = sender.send(WindowContentMsg::CloseOtherTabsFromMenu(
                 current_tab.borrow().clone(),
             ));
         }
@@ -119,10 +170,10 @@ pub(super) fn setup_tab_context_menu(
 
     let close_all_action = gio::SimpleAction::new("close-all", None);
     close_all_action.connect_activate({
-        let sender = sender.clone();
+        let sender = sender.input_sender().clone();
 
         move |_, _| {
-            sender.input(WindowContentMsg::CloseAllTabs);
+            let _ = sender.send(WindowContentMsg::CloseAllTabs);
         }
     });
 
@@ -141,6 +192,13 @@ pub(super) fn setup_tab_context_menu(
             let can_close_multiple = tab_view.n_pages() > 1;
 
             *current_tab.borrow_mut() = widget_name;
+            let is_query = current_tab
+                .borrow()
+                .as_deref()
+                .is_some_and(|name| name.starts_with("query-tab-"));
+            for action in &file_actions {
+                action.set_enabled(is_query);
+            }
 
             let can_open_in_new_tab = current_tab
                 .borrow()
@@ -149,7 +207,7 @@ pub(super) fn setup_tab_context_menu(
                 .is_some();
 
             open_in_new_tab_action.set_enabled(can_open_in_new_tab);
-            close_action.set_enabled(has_target_tab && can_close_multiple);
+            close_action.set_enabled(has_target_tab);
             close_other_tabs_action.set_enabled(has_target_tab && can_close_multiple);
             close_all_action.set_enabled(can_close_multiple);
         }
@@ -192,9 +250,9 @@ impl WindowContent {
         let row_limit = row_limit.clamp(MIN_QUERY_RESULT_ROW_LIMIT, MAX_QUERY_RESULT_ROW_LIMIT);
 
         let editor_buffer = sourceview5::Buffer::new(None);
-        let s = sender.clone();
+        let s = sender.input_sender().clone();
         editor_buffer.connect_changed(move |_| {
-            s.input(WindowContentMsg::QueryTabTitleChanged(id));
+            let _ = s.send(WindowContentMsg::QueryTabTitleChanged(id));
         });
 
         let editor = SqlEditor::builder()
@@ -229,6 +287,7 @@ impl WindowContent {
         self.active_query_tab_id = id;
         self.query_tabs.push(QueryTab {
             id,
+            session_id: SESSION_TAB_IDS.with(|ids| ids.borrow_mut().allocate()),
             page,
             editor,
             results,
@@ -236,6 +295,7 @@ impl WindowContent {
             row_limit,
             query_state: QueryState::Idle,
             active_query: None,
+            document: None,
         });
 
         if let Some(tab) = self.query_tabs.last() {
@@ -281,9 +341,10 @@ impl WindowContent {
 
             if let Some(tab_id) = query_tab_id_from_widget(&page.child())
                 && let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id)
+                && tab.document.is_none()
             {
                 tabs.push(SavedSessionTab::Query {
-                    id: tab.id,
+                    id: tab.session_id,
                     sql: self.query_tab_sql(tab.id).unwrap_or_default(),
                     row_limit: tab.row_limit,
                 });
@@ -311,20 +372,32 @@ impl WindowContent {
         widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        if let Some(session) = &session {
+            for tab in &session.tabs {
+                if let SavedSessionTab::Query { id, .. } = tab {
+                    reserve_query_session_id(*id);
+                }
+            }
+        }
         let tab_view_signals_blocked = self.tab_view_signals_blocked.clone();
         let active_tab = with_tab_view_signals_blocked(&tab_view_signals_blocked, || {
             self.clear_all_tabs(widgets);
 
             let session = session?;
 
-            let active_tab = session.active_tab;
+            let saved_active_tab = session.active_tab;
+            let mut active_tab = saved_active_tab;
 
             for tab in session.tabs {
                 match tab {
                     SavedSessionTab::Query { id, sql, row_limit } => {
-                        self.add_query_tab_with_id(id, row_limit, widgets, sender);
+                        self.add_query_tab_with_row_limit(row_limit, widgets, sender);
+                        if saved_active_tab == Some(SavedSessionTabId::Query(id)) {
+                            active_tab = Some(SavedSessionTabId::Query(self.active_query_tab_id));
+                        }
 
                         if let Some(tab) = self.active_query_tab_mut() {
+                            tab.session_id = id;
                             tab.editor_buffer.set_text(&sql);
                             tab.results.emit(QueryResultsMsg::Clear);
                         }
@@ -383,9 +456,7 @@ impl WindowContent {
 
         let removed_was_active = self.active_query_tab_id == tab_id;
         let removed = self.query_tabs.remove(index);
-        widgets
-            .query_tab_view
-            .close_page_finish(&removed.page, true);
+        self.close_pages_immediately(widgets, [removed.page]);
 
         if removed_was_active {
             if self.query_tabs.is_empty() {
@@ -409,13 +480,11 @@ impl WindowContent {
         };
 
         let removed = self.browse_tabs.remove(index);
-        widgets
-            .query_tab_view
-            .close_page_finish(&removed.page, true);
+        self.close_pages_immediately(widgets, [removed.page]);
     }
 
     pub(super) fn close_active_tab(&mut self, widgets: &WindowContentWidgets) {
-        if !self.shows_workspace() || self.tab_count() <= 1 {
+        if !self.shows_workspace() {
             return;
         }
 
@@ -431,10 +500,6 @@ impl WindowContent {
         widget_name: Option<&str>,
         widgets: &WindowContentWidgets,
     ) {
-        if self.tab_count() <= 1 {
-            return;
-        }
-
         if let Some(tab_id) = tab_id_from_widget_name(widget_name, "query-tab-")
             && let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id)
         {
@@ -446,84 +511,6 @@ impl WindowContent {
             && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
         {
             widgets.query_tab_view.close_page(&tab.page);
-        }
-    }
-
-    pub(super) fn close_other_tabs_from_widget_name(
-        &mut self,
-        widget_name: Option<&str>,
-        widgets: &WindowContentWidgets,
-    ) {
-        let keep_query_tab_id = tab_id_from_widget_name(widget_name, "query-tab-");
-        let keep_browse_tab_id = tab_id_from_widget_name(widget_name, "browse-tab-");
-
-        if keep_query_tab_id.is_none() && keep_browse_tab_id.is_none() {
-            return;
-        }
-
-        let query_tab_pages = self
-            .query_tabs
-            .iter()
-            .filter(|tab| Some(tab.id) != keep_query_tab_id)
-            .map(|tab| tab.page.clone())
-            .collect::<Vec<_>>();
-
-        let browse_tab_pages = self
-            .browse_tabs
-            .iter()
-            .filter(|tab| Some(tab.id) != keep_browse_tab_id)
-            .map(|tab| tab.page.clone())
-            .collect::<Vec<_>>();
-
-        for page in query_tab_pages {
-            widgets.query_tab_view.close_page(&page);
-        }
-
-        for page in browse_tab_pages {
-            widgets.query_tab_view.close_page(&page);
-        }
-
-        if let Some(tab_id) = keep_query_tab_id
-            && let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == tab_id)
-        {
-            self.active_query_tab_id = tab_id;
-            widgets.query_tab_view.set_selected_page(&tab.page);
-            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(None));
-        } else if let Some(tab_id) = keep_browse_tab_id
-            && let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == tab_id)
-        {
-            widgets.query_tab_view.set_selected_page(&tab.page);
-            self.sidebar.emit(ObjectSidebarMsg::SetSelectedObject(Some(
-                tab.object.clone(),
-            )));
-        }
-    }
-
-    pub(super) fn close_all_tabs(
-        &mut self,
-        widgets: &WindowContentWidgets,
-        sender: &ComponentSender<Self>,
-    ) {
-        let query_tab_pages = self
-            .query_tabs
-            .iter()
-            .map(|tab| tab.page.clone())
-            .collect::<Vec<_>>();
-
-        let browse_tab_pages = self
-            .browse_tabs
-            .iter()
-            .map(|tab| tab.page.clone())
-            .collect::<Vec<_>>();
-
-        self.add_query_tab(widgets, sender);
-
-        for page in query_tab_pages {
-            widgets.query_tab_view.close_page(&page);
-        }
-
-        for page in browse_tab_pages {
-            widgets.query_tab_view.close_page(&page);
         }
     }
 
@@ -549,13 +536,39 @@ impl WindowContent {
             return;
         };
 
+        if let Some(document) = &tab.document {
+            let text = self.query_tab_sql(tab_id).unwrap_or_default();
+            tab.page.set_title(&document.title());
+            tab.page.set_tooltip(&document.tooltip());
+            tab.page.set_needs_attention(document.is_dirty(&text));
+            let icon = gio::ThemedIcon::new("document-modified-symbolic");
+            tab.page
+                .set_indicator_icon(document.is_dirty(&text).then_some(&icon));
+            let warning = if document.file.is_none() {
+                Some(gettext(
+                    "This recovered script has no writable file target. Use Save As to keep it.",
+                ))
+            } else if document.external_changed {
+                Some(gettext(
+                    "The file changed on disk or is unavailable. Reload to read the latest version.",
+                ))
+            } else {
+                None
+            };
+            tab.editor.emit(SqlEditorMsg::SetDocumentWarning(
+                warning,
+                document.file.is_some(),
+            ));
+            return;
+        }
+
         let title = query_tab_title(&self.query_tab_sql(tab_id).unwrap_or_default());
         tab.page.set_title(&title);
         tab.page.set_tooltip(&title);
     }
 
     pub(super) fn has_multiple_tabs(&self) -> bool {
-        self.tab_count() > 1
+        self.tab_count() > 1 || self.query_tabs.iter().any(|tab| tab.document.is_some())
     }
 
     pub(super) fn tab_count(&self) -> usize {
@@ -892,8 +905,17 @@ impl WindowContent {
         let page = widgets.query_tab_view.selected_page()?;
         let child = page.child();
 
+        if query_tab_id_from_widget(&child).is_some_and(|id| {
+            self.query_tabs
+                .iter()
+                .any(|tab| tab.id == id && tab.document.is_some())
+        }) {
+            return None;
+        }
+
         query_tab_id_from_widget(&child)
-            .map(SavedSessionTabId::Query)
+            .and_then(|id| self.query_tabs.iter().find(|tab| tab.id == id))
+            .map(|tab| SavedSessionTabId::Query(tab.session_id))
             .or_else(|| browse_tab_id_from_widget(&child).map(SavedSessionTabId::Browse))
     }
 
@@ -950,13 +972,19 @@ impl WindowContent {
     fn clear_all_tabs(&mut self, widgets: &WindowContentWidgets) {
         let mut pages = Vec::with_capacity(self.tab_count());
 
+        let mut retained = Vec::new();
         for mut tab in self.query_tabs.drain(..) {
+            if tab.document.is_some() {
+                retained.push(tab);
+                continue;
+            }
             if let Some(active_query) = tab.active_query.take() {
                 active_query.abort_handle.abort();
             }
 
             pages.push(tab.page);
         }
+        self.query_tabs = retained;
 
         for tab in self.browse_tabs.drain(..) {
             pages.push(tab.page);
@@ -1045,5 +1073,47 @@ fn truncate_for_tab_title(value: &str) -> String {
         format!("{truncated}...")
     } else {
         truncated
+    }
+}
+
+#[cfg(test)]
+mod session_id_tests {
+    use super::SessionTabIds;
+
+    #[test]
+    fn new_scratch_ids_never_reuse_promoted_sources_after_restart() {
+        let mut ids = SessionTabIds::default();
+        ids.reserve(17);
+        ids.reserve(8);
+        let first_window_tab = ids.allocate();
+        let second_window_tab = ids.allocate();
+        assert_eq!(first_window_tab, 18);
+        assert_eq!(second_window_tab, 19);
+
+        let mut restarted = SessionTabIds::default();
+        restarted.reserve(17);
+        restarted.reserve(first_window_tab);
+        restarted.reserve(second_window_tab);
+        assert_eq!(restarted.allocate(), 20);
+    }
+
+    #[test]
+    fn re_restoring_a_saved_identity_does_not_reassign_it_or_reuse_it() {
+        let mut ids = SessionTabIds::default();
+        ids.reserve(42);
+        let new_tab = ids.allocate();
+        ids.reserve(42);
+        assert_eq!(new_tab, 43);
+        assert_eq!(ids.allocate(), 44);
+    }
+
+    #[test]
+    fn maximum_legacy_id_does_not_wrap_into_a_reserved_source() {
+        let mut ids = SessionTabIds::default();
+        for id in [0, 1, u64::MAX] {
+            ids.reserve(id);
+        }
+        assert_eq!(ids.allocate(), 2);
+        assert_eq!(ids.allocate(), 3);
     }
 }

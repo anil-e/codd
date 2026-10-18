@@ -21,6 +21,15 @@ pub(crate) fn start_menu() -> gtk::gio::Menu {
 pub(crate) fn workspace_menu() -> gtk::gio::Menu {
     let menu = gtk::gio::Menu::new();
 
+    let files = gtk::gio::Menu::new();
+    files.append(
+        Some(&gettext("_Open SQL Files...")),
+        Some("win.open-sql-file"),
+    );
+    files.append(Some(&gettext("_Save")), Some("win.save-sql-file"));
+    files.append(Some(&gettext("Save _As...")), Some("win.save-sql-file-as"));
+    menu.append_section(None, &files);
+
     menu.append_section(None, &window_menu_section());
     menu.append_section(None, &app_menu_section());
 

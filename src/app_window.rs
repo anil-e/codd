@@ -5,7 +5,7 @@ use relm4::prelude::*;
 
 use crate::settings;
 use crate::window_actions::{self, WindowAction};
-use crate::window_content::{WindowContent, WindowContentMsg};
+use crate::window_content::{WindowContent, WindowContentMsg, WindowContentOutput};
 
 pub struct AppWindowInit {
     pub id: u64,
@@ -14,10 +14,24 @@ pub struct AppWindowInit {
 pub struct AppWindow {
     id: u64,
     content: Controller<WindowContent>,
+    quitting: bool,
 }
 
 #[derive(Debug)]
 pub enum AppWindowMsg {
+    OpenSqlFiles,
+    OpenSqlFileLocations(Vec<gtk::gio::File>),
+    SaveSqlFile,
+    SaveSqlFileAs,
+    RequestClose,
+    PrepareClose,
+    CancelClosePreparation,
+    CommitClose,
+    FinishClose,
+    ClosePrepared,
+    CloseCancelled,
+    CloseCommitted,
+    SetQuitting(bool),
     OpenConnectionDialog,
     NewQueryTab,
     CloseActiveTab,
@@ -31,6 +45,10 @@ pub enum AppWindowMsg {
 
 #[derive(Debug)]
 pub enum AppWindowOutput {
+    CloseRequested(u64),
+    ClosePrepared(u64),
+    CloseCancelled(u64),
+    CloseCommitted(u64),
     Closed(u64),
 }
 
@@ -59,11 +77,19 @@ impl Component for AppWindow {
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         let app_settings = settings::app_settings();
-        let content = WindowContent::builder().launch(()).detach();
+        let content = WindowContent::builder().launch(()).forward(
+            sender.input_sender(),
+            |output| match output {
+                WindowContentOutput::ClosePrepared => AppWindowMsg::ClosePrepared,
+                WindowContentOutput::CloseCancelled => AppWindowMsg::CloseCancelled,
+                WindowContentOutput::CloseCommitted => AppWindowMsg::CloseCommitted,
+            },
+        );
 
         let model = AppWindow {
             id: init.id,
             content,
+            quitting: false,
         };
 
         let widgets = view_output!();
@@ -80,15 +106,12 @@ impl Component for AppWindow {
             move |action| sender.input(AppWindowMsg::from(action))
         });
 
-        let output_sender = sender.output_sender().clone();
-        let id = model.id;
-
         root.connect_close_request(move |window| {
             let settings = settings::app_settings();
             let _ = settings.set_int("window-width", window.width());
             let _ = settings.set_int("window-height", window.height());
-            let _ = output_sender.send(AppWindowOutput::Closed(id));
-            glib::Propagation::Proceed
+            sender.input(AppWindowMsg::RequestClose);
+            glib::Propagation::Stop
         });
 
         root.present();
@@ -96,8 +119,47 @@ impl Component for AppWindow {
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, msg: Self::Input, _sender: ComponentSender<Self>, _root: &Self::Root) {
+    fn update(&mut self, msg: Self::Input, sender: ComponentSender<Self>, root: &Self::Root) {
         match msg {
+            AppWindowMsg::OpenSqlFiles if !self.quitting => {
+                self.content.emit(WindowContentMsg::OpenSqlFiles)
+            }
+            AppWindowMsg::OpenSqlFileLocations(files) if !self.quitting => {
+                self.content
+                    .emit(WindowContentMsg::OpenSqlFileLocations(files));
+            }
+            AppWindowMsg::SaveSqlFile if !self.quitting => {
+                self.content.emit(WindowContentMsg::SaveSqlFile)
+            }
+            AppWindowMsg::SaveSqlFileAs if !self.quitting => {
+                self.content.emit(WindowContentMsg::SaveSqlFileAs)
+            }
+            AppWindowMsg::OpenSqlFiles
+            | AppWindowMsg::OpenSqlFileLocations(_)
+            | AppWindowMsg::SaveSqlFile
+            | AppWindowMsg::SaveSqlFileAs => {}
+            AppWindowMsg::SetQuitting(quitting) => self.quitting = quitting,
+            AppWindowMsg::RequestClose => {
+                let _ = sender.output(AppWindowOutput::CloseRequested(self.id));
+            }
+            AppWindowMsg::PrepareClose => self.content.emit(WindowContentMsg::PrepareClose),
+            AppWindowMsg::CancelClosePreparation => {
+                self.content.emit(WindowContentMsg::CancelClosePreparation);
+            }
+            AppWindowMsg::CommitClose => self.content.emit(WindowContentMsg::CommitClose),
+            AppWindowMsg::ClosePrepared => {
+                let _ = sender.output(AppWindowOutput::ClosePrepared(self.id));
+            }
+            AppWindowMsg::CloseCancelled => {
+                let _ = sender.output(AppWindowOutput::CloseCancelled(self.id));
+            }
+            AppWindowMsg::CloseCommitted => {
+                let _ = sender.output(AppWindowOutput::CloseCommitted(self.id));
+            }
+            AppWindowMsg::FinishClose => {
+                root.destroy();
+                let _ = sender.output(AppWindowOutput::Closed(self.id));
+            }
             AppWindowMsg::OpenConnectionDialog => {
                 self.content.emit(WindowContentMsg::OpenConnectionDialog);
             }
@@ -132,6 +194,9 @@ impl Component for AppWindow {
 impl From<WindowAction> for AppWindowMsg {
     fn from(action: WindowAction) -> Self {
         match action {
+            WindowAction::OpenSqlFiles => Self::OpenSqlFiles,
+            WindowAction::SaveSqlFile => Self::SaveSqlFile,
+            WindowAction::SaveSqlFileAs => Self::SaveSqlFileAs,
             WindowAction::OpenConnectionDialog => Self::OpenConnectionDialog,
             WindowAction::NewQueryTab => Self::NewQueryTab,
             WindowAction::CloseActiveTab => Self::CloseActiveTab,

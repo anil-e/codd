@@ -87,14 +87,14 @@ pub(super) fn show_rename_object_dialog(
         }
     });
 
-    let sender = sender.clone();
+    let sender = sender.input_sender().clone();
 
     dialog.choose(
         root.root().as_ref(),
         None::<&gtk::gio::Cancellable>,
         move |response| {
             if response == "rename" {
-                sender.input(WindowContentMsg::ObjectActionConfirmed(
+                let _ = sender.send(WindowContentMsg::ObjectActionConfirmed(
                     ObjectActionRequest::Rename {
                         object,
                         new_name: entry.text().to_string(),
@@ -125,14 +125,14 @@ pub(super) fn show_delete_object_dialog(
 
     dialog.set_response_appearance("confirm", adw::ResponseAppearance::Destructive);
 
-    let sender = sender.clone();
+    let sender = sender.input_sender().clone();
 
     dialog.choose(
         root.root().as_ref(),
         None::<&gtk::gio::Cancellable>,
         move |response| {
             if response == "confirm" {
-                sender.input(WindowContentMsg::ObjectActionConfirmed(
+                let _ = sender.send(WindowContentMsg::ObjectActionConfirmed(
                     ObjectActionRequest::Delete { object },
                 ));
             }
@@ -180,7 +180,7 @@ pub(super) fn show_truncate_object_dialog(
 
     dialog.set_response_appearance("confirm", adw::ResponseAppearance::Destructive);
 
-    let sender = sender.clone();
+    let sender = sender.input_sender().clone();
 
     dialog.choose(
         root.root().as_ref(),
@@ -195,7 +195,7 @@ pub(super) fn show_truncate_object_dialog(
                 cascade: cascade_row.is_active(),
             };
 
-            sender.input(WindowContentMsg::ObjectActionConfirmed(
+            let _ = sender.send(WindowContentMsg::ObjectActionConfirmed(
                 ObjectActionRequest::Truncate {
                     object,
                     options: truncate_options,

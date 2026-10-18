@@ -106,14 +106,14 @@ pub(super) fn show_rename_structure_item_dialog(
         }
     });
 
-    let sender = sender.clone();
+    let sender = sender.input_sender().clone();
 
     dialog.choose(
         root.root().as_ref(),
         None::<&gtk::gio::Cancellable>,
         move |response| {
             if response == "rename" {
-                sender.input(WindowContentMsg::StructureActionConfirmed(
+                let _ = sender.send(WindowContentMsg::StructureActionConfirmed(
                     StructureActionRequest::Rename {
                         scope,
                         pool,
@@ -145,14 +145,14 @@ pub(super) fn show_drop_structure_item_dialog(
     dialog.add_responses(&[("cancel", &gettext("Cancel")), ("drop", &gettext("Drop"))]);
     dialog.set_response_appearance("drop", adw::ResponseAppearance::Destructive);
 
-    let sender = sender.clone();
+    let sender = sender.input_sender().clone();
 
     dialog.choose(
         root.root().as_ref(),
         None::<&gtk::gio::Cancellable>,
         move |response| {
             if response == "drop" {
-                sender.input(WindowContentMsg::StructureActionConfirmed(
+                let _ = sender.send(WindowContentMsg::StructureActionConfirmed(
                     StructureActionRequest::Drop {
                         scope,
                         pool,
@@ -428,7 +428,7 @@ fn show_structure_action_error_dialog(
     }
 
     let root = widgets.toast_overlay.clone();
-    let sender = sender.clone();
+    let sender = sender.input_sender().clone();
 
     dialog.choose(
         root.root().as_ref(),
@@ -437,7 +437,7 @@ fn show_structure_action_error_dialog(
             if response == "cascade"
                 && let Some(recovery) = cascade_target
             {
-                sender.input(WindowContentMsg::StructureActionConfirmed(
+                let _ = sender.send(WindowContentMsg::StructureActionConfirmed(
                     StructureActionRequest::Drop {
                         scope: recovery.scope,
                         pool: recovery.pool,
