@@ -32,7 +32,7 @@ fn truncated(value: &str, limit: usize) -> Cow<'_, str> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct TableBrowserRow {
     pub(super) index: usize,
     pub(super) cells: Vec<TableCell>,
@@ -240,7 +240,15 @@ pub(super) fn render_table(
     };
 
     sync_columns(table_browser, &page.columns, sender);
-    table_browser.table_rows.remove_all();
+    let objects = (0..table_browser.table_rows.n_items())
+        .filter_map(|index| table_browser.table_rows.item(index))
+        .filter_map(|item| item.downcast::<glib::BoxedAnyObject>().ok())
+        .collect::<Vec<_>>();
+    let current = objects
+        .iter()
+        .map(|object| object.borrow::<TableBrowserRow>().clone())
+        .collect::<Vec<_>>();
+    let mut desired = Vec::with_capacity(page.rows.len());
 
     for (index, row) in page.rows.iter().enumerate() {
         let mut cells = row.clone();
@@ -255,14 +263,124 @@ pub(super) fn render_table(
             }
         }
 
-        table_browser
-            .table_rows
-            .append(&glib::BoxedAnyObject::new(TableBrowserRow {
-                index,
-                cells,
-                pending_columns,
-            }));
+        pending_columns.sort_unstable();
+        desired.push(TableBrowserRow {
+            index,
+            cells,
+            pending_columns,
+        });
     }
+
+    let Some((start, old_end, new_end)) = changed_range(&current, &desired) else {
+        return;
+    };
+
+    let primary_key = page
+        .columns
+        .iter()
+        .enumerate()
+        .filter_map(|(index, column)| column.is_primary_key.then_some(index))
+        .collect::<Vec<_>>();
+    let selected = selected_position(
+        &current,
+        &desired,
+        table_browser.selection.selected() as usize,
+        &primary_key,
+    );
+    let adjustments = table_browser
+        .table_view
+        .ancestor(gtk::ScrolledWindow::static_type())
+        .and_downcast::<gtk::ScrolledWindow>()
+        .map(|scroller| {
+            [scroller.hadjustment(), scroller.vadjustment()].map(|adjustment| {
+                let value = adjustment.value();
+                (adjustment, value)
+            })
+        });
+    let replacements = (start..new_end)
+        .map(|index| {
+            if current.get(index) == Some(&desired[index]) {
+                objects[index].clone()
+            } else {
+                glib::BoxedAnyObject::new(desired[index].clone())
+            }
+        })
+        .collect::<Vec<_>>();
+
+    table_browser
+        .table_rows
+        .splice(start as u32, (old_end - start) as u32, &replacements);
+    table_browser
+        .selection
+        .set_selected(selected.map_or(gtk::INVALID_LIST_POSITION, |position| position as u32));
+    sender.input(TableBrowserMsg::SelectionChanged);
+
+    if let Some(adjustments) = adjustments {
+        for (adjustment, value) in &adjustments {
+            adjustment.set_value(*value);
+        }
+
+        let adjustments = adjustments.map(|(adjustment, value)| {
+            let expected = adjustment.value();
+            (adjustment, value, expected)
+        });
+        glib::idle_add_local_once(move || {
+            for (adjustment, value, expected) in adjustments {
+                if adjustment.value() == expected {
+                    adjustment.set_value(value);
+                }
+            }
+        });
+    }
+}
+
+fn changed_range<T: PartialEq>(current: &[T], desired: &[T]) -> Option<(usize, usize, usize)> {
+    let start = current
+        .iter()
+        .zip(desired)
+        .take_while(|(old, new)| old == new)
+        .count();
+    if start == current.len() && start == desired.len() {
+        return None;
+    }
+
+    let suffix = current[start..]
+        .iter()
+        .rev()
+        .zip(desired[start..].iter().rev())
+        .take_while(|(old, new)| old == new)
+        .count();
+
+    Some((start, current.len() - suffix, desired.len() - suffix))
+}
+
+fn selected_position(
+    current: &[TableBrowserRow],
+    desired: &[TableBrowserRow],
+    selected: usize,
+    primary_key: &[usize],
+) -> Option<usize> {
+    let selected = current.get(selected)?;
+    let matches = |row: &TableBrowserRow| {
+        if primary_key.is_empty() {
+            row.cells == selected.cells && row.pending_columns == selected.pending_columns
+        } else {
+            primary_key.iter().all(|&index| {
+                row.cells.get(index).is_some() && row.cells.get(index) == selected.cells.get(index)
+            })
+        }
+    };
+    if current.iter().filter(|row| matches(row)).count() != 1 {
+        return None;
+    }
+
+    let mut positions = desired
+        .iter()
+        .enumerate()
+        .filter_map(|(index, row)| matches(row).then_some(index));
+    let position = positions.next()?;
+
+    positions.next().is_none().then_some(position)
 }
 
 fn sync_columns(
@@ -340,4 +458,73 @@ fn sync_columns(
     }
 
     sync_sort_indicator(&table_browser.table_view, table_browser.sort.as_ref());
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{TableBrowserRow, changed_range, selected_position};
+    use crate::models::table_browser::TableCell;
+
+    fn rows(values: &[(&str, &str)]) -> Vec<TableBrowserRow> {
+        values
+            .iter()
+            .enumerate()
+            .map(|(index, (key, value))| TableBrowserRow {
+                index,
+                cells: vec![
+                    TableCell::new((*key).into()),
+                    TableCell::new((*value).into()),
+                ],
+                pending_columns: Vec::new(),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn bounds_changed_span() {
+        assert_eq!(changed_range(&[1, 2, 3], &[1, 2, 3]), None);
+        assert_eq!(changed_range(&[1, 2, 3], &[1, 4, 3]), Some((1, 2, 2)));
+        assert_eq!(changed_range(&[1, 3], &[1, 2, 3]), Some((1, 1, 2)));
+        assert_eq!(changed_range(&[1, 2, 3], &[1, 3]), Some((1, 2, 1)));
+        assert_eq!(changed_range::<u8>(&[], &[]), None);
+        assert_eq!(changed_range(&[], &[1]), Some((0, 0, 1)));
+        assert_eq!(changed_range(&[1], &[]), Some((0, 1, 0)));
+    }
+
+    #[test]
+    fn shifted_indices_and_pending_cells_need_rebinding() {
+        let current = rows(&[("1", "a"), ("2", "b")]);
+        let shifted = rows(&[("0", "c"), ("1", "a"), ("2", "b")]);
+        assert_eq!(changed_range(&current, &shifted), Some((0, 2, 3)));
+
+        let mut pending = current.clone();
+        pending[1].pending_columns.push(1);
+        assert_eq!(changed_range(&current, &pending), Some((1, 2, 2)));
+    }
+
+    #[test]
+    fn selection_follows_unique_primary_key() {
+        let current = rows(&[("1", "a"), ("2", "b")]);
+        let desired = rows(&[("2", "changed"), ("3", "c"), ("1", "a")]);
+        assert_eq!(selected_position(&current, &desired, 1, &[0]), Some(0));
+        assert_eq!(selected_position(&current, &desired, 0, &[0]), Some(2));
+        assert_eq!(selected_position(&current, &desired[..1], 0, &[0]), None);
+        let duplicates = rows(&[("2", "a"), ("2", "b")]);
+        assert_eq!(selected_position(&current, &duplicates, 1, &[0]), None);
+        assert_eq!(selected_position(&duplicates, &desired, 1, &[0]), None);
+    }
+
+    #[test]
+    fn unkeyed_selection_requires_unique_exact_content() {
+        let current = rows(&[("1", "a"), ("2", "b")]);
+        let desired = rows(&[("2", "b"), ("1", "a")]);
+        assert_eq!(selected_position(&current, &desired, 1, &[]), Some(0));
+        assert_eq!(selected_position(&current, &desired[..1], 0, &[]), None);
+        let duplicates = rows(&[("2", "b"), ("2", "b")]);
+        assert_eq!(selected_position(&current, &duplicates, 1, &[]), None);
+        assert_eq!(selected_position(&duplicates, &desired, 1, &[]), None);
+        let changed = rows(&[("1", "a"), ("2", "changed")]);
+        assert_eq!(selected_position(&current, &changed, 1, &[]), None);
+        assert_eq!(selected_position(&current, &desired, usize::MAX, &[]), None);
+    }
 }

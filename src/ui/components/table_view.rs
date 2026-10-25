@@ -1,7 +1,7 @@
 use gettextrs::gettext;
-use libadwaita::prelude::*;
-use relm4::gtk;
+use libadwaita::{self as adw, prelude::*};
 use relm4::prelude::*;
+use relm4::{gtk, gtk::gio};
 use sqlx::PgPool;
 
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
@@ -17,6 +17,11 @@ pub struct TableView {
     mode: TableViewMode,
     structure_loaded: bool,
     browser_busy: bool,
+    auto_refresh_enabled: bool,
+    refresh_seconds: u32,
+    refresh_status: String,
+    refreshing: bool,
+    refresh_action: gio::SimpleAction,
     deferred_rename: Option<DatabaseObject>,
     deferred_invalidation: Option<bool>,
     can_delete_selected_row: bool,
@@ -36,6 +41,8 @@ pub enum TableViewMsg {
     },
     ObjectRenamed(DatabaseObject),
     Refresh,
+    SetAutoRefreshEnabled(bool),
+    SetRefreshSeconds(u32),
     ReloadContent,
     StructureChanged {
         reset_browser_state: bool,
@@ -207,13 +214,65 @@ impl Component for TableView {
                     connect_clicked => TableViewMsg::ExportCsv,
                 },
 
-                gtk::Button {
+                adw::SplitButton {
                     set_icon_name: "view-refresh-symbolic",
-                    set_tooltip_text: Some(&gettext("Refresh")),
-                    add_css_class: "flat",
+                    set_action_name: Some("table.refresh"),
+                    set_dropdown_tooltip: &gettext("Automatic Refresh"),
                     #[watch]
-                    set_sensitive: !model.has_pending_edits() && !model.browser.model().input_locked() && (model.mode != TableViewMode::Content || !model.browser_busy),
-                    connect_clicked => TableViewMsg::Refresh,
+                    set_tooltip_text: Some(&if model.auto_refresh_enabled { model.refresh_status.clone() } else { gettext("Refresh") }),
+                    add_css_class: "flat",
+                    add_css_class: "table-refresh",
+                    #[wrap(Some)]
+                    set_popover = &gtk::Popover {
+                        gtk::Box {
+                            set_orientation: gtk::Orientation::Vertical,
+                            set_spacing: 12,
+                            set_width_request: 320,
+                            set_margin_top: 6,
+                            set_margin_bottom: 6,
+                            set_margin_start: 6,
+                            set_margin_end: 6,
+
+                            gtk::ListBox {
+                                set_selection_mode: gtk::SelectionMode::None,
+                                add_css_class: "boxed-list",
+
+                                adw::SwitchRow {
+                                    set_title: &gettext("Automatic Refresh"),
+                                    #[watch]
+                                    set_sensitive: model.mode == TableViewMode::Content,
+                                    #[watch]
+                                    set_active: model.auto_refresh_enabled,
+                                    connect_active_notify[sender] => move |row| {
+                                        let _ = sender.input_sender().send(TableViewMsg::SetAutoRefreshEnabled(row.is_active()));
+                                    },
+                                },
+
+                                adw::SpinRow::with_range(5.0, 3600.0, 1.0) {
+                                    set_title: &gettext("Interval (seconds)"),
+                                    #[watch]
+                                    set_sensitive: model.mode == TableViewMode::Content,
+                                    #[watch]
+                                    set_value: f64::from(model.refresh_seconds),
+                                    connect_value_notify[sender] => move |row| {
+                                        let _ = sender.input_sender().send(TableViewMsg::SetRefreshSeconds(row.value() as u32));
+                                    },
+                                },
+                            },
+
+                            gtk::Label {
+                                add_css_class: "dim-label",
+                                add_css_class: "caption",
+                                set_wrap: true,
+                                set_max_width_chars: 40,
+                                set_xalign: 0.0,
+                                #[watch]
+                                set_label: &model.refresh_status,
+                                #[watch]
+                                set_visible: !model.refresh_status.is_empty(),
+                            },
+                        },
+                    },
                 },
             },
 
@@ -227,7 +286,7 @@ impl Component for TableView {
 
     fn init(
         _init: Self::Init,
-        _root: Self::Root,
+        root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         let browser = TableBrowser::builder()
@@ -238,12 +297,28 @@ impl Component for TableView {
             .launch(())
             .forward(sender.input_sender(), TableViewMsg::StructureOutput);
 
+        let refresh_action = gio::SimpleAction::new("refresh", None);
+        refresh_action.connect_activate({
+            let input = sender.input_sender().clone();
+            move |_, _| {
+                let _ = input.send(TableViewMsg::Refresh);
+            }
+        });
+        let actions = gio::SimpleActionGroup::new();
+        actions.add_action(&refresh_action);
+        root.insert_action_group("table", Some(&actions));
+
         let model = TableView {
             pool: None,
             object: None,
             mode: TableViewMode::Content,
             structure_loaded: false,
             browser_busy: false,
+            auto_refresh_enabled: false,
+            refresh_seconds: 5,
+            refresh_status: String::new(),
+            refreshing: false,
+            refresh_action,
             deferred_rename: None,
             deferred_invalidation: None,
             can_delete_selected_row: false,
@@ -320,7 +395,6 @@ impl Component for TableView {
                 TableViewMsg::Open { .. }
                     | TableViewMsg::ObjectRenamed(_)
                     | TableViewMsg::Refresh
-                    | TableViewMsg::ReloadContent
                     | TableViewMsg::StructureChanged { .. }
                     | TableViewMsg::ShowStructure
                     | TableViewMsg::StructureOutput(
@@ -371,6 +445,10 @@ impl Component for TableView {
                 self.object = Some(object.clone());
                 self.mode = TableViewMode::Content;
                 self.browser_busy = false;
+                self.auto_refresh_enabled = false;
+                self.refresh_seconds = 5;
+                self.refresh_status.clear();
+                self.refreshing = false;
                 self.can_delete_selected_row = false;
                 self.can_duplicate_selected_row = false;
                 self.structure_loaded = false;
@@ -394,8 +472,41 @@ impl Component for TableView {
                 TableViewMode::Structure => self.structure.emit(TableStructureMsg::Refresh),
             },
 
+            TableViewMsg::SetAutoRefreshEnabled(enabled) => {
+                if self.auto_refresh_enabled != enabled {
+                    self.auto_refresh_enabled = enabled;
+                    self.browser.emit(TableBrowserMsg::SetAutoRefresh(
+                        enabled.then_some(self.refresh_seconds),
+                    ));
+                }
+            }
+
+            TableViewMsg::SetRefreshSeconds(seconds) => {
+                let seconds = seconds.clamp(5, 3600);
+                if self.refresh_seconds != seconds {
+                    self.refresh_seconds = seconds;
+                    if self.auto_refresh_enabled {
+                        self.browser
+                            .emit(TableBrowserMsg::SetAutoRefresh(Some(seconds)));
+                    }
+                }
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::RefreshStateChanged {
+                seconds,
+                status,
+                refreshing,
+            }) => {
+                self.auto_refresh_enabled = seconds.is_some();
+                if let Some(seconds) = seconds {
+                    self.refresh_seconds = seconds.clamp(5, 3600);
+                }
+                self.refresh_status = status;
+                self.refreshing = refreshing;
+            }
+
             TableViewMsg::ReloadContent => {
-                self.browser.emit(TableBrowserMsg::Refresh);
+                self.browser.emit(TableBrowserMsg::ReloadContent);
             }
 
             TableViewMsg::StructureChanged {
@@ -404,7 +515,7 @@ impl Component for TableView {
                 if reset_browser_state {
                     self.browser.emit(TableBrowserMsg::SchemaChanged);
                 } else {
-                    self.browser.emit(TableBrowserMsg::Refresh);
+                    self.browser.emit(TableBrowserMsg::ReloadContent);
                 }
 
                 if self.structure_loaded && self.can_show_structure() {
@@ -534,6 +645,12 @@ impl Component for TableView {
             }
         }
 
+        self.refresh_action.set_enabled(
+            !self.has_pending_edits()
+                && !self.browser.model().input_locked()
+                && (self.mode != TableViewMode::Content
+                    || (!self.browser_busy && !self.refreshing)),
+        );
         self.update_view(widgets, sender);
     }
 }

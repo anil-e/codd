@@ -405,6 +405,12 @@ impl TableBrowser {
             row_index,
             column_index,
         ));
+        if let Some(popover) = &self.edit_popover {
+            let input = sender.input_sender().clone();
+            popover.connect_visible_notify(move |_| {
+                let _ = input.send(TableBrowserMsg::RefreshActivityChanged);
+            });
+        }
     }
 
     pub(super) fn stage_cell(

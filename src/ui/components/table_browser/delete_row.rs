@@ -35,10 +35,16 @@ impl TableBrowser {
         dialog.set_response_appearance("delete", adw::ResponseAppearance::Destructive);
 
         let sender = sender.clone();
+        let _ = sender
+            .input_sender()
+            .send(TableBrowserMsg::RefreshDialogChanged(true));
         dialog.choose(
             root.root().and_downcast::<gtk::Window>().as_ref(),
             None::<&gtk::gio::Cancellable>,
             move |response| {
+                let _ = sender
+                    .input_sender()
+                    .send(TableBrowserMsg::RefreshDialogChanged(false));
                 if response == "delete" {
                     let _ = sender
                         .input_sender()

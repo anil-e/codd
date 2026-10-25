@@ -8,7 +8,6 @@ use crate::ui::components::table_browser::{
     TableBrowser, TableBrowserCommandOutput, TableBrowserOutput, TableBrowserWidgets,
 };
 
-use super::grid::render_table;
 use super::{close_popover, set_stack_child};
 
 impl TableBrowser {
@@ -16,6 +15,15 @@ impl TableBrowser {
         &mut self,
         widgets: &TableBrowserWidgets,
         sender: &ComponentSender<Self>,
+    ) {
+        self.load_page_request(widgets, sender, false);
+    }
+
+    pub(super) fn load_page_request(
+        &mut self,
+        widgets: &TableBrowserWidgets,
+        sender: &ComponentSender<Self>,
+        refresh: bool,
     ) {
         if self.has_pending_edits() || self.edits_saving() || self.close_request.is_some() {
             return;
@@ -31,17 +39,23 @@ impl TableBrowser {
 
         close_popover(&mut self.edit_popover);
 
+        self.stop_refresh_timer();
         self.active_last_page_request_id = None;
-        self.is_loading = true;
-        self.context_busy.set(true);
-        let _ = sender.output(TableBrowserOutput::BusyChanged(true));
+        self.is_refreshing = refresh;
+        self.is_loading = !refresh;
+        if !refresh {
+            self.deferred_reload = false;
+            self.refresh_error = None;
+            self.context_busy.set(true);
+            let _ = sender.output(TableBrowserOutput::BusyChanged(true));
 
-        self.is_error = false;
-        self.status_title = gettext("Loading rows");
-        self.status_description = Some(gettext("Fetching the selected page from PostgreSQL."));
-        self.page = None;
-        render_table(self, sender);
-        set_stack_child(widgets, false);
+            self.is_error = false;
+            self.status_title = gettext("Loading rows");
+            self.status_description = Some(gettext("Fetching the selected page from PostgreSQL."));
+            if self.page.is_none() {
+                set_stack_child(widgets, false);
+            }
+        }
 
         let id = self.allocate_request_id();
         let offset = self.offset;
@@ -84,6 +98,9 @@ impl TableBrowser {
             return;
         };
 
+        self.cancel_background_refresh();
+        self.stop_refresh_timer();
+
         close_popover(&mut self.edit_popover);
 
         if let Some(abort_handle) = self.active_abort_handle.take() {
@@ -125,6 +142,10 @@ impl TableBrowser {
     }
 }
 
+pub(super) fn take_deferred_reload(pending: &mut bool, blocked: bool) -> bool {
+    !blocked && std::mem::take(pending)
+}
+
 fn table_load_error_message(object: &DatabaseObject, error: &sqlx::Error) -> String {
     if is_missing_relation(error) {
         let name = format!("{}.{}", object.schema, object.name);
@@ -161,4 +182,35 @@ pub(super) fn last_page_offset(row_count: i64, page_size: u32) -> u32 {
     let offset = ((row_count - 1) / page_size) * page_size;
 
     u32::try_from(offset).unwrap_or(u32::MAX)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::take_deferred_reload;
+
+    #[test]
+    fn reload_survives_edit_and_close_holds_until_they_clear() {
+        let mut pending = true;
+
+        assert!(!take_deferred_reload(&mut pending, true));
+        assert!(pending);
+        assert!(!take_deferred_reload(&mut pending, true));
+        assert!(take_deferred_reload(&mut pending, false));
+        assert!(!pending);
+        assert!(!take_deferred_reload(&mut pending, false));
+    }
+
+    #[test]
+    fn repeated_invalidations_coalesce_into_one_reload() {
+        let mut pending = false;
+        assert!(!take_deferred_reload(&mut pending, false));
+
+        for _ in 0..3 {
+            pending = true;
+            assert!(!take_deferred_reload(&mut pending, true));
+        }
+
+        assert!(take_deferred_reload(&mut pending, false));
+        assert!(!take_deferred_reload(&mut pending, false));
+    }
 }

@@ -33,6 +33,7 @@ mod filters;
 mod grid;
 mod insert_row;
 mod loading;
+mod refresh;
 mod sorting;
 
 pub struct TableBrowser {
@@ -49,11 +50,22 @@ pub struct TableBrowser {
     close_dialog: Option<adw::AlertDialog>,
     deferred_rename: Option<DatabaseObject>,
     deferred_schema_change: bool,
+    deferred_reload: bool,
     close_interrupted_read: bool,
     pool: Option<PgPool>,
     object: Option<DatabaseObject>,
     page: Option<TablePage>,
     is_loading: bool,
+    is_refreshing: bool,
+    refresh_seconds: Option<u32>,
+    refresh_source: Option<glib::SourceId>,
+    refresh_timer_live: Rc<Cell<bool>>,
+    refresh_timer_generation: u64,
+    refresh_active: bool,
+    refresh_error: Option<String>,
+    refresh_last_state: Option<(Option<u32>, String, bool)>,
+    refresh_dialog_open: Rc<Cell<bool>>,
+    refresh_toplevel: Option<(gtk::gdk::Toplevel, glib::SignalHandlerId)>,
     is_error: bool,
     status_title: String,
     status_description: Option<String>,
@@ -148,6 +160,12 @@ pub enum TableBrowserMsg {
     },
     ObjectRenamed(DatabaseObject),
     Refresh,
+    ReloadContent,
+    SetAutoRefresh(Option<u32>),
+    ActivityChanged(bool),
+    RefreshActivityChanged,
+    RefreshDialogChanged(bool),
+    AutoRefreshTick(u64),
     SchemaChanged,
     SetHeaderVisible(bool),
     FirstPage,
@@ -217,6 +235,11 @@ pub enum TableBrowserMsg {
 
 #[derive(Debug)]
 pub enum TableBrowserOutput {
+    RefreshStateChanged {
+        seconds: Option<u32>,
+        status: String,
+        refreshing: bool,
+    },
     PendingEditsChanged(bool),
     EditsClosePrepared(u64),
     EditsCloseCancelled(u64),
@@ -299,6 +322,8 @@ impl Component for TableBrowser {
             set_orientation: gtk::Orientation::Vertical,
             set_spacing: 0,
             add_css_class: "table-browser",
+            connect_map => TableBrowserMsg::ActivityChanged(true),
+            connect_unmap => TableBrowserMsg::ActivityChanged(false),
 
             gtk::Box {
                 set_orientation: gtk::Orientation::Horizontal,
@@ -355,7 +380,8 @@ impl Component for TableBrowser {
 
                 gtk::Button {
                     set_icon_name: "view-refresh-symbolic",
-                    set_tooltip_text: Some(&gettext("Refresh")),
+                    #[watch]
+                    set_tooltip_text: Some(&model.refresh_tooltip()),
                     add_css_class: "flat",
                     #[watch]
                     set_sensitive: model.object.is_some() && !model.has_pending_edits() && !model.input_locked(),
@@ -370,6 +396,26 @@ impl Component for TableBrowser {
 
                 #[wrap(Some)]
                 set_child = &model.filter_panel.clone(),
+            },
+
+            adw::Banner {
+                #[watch]
+                set_revealed: model.refresh_error.is_some(),
+                #[watch]
+                set_title: &gettext("Refresh failed. Displayed rows may be stale."),
+            },
+
+            gtk::Label {
+                #[watch]
+                set_visible: model.refresh_error.is_some(),
+                #[watch]
+                set_label: model.refresh_error.as_deref().unwrap_or(""),
+                set_selectable: true,
+                set_wrap: true,
+                set_xalign: 0.0,
+                set_margin_start: 12,
+                set_margin_end: 12,
+                set_margin_bottom: 6,
             },
 
             #[name = "stack"]
@@ -594,6 +640,12 @@ impl Component for TableBrowser {
         let context_popover = gtk::PopoverMenu::from_model(Some(&context_menu()));
         context_popover.set_has_arrow(false);
         context_popover.set_parent(&root);
+        context_popover.connect_visible_notify({
+            let input = sender.input_sender().clone();
+            move |_| {
+                let _ = input.send(TableBrowserMsg::RefreshActivityChanged);
+            }
+        });
 
         let (context_action_group, edit_action, duplicate_action, delete_action) =
             context_action_group(copy_target.clone(), edit_target.clone(), sender.clone());
@@ -624,11 +676,22 @@ impl Component for TableBrowser {
             close_dialog: None,
             deferred_rename: None,
             deferred_schema_change: false,
+            deferred_reload: false,
             close_interrupted_read: false,
             pool: None,
             object: None,
             page: None,
             is_loading: false,
+            is_refreshing: false,
+            refresh_seconds: None,
+            refresh_source: None,
+            refresh_timer_live: Rc::new(Cell::new(false)),
+            refresh_timer_generation: 0,
+            refresh_active: false,
+            refresh_error: None,
+            refresh_last_state: None,
+            refresh_dialog_open: Rc::new(Cell::new(false)),
+            refresh_toplevel: None,
             is_error: false,
             status_title: gettext("Select a table"),
             status_description: Some(gettext(
@@ -690,122 +753,210 @@ impl Component for TableBrowser {
         sender: ComponentSender<Self>,
         root: &Self::Root,
     ) {
-        if self.reject_input(&msg, &sender) {
-            if matches!(msg, TableBrowserMsg::FilterEvent(_)) {
-                self.rebuild_filters(widgets, &sender);
+        (|| {
+            if matches!(
+                msg,
+                TableBrowserMsg::EditCellRequested { .. }
+                    | TableBrowserMsg::EditCellFromMenu { .. }
+                    | TableBrowserMsg::CellEditSubmitted { .. }
+                    | TableBrowserMsg::InsertRowRequested
+                    | TableBrowserMsg::DuplicateSelectedRowRequested
+                    | TableBrowserMsg::InsertRowConfirmed(_)
+                    | TableBrowserMsg::DeleteSelectedRowRequested
+                    | TableBrowserMsg::DeleteRowConfirmed { .. }
+                    | TableBrowserMsg::PrepareEditsClose(_)
+            ) {
+                self.cancel_background_refresh();
             }
 
-            self.update_view(widgets, sender);
-            return;
-        }
-
-        match msg {
-            TableBrowserMsg::SaveEdits => {
-                if self.close_request.is_none() {
-                    self.save_edits(&sender);
+            if self.reject_input(&msg, &sender) {
+                if matches!(msg, TableBrowserMsg::FilterEvent(_)) {
+                    self.rebuild_filters(widgets, &sender);
                 }
+
+                return;
             }
 
-            TableBrowserMsg::DiscardEdits => {
-                if !self.is_loading && !self.edits_saving() && self.close_request.is_none() {
-                    let reload = self.commit_unknown;
+            match msg {
+                TableBrowserMsg::RefreshDialogChanged(open) => {
+                    self.refresh_dialog_open.set(open);
+                    if open {
+                        self.cancel_background_refresh();
+                    }
+                }
+                TableBrowserMsg::SetAutoRefresh(seconds) => {
+                    if refresh::valid_interval(seconds) {
+                        if self.refresh_seconds != seconds {
+                            self.stop_refresh_timer();
+                        }
+                        self.refresh_seconds = seconds;
+                        if seconds.is_none() {
+                            self.cancel_background_refresh();
+                        }
+                    }
+                }
+                TableBrowserMsg::ActivityChanged(active) => {
+                    self.refresh_active = active;
+                    if active
+                        && self.refresh_toplevel.is_none()
+                        && let Some(toplevel) = root
+                            .native()
+                            .and_then(|native| native.surface())
+                            .and_then(|surface| surface.dynamic_cast::<gtk::gdk::Toplevel>().ok())
+                    {
+                        let input = sender.input_sender().clone();
+                        let weak_root = root.downgrade();
+                        let handler = toplevel.connect_state_notify(move |toplevel| {
+                            let active = weak_root.upgrade().is_some_and(|root| root.is_mapped())
+                                && !toplevel
+                                    .state()
+                                    .contains(gtk::gdk::ToplevelState::MINIMIZED);
+                            let _ = input.send(TableBrowserMsg::ActivityChanged(active));
+                        });
+                        self.refresh_toplevel = Some((toplevel, handler));
+                    }
+                    self.refresh_active &=
+                        self.refresh_toplevel.as_ref().is_none_or(|(toplevel, _)| {
+                            !toplevel
+                                .state()
+                                .contains(gtk::gdk::ToplevelState::MINIMIZED)
+                        });
+                    if !active {
+                        self.cancel_background_refresh();
+                    }
+                }
+                TableBrowserMsg::RefreshActivityChanged => {
+                    if self.context_popover.is_visible()
+                        || self
+                            .edit_popover
+                            .as_ref()
+                            .is_some_and(|popover| popover.is_visible())
+                    {
+                        self.cancel_background_refresh();
+                    }
+                }
+                TableBrowserMsg::AutoRefreshTick(generation) => {
+                    if generation != self.refresh_timer_generation {
+                        return;
+                    }
+                    self.refresh_source.take();
+                    if self.refresh_ready() {
+                        self.refresh_page(widgets, &sender);
+                    }
+                }
+                TableBrowserMsg::SaveEdits => {
+                    if self.close_request.is_none() {
+                        self.save_edits(&sender);
+                    }
+                }
 
-                    self.discard_edits(&sender);
-                    render_table(self, &sender);
+                TableBrowserMsg::DiscardEdits => {
+                    if !self.is_loading && !self.edits_saving() && self.close_request.is_none() {
+                        let reload = self.commit_unknown;
+
+                        self.discard_edits(&sender);
+                        render_table(self, &sender);
+
+                        if reload {
+                            self.load_page(widgets, &sender);
+                        }
+                    }
+                }
+
+                TableBrowserMsg::PrepareEditsClose(id) => {
+                    self.prepare_edits_close(id, root, &sender)
+                }
+
+                TableBrowserMsg::CancelEditsClose(id) => {
+                    let matching = self.close_request == Some(id);
+                    let reload = matching && (self.close_saved || self.close_interrupted_read);
+
+                    self.cancel_edits_close(id, &sender);
+
+                    if matching {
+                        self.close_interrupted_read = false;
+                    }
+
+                    if matching {
+                        render_table(self, &sender);
+                    }
 
                     if reload {
                         self.load_page(widgets, &sender);
                     }
                 }
-            }
 
-            TableBrowserMsg::PrepareEditsClose(id) => self.prepare_edits_close(id, root, &sender),
-
-            TableBrowserMsg::CancelEditsClose(id) => {
-                let matching = self.close_request == Some(id);
-                let reload = matching && (self.close_saved || self.close_interrupted_read);
-
-                self.cancel_edits_close(id, &sender);
-
-                if matching {
-                    self.close_interrupted_read = false;
-                }
-
-                if matching {
-                    render_table(self, &sender);
-                }
-
-                if reload {
-                    self.load_page(widgets, &sender);
-                }
-            }
-
-            TableBrowserMsg::CommitEditsClose(id) => {
-                if self.close_request == Some(id) && self.close_prepared && !self.edits_saving() {
-                    if self.close_discard && !self.close_committed {
-                        self.close_backup = Some(DiscardedEdits {
-                            pending_edits: self.pending_edits.clone(),
-                            error: self.edits_error.clone(),
-                            commit_unknown: self.commit_unknown,
-                        });
-                        self.discard_edits(&sender);
-                        render_table(self, &sender);
-                    }
-
-                    self.close_committed = true;
-                    let _ = sender.output(TableBrowserOutput::EditsCloseCommitted(id));
-                } else {
-                    let _ = sender.output(TableBrowserOutput::EditsCloseCancelled(id));
-                }
-            }
-
-            TableBrowserMsg::EditsCloseResponse { id, response } => {
-                if self.close_request == Some(id) && !self.close_prepared && !self.edits_saving() {
-                    self.close_dialog = None;
-
-                    match response.as_str() {
-                        "discard" => {
-                            self.close_discard = true;
-                            self.close_prepared = true;
-                            let _ = sender.output(TableBrowserOutput::EditsClosePrepared(id));
+                TableBrowserMsg::CommitEditsClose(id) => {
+                    if self.close_request == Some(id) && self.close_prepared && !self.edits_saving()
+                    {
+                        if self.close_discard && !self.close_committed {
+                            self.close_backup = Some(DiscardedEdits {
+                                pending_edits: self.pending_edits.clone(),
+                                error: self.edits_error.clone(),
+                                commit_unknown: self.commit_unknown,
+                            });
+                            self.discard_edits(&sender);
+                            render_table(self, &sender);
                         }
-                        "save" if !self.commit_unknown => self.save_edits(&sender),
-                        _ => self.cancel_edits_close(id, &sender),
+
+                        self.close_committed = true;
+                        let _ = sender.output(TableBrowserOutput::EditsCloseCommitted(id));
+                    } else {
+                        let _ = sender.output(TableBrowserOutput::EditsCloseCancelled(id));
                     }
                 }
-            }
 
-            TableBrowserMsg::EditsSaved {
-                id,
-                generation,
-                result,
-            } => {
-                if self.save_request != Some((id, generation)) || generation != self.page_generation
-                {
-                    return;
-                }
+                TableBrowserMsg::EditsCloseResponse { id, response } => {
+                    if self.close_request == Some(id)
+                        && !self.close_prepared
+                        && !self.edits_saving()
+                    {
+                        self.close_dialog = None;
 
-                self.save_request = None;
-                self.is_loading = false;
-                self.context_busy.set(self.close_request.is_some());
-                let _ = sender.output(TableBrowserOutput::BusyChanged(false));
-
-                match result {
-                    Ok(()) => {
-                        self.discard_edits(&sender);
-
-                        if let Some(id) = self.close_request {
-                            self.close_saved = true;
-                            self.close_prepared = true;
-                            let _ = sender.output(TableBrowserOutput::EditsClosePrepared(id));
-                        } else {
-                            self.load_page(widgets, &sender);
+                        match response.as_str() {
+                            "discard" => {
+                                self.close_discard = true;
+                                self.close_prepared = true;
+                                let _ = sender.output(TableBrowserOutput::EditsClosePrepared(id));
+                            }
+                            "save" if !self.commit_unknown => self.save_edits(&sender),
+                            _ => self.cancel_edits_close(id, &sender),
                         }
                     }
+                }
 
-                    Err(error) => {
-                        self.commit_unknown = matches!(error, TableEditError::CommitUnknown(_));
-                        self.edits_error = Some(match error {
+                TableBrowserMsg::EditsSaved {
+                    id,
+                    generation,
+                    result,
+                } => {
+                    if self.save_request != Some((id, generation))
+                        || generation != self.page_generation
+                    {
+                        return;
+                    }
+
+                    self.save_request = None;
+                    self.is_loading = false;
+                    self.context_busy.set(self.close_request.is_some());
+                    let _ = sender.output(TableBrowserOutput::BusyChanged(false));
+
+                    match result {
+                        Ok(()) => {
+                            self.discard_edits(&sender);
+
+                            if let Some(id) = self.close_request {
+                                self.close_saved = true;
+                                self.close_prepared = true;
+                                let _ = sender.output(TableBrowserOutput::EditsClosePrepared(id));
+                            } else {
+                                self.load_page(widgets, &sender);
+                            }
+                        }
+
+                        Err(error) => {
+                            self.commit_unknown = matches!(error, TableEditError::CommitUnknown(_));
+                            self.edits_error = Some(match error {
                             TableEditError::Conflict { row_index } => gettext(
                                 "Row {row} was changed or deleted by another transaction. No changes were saved. Discard and reload before editing again.",
                             )
@@ -820,461 +971,490 @@ impl Component for TableBrowser {
                             ),
                         });
 
-                        if let Some(id) = self.close_request {
-                            self.cancel_edits_close(id, &sender);
+                            if let Some(id) = self.close_request {
+                                self.cancel_edits_close(id, &sender);
+                            }
                         }
                     }
                 }
-            }
 
-            TableBrowserMsg::Open { pool, object } => {
-                self.close_context_menu();
-                self.clear_selection();
-                self.pool = Some(pool);
-                self.object = Some(object);
-                self.offset = 0;
-                self.available_columns.clear();
-                self.draft_filters.clear();
-                self.active_filters.clear();
-                self.sort = None;
-                self.filters_expanded = false;
-                self.load_page(widgets, &sender);
-            }
-
-            TableBrowserMsg::ObjectRenamed(object) => {
-                self.close_context_menu();
-                self.clear_selection();
-                self.object = Some(object);
-                self.offset = 0;
-                self.load_page(widgets, &sender);
-            }
-
-            TableBrowserMsg::Refresh => {
-                self.close_context_menu();
-                self.clear_selection();
-                self.load_page(widgets, &sender);
-            }
-
-            TableBrowserMsg::SchemaChanged => {
-                self.close_context_menu();
-                self.clear_selection();
-                close_popover(&mut self.edit_popover);
-                self.offset = 0;
-                self.available_columns.clear();
-                self.draft_filters.clear();
-                self.active_filters.clear();
-                self.sort = None;
-                self.filters_expanded = false;
-                sync_sort_indicator(&self.table_view, self.sort.as_ref());
-                self.load_page(widgets, &sender);
-            }
-
-            TableBrowserMsg::SetHeaderVisible(visible) => {
-                self.show_header = visible;
-            }
-
-            TableBrowserMsg::FirstPage => {
-                if self.can_go_previous() {
+                TableBrowserMsg::Open { pool, object } => {
+                    self.close_context_menu();
                     self.clear_selection();
+                    self.pool = Some(pool);
+                    self.object = Some(object);
                     self.offset = 0;
-                    self.load_page(widgets, &sender);
-                }
-            }
-
-            TableBrowserMsg::PreviousPage => {
-                self.clear_selection();
-                self.offset = self.offset.saturating_sub(self.page_size);
-                self.load_page(widgets, &sender);
-            }
-
-            TableBrowserMsg::NextPage => {
-                if self.can_go_next() {
-                    self.clear_selection();
-                    self.offset = self.offset.saturating_add(self.page_size);
-                    self.load_page(widgets, &sender);
-                }
-            }
-
-            TableBrowserMsg::LastPage => {
-                if self.can_go_next() {
-                    self.load_last_page_offset(&sender);
-                }
-            }
-
-            TableBrowserMsg::PageSizeChanged(page_size) => {
-                if self.page_size == page_size {
-                    return;
-                }
-
-                self.close_context_menu();
-                self.clear_selection();
-                self.page_size = page_size;
-                self.offset = 0;
-                self.load_page(widgets, &sender);
-            }
-
-            TableBrowserMsg::ToggleFilters => {
-                self.filters_expanded = !self.filters_expanded;
-
-                if self.filters_expanded
-                    && self.draft_filters.is_empty()
-                    && self.active_filters.is_empty()
-                    && let Some(filter) = initial_filter(&self.available_columns)
-                {
-                    self.draft_filters.push(filter);
-                    self.rebuild_filters(widgets, &sender);
-                }
-            }
-
-            TableBrowserMsg::FilterEvent(event) => {
-                self.handle_filter_event(event, widgets, &sender, root);
-            }
-
-            TableBrowserMsg::SortChanged(sort) => {
-                let next_sort = next_sort_for_header_click(self.sort.as_ref(), sort);
-
-                if self.sort == next_sort {
-                    return;
-                }
-
-                self.sort = next_sort;
-                self.close_context_menu();
-                self.clear_selection();
-                self.offset = 0;
-                sync_sort_indicator(&self.table_view, self.sort.as_ref());
-                self.load_page(widgets, &sender);
-            }
-
-            TableBrowserMsg::PageLoaded { id, result } => {
-                if self.active_request_id != Some(id)
-                    || self.has_pending_edits()
-                    || self.edits_saving()
-                {
-                    return;
-                }
-
-                self.close_context_menu();
-                self.active_request_id = None;
-                self.active_abort_handle = None;
-                self.is_loading = self.active_insert_request_id.is_some()
-                    || self.active_delete_request_id.is_some();
-                self.context_busy.set(self.is_loading);
-                let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
-
-                match result {
-                    Ok(page) => {
-                        self.is_error = false;
-                        self.status_title.clear();
-                        self.status_description = None;
-                        self.available_columns.clone_from(&page.columns);
-
-                        if self.sort.as_ref().is_some_and(|sort| {
-                            !page
-                                .columns
-                                .iter()
-                                .any(|column| column.name == sort.column_name)
-                        }) {
-                            self.sort = None;
-                            sync_sort_indicator(&self.table_view, self.sort.as_ref());
-                        }
-
-                        self.page = Some(page);
-                        self.page_generation = self.page_generation.wrapping_add(1);
-                        self.clear_selection();
-                    }
-
-                    Err(error) => {
-                        self.is_error = true;
-                        self.status_title = gettext("Loading table failed");
-                        self.status_description = Some(error);
-                        self.page = None;
-                        self.clear_selection();
-                    }
-                }
-
-                render_table(self, &sender);
-                self.rebuild_filters(widgets, &sender);
-                set_stack_child(widgets, self.page.is_some());
-            }
-
-            TableBrowserMsg::LastPageOffsetLoaded { id, result } => {
-                if self.active_last_page_request_id != Some(id) {
-                    return;
-                }
-
-                self.active_last_page_request_id = None;
-                self.active_abort_handle = None;
-                self.is_loading = false;
-
-                match result {
-                    Ok(offset) => {
-                        self.offset = offset;
-                        self.load_page(widgets, &sender);
-                    }
-
-                    Err(error) => {
-                        self.context_busy.set(false);
-                        let _ = sender.output(TableBrowserOutput::BusyChanged(false));
-
-                        self.show_warning(root, &gettext("Loading last page failed"), &error);
-                    }
-                }
-            }
-
-            TableBrowserMsg::EditCellRequested {
-                anchor,
-                row_index,
-                column_index,
-            } => {
-                if self.is_loading {
-                    return;
-                }
-
-                self.open_edit_popover(&anchor, row_index, column_index, &sender, root);
-            }
-
-            TableBrowserMsg::CellEditSubmitted {
-                page_generation,
-                row_index,
-                column_index,
-                value,
-            } => {
-                self.stage_cell(page_generation, row_index, column_index, value, &sender);
-                render_table(self, &sender);
-            }
-
-            TableBrowserMsg::CopyCell {
-                row_index,
-                column_index,
-            } => {
-                self.copy_text(
-                    self.displayed_page()
-                        .as_ref()
-                        .and_then(|page| result_copy::page_cell(page, row_index, column_index)),
-                    gettext("Cell copied."),
-                    &sender,
-                );
-                return;
-            }
-
-            TableBrowserMsg::CopyRow(row_index) => {
-                self.copy_text(
-                    self.displayed_page()
-                        .as_ref()
-                        .and_then(|page| result_copy::page_row(page, row_index)),
-                    gettext("Row copied."),
-                    &sender,
-                );
-                return;
-            }
-
-            TableBrowserMsg::CopyColumn(column_index) => {
-                self.copy_text(
-                    self.displayed_page()
-                        .as_ref()
-                        .and_then(|page| result_copy::page_column(page, column_index)),
-                    gettext("Column copied."),
-                    &sender,
-                );
-                return;
-            }
-
-            TableBrowserMsg::CopyPage => {
-                self.copy_text(
-                    self.displayed_page().as_ref().map(result_copy::page),
-                    gettext("Page copied."),
-                    &sender,
-                );
-                return;
-            }
-
-            TableBrowserMsg::ExportCsvRequested => {
-                self.open_export_dialog(root, &sender);
-                return;
-            }
-
-            TableBrowserMsg::ExportCsvConfirmed { options, path } => {
-                self.export_csv(options, path, &sender);
-                return;
-            }
-
-            TableBrowserMsg::CsvExported(result) => {
-                match result {
-                    Ok(()) => {
-                        let _ =
-                            sender.output(TableBrowserOutput::Exported(gettext("CSV exported.")));
-                    }
-                    Err(error) => {
-                        self.show_warning(root, &gettext("Export failed"), &error);
-                    }
-                }
-
-                return;
-            }
-
-            TableBrowserMsg::InsertRowRequested => {
-                if self.is_loading
-                    || self.active_insert_request_id.is_some()
-                    || self.active_delete_request_id.is_some()
-                {
-                    return;
-                }
-
-                self.open_insert_row_dialog(root, &sender);
-                return;
-            }
-
-            TableBrowserMsg::DuplicateSelectedRowRequested => {
-                if self.is_loading
-                    || self.active_insert_request_id.is_some()
-                    || self.active_delete_request_id.is_some()
-                {
-                    return;
-                }
-
-                self.open_duplicate_row_dialog(root, &sender);
-                return;
-            }
-
-            TableBrowserMsg::InsertRowConfirmed(request) => {
-                if self.active_insert_request_id.is_some()
-                    || self.active_delete_request_id.is_some()
-                    || !self.insert_request_is_current(&request)
-                {
-                    return;
-                }
-
-                self.clear_selection();
-                self.insert_row(request, &sender);
-            }
-
-            TableBrowserMsg::RowInserted { id, result } => {
-                if self.active_insert_request_id != Some(id) {
-                    return;
-                }
-
-                self.active_insert_request_id = None;
-                self.is_loading =
-                    self.active_request_id.is_some() || self.active_last_page_request_id.is_some();
-
-                match result {
-                    InsertRowResult::Inserted(kind) => {
-                        let message = match kind {
-                            InsertRowKind::Insert => gettext("Row inserted."),
-                            InsertRowKind::Duplicate => gettext("Row duplicated."),
-                        };
-
-                        let _ = sender.output(TableBrowserOutput::Inserted(message));
-
-                        self.load_page(widgets, &sender);
-                    }
-                    InsertRowResult::InsertFailed { error, request } => {
-                        self.context_busy.set(self.is_loading);
-                        let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
-
-                        self.reopen_insert_row_dialog(root, request, &error, &sender);
-                    }
-                }
-            }
-
-            TableBrowserMsg::DeleteSelectedRowRequested => {
-                self.open_delete_row_dialog(root, &sender);
-                return;
-            }
-
-            TableBrowserMsg::DeleteRowConfirmed {
-                page_generation,
-                row_index,
-            } => {
-                self.delete_row(page_generation, row_index, &sender);
-            }
-
-            TableBrowserMsg::RowDeleted { id, result } => {
-                if self.active_delete_request_id != Some(id) {
-                    return;
-                }
-
-                self.active_delete_request_id = None;
-                self.is_loading =
-                    self.active_request_id.is_some() || self.active_last_page_request_id.is_some();
-
-                match result {
-                    DeleteRowResult::Deleted { previous_page } => {
-                        let _ = sender.output(TableBrowserOutput::Deleted(gettext("Row deleted.")));
-
-                        if previous_page {
-                            self.offset = self.offset.saturating_sub(self.page_size);
-                        }
-
-                        self.clear_selection();
-                        self.load_page(widgets, &sender);
-                    }
-                    DeleteRowResult::DeleteFailed(error) => {
-                        self.context_busy.set(self.is_loading);
-                        let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
-                        let _ = sender.output(TableBrowserOutput::SelectionChanged {
-                            can_delete: self.can_delete_selected_row(),
-                            can_duplicate: self.can_duplicate_selected_row(),
-                        });
-
-                        self.show_warning(root, &gettext("Deleting row failed"), &error);
-                    }
-                }
-            }
-
-            TableBrowserMsg::SelectionChanged => {
-                let _ = sender.output(TableBrowserOutput::SelectionChanged {
-                    can_delete: self.can_delete_selected_row(),
-                    can_duplicate: self.can_duplicate_selected_row(),
-                });
-                return;
-            }
-
-            TableBrowserMsg::EditCellFromMenu {
-                anchor,
-                row_index,
-                column_index,
-            } => {
-                if self.is_loading {
-                    return;
-                }
-
-                self.open_edit_popover(&anchor, row_index, column_index, &sender, root);
-            }
-
-            TableBrowserMsg::AppearanceChanged => {
-                self.close_context_menu();
-                close_popover(&mut self.edit_popover);
-                self.rendered_columns.clear();
-                render_table(self, &sender);
-            }
-        }
-
-        if !self.authoritative_changes_blocked() {
-            let renamed = self.deferred_rename.take();
-            let reset = std::mem::take(&mut self.deferred_schema_change);
-
-            if let Some(object) = renamed.as_ref() {
-                self.object = Some(object.clone());
-            }
-
-            if reset || renamed.is_some() {
-                self.close_context_menu();
-                self.clear_selection();
-                close_popover(&mut self.edit_popover);
-                self.offset = 0;
-
-                if reset {
                     self.available_columns.clear();
                     self.draft_filters.clear();
                     self.active_filters.clear();
                     self.sort = None;
                     self.filters_expanded = false;
-                    sync_sort_indicator(&self.table_view, None);
+                    self.load_page(widgets, &sender);
                 }
 
-                self.load_page(widgets, &sender);
+                TableBrowserMsg::ObjectRenamed(object) => {
+                    self.close_context_menu();
+                    self.clear_selection();
+                    self.object = Some(object);
+                    self.offset = 0;
+                    self.load_page(widgets, &sender);
+                }
+
+                TableBrowserMsg::Refresh => {
+                    self.refresh_page(widgets, &sender);
+                }
+
+                TableBrowserMsg::ReloadContent => {
+                    self.deferred_reload = true;
+                }
+
+                TableBrowserMsg::SchemaChanged => {
+                    self.close_context_menu();
+                    self.clear_selection();
+                    close_popover(&mut self.edit_popover);
+                    self.offset = 0;
+                    self.available_columns.clear();
+                    self.draft_filters.clear();
+                    self.active_filters.clear();
+                    self.sort = None;
+                    self.filters_expanded = false;
+                    sync_sort_indicator(&self.table_view, self.sort.as_ref());
+                    self.load_page(widgets, &sender);
+                }
+
+                TableBrowserMsg::SetHeaderVisible(visible) => {
+                    self.show_header = visible;
+                }
+
+                TableBrowserMsg::FirstPage => {
+                    if self.can_go_previous() {
+                        self.clear_selection();
+                        self.offset = 0;
+                        self.load_page(widgets, &sender);
+                    }
+                }
+
+                TableBrowserMsg::PreviousPage => {
+                    self.clear_selection();
+                    self.offset = self.offset.saturating_sub(self.page_size);
+                    self.load_page(widgets, &sender);
+                }
+
+                TableBrowserMsg::NextPage => {
+                    if self.can_go_next() {
+                        self.clear_selection();
+                        self.offset = self.offset.saturating_add(self.page_size);
+                        self.load_page(widgets, &sender);
+                    }
+                }
+
+                TableBrowserMsg::LastPage => {
+                    if self.can_go_next() {
+                        self.load_last_page_offset(&sender);
+                    }
+                }
+
+                TableBrowserMsg::PageSizeChanged(page_size) => {
+                    if self.page_size == page_size {
+                        return;
+                    }
+
+                    self.close_context_menu();
+                    self.clear_selection();
+                    self.page_size = page_size;
+                    self.offset = 0;
+                    self.load_page(widgets, &sender);
+                }
+
+                TableBrowserMsg::ToggleFilters => {
+                    self.filters_expanded = !self.filters_expanded;
+
+                    if self.filters_expanded
+                        && self.draft_filters.is_empty()
+                        && self.active_filters.is_empty()
+                        && let Some(filter) = initial_filter(&self.available_columns)
+                    {
+                        self.draft_filters.push(filter);
+                        self.rebuild_filters(widgets, &sender);
+                    }
+                }
+
+                TableBrowserMsg::FilterEvent(event) => {
+                    self.handle_filter_event(event, widgets, &sender, root);
+                }
+
+                TableBrowserMsg::SortChanged(sort) => {
+                    let next_sort = next_sort_for_header_click(self.sort.as_ref(), sort);
+
+                    if self.sort == next_sort {
+                        return;
+                    }
+
+                    self.sort = next_sort;
+                    self.close_context_menu();
+                    self.clear_selection();
+                    self.offset = 0;
+                    sync_sort_indicator(&self.table_view, self.sort.as_ref());
+                    self.load_page(widgets, &sender);
+                }
+
+                TableBrowserMsg::PageLoaded { id, result } => {
+                    if !refresh::current_completion(
+                        id,
+                        self.active_request_id,
+                        self.has_pending_edits() || self.edits_saving(),
+                    ) {
+                        return;
+                    }
+
+                    if self.is_refreshing {
+                        if self.context_popover.is_visible()
+                            || self
+                                .edit_popover
+                                .as_ref()
+                                .is_some_and(|popover| popover.is_visible())
+                            || self.refresh_dialog_open.get()
+                        {
+                            self.cancel_background_refresh();
+                            return;
+                        }
+                        self.finish_refresh(result, widgets, &sender);
+                        return;
+                    }
+
+                    self.close_context_menu();
+                    self.active_request_id = None;
+                    self.active_abort_handle = None;
+                    self.is_loading = self.active_insert_request_id.is_some()
+                        || self.active_delete_request_id.is_some();
+                    self.context_busy.set(self.is_loading);
+                    let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
+
+                    match result {
+                        Ok(page) => {
+                            self.is_error = false;
+                            self.refresh_error = None;
+                            self.status_title.clear();
+                            self.status_description = None;
+                            self.available_columns.clone_from(&page.columns);
+
+                            if self.sort.as_ref().is_some_and(|sort| {
+                                !page
+                                    .columns
+                                    .iter()
+                                    .any(|column| column.name == sort.column_name)
+                            }) {
+                                self.sort = None;
+                                sync_sort_indicator(&self.table_view, self.sort.as_ref());
+                            }
+
+                            self.page = Some(page);
+                            self.page_generation = self.page_generation.wrapping_add(1);
+                            self.clear_selection();
+                        }
+
+                        Err(error) => {
+                            self.is_error = true;
+                            self.status_title = gettext("Loading table failed");
+                            self.status_description = Some(error);
+                            self.page = None;
+                            self.clear_selection();
+                        }
+                    }
+
+                    render_table(self, &sender);
+                    self.rebuild_filters(widgets, &sender);
+                    set_stack_child(widgets, self.page.is_some());
+                }
+
+                TableBrowserMsg::LastPageOffsetLoaded { id, result } => {
+                    if self.active_last_page_request_id != Some(id) {
+                        return;
+                    }
+
+                    self.active_last_page_request_id = None;
+                    self.active_abort_handle = None;
+                    self.is_loading = false;
+
+                    match result {
+                        Ok(offset) => {
+                            self.offset = offset;
+                            self.load_page(widgets, &sender);
+                        }
+
+                        Err(error) => {
+                            self.context_busy.set(false);
+                            let _ = sender.output(TableBrowserOutput::BusyChanged(false));
+
+                            self.show_warning(root, &gettext("Loading last page failed"), &error);
+                        }
+                    }
+                }
+
+                TableBrowserMsg::EditCellRequested {
+                    anchor,
+                    row_index,
+                    column_index,
+                } => {
+                    if self.is_loading {
+                        return;
+                    }
+
+                    self.open_edit_popover(&anchor, row_index, column_index, &sender, root);
+                }
+
+                TableBrowserMsg::CellEditSubmitted {
+                    page_generation,
+                    row_index,
+                    column_index,
+                    value,
+                } => {
+                    self.stage_cell(page_generation, row_index, column_index, value, &sender);
+                    render_table(self, &sender);
+                }
+
+                TableBrowserMsg::CopyCell {
+                    row_index,
+                    column_index,
+                } => {
+                    self.copy_text(
+                        self.displayed_page()
+                            .as_ref()
+                            .and_then(|page| result_copy::page_cell(page, row_index, column_index)),
+                        gettext("Cell copied."),
+                        &sender,
+                    );
+                    return;
+                }
+
+                TableBrowserMsg::CopyRow(row_index) => {
+                    self.copy_text(
+                        self.displayed_page()
+                            .as_ref()
+                            .and_then(|page| result_copy::page_row(page, row_index)),
+                        gettext("Row copied."),
+                        &sender,
+                    );
+                    return;
+                }
+
+                TableBrowserMsg::CopyColumn(column_index) => {
+                    self.copy_text(
+                        self.displayed_page()
+                            .as_ref()
+                            .and_then(|page| result_copy::page_column(page, column_index)),
+                        gettext("Column copied."),
+                        &sender,
+                    );
+                    return;
+                }
+
+                TableBrowserMsg::CopyPage => {
+                    self.copy_text(
+                        self.displayed_page().as_ref().map(result_copy::page),
+                        gettext("Page copied."),
+                        &sender,
+                    );
+                    return;
+                }
+
+                TableBrowserMsg::ExportCsvRequested => {
+                    self.open_export_dialog(root, &sender);
+                    return;
+                }
+
+                TableBrowserMsg::ExportCsvConfirmed { options, path } => {
+                    self.export_csv(options, path, &sender);
+                    return;
+                }
+
+                TableBrowserMsg::CsvExported(result) => {
+                    match result {
+                        Ok(()) => {
+                            let _ = sender
+                                .output(TableBrowserOutput::Exported(gettext("CSV exported.")));
+                        }
+                        Err(error) => {
+                            self.show_warning(root, &gettext("Export failed"), &error);
+                        }
+                    }
+
+                    return;
+                }
+
+                TableBrowserMsg::InsertRowRequested => {
+                    if self.is_loading
+                        || self.active_insert_request_id.is_some()
+                        || self.active_delete_request_id.is_some()
+                    {
+                        return;
+                    }
+
+                    self.open_insert_row_dialog(root, &sender);
+                    return;
+                }
+
+                TableBrowserMsg::DuplicateSelectedRowRequested => {
+                    if self.is_loading
+                        || self.active_insert_request_id.is_some()
+                        || self.active_delete_request_id.is_some()
+                    {
+                        return;
+                    }
+
+                    self.open_duplicate_row_dialog(root, &sender);
+                    return;
+                }
+
+                TableBrowserMsg::InsertRowConfirmed(request) => {
+                    if self.active_insert_request_id.is_some()
+                        || self.active_delete_request_id.is_some()
+                        || !self.insert_request_is_current(&request)
+                    {
+                        return;
+                    }
+
+                    self.clear_selection();
+                    self.insert_row(request, &sender);
+                }
+
+                TableBrowserMsg::RowInserted { id, result } => {
+                    if self.active_insert_request_id != Some(id) {
+                        return;
+                    }
+
+                    self.active_insert_request_id = None;
+                    self.is_loading = self.active_request_id.is_some()
+                        || self.active_last_page_request_id.is_some();
+
+                    match result {
+                        InsertRowResult::Inserted(kind) => {
+                            let message = match kind {
+                                InsertRowKind::Insert => gettext("Row inserted."),
+                                InsertRowKind::Duplicate => gettext("Row duplicated."),
+                            };
+
+                            let _ = sender.output(TableBrowserOutput::Inserted(message));
+
+                            self.load_page(widgets, &sender);
+                        }
+                        InsertRowResult::InsertFailed { error, request } => {
+                            self.context_busy.set(self.is_loading);
+                            let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
+
+                            self.reopen_insert_row_dialog(root, request, &error, &sender);
+                        }
+                    }
+                }
+
+                TableBrowserMsg::DeleteSelectedRowRequested => {
+                    self.open_delete_row_dialog(root, &sender);
+                    return;
+                }
+
+                TableBrowserMsg::DeleteRowConfirmed {
+                    page_generation,
+                    row_index,
+                } => {
+                    self.delete_row(page_generation, row_index, &sender);
+                }
+
+                TableBrowserMsg::RowDeleted { id, result } => {
+                    if self.active_delete_request_id != Some(id) {
+                        return;
+                    }
+
+                    self.active_delete_request_id = None;
+                    self.is_loading = self.active_request_id.is_some()
+                        || self.active_last_page_request_id.is_some();
+
+                    match result {
+                        DeleteRowResult::Deleted { previous_page } => {
+                            let _ =
+                                sender.output(TableBrowserOutput::Deleted(gettext("Row deleted.")));
+
+                            if previous_page {
+                                self.offset = self.offset.saturating_sub(self.page_size);
+                            }
+
+                            self.clear_selection();
+                            self.load_page(widgets, &sender);
+                        }
+                        DeleteRowResult::DeleteFailed(error) => {
+                            self.context_busy.set(self.is_loading);
+                            let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
+                            let _ = sender.output(TableBrowserOutput::SelectionChanged {
+                                can_delete: self.can_delete_selected_row(),
+                                can_duplicate: self.can_duplicate_selected_row(),
+                            });
+
+                            self.show_warning(root, &gettext("Deleting row failed"), &error);
+                        }
+                    }
+                }
+
+                TableBrowserMsg::SelectionChanged => {
+                    let _ = sender.output(TableBrowserOutput::SelectionChanged {
+                        can_delete: self.can_delete_selected_row(),
+                        can_duplicate: self.can_duplicate_selected_row(),
+                    });
+                    return;
+                }
+
+                TableBrowserMsg::EditCellFromMenu {
+                    anchor,
+                    row_index,
+                    column_index,
+                } => {
+                    if self.is_loading {
+                        return;
+                    }
+
+                    self.open_edit_popover(&anchor, row_index, column_index, &sender, root);
+                }
+
+                TableBrowserMsg::AppearanceChanged => {
+                    self.close_context_menu();
+                    close_popover(&mut self.edit_popover);
+                    self.rendered_columns.clear();
+                    render_table(self, &sender);
+                }
             }
+
+            if !self.authoritative_changes_blocked() {
+                let renamed = self.deferred_rename.take();
+                let reset = std::mem::take(&mut self.deferred_schema_change);
+
+                if let Some(object) = renamed.as_ref() {
+                    self.object = Some(object.clone());
+                }
+
+                if reset || renamed.is_some() {
+                    self.close_context_menu();
+                    self.clear_selection();
+                    close_popover(&mut self.edit_popover);
+                    self.offset = 0;
+
+                    if reset {
+                        self.available_columns.clear();
+                        self.draft_filters.clear();
+                        self.active_filters.clear();
+                        self.sort = None;
+                        self.filters_expanded = false;
+                        sync_sort_indicator(&self.table_view, None);
+                    }
+
+                    self.load_page(widgets, &sender);
+                }
+            }
+        })();
+
+        let reload_blocked =
+            self.authoritative_changes_blocked() || self.pool.is_none() || self.object.is_none();
+
+        if loading::take_deferred_reload(&mut self.deferred_reload, reload_blocked) {
+            self.close_context_menu();
+            self.load_page(widgets, &sender);
         }
 
         self.context_busy.set(self.input_locked());
@@ -1282,6 +1462,7 @@ impl Component for TableBrowser {
             .set_sensitive(!self.has_pending_edits() && !self.input_locked());
         self.table_view.set_sensitive(!self.input_locked());
 
+        self.sync_refresh(&sender);
         self.update_view(widgets, sender);
     }
 
@@ -1318,6 +1499,10 @@ impl Component for TableBrowser {
     }
 
     fn shutdown(&mut self, _widgets: &mut Self::Widgets, _output: relm4::Sender<Self::Output>) {
+        self.stop_refresh_timer();
+        if let Some((toplevel, handler)) = self.refresh_toplevel.take() {
+            toplevel.disconnect(handler);
+        }
         if let Some(handler) = self.dark_notify_handler.take() {
             self.style_manager.disconnect(handler);
         }

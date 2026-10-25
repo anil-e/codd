@@ -302,7 +302,13 @@ fn show_insert_row_dialog(
     }
 
     let sender = sender.clone();
+    let _ = sender
+        .input_sender()
+        .send(TableBrowserMsg::RefreshDialogChanged(true));
     dialog.choose(parent, None::<&gtk::gio::Cancellable>, move |response| {
+        let _ = sender
+            .input_sender()
+            .send(TableBrowserMsg::RefreshDialogChanged(false));
         if response != "insert" {
             return;
         }

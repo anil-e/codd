@@ -204,6 +204,10 @@ columnview.query-results-table listview row:hover {
   font-size: 0.98em;
 }
 
+.table-refresh > separator {
+  opacity: 0;
+}
+
 .compact-mode .table-browser-header {
   margin: 4px 8px;
 }
