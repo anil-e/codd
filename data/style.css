@@ -298,3 +298,7 @@ columnview.query-results-table listview row:hover {
 .cell-type-numeric.cell-dark    { color: #cba6f7; }
 .cell-type-text                 { color: #004f9e; }
 .cell-type-text.cell-dark       { color: #8be9fd; }
+
+.table-cell-pending {
+  background-color: alpha(@warning_color, 0.15);
+}

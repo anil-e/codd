@@ -541,7 +541,7 @@ impl WindowContent {
             tab.page.set_title(&document.title());
             tab.page.set_tooltip(&document.tooltip());
             tab.page.set_needs_attention(document.is_dirty(&text));
-            let icon = gio::ThemedIcon::new("document-modified-symbolic");
+            let icon = gio::ThemedIcon::new("edit-symbolic");
             tab.page
                 .set_indicator_icon(document.is_dirty(&text).then_some(&icon));
             let warning = if document.file.is_none() {
@@ -773,6 +773,7 @@ impl WindowContent {
             stack,
             view: None,
             loaded: false,
+            pending_edits: false,
         });
 
         if load {
@@ -830,12 +831,23 @@ impl WindowContent {
         new_name: &str,
         widgets: &WindowContentWidgets,
     ) {
+        if self.close_preparation_pending() || self.relation_edits_pending(object) {
+            return;
+        }
+
         let mut renamed = object.clone();
         renamed.name = new_name.to_string();
 
         for tab in &mut self.browse_tabs {
-            if tab.object == *object {
+            if tab.object == *object
+                && !tab.pending_edits
+                && !tab
+                    .view
+                    .as_ref()
+                    .is_some_and(|view| view.model().has_pending_edits())
+            {
                 tab.object = renamed.clone();
+
                 if let Some(view) = &tab.view {
                     view.emit(TableViewMsg::ObjectRenamed(renamed.clone()));
                 }
@@ -875,6 +887,12 @@ impl WindowContent {
         object: &DatabaseObject,
         widgets: &WindowContentWidgets,
     ) {
+        if self.relation_edits_pending(object) {
+            self.table_navigation_blocked(widgets);
+
+            return;
+        }
+
         let pages = self
             .browse_tabs
             .iter()

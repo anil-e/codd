@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-18 16:20+0200\n"
+"POT-Creation-Date: 2026-10-25 12:36+0100\n"
 "PO-Revision-Date: 2026-08-24 14:51+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
@@ -63,117 +63,121 @@ msgstr "Priit Jõerüüt 2026"
 msgid "Lightweight PostgreSQL client"
 msgstr "Lihtne PostgreSQL-i klientrakendus"
 
-#: src/window_content.rs:296 src/window_content.rs:363
+#: src/window_content.rs:297 src/window_content.rs:364
 msgid "Main Menu"
 msgstr "Põhimenüü"
 
-#: src/window_content.rs:329
+#: src/window_content.rs:330
 msgid "Objects"
 msgstr "Objektid"
 
-#: src/window_content.rs:333
+#: src/window_content.rs:334
 msgid "Back to connections"
 msgstr "Tagasi ühenduste vaatesse"
 
-#: src/window_content.rs:340
+#: src/window_content.rs:341
 msgid "Refresh Objects"
 msgstr "Laadi objektide teave uuesti"
 
-#: src/window_content.rs:370
+#: src/window_content.rs:371
 msgid "New Query Tab"
 msgstr "Uue päringu vahekaart"
 
-#: src/window_content.rs:831 src/window_content.rs:1392
-#: src/window_content/database_switching.rs:70
-#: src/window_content/database_switching.rs:134
+#: src/window_content.rs:850 src/window_content.rs:1452
+#: src/window_content/database_switching.rs:73
+#: src/window_content/database_switching.rs:143
 msgid "Saving tabs failed"
 msgstr "Vahekaartide salvestamine ei õnnestunud"
 
-#: src/window_content.rs:929
+#: src/window_content.rs:948
 msgid "Updating the saved password failed"
 msgstr "Salvestatud salasõnade uuendamine ei õnnestunud"
 
-#: src/window_content.rs:982 src/ui/components/table_browser.rs:867
+#: src/window_content.rs:1001 src/ui/components/table_browser.rs:1081
 msgid "CSV exported."
 msgstr "CSV-fail on eksporditud."
 
-#: src/window_content.rs:1191
+#: src/window_content.rs:1210
 msgid "Hide Objects"
 msgstr "Peida objektid"
 
-#: src/window_content.rs:1192
+#: src/window_content.rs:1211
 msgid "Show Objects"
 msgstr "Näita objekte"
 
-#: src/window_content.rs:1382
+#: src/window_content.rs:1239
+msgid "Commit or discard pending table edits first."
+msgstr ""
+
+#: src/window_content.rs:1442
 msgid "Waiting for the file operation before disconnecting."
 msgstr ""
 
-#: src/window_content.rs:1431 src/ui/components/sidebar.rs:153
+#: src/window_content.rs:1491 src/ui/components/sidebar.rs:153
 #: src/ui/components/sidebar.rs:407 src/ui/components/sidebar.rs:421
 msgid "No connection"
 msgstr "Ühendust pole"
 
-#: src/window_content.rs:1505
+#: src/window_content.rs:1569
 msgid "Connected to PostgreSQL."
 msgstr "Ühendatud PostgreSQL-iga."
 
-#: src/window_content.rs:1518
+#: src/window_content.rs:1582
 msgid "Connected, but saving the connection failed"
 msgstr "Ühendatud, aga ühenduse salvestamine ei õnnestunud"
 
-#: src/window_content.rs:1607
+#: src/window_content.rs:1671
 msgid ""
 "Some scratch tabs exceed the session recovery limits. Save them as SQL files "
 "before leaving this workspace."
 msgstr ""
 
-#: src/window_content.rs:1669
+#: src/window_content.rs:1733
 msgid "Disabling saved password failed"
 msgstr "Salvestatud salasõna kasutuselt eemaldamine ei õnnestunud"
 
-#: src/window_content.rs:1684
+#: src/window_content.rs:1748
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr "Enne päringutulemuste eksportimist ühenda PostgreSQL-iga."
 
-#: src/window_content.rs:1692
+#: src/window_content.rs:1756
 msgid "Enter SQL before exporting query results."
 msgstr "Enne päringutulemuste eksportimist ava SQL-vaade."
 
-#: src/window_content.rs:1736
+#: src/window_content.rs:1800
 msgid "The query did not return rows."
 msgstr "Päringu vastuses polnud ühtegi rida."
 
-#: src/window_content.rs:1767
+#: src/window_content.rs:1831
 msgid "Schema load failed"
 msgstr "Andmebaasiskeema laadimine ei õnnestunud"
 
-#: src/window_content.rs:1828
+#: src/window_content.rs:1892
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "Enne skripti koostamist ühenda PostgreSQL-iga."
 
-#: src/window_content.rs:1868
+#: src/window_content.rs:1932
 msgid "Generating the table script failed"
 msgstr "Tabeli skripti koostamine ei õnnestunud"
 
-#: src/window_content.rs:1916 src/ui/components/table_browser.rs:870
+#: src/window_content.rs:1980 src/ui/components/table_browser.rs:1084
 msgid "Export failed"
 msgstr "Eksportimine ei õnnestunud"
 
-#: src/window_content.rs:1921 src/window_content/documents.rs:2193
-#: src/window_content/structure_actions.rs:423 src/window_content/tabs.rs:94
+#: src/window_content.rs:1985 src/window_content/documents.rs:2335
+#: src/window_content/structure_actions.rs:427 src/window_content/tabs.rs:94
 #: src/ui/components/connection_dialog.rs:966
-#: src/ui/components/table_browser.rs:1289
+#: src/ui/components/table_browser.rs:1533
 msgid "Close"
 msgstr "Sulge"
 
-#: src/window_content.rs:1956
+#: src/window_content.rs:2020
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
 "Andmete eksport CSV-faili käivitab päringud ainult lugemisõigustes "
 "transaktsioonina."
 
-#: src/window_content.rs:1958
+#: src/window_content.rs:2022
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
@@ -183,74 +187,74 @@ msgstr ""
 "muudavad transaktsiooni olekut, nagu UPDATE, INSERT, DELETE, CREATE, COMMIT "
 "või ROLLBACK, ei saa eksportida."
 
-#: src/window_content.rs:1968
+#: src/window_content.rs:2032
 msgid "CREATE script generated."
 msgstr "CREATE-sktipt on koostatud."
 
-#: src/window_content.rs:1969
+#: src/window_content.rs:2033
 msgid "SELECT script generated."
 msgstr "SELECT-sktipt on koostatud."
 
-#: src/window_content.rs:1970
+#: src/window_content.rs:2034
 msgid "INSERT script generated."
 msgstr "INSERT-sktipt on koostatud."
 
-#: src/window_content.rs:1971
+#: src/window_content.rs:2035
 msgid "UPDATE script generated."
 msgstr "UPDATE-sktipt on koostatud."
 
-#: src/window_content.rs:1972
+#: src/window_content.rs:2036
 msgid "DELETE script generated."
 msgstr "DELETE-sktipt on koostatud."
 
-#: src/window_content/database_switching.rs:52
+#: src/window_content/database_switching.rs:55
 msgid "Finish the file operation before switching databases."
 msgstr ""
 
-#: src/window_content/database_switching.rs:62
+#: src/window_content/database_switching.rs:65
 msgid "Connect to PostgreSQL before switching databases."
 msgstr "Enne andmebaaside vahetamist ühenda PostgreSQL-serveriga."
 
-#: src/window_content/database_switching.rs:123
+#: src/window_content/database_switching.rs:132
 msgid "Database switch failed"
 msgstr "Andmebaaside vahetamine ei õnnestunud"
 
-#: src/window_content/database_switching.rs:181
+#: src/window_content/database_switching.rs:190
 msgid "Saving the selected database failed"
 msgstr "Valitud andmebaasi salvestamine ei õnnestunud"
 
-#: src/window_content/database_switching.rs:222
+#: src/window_content/database_switching.rs:231
 msgid "Migrating query history failed"
 msgstr "Päringute ajaloo ümberkolimine ei õnnestunud"
 
-#: src/window_content/database_switching.rs:251
+#: src/window_content/database_switching.rs:260
 msgid "Saving query history failed"
 msgstr "Päringute ajaloo salvestamine ei õnnestunud"
 
-#: src/window_content/database_switching.rs:274
+#: src/window_content/database_switching.rs:283
 msgid "Clearing query history failed"
 msgstr "Päringute ajaloo kustutamine ei õnnestunud"
 
-#: src/window_content/documents.rs:80
+#: src/window_content/documents.rs:81
 msgid "Recovered Script (Save As Required)"
 msgstr ""
 
-#: src/window_content/documents.rs:93
+#: src/window_content/documents.rs:94
 msgid "File changed on disk. Reload to read the latest version."
 msgstr ""
 
-#: src/window_content/documents.rs:605
+#: src/window_content/documents.rs:680
 msgid "Open SQL Files"
 msgstr ""
 
-#: src/window_content/documents.rs:608
+#: src/window_content/documents.rs:683
 msgid "Open"
 msgstr ""
 
-#: src/window_content/documents.rs:609 src/window_content/documents.rs:745
-#: src/window_content/documents.rs:1100 src/window_content/documents.rs:1268
-#: src/window_content/documents.rs:1436 src/window_content/documents.rs:1553
-#: src/window_content/documents.rs:1577 src/window_content/object_actions.rs:65
+#: src/window_content/documents.rs:684 src/window_content/documents.rs:820
+#: src/window_content/documents.rs:1206 src/window_content/documents.rs:1386
+#: src/window_content/documents.rs:1554 src/window_content/documents.rs:1671
+#: src/window_content/documents.rs:1695 src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
 #: src/window_content/object_actions.rs:174
 #: src/window_content/structure_actions.rs:88
@@ -263,138 +267,139 @@ msgstr ""
 #: src/ui/components/editor.rs:274
 #: src/ui/components/table_browser/cell_editor.rs:93
 #: src/ui/components/table_browser/delete_row.rs:31
+#: src/ui/components/table_browser/editing.rs:264
 #: src/ui/components/table_browser/insert_row.rs:273
 msgid "Cancel"
 msgstr "Katkesta"
 
-#: src/window_content/documents.rs:643
+#: src/window_content/documents.rs:718
 msgid "Connect to PostgreSQL to open the queued SQL files."
 msgstr ""
 
-#: src/window_content/documents.rs:741
+#: src/window_content/documents.rs:816
 msgid "Save SQL File"
 msgstr ""
 
-#: src/window_content/documents.rs:744 src/window_content/documents.rs:1102
+#: src/window_content/documents.rs:819 src/window_content/documents.rs:1208
 #: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
-#: src/ui/components/table_browser/cell_editor.rs:99
 msgid "Save"
 msgstr "Salvesta"
 
-#: src/window_content/documents.rs:1035
+#: src/window_content/documents.rs:1111
 msgid ""
 "Wait for the current file or database operation to finish, then try closing "
 "again."
 msgstr ""
 
-#: src/window_content/documents.rs:1092
+#: src/window_content/documents.rs:1198
 msgid "Save Changes?"
 msgstr ""
 
-#: src/window_content/documents.rs:1096
+#: src/window_content/documents.rs:1202
 msgid "Unsaved changes will be lost if you discard them."
 msgstr ""
 
-#: src/window_content/documents.rs:1101
+#: src/window_content/documents.rs:1207 src/ui/components/table_browser.rs:441
+#: src/ui/components/table_browser/editing.rs:265
 msgid "Discard"
 msgstr ""
 
-#: src/window_content/documents.rs:1219 src/window_content/documents.rs:1937
-#: src/window_content/documents.rs:1995
+#: src/window_content/documents.rs:1337 src/window_content/documents.rs:2055
+#: src/window_content/documents.rs:2113
 msgid "Saving Tabs Failed"
 msgstr ""
 
-#: src/window_content/documents.rs:1262
+#: src/window_content/documents.rs:1380
 msgid "Reload SQL File?"
 msgstr ""
 
-#: src/window_content/documents.rs:1264
+#: src/window_content/documents.rs:1382
 msgid "Reloading discards your unsaved changes and cannot be undone."
 msgstr ""
 
-#: src/window_content/documents.rs:1269 src/window_content/tabs.rs:103
+#: src/window_content/documents.rs:1387 src/window_content/tabs.rs:103
 #: src/ui/components/editor.rs:422
 msgid "Reload"
 msgstr ""
 
-#: src/window_content/documents.rs:1432
+#: src/window_content/documents.rs:1550
 msgid "Opening SQL File Failed"
 msgstr ""
 
-#: src/window_content/documents.rs:1437 src/window_content/documents.rs:2008
+#: src/window_content/documents.rs:1555 src/window_content/documents.rs:2126
 msgid "Retry"
 msgstr ""
 
-#: src/window_content/documents.rs:1546
+#: src/window_content/documents.rs:1664
 msgid "Saving SQL File Failed"
 msgstr ""
 
-#: src/window_content/documents.rs:1549
+#: src/window_content/documents.rs:1667
 msgid "Check the file permissions or use Save As to choose another location."
 msgstr ""
 
-#: src/window_content/documents.rs:1554 src/window_content/documents.rs:1578
+#: src/window_content/documents.rs:1672 src/window_content/documents.rs:1696
 #: src/window_content/tabs.rs:102 src/ui/components/editor.rs:424
 msgid "Save As"
 msgstr ""
 
-#: src/window_content/documents.rs:1573
+#: src/window_content/documents.rs:1691
 msgid "File Changed on Disk"
 msgstr ""
 
-#: src/window_content/documents.rs:1574
+#: src/window_content/documents.rs:1692
 msgid ""
 "The file was changed, deleted, or cannot be verified. Save a copy, or "
 "explicitly replace the latest verified version."
 msgstr ""
 
-#: src/window_content/documents.rs:1583
+#: src/window_content/documents.rs:1701
 msgid "Overwrite"
 msgstr ""
 
-#: src/window_content/documents.rs:1588
+#: src/window_content/documents.rs:1706
 msgid "Recreate File"
 msgstr ""
 
-#: src/window_content/documents.rs:1946
+#: src/window_content/documents.rs:2064
 msgid "Restoring SQL Files Failed"
 msgstr ""
 
-#: src/window_content/documents.rs:2000 src/window_content/documents.rs:2030
+#: src/window_content/documents.rs:2118 src/window_content/documents.rs:2148
 msgid "Saving SQL Recovery Failed"
 msgstr ""
 
-#: src/window_content/documents.rs:2003
+#: src/window_content/documents.rs:2121
 msgid ""
 "The file was saved, but newer edits cannot be recovered after a crash. Retry "
 "before removing the scratch-session backup."
 msgstr ""
 
-#: src/window_content/documents.rs:2007
+#: src/window_content/documents.rs:2125
 msgid "Keep Editing Without Recovery"
 msgstr ""
 
-#: src/window_content/documents.rs:2069
+#: src/window_content/documents.rs:2190
 msgid "Closing SQL Files Failed"
 msgstr ""
 
-#: src/window_content/documents.rs:2111
+#: src/window_content/documents.rs:2247
 msgid "Restoring SQL Recovery Failed"
 msgstr ""
 
-#: src/window_content/documents.rs:2173
+#: src/window_content/documents.rs:2315
 msgid "SQL Files"
 msgstr ""
 
-#: src/window_content/documents.rs:2178
+#: src/window_content/documents.rs:2320
 msgid "All Files"
 msgstr ""
 
-#: src/window_content/documents.rs:2204
+#: src/window_content/documents.rs:2346
 msgid "Some SQL Recovery Files Could Not Be Restored"
 msgstr ""
 
-#: src/window_content/documents.rs:2212
+#: src/window_content/documents.rs:2354
 #, rust-format
 msgid ""
 "One recovery file could not be restored. Valid recovery files were processed "
@@ -405,7 +410,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/window_content/documents.rs:2225
+#: src/window_content/documents.rs:2367
 msgid "See the application logs for the remaining recovery warnings."
 msgstr ""
 
@@ -414,7 +419,7 @@ msgid "Choose a new name for this database object."
 msgstr "Sisesta selle andmebaasiobjekti uus nimi."
 
 #: src/window_content/object_actions.rs:66
-#: src/window_content/object_actions.rs:344
+#: src/window_content/object_actions.rs:351
 #: src/window_content/structure_actions.rs:89
 #: src/ui/components/start_screen.rs:334
 msgid "Rename"
@@ -440,27 +445,27 @@ msgstr ""
 "„TRUNCATE“ käsuga tühjendad ka tabelid, kus on välisvõtme põhine viide siia "
 "tabelisse."
 
-#: src/window_content/object_actions.rs:313
+#: src/window_content/object_actions.rs:320
 msgid "Rename Table"
 msgstr "Muuda tabeli nime"
 
-#: src/window_content/object_actions.rs:314
+#: src/window_content/object_actions.rs:321
 msgid "Rename View"
 msgstr "Muuda vaate nime"
 
-#: src/window_content/object_actions.rs:316
+#: src/window_content/object_actions.rs:323
 msgid "Truncate Table"
 msgstr "Tühjenda tabeli sisu"
 
-#: src/window_content/object_actions.rs:318
+#: src/window_content/object_actions.rs:325
 msgid "Delete Table"
 msgstr "Kustuta tabel"
 
-#: src/window_content/object_actions.rs:319
+#: src/window_content/object_actions.rs:326
 msgid "Delete View"
 msgstr "Kustuta vaade"
 
-#: src/window_content/object_actions.rs:327
+#: src/window_content/object_actions.rs:334
 #, rust-format
 msgid ""
 "Remove all rows from {table}?\n"
@@ -469,7 +474,7 @@ msgstr ""
 "Kas kustutad kõik read tabelist „{table}“?\n"
 "Seda tegevust ei saa tagasi pöörata."
 
-#: src/window_content/object_actions.rs:332
+#: src/window_content/object_actions.rs:339
 #, rust-format
 msgid ""
 "Delete table {name}?\n"
@@ -478,7 +483,7 @@ msgstr ""
 "Kas kustutad tabeli „{name}“?\n"
 "Seda tegevust ei saa tagasi pöörata."
 
-#: src/window_content/object_actions.rs:334
+#: src/window_content/object_actions.rs:341
 #, rust-format
 msgid ""
 "Delete view {name}?\n"
@@ -487,43 +492,43 @@ msgstr ""
 "Kas kustutad vaate „{name}“?\n"
 "Seda tegevust ei saa tagasi pöörata."
 
-#: src/window_content/object_actions.rs:345
+#: src/window_content/object_actions.rs:352
 msgid "Truncate"
 msgstr "Tühjenda sisu"
 
-#: src/window_content/object_actions.rs:346
+#: src/window_content/object_actions.rs:353
 #: src/ui/components/table_browser/delete_row.rs:32
 msgid "Delete"
 msgstr "Kustuta"
 
-#: src/window_content/object_actions.rs:352
+#: src/window_content/object_actions.rs:359
 msgid "Database object renamed."
 msgstr "Andmebaasiobjekti nimi on muudetud."
 
-#: src/window_content/object_actions.rs:354
+#: src/window_content/object_actions.rs:361
 #, rust-format
 msgid "Table truncated: {table}"
 msgstr "„{table}“ tabel on tühjendatud"
 
-#: src/window_content/object_actions.rs:356
+#: src/window_content/object_actions.rs:363
 msgid "Database object deleted."
 msgstr "Andmebaasiobjekt on kustutatud."
 
-#: src/window_content/object_actions.rs:362
-#: src/window_content/structure_actions.rs:398
+#: src/window_content/object_actions.rs:369
+#: src/window_content/structure_actions.rs:402
 msgid "Renaming failed"
 msgstr "Nime muutmine ei õnnestunud"
 
-#: src/window_content/object_actions.rs:363
+#: src/window_content/object_actions.rs:370
 msgid "Truncating failed"
 msgstr "Sisu tühjendamine ei õnnestunud"
 
-#: src/window_content/object_actions.rs:364
+#: src/window_content/object_actions.rs:371
 msgid "Deleting failed"
 msgstr "Kustutamine ei õnnestunud"
 
-#: src/window_content/object_actions.rs:379
-#: src/window_content/structure_actions.rs:295
+#: src/window_content/object_actions.rs:386
+#: src/window_content/structure_actions.rs:299
 msgid "Enter a valid object name."
 msgstr "Sisesta korrektne objektinimi."
 
@@ -555,152 +560,152 @@ msgstr "Sisesta selle struktuuriobjekti uus nimi."
 msgid "Drop"
 msgstr "Kustuta „DROP“ käsuga"
 
-#: src/window_content/structure_actions.rs:333
+#: src/window_content/structure_actions.rs:337
 msgid "Rename column"
 msgstr "Muuda veeru nime"
 
-#: src/window_content/structure_actions.rs:334
+#: src/window_content/structure_actions.rs:338
 msgid "Rename index"
 msgstr "Muuda indeksi nime"
 
-#: src/window_content/structure_actions.rs:335
+#: src/window_content/structure_actions.rs:339
 msgid "Rename constraint"
 msgstr "Muuda andmebaasipiirangu nime"
 
-#: src/window_content/structure_actions.rs:336
+#: src/window_content/structure_actions.rs:340
 msgid "Rename foreign key"
 msgstr "Muuda välisvõtme nime"
 
-#: src/window_content/structure_actions.rs:337
+#: src/window_content/structure_actions.rs:341
 msgid "Rename trigger"
 msgstr "Muuda andmebaasipäästiku nime"
 
-#: src/window_content/structure_actions.rs:343
+#: src/window_content/structure_actions.rs:347
 msgid "Drop column"
 msgstr "Kustuta „DROP“ käsu abil veerg"
 
-#: src/window_content/structure_actions.rs:344
+#: src/window_content/structure_actions.rs:348
 msgid "Drop index"
 msgstr "Kustuta „DROP“ käsu abil indeks"
 
-#: src/window_content/structure_actions.rs:345
+#: src/window_content/structure_actions.rs:349
 msgid "Drop constraint"
 msgstr "Kustuta „DROP“ käsu abil andmebaasipiirang"
 
-#: src/window_content/structure_actions.rs:346
+#: src/window_content/structure_actions.rs:350
 msgid "Drop foreign key"
 msgstr "Kustuta „DROP“ käsu abil välisvõti"
 
-#: src/window_content/structure_actions.rs:347
+#: src/window_content/structure_actions.rs:351
 msgid "Drop trigger"
 msgstr "Kustuta „DROP“ käsu abil andmebaasipäästik"
 
-#: src/window_content/structure_actions.rs:353
+#: src/window_content/structure_actions.rs:357
 #, rust-format
 msgid "Drop column {name} from table {table}?"
 msgstr "Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ veeru?"
 
-#: src/window_content/structure_actions.rs:354
+#: src/window_content/structure_actions.rs:358
 #, rust-format
 msgid "Drop index {name} from table {table}?"
 msgstr "Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ indeksi?"
 
-#: src/window_content/structure_actions.rs:355
+#: src/window_content/structure_actions.rs:359
 #, rust-format
 msgid "Drop constraint {name} from table {table}?"
 msgstr ""
 "Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ andmebaasipiirangu?"
 
-#: src/window_content/structure_actions.rs:356
+#: src/window_content/structure_actions.rs:360
 #, rust-format
 msgid "Drop foreign key {name} from table {table}?"
 msgstr "Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ välisvõtme?"
 
-#: src/window_content/structure_actions.rs:357
+#: src/window_content/structure_actions.rs:361
 #, rust-format
 msgid "Drop trigger {name} from table {table}?"
 msgstr ""
 "Kas kustutad „DROP“ käsuga „{table}“ tabeli „{name}“ andmebaasipäästiku?"
 
-#: src/window_content/structure_actions.rs:368
+#: src/window_content/structure_actions.rs:372
 msgid "Column renamed."
 msgstr "Veeru nimi on muudetud."
 
-#: src/window_content/structure_actions.rs:369
+#: src/window_content/structure_actions.rs:373
 msgid "Index renamed."
 msgstr "Indeksi nimi on muudetud."
 
-#: src/window_content/structure_actions.rs:370
+#: src/window_content/structure_actions.rs:374
 msgid "Constraint renamed."
 msgstr "Andmebaasipiirangu nimi on muudetud."
 
-#: src/window_content/structure_actions.rs:371
+#: src/window_content/structure_actions.rs:375
 msgid "Foreign key renamed."
 msgstr "Välisvõtme nimi on muudetud."
 
-#: src/window_content/structure_actions.rs:372
+#: src/window_content/structure_actions.rs:376
 msgid "Trigger renamed."
 msgstr "Andmbaasipäästiku nimi on muudetud."
 
-#: src/window_content/structure_actions.rs:377
+#: src/window_content/structure_actions.rs:381
 msgid "Column dropped with CASCADE."
 msgstr "Veerg on kustutatud „DROP“ käsuga kasutades „CASCADE“ lisatingimust."
 
-#: src/window_content/structure_actions.rs:378
+#: src/window_content/structure_actions.rs:382
 msgid "Index dropped with CASCADE."
 msgstr "Indeks on kustutatud „DROP“ käsuga kasutades „CASCADE“ lisatingimust."
 
-#: src/window_content/structure_actions.rs:379
+#: src/window_content/structure_actions.rs:383
 msgid "Constraint dropped with CASCADE."
 msgstr ""
 "Andmebaasipiirang on kustutatud „DROP“ käsuga kasutades „CASCADE“ "
 "lisatingimust."
 
-#: src/window_content/structure_actions.rs:380
+#: src/window_content/structure_actions.rs:384
 msgid "Foreign key dropped with CASCADE."
 msgstr ""
 "Välisvõti on kustutatud „DROP“ käsuga kasutades „CASCADE“ lisatingimust."
 
-#: src/window_content/structure_actions.rs:381
+#: src/window_content/structure_actions.rs:385
 msgid "Trigger dropped with CASCADE."
 msgstr ""
 "Andmebaasipäästik on kustutatud „DROP“ käsuga kasutades „CASCADE“ "
 "lisatingimust."
 
-#: src/window_content/structure_actions.rs:386
+#: src/window_content/structure_actions.rs:390
 msgid "Column dropped."
 msgstr "Veerg on kustutatud „DROP“ käsuga."
 
-#: src/window_content/structure_actions.rs:387
+#: src/window_content/structure_actions.rs:391
 msgid "Index dropped."
 msgstr "Indeks on kustutatud „DROP“ käsuga."
 
-#: src/window_content/structure_actions.rs:388
+#: src/window_content/structure_actions.rs:392
 msgid "Constraint dropped."
 msgstr "Andmebaasipiirang on kustutatud „DROP“ käsuga."
 
-#: src/window_content/structure_actions.rs:389
+#: src/window_content/structure_actions.rs:393
 msgid "Foreign key dropped."
 msgstr "Välisvõti on kustutatud „DROP“ käsuga."
 
-#: src/window_content/structure_actions.rs:390
+#: src/window_content/structure_actions.rs:394
 msgid "Trigger dropped."
 msgstr "Andmebaasipäästik on kustutatud „DROP“ käsuga."
 
-#: src/window_content/structure_actions.rs:401
+#: src/window_content/structure_actions.rs:405
 msgid "Dropping with CASCADE failed"
 msgstr ""
 "Kustutamine „DROP“ käsu abil kasutades „CASCADE“ lisatingimust ei õnnestunud"
 
-#: src/window_content/structure_actions.rs:403
+#: src/window_content/structure_actions.rs:407
 msgid "Dropping failed"
 msgstr "Kustutamine „DROP“ käsu abil ei õnnestunud"
 
-#: src/window_content/structure_actions.rs:426
+#: src/window_content/structure_actions.rs:430
 msgid "Drop with CASCADE"
 msgstr "Kustuta „DROP“ käsu abil kasutades „CASCADE“ lisatingimust"
 
-#: src/window_content/structure_actions.rs:465
+#: src/window_content/structure_actions.rs:469
 msgid ""
 "This may also drop dependent views, constraints, indexes, or other database "
 "objects. This cannot be undone."
@@ -732,8 +737,8 @@ msgid ""
 msgstr ""
 
 #: src/window_content/tabs.rs:753 src/models/completion.rs:423
-#: src/ui/components/table_browser.rs:1172 src/ui/components/table_view.rs:443
-#: src/ui/components/table_view.rs:464
+#: src/ui/components/table_browser.rs:1410 src/ui/components/table_view.rs:723
+#: src/ui/components/table_view.rs:744
 msgid "Table"
 msgstr "Tabel"
 
@@ -741,7 +746,7 @@ msgstr "Tabel"
 msgid "Select the tab to load this table."
 msgstr "Selle tabeli laadimiseks vali antud vahekaart."
 
-#: src/window_content/tabs.rs:1062
+#: src/window_content/tabs.rs:1076
 msgid "Query"
 msgstr "Päring"
 
@@ -1036,7 +1041,7 @@ msgid "Row limit"
 msgstr "Ridade piirang"
 
 #: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:217
-#: src/ui/components/table_browser.rs:312 src/ui/components/table_view.rs:189
+#: src/ui/components/table_browser.rs:348 src/ui/components/table_view.rs:373
 msgid "Export CSV"
 msgstr "Ekspordi CSV-failina"
 
@@ -1045,7 +1050,7 @@ msgid "Choose how many rows to export and which delimiter to use."
 msgstr "Vali eksporditavate ridade arv ja kasutatav väljade eraldaja."
 
 #: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:221
-#: src/ui/components/table_browser.rs:316
+#: src/ui/components/table_browser.rs:352
 msgid "Export"
 msgstr "Ekspordi"
 
@@ -1084,7 +1089,7 @@ msgid "No databases match your search."
 msgstr "Ainsamgi andmebaas ei vasta sinu otsingule."
 
 #: src/ui/components/database_selector.rs:237
-#: src/ui/components/table_browser.rs:1189
+#: src/ui/components/table_browser.rs:1427
 msgid "Loading..."
 msgstr "Laadin andmeid..."
 
@@ -1262,12 +1267,13 @@ msgid "History"
 msgstr "Ajalugu"
 
 #: src/ui/components/editor.rs:220
-#: src/ui/components/table_browser/filters.rs:438
+#: src/ui/components/table_browser/filters.rs:440
 msgid "Clear"
 msgstr "Tühjenda"
 
 #: src/ui/components/editor.rs:233
-#: src/ui/components/table_browser/filters.rs:442
+#: src/ui/components/table_browser/cell_editor.rs:99
+#: src/ui/components/table_browser/filters.rs:444
 msgid "Apply"
 msgstr "Rakenda"
 
@@ -1323,15 +1329,15 @@ msgstr "Päring on katkestatud"
 msgid "The query was cancelled."
 msgstr "Päringu töö on katkestatud."
 
-#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:816
+#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:1030
 msgid "Cell copied."
 msgstr "Lahter on kopeeritud."
 
-#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:827
+#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:1041
 msgid "Row copied."
 msgstr "Rida on kopeeritud."
 
-#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:838
+#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:1052
 msgid "Column copied."
 msgstr "Veerg on kopeeritud."
 
@@ -1370,15 +1376,15 @@ msgid_plural "{rows}{limit_suffix} rows"
 msgstr[0] "{rows}{limit_suffix} rida"
 msgstr[1] "{rows}{limit_suffix} rida"
 
-#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1377
+#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1623
 msgid "Copy Cell"
 msgstr "Kopeeri lahter"
 
-#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1378
+#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1624
 msgid "Copy Row"
 msgstr "Kopeeri rida"
 
-#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1379
+#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1625
 msgid "Copy Column"
 msgstr "Kopeeri veerg"
 
@@ -1386,133 +1392,153 @@ msgstr "Kopeeri veerg"
 msgid "Copy Displayed Results"
 msgstr "Kopeeri kuvatud tulemused"
 
-#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1384
+#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1630
 msgid "Export CSV..."
 msgstr "Ekspordi CSV-failina…"
 
-#: src/ui/components/table_browser.rs:304 src/ui/components/table_view.rs:178
+#: src/ui/components/table_browser.rs:338 src/ui/components/table_view.rs:362
 msgid "Show or edit filters"
 msgstr "Näita või muuda filtreid"
 
-#: src/ui/components/table_browser.rs:322 src/ui/components/table_view.rs:201
+#: src/ui/components/table_browser.rs:358 src/ui/components/table_view.rs:385
 msgid "Refresh"
 msgstr "Laadi uuesti"
 
-#: src/ui/components/table_browser.rs:382
+#: src/ui/components/table_browser.rs:448
+#: src/ui/components/table_browser/editing.rs:266
+msgid "Commit"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:470
 msgid "First page"
 msgstr "Esimene leht"
 
-#: src/ui/components/table_browser.rs:392
+#: src/ui/components/table_browser.rs:480
 msgid "Previous page"
 msgstr "Eelmine leht"
 
-#: src/ui/components/table_browser.rs:426
+#: src/ui/components/table_browser.rs:514
 msgid "Next page"
 msgstr "Järgmine leht"
 
-#: src/ui/components/table_browser.rs:436
+#: src/ui/components/table_browser.rs:524
 msgid "Last page"
 msgstr "Viimane leht"
 
-#: src/ui/components/table_browser.rs:448
+#: src/ui/components/table_browser.rs:536
 msgid "Rows"
 msgstr "Ridu"
 
-#: src/ui/components/table_browser.rs:454
+#: src/ui/components/table_browser.rs:544
 msgid "Rows per page"
 msgstr "Ridu lehe kohta"
 
-#: src/ui/components/table_browser.rs:523
+#: src/ui/components/table_browser.rs:633
 msgid "Select a table"
 msgstr "Vali tabel"
 
-#: src/ui/components/table_browser.rs:525
+#: src/ui/components/table_browser.rs:635
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr "Andmeridade vaatamiseks vali külgpaanilt tabel või vaade."
 
-#: src/ui/components/table_browser.rs:736
+#: src/ui/components/table_browser.rs:790
+#, rust-format
+msgid ""
+"Row {row} was changed or deleted by another transaction. No changes were "
+"saved. Discard and reload before editing again."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:795
+msgid ""
+"The connection was lost while confirming the transaction. The changes may "
+"already be saved. Do not retry; discard and reload to check the database."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:799
+msgid ""
+"The changes could not be saved. All updates were rolled back. Correct the "
+"values and try again."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:964
 msgid "Loading table failed"
 msgstr "Tabeli laadimine ei õnnestunud"
 
-#: src/ui/components/table_browser.rs:767
+#: src/ui/components/table_browser.rs:995
 msgid "Loading last page failed"
 msgstr "Viimase lehe laadimine ei õnnestunud"
 
-#: src/ui/components/table_browser.rs:802
-msgid "Saving cell failed"
-msgstr "Lahtri salvestamine ei õnnestunud"
-
-#: src/ui/components/table_browser.rs:847
+#: src/ui/components/table_browser.rs:1061
 msgid "Page copied."
 msgstr "Leht on kopeeritud."
 
-#: src/ui/components/table_browser.rs:925
+#: src/ui/components/table_browser.rs:1139
 msgid "Row inserted."
 msgstr "Rida on lisatud."
 
-#: src/ui/components/table_browser.rs:926
+#: src/ui/components/table_browser.rs:1140
 msgid "Row duplicated."
 msgstr "Rea koopia on tehtud."
 
-#: src/ui/components/table_browser.rs:965
+#: src/ui/components/table_browser.rs:1179
 msgid "Row deleted."
 msgstr "Rida on kustutatud."
 
-#: src/ui/components/table_browser.rs:982
+#: src/ui/components/table_browser.rs:1196
 msgid "Deleting row failed"
 msgstr "Rea kustutamine ei õnnestunud"
 
-#: src/ui/components/table_browser.rs:1148
+#: src/ui/components/table_browser.rs:1386
 msgid "Filter cannot be applied"
 msgstr "Filtri kasutamine pole võimalik"
 
-#: src/ui/components/table_browser.rs:1163
+#: src/ui/components/table_browser.rs:1401
 msgid "Table Browser"
 msgstr "Tabelisirvija"
 
-#: src/ui/components/table_browser.rs:1173 src/ui/components/table_view.rs:465
+#: src/ui/components/table_browser.rs:1411 src/ui/components/table_view.rs:745
 msgid "View"
 msgstr "Vaade"
 
-#: src/ui/components/table_browser.rs:1181
+#: src/ui/components/table_browser.rs:1419
 msgid "Filters"
 msgstr "Filtrid"
 
-#: src/ui/components/table_browser.rs:1183
+#: src/ui/components/table_browser.rs:1421
 #, rust-format
 msgid "Filters ({count})"
 msgstr "Filtrid ({count})"
 
-#: src/ui/components/table_browser.rs:1197
+#: src/ui/components/table_browser.rs:1435
 msgid "No rows"
 msgstr "Ridu pole"
 
-#: src/ui/components/table_browser.rs:1203
+#: src/ui/components/table_browser.rs:1441
 #, rust-format
 msgid "{first}-{last} rows"
 msgstr "{first}-{last} rida"
 
-#: src/ui/components/table_browser.rs:1369
+#: src/ui/components/table_browser.rs:1615
 msgid "Edit Value"
 msgstr "Muuda väärtust"
 
-#: src/ui/components/table_browser.rs:1371
+#: src/ui/components/table_browser.rs:1617
 #: src/ui/components/table_browser/insert_row.rs:252
 msgid "Duplicate Row"
 msgstr "Tee reast koopia"
 
-#: src/ui/components/table_browser.rs:1381
+#: src/ui/components/table_browser.rs:1627
 msgid "Copy Displayed Page"
 msgstr "Kopeeri kuvatud leht"
 
-#: src/ui/components/table_browser.rs:1388
+#: src/ui/components/table_browser.rs:1634
 msgid "Delete Row..."
 msgstr "Kustuta rida…"
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
-#: src/ui/components/table_browser/insert_row.rs:382
-#: src/ui/components/table_browser/insert_row.rs:623
+#: src/ui/components/table_browser/insert_row.rs:384
+#: src/ui/components/table_browser/insert_row.rs:625
 msgid "Value"
 msgstr "Väärtus"
 
@@ -1539,27 +1565,62 @@ msgstr "Kas kustutad rea?"
 msgid "This will permanently delete the selected row."
 msgstr "Järgnevaga kustutad valitud rea jäädavalt."
 
-#: src/ui/components/table_browser/editing.rs:38
+#: src/ui/components/table_browser/editing.rs:56
+msgid ""
+"The database may have committed these changes. Do not retry. Discard and "
+"reload to check the database before editing again."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:60
+#, rust-format
+msgid "Changed cells: {cells}; affected rows: {rows}"
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:122
+msgid "Commit or discard pending edits before continuing."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:156
+msgid "The table is no longer available. Discard and reload before editing."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:170
+msgid ""
+"The original row version is unavailable. Discard and reload before editing."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:255
+msgid "Commit the changes to the database, discard them, or cancel closing."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:258
+msgid "Commit pending edits?"
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:331
+#: src/ui/components/table_browser/editing.rs:347
 msgid "Cell cannot be edited"
 msgstr "Lahtrit ei saa muuta"
 
-#: src/ui/components/table_browser/editing.rs:134
+#: src/ui/components/table_browser/editing.rs:331
+msgid ""
+"This row has no usable version for safe editing. Reload the table and check "
+"its permissions and row-level security policy."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:440
 msgid "Only tables can be edited."
 msgstr "Muuta saad vaid tabeleid."
 
-#: src/ui/components/table_browser/editing.rs:138
+#: src/ui/components/table_browser/editing.rs:444
 msgid "The selected cell is no longer available."
 msgstr "Valitud lahter pole enam saadaval."
 
-#: src/ui/components/table_browser/editing.rs:142
-msgid "Primary key columns are read-only for now."
-msgstr "Primaarvõtme veerud on hetkel vaid vaadatavas olekus."
-
-#: src/ui/components/table_browser/editing.rs:146
+#: src/ui/components/table_browser/editing.rs:448
 msgid "This column type is not editable yet."
 msgstr "See veerutüüp pole hetkel veel muudetav."
 
-#: src/ui/components/table_browser/editing.rs:150
+#: src/ui/components/table_browser/editing.rs:452
 msgid "Editing requires a primary key."
 msgstr "Muutmine eeldab primaarvõtme olemasolu."
 
@@ -1591,11 +1652,11 @@ msgstr "Eemalda filter"
 msgid "SQL expression"
 msgstr "SQL-lausend"
 
-#: src/ui/components/table_browser/filters.rs:435
+#: src/ui/components/table_browser/filters.rs:437
 msgid "Add Filter"
 msgstr "Lisa filter"
 
-#: src/ui/components/table_browser/filters.rs:601
+#: src/ui/components/table_browser/filters.rs:607
 msgid "Custom SQL"
 msgstr "Kohandatud SQL"
 
@@ -1628,7 +1689,7 @@ msgid "Duplicating row into {name} failed"
 msgstr "Rea koopia lisamine „{name}“ tabelisse ei õnnestunud"
 
 #: src/ui/components/table_browser/insert_row.rs:251
-#: src/ui/components/table_view.rs:141
+#: src/ui/components/table_view.rs:325
 msgid "Insert Row"
 msgstr "Lisa rida"
 
@@ -1652,74 +1713,74 @@ msgstr "Lisa"
 msgid "Duplicate"
 msgstr "Tee koopia"
 
-#: src/ui/components/table_browser/insert_row.rs:385
+#: src/ui/components/table_browser/insert_row.rs:387
 msgid "NULL"
 msgstr "NULL"
 
-#: src/ui/components/table_browser/insert_row.rs:389
+#: src/ui/components/table_browser/insert_row.rs:391
 #: src/ui/components/table_structure/columns.rs:83
 msgid "Default"
 msgstr "Vaikimisi"
 
-#: src/ui/components/table_browser/insert_row.rs:423
+#: src/ui/components/table_browser/insert_row.rs:425
 msgid "Skipped"
 msgstr "Vahelejäetud"
 
-#: src/ui/components/table_browser/insert_row.rs:590
+#: src/ui/components/table_browser/insert_row.rs:592
 msgid "Required"
 msgstr "Nõutav"
 
-#: src/ui/components/table_browser/insert_row.rs:592
+#: src/ui/components/table_browser/insert_row.rs:594
 msgid "Default or NULL allowed"
 msgstr "Lubatud on vaikimisi või NULL-väärtus"
 
-#: src/ui/components/table_browser/insert_row.rs:594
+#: src/ui/components/table_browser/insert_row.rs:596
 msgid "Default allowed"
 msgstr "Lubatud on vaikimisi väärtus"
 
-#: src/ui/components/table_browser/insert_row.rs:596
+#: src/ui/components/table_browser/insert_row.rs:598
 msgid "NULL allowed"
 msgstr "Lubatud on NULL-väärtus"
 
-#: src/ui/components/table_browser/insert_row.rs:604
+#: src/ui/components/table_browser/insert_row.rs:606
 msgid "Required column with unsupported type"
 msgstr "Nõutav veerg mittetoetatud tüübiga"
 
-#: src/ui/components/table_browser/insert_row.rs:607
+#: src/ui/components/table_browser/insert_row.rs:609
 msgid "Generated column"
 msgstr "Genereeritud väli"
 
-#: src/ui/components/table_browser/insert_row.rs:610
+#: src/ui/components/table_browser/insert_row.rs:612
 msgid "Identity column"
 msgstr "Identiteediväli"
 
-#: src/ui/components/table_browser/insert_row.rs:613
+#: src/ui/components/table_browser/insert_row.rs:615
 msgid "Unsupported column type"
 msgstr "Veeru/välja tüüp pole toetatud"
 
-#: src/ui/components/table_browser/insert_row.rs:616
+#: src/ui/components/table_browser/insert_row.rs:618
 msgid "Read-only column"
 msgstr "Ainult lugemisõigustes veerg/väli"
 
-#: src/ui/components/table_browser/insert_row.rs:621
+#: src/ui/components/table_browser/insert_row.rs:623
 msgid "Required value"
 msgstr "Nõutav väärtus"
 
-#: src/ui/components/table_browser/loading.rs:36
+#: src/ui/components/table_browser/loading.rs:39
 msgid "Loading rows"
 msgstr "Laadin ridu"
 
-#: src/ui/components/table_browser/loading.rs:37
+#: src/ui/components/table_browser/loading.rs:40
 msgid "Fetching the selected page from PostgreSQL."
 msgstr "Laadin valitud lehte PostgreSQL-i serverist."
 
-#: src/ui/components/table_browser/loading.rs:67
-#: src/ui/components/table_browser/loading.rs:106
+#: src/ui/components/table_browser/loading.rs:70
+#: src/ui/components/table_browser/loading.rs:112
 #: src/ui/components/table_structure.rs:321
 msgid "Loading cancelled"
 msgstr "Laadimine on katkestatud"
 
-#: src/ui/components/table_browser/loading.rs:126
+#: src/ui/components/table_browser/loading.rs:132
 #, rust-format
 msgid ""
 "The table {name} could not be found. It may have been renamed or dropped."
@@ -1727,7 +1788,7 @@ msgstr ""
 "„{name}“ tabelit ei leidu. Tema nimi võib olla muutunud või ta on sootuks "
 "kustutatud."
 
-#: src/ui/components/table_browser/loading.rs:130
+#: src/ui/components/table_browser/loading.rs:136
 #, rust-format
 msgid ""
 "The view {name} could not be found. It may have been renamed or dropped."
@@ -1735,7 +1796,7 @@ msgstr ""
 "„{name}“ vaadet ei leidu. Tema nimi võib olla muutunud või ta on sootuks "
 "kustutatud."
 
-#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:249
+#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:435
 msgid "Structure"
 msgstr "Struktuur"
 
@@ -1874,15 +1935,15 @@ msgstr "Edasilükatud"
 msgid "Deferrable"
 msgstr "Edasilükatav"
 
-#: src/ui/components/table_view.rs:154
+#: src/ui/components/table_view.rs:338
 msgid "Duplicate selected row"
 msgstr "Tee valitud reast koopia"
 
-#: src/ui/components/table_view.rs:165
+#: src/ui/components/table_view.rs:349
 msgid "Delete selected row"
 msgstr "Kustuta valitud rida"
 
-#: src/ui/components/table_view.rs:245
+#: src/ui/components/table_view.rs:431
 msgid "Content"
 msgstr "Sisu"
 
@@ -1925,35 +1986,40 @@ msgstr ""
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:45
 msgid ""
+"Edit multiple cells and rows, then commit all changes in one transaction"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:49
+msgid ""
 "Insert new table rows with defaults, NULL values and PostgreSQL type "
 "validation"
 msgstr ""
 "Uue rea lisamine kasutades vaikimisi või NULL-väärtust ja lastes PostgreSQL-"
 "il teha tüübikontrolli"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:49
+#: data/io.github.anil_e.Codd.metainfo.xml.in:53
 msgid ""
 "Inspect table columns, data types, nullability, defaults and primary keys"
 msgstr ""
 "Tabeli väljade/veergude, andmetüüpide, vaikimisi väärtuste, primaarvõtmete "
 "ja NULL-väärtuse kasutatavuse uurimine"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:53
+#: data/io.github.anil_e.Codd.metainfo.xml.in:57
 msgid ""
 "Review indexes, constraints, foreign keys and triggers in the structure view"
 msgstr ""
 "Struktureeritud ülevaade tabeli indeksitest, andmebaasipiirangutest, "
 "välisvõtmetest ja päästikutest"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:57
+#: data/io.github.anil_e.Codd.metainfo.xml.in:61
 msgid "Edit table structure from native context menus"
 msgstr "Tabeli struktuuri muutmine kontekstimenüüdest"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:61
+#: data/io.github.anil_e.Codd.metainfo.xml.in:65
 msgid "Use table actions like rename, truncate and delete"
 msgstr "Võimalus muuta tabeli nime, selle sisu kustutada või tühjendada"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:65
+#: data/io.github.anil_e.Codd.metainfo.xml.in:69
 msgid "Manage saved PostgreSQL connections"
 msgstr "Salvestatud PostgreSQL-i ühenduste haldus"
 
@@ -2061,6 +2127,12 @@ msgstr "Säti fookus SQL-i muutmisvaatesse"
 msgctxt "shortcut window"
 msgid "Show Suggestions"
 msgstr "Näita soovitusi"
+
+#~ msgid "Saving cell failed"
+#~ msgstr "Lahtri salvestamine ei õnnestunud"
+
+#~ msgid "Primary key columns are read-only for now."
+#~ msgstr "Primaarvõtme veerud on hetkel vaid vaadatavas olekus."
 
 #~ msgid "Reloading table failed"
 #~ msgstr "Tabeli uuesti laadimine ei õnnestunud"

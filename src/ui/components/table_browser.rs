@@ -7,9 +7,11 @@ use relm4::gtk::{gio, glib};
 use relm4::prelude::*;
 use sqlx::PgPool;
 use std::cell::{Cell, RefCell};
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+use crate::db::browser::TableEditError;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::result_copy;
 use crate::models::table_browser::{
@@ -34,6 +36,20 @@ mod loading;
 mod sorting;
 
 pub struct TableBrowser {
+    pending_edits: BTreeMap<(usize, usize), TableCell>,
+    edits_error: Option<String>,
+    commit_unknown: bool,
+    save_request: Option<(u64, u64)>,
+    close_request: Option<u64>,
+    close_discard: bool,
+    close_prepared: bool,
+    close_saved: bool,
+    close_committed: bool,
+    close_backup: Option<DiscardedEdits>,
+    close_dialog: Option<adw::AlertDialog>,
+    deferred_rename: Option<DatabaseObject>,
+    deferred_schema_change: bool,
+    close_interrupted_read: bool,
     pool: Option<PgPool>,
     object: Option<DatabaseObject>,
     page: Option<TablePage>,
@@ -68,9 +84,16 @@ pub struct TableBrowser {
     duplicate_action: gio::SimpleAction,
     delete_action: gio::SimpleAction,
     context_busy: Rc<Cell<bool>>,
+    context_dirty: Rc<Cell<bool>>,
     context_popover: gtk::PopoverMenu,
     style_manager: adw::StyleManager,
     dark_notify_handler: Option<glib::SignalHandlerId>,
+}
+
+struct DiscardedEdits {
+    pending_edits: BTreeMap<(usize, usize), TableCell>,
+    error: Option<String>,
+    commit_unknown: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -105,6 +128,20 @@ impl CopyTarget {
 
 #[derive(Debug)]
 pub enum TableBrowserMsg {
+    SaveEdits,
+    DiscardEdits,
+    EditsSaved {
+        id: u64,
+        generation: u64,
+        result: Result<(), crate::db::browser::TableEditError>,
+    },
+    PrepareEditsClose(u64),
+    CancelEditsClose(u64),
+    CommitEditsClose(u64),
+    EditsCloseResponse {
+        id: u64,
+        response: String,
+    },
     Open {
         pool: PgPool,
         object: DatabaseObject,
@@ -139,12 +176,6 @@ pub enum TableBrowserMsg {
         row_index: usize,
         column_index: usize,
         value: Option<String>,
-    },
-    CellUpdated {
-        page_generation: u64,
-        row_index: usize,
-        column_index: usize,
-        result: Result<TableCell, String>,
     },
     CopyCell {
         row_index: usize,
@@ -186,6 +217,10 @@ pub enum TableBrowserMsg {
 
 #[derive(Debug)]
 pub enum TableBrowserOutput {
+    PendingEditsChanged(bool),
+    EditsClosePrepared(u64),
+    EditsCloseCancelled(u64),
+    EditsCloseCommitted(u64),
     Copied(String),
     Exported(String),
     Inserted(String),
@@ -199,6 +234,11 @@ pub enum TableBrowserOutput {
 
 #[derive(Debug)]
 pub enum TableBrowserCommandOutput {
+    EditsSaved {
+        id: u64,
+        generation: u64,
+        result: Result<(), crate::db::browser::TableEditError>,
+    },
     PageLoaded {
         id: u64,
         result: Result<TablePage, String>,
@@ -206,12 +246,6 @@ pub enum TableBrowserCommandOutput {
     LastPageOffsetLoaded {
         id: u64,
         result: Result<u32, String>,
-    },
-    CellUpdated {
-        page_generation: u64,
-        row_index: usize,
-        column_index: usize,
-        result: Result<TableCell, String>,
     },
     CsvExported(Result<(), String>),
     RowInserted {
@@ -305,6 +339,8 @@ impl Component for TableBrowser {
                     add_css_class: "flat",
                     #[watch]
                     set_visible: model.object.is_some(),
+                    #[watch]
+                    set_sensitive: !model.has_pending_edits() && !model.input_locked(),
                     connect_clicked => TableBrowserMsg::ToggleFilters,
                 },
 
@@ -312,7 +348,7 @@ impl Component for TableBrowser {
                     set_tooltip_text: Some(&gettext("Export CSV")),
                     add_css_class: "flat",
                     #[watch]
-                    set_sensitive: model.object.is_some() && !model.is_loading,
+                    set_sensitive: model.object.is_some() && !model.has_pending_edits() && !model.input_locked(),
                     set_child: Some(&icon_label_widget("document-save-symbolic", &gettext("Export"))),
                     connect_clicked => TableBrowserMsg::ExportCsvRequested,
                 },
@@ -322,7 +358,7 @@ impl Component for TableBrowser {
                     set_tooltip_text: Some(&gettext("Refresh")),
                     add_css_class: "flat",
                     #[watch]
-                    set_sensitive: model.object.is_some() && !model.is_loading,
+                    set_sensitive: model.object.is_some() && !model.has_pending_edits() && !model.input_locked(),
                     connect_clicked => TableBrowserMsg::Refresh,
                 },
             },
@@ -363,6 +399,58 @@ impl Component for TableBrowser {
                     set_vexpand: true,
                     set_policy: (gtk::PolicyType::Automatic, gtk::PolicyType::Automatic),
                     add_css_class: "table-browser-scroller",
+                },
+            },
+
+            gtk::ActionBar {
+                #[watch]
+                set_visible: model.has_pending_edits() || model.edits_error.is_some(),
+
+                pack_start = &gtk::Box {
+                    set_orientation: gtk::Orientation::Vertical,
+                    set_spacing: 6,
+                    set_hexpand: true,
+                    set_valign: gtk::Align::Center,
+
+                    gtk::Label {
+                        set_xalign: 0.0,
+                        set_wrap: true,
+                        add_css_class: "heading",
+                        #[watch]
+                        set_label: &model.pending_edits_label(),
+                    },
+
+                    gtk::Label {
+                        set_xalign: 0.0,
+                        set_wrap: true,
+                        set_selectable: true,
+                        set_wrap_mode: gtk::pango::WrapMode::WordChar,
+                        add_css_class: "error",
+                        #[watch]
+                        set_visible: model.edits_error.is_some(),
+                        #[watch]
+                        set_label: model.edits_error.as_deref().unwrap_or(""),
+                    },
+                },
+
+                pack_end = &gtk::Box {
+                    set_spacing: 8,
+                    set_valign: gtk::Align::Center,
+
+                    gtk::Button {
+                        set_label: &gettext("Discard"),
+                        #[watch]
+                        set_sensitive: !model.is_loading && !model.edits_saving() && model.close_request.is_none(),
+                        connect_clicked => TableBrowserMsg::DiscardEdits,
+                    },
+
+                    gtk::Button {
+                        set_label: &gettext("Commit"),
+                        add_css_class: "suggested-action",
+                        #[watch]
+                        set_sensitive: model.has_pending_edits() && !model.input_locked(),
+                        connect_clicked => TableBrowserMsg::SaveEdits,
+                    },
                 },
             },
 
@@ -449,6 +537,8 @@ impl Component for TableBrowser {
                 },
 
                 gtk::DropDown {
+                    #[watch]
+                    set_sensitive: !model.has_pending_edits() && !model.input_locked(),
                     set_valign: gtk::Align::Center,
                     add_css_class: "compact",
                     set_tooltip_text: Some(&gettext("Rows per page")),
@@ -459,7 +549,7 @@ impl Component for TableBrowser {
                         let selected = dropdown.selected() as usize;
 
                         if let Some(page_size) = PAGE_SIZE_OPTIONS.get(selected).copied() {
-                            sender.input(TableBrowserMsg::PageSizeChanged(page_size));
+                            let _ = sender.input_sender().send(TableBrowserMsg::PageSizeChanged(page_size));
                         }
                     },
                 },
@@ -480,7 +570,11 @@ impl Component for TableBrowser {
         selection.connect_selected_notify({
             let sender = sender.clone();
 
-            move |_| sender.input(TableBrowserMsg::SelectionChanged)
+            move |_| {
+                let _ = sender
+                    .input_sender()
+                    .send(TableBrowserMsg::SelectionChanged);
+            }
         });
 
         let table_view = gtk::ColumnView::new(Some(selection.clone()));
@@ -510,11 +604,27 @@ impl Component for TableBrowser {
         let dark_notify_handler = {
             let sender = sender.clone();
             style_manager.connect_dark_notify(move |_| {
-                sender.input(TableBrowserMsg::AppearanceChanged);
+                let _ = sender
+                    .input_sender()
+                    .send(TableBrowserMsg::AppearanceChanged);
             })
         };
 
         let model = TableBrowser {
+            pending_edits: BTreeMap::new(),
+            edits_error: None,
+            commit_unknown: false,
+            save_request: None,
+            close_request: None,
+            close_discard: false,
+            close_prepared: false,
+            close_saved: false,
+            close_committed: false,
+            close_backup: None,
+            close_dialog: None,
+            deferred_rename: None,
+            deferred_schema_change: false,
+            close_interrupted_read: false,
             pool: None,
             object: None,
             page: None,
@@ -551,6 +661,7 @@ impl Component for TableBrowser {
             duplicate_action,
             delete_action,
             context_busy,
+            context_dirty: Rc::new(Cell::new(false)),
             context_popover,
             style_manager,
             dark_notify_handler: Some(dark_notify_handler),
@@ -579,7 +690,143 @@ impl Component for TableBrowser {
         sender: ComponentSender<Self>,
         root: &Self::Root,
     ) {
+        if self.reject_input(&msg, &sender) {
+            if matches!(msg, TableBrowserMsg::FilterEvent(_)) {
+                self.rebuild_filters(widgets, &sender);
+            }
+
+            self.update_view(widgets, sender);
+            return;
+        }
+
         match msg {
+            TableBrowserMsg::SaveEdits => {
+                if self.close_request.is_none() {
+                    self.save_edits(&sender);
+                }
+            }
+
+            TableBrowserMsg::DiscardEdits => {
+                if !self.is_loading && !self.edits_saving() && self.close_request.is_none() {
+                    let reload = self.commit_unknown;
+
+                    self.discard_edits(&sender);
+                    render_table(self, &sender);
+
+                    if reload {
+                        self.load_page(widgets, &sender);
+                    }
+                }
+            }
+
+            TableBrowserMsg::PrepareEditsClose(id) => self.prepare_edits_close(id, root, &sender),
+
+            TableBrowserMsg::CancelEditsClose(id) => {
+                let matching = self.close_request == Some(id);
+                let reload = matching && (self.close_saved || self.close_interrupted_read);
+
+                self.cancel_edits_close(id, &sender);
+
+                if matching {
+                    self.close_interrupted_read = false;
+                }
+
+                if matching {
+                    render_table(self, &sender);
+                }
+
+                if reload {
+                    self.load_page(widgets, &sender);
+                }
+            }
+
+            TableBrowserMsg::CommitEditsClose(id) => {
+                if self.close_request == Some(id) && self.close_prepared && !self.edits_saving() {
+                    if self.close_discard && !self.close_committed {
+                        self.close_backup = Some(DiscardedEdits {
+                            pending_edits: self.pending_edits.clone(),
+                            error: self.edits_error.clone(),
+                            commit_unknown: self.commit_unknown,
+                        });
+                        self.discard_edits(&sender);
+                        render_table(self, &sender);
+                    }
+
+                    self.close_committed = true;
+                    let _ = sender.output(TableBrowserOutput::EditsCloseCommitted(id));
+                } else {
+                    let _ = sender.output(TableBrowserOutput::EditsCloseCancelled(id));
+                }
+            }
+
+            TableBrowserMsg::EditsCloseResponse { id, response } => {
+                if self.close_request == Some(id) && !self.close_prepared && !self.edits_saving() {
+                    self.close_dialog = None;
+
+                    match response.as_str() {
+                        "discard" => {
+                            self.close_discard = true;
+                            self.close_prepared = true;
+                            let _ = sender.output(TableBrowserOutput::EditsClosePrepared(id));
+                        }
+                        "save" if !self.commit_unknown => self.save_edits(&sender),
+                        _ => self.cancel_edits_close(id, &sender),
+                    }
+                }
+            }
+
+            TableBrowserMsg::EditsSaved {
+                id,
+                generation,
+                result,
+            } => {
+                if self.save_request != Some((id, generation)) || generation != self.page_generation
+                {
+                    return;
+                }
+
+                self.save_request = None;
+                self.is_loading = false;
+                self.context_busy.set(self.close_request.is_some());
+                let _ = sender.output(TableBrowserOutput::BusyChanged(false));
+
+                match result {
+                    Ok(()) => {
+                        self.discard_edits(&sender);
+
+                        if let Some(id) = self.close_request {
+                            self.close_saved = true;
+                            self.close_prepared = true;
+                            let _ = sender.output(TableBrowserOutput::EditsClosePrepared(id));
+                        } else {
+                            self.load_page(widgets, &sender);
+                        }
+                    }
+
+                    Err(error) => {
+                        self.commit_unknown = matches!(error, TableEditError::CommitUnknown(_));
+                        self.edits_error = Some(match error {
+                            TableEditError::Conflict { row_index } => gettext(
+                                "Row {row} was changed or deleted by another transaction. No changes were saved. Discard and reload before editing again.",
+                            )
+                            .replace("{row}", &(row_index + 1).to_string()),
+                            TableEditError::CommitUnknown(details) => format!(
+                                "{}\n{details}",
+                                gettext("The connection was lost while confirming the transaction. The changes may already be saved. Do not retry; discard and reload to check the database.")
+                            ),
+                            TableEditError::Failed(details) => format!(
+                                "{}\n{details}",
+                                gettext("The changes could not be saved. All updates were rolled back. Correct the values and try again.")
+                            ),
+                        });
+
+                        if let Some(id) = self.close_request {
+                            self.cancel_edits_close(id, &sender);
+                        }
+                    }
+                }
+            }
+
             TableBrowserMsg::Open { pool, object } => {
                 self.close_context_menu();
                 self.clear_selection();
@@ -699,7 +946,10 @@ impl Component for TableBrowser {
             }
 
             TableBrowserMsg::PageLoaded { id, result } => {
-                if self.active_request_id != Some(id) {
+                if self.active_request_id != Some(id)
+                    || self.has_pending_edits()
+                    || self.edits_saving()
+                {
                     return;
                 }
 
@@ -717,6 +967,7 @@ impl Component for TableBrowser {
                         self.status_title.clear();
                         self.status_description = None;
                         self.available_columns.clone_from(&page.columns);
+
                         if self.sort.as_ref().is_some_and(|sort| {
                             !page
                                 .columns
@@ -726,6 +977,7 @@ impl Component for TableBrowser {
                             self.sort = None;
                             sync_sort_indicator(&self.table_view, self.sort.as_ref());
                         }
+
                         self.page = Some(page);
                         self.page_generation = self.page_generation.wrapping_add(1);
                         self.clear_selection();
@@ -787,21 +1039,7 @@ impl Component for TableBrowser {
                 column_index,
                 value,
             } => {
-                self.update_cell(page_generation, row_index, column_index, value, &sender);
-            }
-
-            TableBrowserMsg::CellUpdated {
-                page_generation,
-                row_index,
-                column_index,
-                result,
-            } => {
-                if let Err(error) =
-                    self.handle_cell_updated(page_generation, row_index, column_index, result)
-                {
-                    self.show_warning(root, &gettext("Saving cell failed"), &error);
-                }
-
+                self.stage_cell(page_generation, row_index, column_index, value, &sender);
                 render_table(self, &sender);
             }
 
@@ -810,7 +1048,7 @@ impl Component for TableBrowser {
                 column_index,
             } => {
                 self.copy_text(
-                    self.page
+                    self.displayed_page()
                         .as_ref()
                         .and_then(|page| result_copy::page_cell(page, row_index, column_index)),
                     gettext("Cell copied."),
@@ -821,7 +1059,7 @@ impl Component for TableBrowser {
 
             TableBrowserMsg::CopyRow(row_index) => {
                 self.copy_text(
-                    self.page
+                    self.displayed_page()
                         .as_ref()
                         .and_then(|page| result_copy::page_row(page, row_index)),
                     gettext("Row copied."),
@@ -832,7 +1070,7 @@ impl Component for TableBrowser {
 
             TableBrowserMsg::CopyColumn(column_index) => {
                 self.copy_text(
-                    self.page
+                    self.displayed_page()
                         .as_ref()
                         .and_then(|page| result_copy::page_column(page, column_index)),
                     gettext("Column copied."),
@@ -843,7 +1081,7 @@ impl Component for TableBrowser {
 
             TableBrowserMsg::CopyPage => {
                 self.copy_text(
-                    self.page.as_ref().map(result_copy::page),
+                    self.displayed_page().as_ref().map(result_copy::page),
                     gettext("Page copied."),
                     &sender,
                 );
@@ -1012,6 +1250,38 @@ impl Component for TableBrowser {
             }
         }
 
+        if !self.authoritative_changes_blocked() {
+            let renamed = self.deferred_rename.take();
+            let reset = std::mem::take(&mut self.deferred_schema_change);
+
+            if let Some(object) = renamed.as_ref() {
+                self.object = Some(object.clone());
+            }
+
+            if reset || renamed.is_some() {
+                self.close_context_menu();
+                self.clear_selection();
+                close_popover(&mut self.edit_popover);
+                self.offset = 0;
+
+                if reset {
+                    self.available_columns.clear();
+                    self.draft_filters.clear();
+                    self.active_filters.clear();
+                    self.sort = None;
+                    self.filters_expanded = false;
+                    sync_sort_indicator(&self.table_view, None);
+                }
+
+                self.load_page(widgets, &sender);
+            }
+        }
+
+        self.context_busy.set(self.input_locked());
+        self.filter_panel
+            .set_sensitive(!self.has_pending_edits() && !self.input_locked());
+        self.table_view.set_sensitive(!self.input_locked());
+
         self.update_view(widgets, sender);
     }
 
@@ -1022,23 +1292,21 @@ impl Component for TableBrowser {
         _root: &Self::Root,
     ) {
         sender.input(match msg {
+            TableBrowserCommandOutput::EditsSaved {
+                id,
+                generation,
+                result,
+            } => TableBrowserMsg::EditsSaved {
+                id,
+                generation,
+                result,
+            },
             TableBrowserCommandOutput::PageLoaded { id, result } => {
                 TableBrowserMsg::PageLoaded { id, result }
             }
             TableBrowserCommandOutput::LastPageOffsetLoaded { id, result } => {
                 TableBrowserMsg::LastPageOffsetLoaded { id, result }
             }
-            TableBrowserCommandOutput::CellUpdated {
-                page_generation,
-                row_index,
-                column_index,
-                result,
-            } => TableBrowserMsg::CellUpdated {
-                page_generation,
-                row_index,
-                column_index,
-                result,
-            },
             TableBrowserCommandOutput::CsvExported(result) => TableBrowserMsg::CsvExported(result),
             TableBrowserCommandOutput::RowInserted { id, result } => {
                 TableBrowserMsg::RowInserted { id, result }
@@ -1213,11 +1481,13 @@ impl TableBrowser {
     }
 
     fn can_go_previous(&self) -> bool {
-        !self.is_loading && self.offset > 0
+        !self.input_locked() && !self.has_pending_edits() && self.offset > 0
     }
 
     fn can_go_next(&self) -> bool {
-        !self.is_loading && self.page.as_ref().is_some_and(|page| page.has_next_page)
+        !self.input_locked()
+            && !self.has_pending_edits()
+            && self.page.as_ref().is_some_and(|page| page.has_next_page)
     }
 
     fn selected_row_index(&self) -> Option<usize> {
@@ -1256,7 +1526,10 @@ impl TableBrowser {
     }
 
     pub(super) fn can_delete_selected_row(&self) -> bool {
-        !self.is_loading && self.can_delete_rows() && self.selected_row().is_some()
+        !self.input_locked()
+            && !self.has_pending_edits()
+            && self.can_delete_rows()
+            && self.selected_row().is_some()
     }
 
     fn can_duplicate_selected_row(&self) -> bool {
@@ -1264,7 +1537,8 @@ impl TableBrowser {
             return false;
         };
 
-        !self.is_loading
+        !self.input_locked()
+            && !self.has_pending_edits()
             && page.object.kind == DatabaseObjectKind::Table
             && self.selected_row().is_some()
     }
@@ -1308,7 +1582,9 @@ impl TableBrowser {
             let sender = sender.clone();
 
             show_csv_save_dialog(parent.as_ref(), initial_name, move |path| {
-                sender.input(TableBrowserMsg::ExportCsvConfirmed { options, path });
+                let _ = sender
+                    .input_sender()
+                    .send(TableBrowserMsg::ExportCsvConfirmed { options, path });
             });
         });
     }
@@ -1404,7 +1680,9 @@ fn delete_key_controller(sender: &ComponentSender<TableBrowser>) -> gtk::EventCo
                 | gtk::gdk::ModifierType::META_MASK;
 
             if key == gtk::gdk::Key::Delete && !state.intersects(shortcut_modifiers) {
-                sender.input(TableBrowserMsg::DeleteSelectedRowRequested);
+                let _ = sender
+                    .input_sender()
+                    .send(TableBrowserMsg::DeleteSelectedRowRequested);
                 glib::Propagation::Stop
             } else {
                 glib::Propagation::Proceed
@@ -1437,11 +1715,13 @@ fn context_action_group(
                 return;
             };
 
-            sender.input(TableBrowserMsg::EditCellFromMenu {
-                anchor: target.anchor,
-                row_index: target.row_index,
-                column_index: target.column_index,
-            });
+            let _ = sender
+                .input_sender()
+                .send(TableBrowserMsg::EditCellFromMenu {
+                    anchor: target.anchor,
+                    row_index: target.row_index,
+                    column_index: target.column_index,
+                });
         }
     });
     action_group.add_action(&edit_action);
@@ -1452,7 +1732,9 @@ fn context_action_group(
         let sender = sender.clone();
 
         move |_, _| {
-            sender.input(TableBrowserMsg::DuplicateSelectedRowRequested);
+            let _ = sender
+                .input_sender()
+                .send(TableBrowserMsg::DuplicateSelectedRowRequested);
         }
     });
     action_group.add_action(&duplicate_action);
@@ -1463,7 +1745,9 @@ fn context_action_group(
         let sender = sender.clone();
 
         move |_, _| {
-            sender.input(TableBrowserMsg::DeleteSelectedRowRequested);
+            let _ = sender
+                .input_sender()
+                .send(TableBrowserMsg::DeleteSelectedRowRequested);
         }
     });
     action_group.add_action(&delete_action);
@@ -1483,7 +1767,9 @@ fn context_action_group(
 
         simple_action.connect_activate(move |_, _| {
             if name == "export-csv" {
-                sender.input(TableBrowserMsg::ExportCsvRequested);
+                let _ = sender
+                    .input_sender()
+                    .send(TableBrowserMsg::ExportCsvRequested);
                 return;
             }
 
@@ -1491,7 +1777,7 @@ fn context_action_group(
                 return;
             };
 
-            sender.input(match name {
+            let _ = sender.input_sender().send(match name {
                 "copy-cell" => target.cell_message(),
                 "copy-row" => target.row_message(),
                 "copy-column" => target.column_message(),

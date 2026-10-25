@@ -308,12 +308,14 @@ fn show_insert_row_dialog(
         }
 
         let values = insert_values(&columns, &inputs);
-        sender.input(TableBrowserMsg::InsertRowConfirmed(InsertRowRequest {
-            kind,
-            object,
-            columns: columns.as_ref().clone(),
-            values,
-        }));
+        let _ = sender
+            .input_sender()
+            .send(TableBrowserMsg::InsertRowConfirmed(InsertRowRequest {
+                kind,
+                object,
+                columns: columns.as_ref().clone(),
+                values,
+            }));
     });
 }
 

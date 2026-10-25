@@ -116,6 +116,7 @@ struct BrowseTab {
     stack: gtk::Stack,
     view: Option<Controller<TableView>>,
     loaded: bool,
+    pending_edits: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -740,6 +741,25 @@ impl Component for WindowContent {
             }
             WindowContentMsg::BrowseTabOutput {
                 tab_id,
+                output: TableViewOutput::PendingEditsChanged(pending),
+            } => {
+                if let Some(tab) = self.browse_tabs.iter_mut().find(|tab| tab.id == tab_id) {
+                    tab.pending_edits = pending;
+
+                    let icon = gio::ThemedIcon::new("edit-symbolic");
+                    tab.page.set_indicator_icon(pending.then_some(&icon));
+                    tab.page.set_needs_attention(pending);
+                }
+            }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
+                output:
+                    output @ (TableViewOutput::EditsClosePrepared(_)
+                    | TableViewOutput::EditsCloseCancelled(_)
+                    | TableViewOutput::EditsCloseCommitted(_)),
+            } => self.table_close_output(tab_id, output, widgets, root, &sender),
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
                 output: TableViewOutput::Copied(message),
             } => {
                 if self.browse_tabs.iter().any(|tab| tab.id == tab_id) {
@@ -1195,6 +1215,46 @@ impl WorkspaceNavigation {
 }
 
 impl WindowContent {
+    pub fn has_pending_table_edits(&self) -> bool {
+        self.browse_tabs.iter().any(|tab| {
+            tab.pending_edits
+                || tab
+                    .view
+                    .as_ref()
+                    .is_some_and(|view| view.model().has_pending_edits())
+        })
+    }
+
+    pub fn table_edits_saving(&self) -> bool {
+        self.browse_tabs.iter().any(|tab| {
+            tab.view
+                .as_ref()
+                .is_some_and(|view| view.model().edits_saving())
+        })
+    }
+
+    fn table_navigation_blocked(&self, widgets: &WindowContentWidgets) -> bool {
+        let blocked = self.has_pending_table_edits() || self.table_edits_saving();
+
+        if blocked {
+            widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                "Commit or discard pending table edits first.",
+            )));
+        }
+
+        blocked
+    }
+
+    fn relation_edits_pending(&self, object: &DatabaseObject) -> bool {
+        self.browse_tabs.iter().any(|tab| {
+            tab.object == *object
+                && (tab.pending_edits
+                    || tab.view.as_ref().is_some_and(|view| {
+                        view.model().has_pending_edits() || view.model().edits_saving()
+                    }))
+        })
+    }
+
     fn handle_window_event(
         &mut self,
         event: WindowContentEvent,
@@ -1376,6 +1436,12 @@ impl WindowContent {
     }
 
     fn show_start_screen(&mut self, widgets: &mut WindowContentWidgets) {
+        if self.table_navigation_blocked(widgets) {
+            self.documents.disconnect_pending = false;
+
+            return;
+        }
+
         if self.file_operation_pending() || self.close_preparation_pending() {
             self.documents.disconnect_pending = true;
             widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
@@ -1460,6 +1526,12 @@ impl WindowContent {
         sender: &ComponentSender<Self>,
         root: &adw::ToolbarView,
     ) {
+        if self.table_navigation_blocked(widgets) {
+            self.connection_dialog = None;
+
+            return;
+        }
+
         if self.file_operation_pending() || self.close_preparation_pending() {
             self.documents.deferred_connection = Some((details, postgres));
             return;

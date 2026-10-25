@@ -6,6 +6,8 @@ pub(super) struct TableBrowserSql {
     pub(super) filter_values: Vec<String>,
 }
 
+pub(super) const ROW_VERSION_SQL: &str = "tableoid::text || ':' || ctid::text || ':' || xmin::text";
+
 struct TableFilterClause {
     sql: String,
     values: Vec<String>,
@@ -49,7 +51,7 @@ pub(super) fn table_page_sql(
     offset: u32,
     page_size: u32,
 ) -> Result<String, TableFilterError> {
-    table_page_sql_with_filters(object, columns, offset, page_size, &[], None)
+    table_page_sql_with_filters(object, columns, offset, page_size, &[], None, false)
         .map(|query| query.sql)
 }
 
@@ -72,6 +74,7 @@ fn where_clause(
         match filter {
             TableFilter::CustomSql { expression } => {
                 let expression = expression.trim();
+
                 if expression.is_empty() || !is_valid_custom_sql_filter(expression) {
                     return Err(TableFilterError::InvalidCustomSql);
                 }
@@ -185,15 +188,22 @@ pub(super) fn table_page_sql_with_filters(
     page_size: u32,
     filters: &[TableFilter],
     sort: Option<&TableSort>,
+    include_version: bool,
 ) -> Result<TableBrowserSql, TableFilterError> {
     let fetch_limit = page_size.saturating_add(1);
     let select_columns = select_columns_clause(columns);
+    let projection = if include_version {
+        format!("{ROW_VERSION_SQL}, {select_columns}")
+    } else {
+        select_columns
+    };
+
     let where_clause = where_clause(columns, filters)?;
     let order_by = order_by_clause(object, columns, sort);
 
     Ok(TableBrowserSql {
         sql: format!(
-            "SELECT {select_columns} FROM {}{}{order_by} LIMIT {fetch_limit} OFFSET {offset}",
+            "SELECT {projection} FROM {}{}{order_by} LIMIT {fetch_limit} OFFSET {offset}",
             object.qualified_name(),
             where_clause.sql,
         ),
@@ -264,16 +274,6 @@ fn select_column_expression(column: &TableColumn) -> String {
 
     if column.uses_text_display() {
         return format!("{name}::text AS {name}");
-    }
-
-    name
-}
-
-pub(super) fn returning_column_expression(column: &TableColumn) -> String {
-    let name = quote_identifier(&column.name);
-
-    if column.uses_text_display() {
-        return format!("{name}::text");
     }
 
     name

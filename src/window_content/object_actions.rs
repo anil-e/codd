@@ -274,6 +274,15 @@ impl WindowContent {
         widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        if self.relation_edits_pending(request.object())
+            || (matches!(&request, ObjectActionRequest::Truncate { options, .. } if options.cascade)
+                && self.has_pending_table_edits())
+        {
+            self.table_navigation_blocked(widgets);
+
+            return;
+        }
+
         let Some(pool) = self.active_pool.clone() else {
             return;
         };

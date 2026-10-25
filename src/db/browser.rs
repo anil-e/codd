@@ -1,15 +1,18 @@
 use crate::db::query;
 use crate::models::csv_export::CsvExportOptions;
-use crate::models::database_object::DatabaseObject;
+use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::table_browser::{TableCell, TableColumn, TableFilter, TablePage, TableSort};
+use sqlx::postgres::{PgDatabaseError, PgErrorPosition};
 use sqlx::{Column, PgPool, Row, TypeInfo};
 
 mod columns;
 mod editing;
 mod page_sql;
+mod transaction;
 
 pub use columns::load_table_columns;
-pub use editing::{delete_table_row, insert_table_row, update_table_cell};
+pub use editing::{delete_table_row, insert_table_row};
+pub use transaction::{TableEditError, apply_table_edits};
 
 pub async fn load_table_page(
     pool: &PgPool,
@@ -20,17 +23,20 @@ pub async fn load_table_page(
     sort: Option<&TableSort>,
 ) -> Result<TablePage, sqlx::Error> {
     let columns = load_table_columns(pool, object).await?;
-    let mut rows = load_page_rows(pool, object, &columns, offset, page_size, filters, sort).await?;
+    let (mut rows, mut row_versions) =
+        load_page_rows(pool, object, &columns, offset, page_size, filters, sort).await?;
     let has_next_page = rows.len() > page_size as usize;
 
     if has_next_page {
         rows.truncate(page_size as usize);
+        row_versions.truncate(page_size as usize);
     }
 
     Ok(TablePage {
         object: object.clone(),
         columns,
         rows,
+        row_versions,
         offset,
         page_size,
         has_next_page,
@@ -69,6 +75,7 @@ pub async fn export_table_page(
         object: object.clone(),
         columns,
         rows,
+        row_versions: Vec::new(),
         offset: 0,
         page_size,
         has_next_page: false,
@@ -83,17 +90,61 @@ async fn load_page_rows(
     page_size: u32,
     filters: &[TableFilter],
     sort: Option<&TableSort>,
-) -> Result<Vec<Vec<TableCell>>, sqlx::Error> {
-    let query =
-        page_sql::table_page_sql_with_filters(object, columns, offset, page_size, filters, sort)
-            .map_err(|error| sqlx::Error::Protocol(error.to_string()))?;
+) -> Result<(Vec<Vec<TableCell>>, Vec<String>), sqlx::Error> {
+    let mut has_versions = object.kind == DatabaseObjectKind::Table;
+    let query = page_sql::table_page_sql_with_filters(
+        object,
+        columns,
+        offset,
+        page_size,
+        filters,
+        sort,
+        has_versions,
+    )
+    .map_err(|error| sqlx::Error::Protocol(error.to_string()))?;
+
     let mut sqlx_query = sqlx::query(&query.sql);
 
-    for value in query.filter_values {
+    for value in &query.filter_values {
         sqlx_query = sqlx_query.bind(value);
     }
 
-    let rows = sqlx_query.fetch_all(pool).await?;
+    let rows = match sqlx_query.fetch_all(pool).await {
+        Err(sqlx::Error::Database(error))
+            if has_versions
+                && (error.code().as_deref() == Some("42501")
+                    || (error.code().as_deref() == Some("42703")
+                        && error.try_downcast_ref::<PgDatabaseError>()
+                            .and_then(PgDatabaseError::position)
+                            .is_some_and(|position| matches!(position,
+                                PgErrorPosition::Original(position)
+                                    if (8..=7 + page_sql::ROW_VERSION_SQL.len()).contains(&position))))) =>
+        {
+            has_versions = false;
+
+            let fallback = page_sql::table_page_sql_with_filters(
+                object, columns, offset, page_size, filters, sort, false,
+            )
+            .map_err(|error| sqlx::Error::Protocol(error.to_string()))?;
+
+            let mut sqlx_query = sqlx::query(&fallback.sql);
+
+            for value in &fallback.filter_values {
+                sqlx_query = sqlx_query.bind(value);
+            }
+
+            sqlx_query.fetch_all(pool).await?
+        }
+        result => result?,
+    };
+
+    let row_versions = if has_versions {
+        rows.iter()
+            .map(|row| row.try_get::<String, _>(0))
+            .collect::<Result<Vec<_>, _>>()?
+    } else {
+        Vec::new()
+    };
 
     let rows = rows
         .iter()
@@ -101,12 +152,13 @@ async fn load_page_rows(
             row.columns()
                 .iter()
                 .enumerate()
+                .skip(usize::from(has_versions))
                 .map(|(index, column)| query::value_to_cell(row, index, column.type_info().name()))
                 .collect()
         })
         .collect();
 
-    Ok(rows)
+    Ok((rows, row_versions))
 }
 
 async fn load_export_rows(
@@ -148,8 +200,7 @@ mod tests {
     use super::{
         editing::{
             TableCellUpdateError, TableRowDeleteError, TableRowInsertError, delete_row_sql,
-            insert_row_sql, update_cell_sql, validate_delete_input, validate_insert_input,
-            validate_update_input,
+            insert_row_sql, validate_delete_input, validate_insert_input, validate_update_input,
         },
         page_sql::{
             TableFilterError, order_by_clause, table_count_sql_with_filters,
@@ -287,6 +338,7 @@ mod tests {
                 ),
             ],
             None,
+            false,
         )
         .unwrap();
 
@@ -320,6 +372,7 @@ mod tests {
                 None,
             )],
             None,
+            false,
         )
         .unwrap();
 
@@ -353,6 +406,7 @@ mod tests {
                 filter("status", FilterOperator::ILike, Some("%paid%")),
             ],
             None,
+            false,
         )
         .unwrap();
 
@@ -378,6 +432,7 @@ mod tests {
             100,
             &[TableFilter::custom_sql("lower(name) LIKE 'a%'")],
             None,
+            false,
         )
         .unwrap();
 
@@ -427,7 +482,8 @@ mod tests {
                 0,
                 100,
                 &[TableFilter::custom_sql("true; DROP TABLE users")],
-                None
+                None,
+                false
             ),
             Err(TableFilterError::InvalidCustomSql)
         ));
@@ -439,7 +495,8 @@ mod tests {
                 0,
                 100,
                 &[TableFilter::custom_sql("name = $1")],
-                None
+                None,
+                false
             ),
             Err(TableFilterError::InvalidCustomSql)
         ));
@@ -460,7 +517,8 @@ mod tests {
                 0,
                 100,
                 &[filter("missing", FilterOperator::Equal, Some("1"))],
-                None
+                None,
+                false
             ),
             Err(TableFilterError::UnknownColumn(column)) if column == "missing"
         ));
@@ -485,7 +543,8 @@ mod tests {
                 0,
                 100,
                 &[filter("payload", FilterOperator::Equal, Some("{}"))],
-                None
+                None,
+                false
             ),
             Err(TableFilterError::UnsupportedOperator { .. })
         ));
@@ -512,8 +571,8 @@ mod tests {
         let columns = vec![column("id", true), column("name", false)];
         let sort = TableSort::new("name".to_string(), SortDirection::Descending);
 
-        let query =
-            table_page_sql_with_filters(&object, &columns, 0, 100, &[], Some(&sort)).unwrap();
+        let query = table_page_sql_with_filters(&object, &columns, 0, 100, &[], Some(&sort), false)
+            .unwrap();
 
         assert_eq!(
             query.sql,
@@ -522,80 +581,7 @@ mod tests {
     }
 
     #[test]
-    fn update_cell_query_uses_primary_key_and_returns_updated_value() {
-        let object = DatabaseObject {
-            schema: "public".to_string(),
-            name: "users".to_string(),
-            kind: DatabaseObjectKind::Table,
-        };
-        let columns = vec![column("id", true), column("display name", false)];
-
-        assert_eq!(
-            update_cell_sql(&object, &columns, 1).unwrap(),
-            "UPDATE \"public\".\"users\" SET \"display name\" = $1::text WHERE \"id\" IS NOT DISTINCT FROM $2::text RETURNING \"display name\""
-        );
-    }
-
-    #[test]
-    fn update_cell_query_supports_composite_primary_keys() {
-        let object = DatabaseObject {
-            schema: "tenant data".to_string(),
-            name: "settings".to_string(),
-            kind: DatabaseObjectKind::Table,
-        };
-        let columns = vec![
-            column("tenant id", true),
-            column("key", true),
-            column("value", false),
-        ];
-
-        assert_eq!(
-            update_cell_sql(&object, &columns, 2).unwrap(),
-            "UPDATE \"tenant data\".\"settings\" SET \"value\" = $1::text WHERE \"tenant id\" IS NOT DISTINCT FROM $2::text AND \"key\" IS NOT DISTINCT FROM $3::text RETURNING \"value\""
-        );
-    }
-
-    #[test]
-    fn update_cell_query_returns_text_display_values_as_text() {
-        let object = DatabaseObject {
-            schema: "public".to_string(),
-            name: "orders".to_string(),
-            kind: DatabaseObjectKind::Table,
-        };
-
-        assert_eq!(
-            update_cell_sql(
-                &object,
-                &[column("id", true), uuid_column("public_id", false)],
-                1
-            )
-            .unwrap(),
-            "UPDATE \"public\".\"orders\" SET \"public_id\" = $1::uuid WHERE \"id\" IS NOT DISTINCT FROM $2::text RETURNING \"public_id\"::text"
-        );
-
-        assert_eq!(
-            update_cell_sql(
-                &object,
-                &[column("id", true), enum_column("status", false)],
-                1
-            )
-            .unwrap(),
-            "UPDATE \"public\".\"orders\" SET \"status\" = $1::public.order_status WHERE \"id\" IS NOT DISTINCT FROM $2::text RETURNING \"status\"::text"
-        );
-
-        assert_eq!(
-            update_cell_sql(
-                &object,
-                &[column("id", true), numeric_column("amount", false)],
-                1
-            )
-            .unwrap(),
-            "UPDATE \"public\".\"orders\" SET \"amount\" = $1::numeric(14,4) WHERE \"id\" IS NOT DISTINCT FROM $2::text RETURNING \"amount\"::text"
-        );
-    }
-
-    #[test]
-    fn update_cell_query_rejects_unknown_column() {
+    fn cell_update_rejects_unknown_column() {
         let object = DatabaseObject {
             schema: "public".to_string(),
             name: "users".to_string(),
@@ -603,13 +589,18 @@ mod tests {
         };
 
         assert!(matches!(
-            update_cell_sql(&object, &[column("id", true)], 3),
+            validate_update_input(
+                &object,
+                &[column("id", true)],
+                &[TableCell::new("1".to_string())],
+                3
+            ),
             Err(TableCellUpdateError::InvalidCell)
         ));
     }
 
     #[test]
-    fn update_cell_query_rejects_missing_primary_key() {
+    fn cell_update_rejects_missing_primary_key() {
         let object = DatabaseObject {
             schema: "public".to_string(),
             name: "users".to_string(),
@@ -617,7 +608,12 @@ mod tests {
         };
 
         assert!(matches!(
-            update_cell_sql(&object, &[column("name", false)], 0),
+            validate_update_input(
+                &object,
+                &[column("name", false)],
+                &[TableCell::new("Ada".to_string())],
+                0
+            ),
             Err(TableCellUpdateError::MissingPrimaryKey)
         ));
     }

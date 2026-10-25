@@ -47,6 +47,10 @@ impl WindowContent {
         widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        if self.table_navigation_blocked(widgets) {
+            return;
+        }
+
         if self.file_operation_pending() || self.close_preparation_pending() {
             widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
                 "Finish the file operation before switching databases.",
@@ -112,6 +116,13 @@ impl WindowContent {
         }
 
         self.active_database_switch_request_id = None;
+
+        if self.table_navigation_blocked(widgets) {
+            self.database_selector
+                .emit(DatabaseSelectorMsg::SetLoading(false));
+
+            return;
+        }
 
         let postgres = match result {
             Ok(postgres) => postgres,

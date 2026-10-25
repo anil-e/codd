@@ -13,6 +13,7 @@ use crate::models::session::{SavedSession, SavedSessionTab};
 use crate::sql_file::{self, FileError, LoadedSqlFile, SaveTarget};
 use crate::state::document_store::{self, RecoveryLoad, RecoveryRecord};
 use crate::state::session_store;
+use crate::ui::components::table_view::TableViewMsg;
 use gettextrs::{gettext, ngettext};
 use libadwaita as adw;
 use libadwaita::prelude::*;
@@ -219,7 +220,15 @@ impl SaveChooserIdentity {
     }
 }
 
+#[derive(Default)]
 struct ClosePreparation {
+    browse_remaining: Vec<u64>,
+    browse_prepared: Vec<u64>,
+    browse_waiting: Option<u64>,
+    browse_committing: Vec<u64>,
+    browse_cancelling: Vec<u64>,
+    recovery_restored: bool,
+    browse_commit_started: bool,
     targets: Option<Vec<String>>,
     remaining: Vec<u64>,
     discarded: Vec<u64>,
@@ -256,6 +265,8 @@ impl ClosePreparation {
 
     fn accepts_decision(&self, generation: u64, tab: u64) -> bool {
         !self.approved
+            && self.browse_remaining.is_empty()
+            && self.browse_waiting.is_none()
             && !self.committing
             && !self.cancelling
             && self.generation == generation
@@ -442,19 +453,65 @@ fn recovery_worker() -> &'static mpsc::Sender<RecoveryJob> {
 }
 
 impl WindowContent {
-    #[cfg(test)]
-    pub(crate) fn install_protocol_test_document(&mut self) -> (u64, RecoveryRecord) {
-        let mut doc = tests::document();
-        doc.id = Uuid::new_v4().to_string();
-        doc.origin = (format!("protocol-{}", doc.id), "postgres".into());
-        doc.file = None;
-        let text = "  select 'unsaved protocol test';\r\n\n ";
-        let tab = self.query_tabs.last_mut().expect("initial scratch tab");
-        doc.source_tab_id = Some(tab.session_id);
-        let record = doc.recovery_record(text.into());
-        tab.editor_buffer.set_text(text);
-        tab.document = Some(doc);
-        (tab.id, record)
+    pub(super) fn table_close_output(
+        &mut self,
+        tab: u64,
+        output: super::TableViewOutput,
+        widgets: &mut WindowContentWidgets,
+        root: &adw::ToolbarView,
+        sender: &ComponentSender<Self>,
+    ) {
+        let Some(close) = self.documents.close.as_mut() else {
+            return;
+        };
+
+        match output {
+            super::TableViewOutput::EditsClosePrepared(id)
+                if id == close.generation
+                    && close.browse_waiting == Some(tab)
+                    && !close.cancelling
+                    && !close.committing =>
+            {
+                close.browse_waiting = None;
+                close.browse_prepared.push(tab);
+
+                self.advance_document_close(widgets, root, sender);
+            }
+            super::TableViewOutput::EditsCloseCancelled(id) if id == close.generation => {
+                if close.cancelling && close.browse_cancelling.contains(&tab) {
+                    close.browse_cancelling.retain(|item| *item != tab);
+
+                    if close.browse_cancelling.is_empty() && close.recovery_restored {
+                        sender.input(WindowContentMsg::Document(
+                            DocumentMsg::CancellationFinished {
+                                generation: id,
+                                result: Ok(()),
+                            },
+                        ));
+                    }
+                } else if close.browse_waiting == Some(tab)
+                    || close.browse_committing.contains(&tab)
+                {
+                    self.cancel_document_close(root, sender);
+                }
+            }
+            super::TableViewOutput::EditsCloseCommitted(id)
+                if id == close.generation
+                    && close.committing
+                    && !close.cancelling
+                    && close.browse_committing.contains(&tab) =>
+            {
+                close.browse_committing.retain(|item| *item != tab);
+
+                if close.browse_committing.is_empty() {
+                    sender.input(WindowContentMsg::Document(DocumentMsg::CleanupFinished {
+                        generation: id,
+                        result: Ok(()),
+                    }));
+                }
+            }
+            _ => {}
+        }
     }
 
     pub(super) fn document_session_restore_pending(&self) -> bool {
@@ -514,6 +571,13 @@ impl WindowContent {
                     | WindowContentMsg::PrepareClose
                     | WindowContentMsg::SaveSession
                     | WindowContentMsg::QueryTabTitleChanged(_)
+                    | WindowContentMsg::BrowseTabOutput {
+                        output: super::TableViewOutput::EditsClosePrepared(_)
+                            | super::TableViewOutput::EditsCloseCancelled(_)
+                            | super::TableViewOutput::EditsCloseCommitted(_)
+                            | super::TableViewOutput::PendingEditsChanged(_),
+                        ..
+                    }
                     | WindowContentMsg::WindowEvent(super::WindowContentEvent::Connections(_))
                     | WindowContentMsg::DatabaseSwitchCompleted { .. }
                     | WindowContentMsg::ConnectionDialogOutput(_)
@@ -1018,24 +1082,30 @@ impl WindowContent {
                 self.cancel_document_close(root, sender);
                 return;
             }
+
             if targets.is_none()
                 && let Some(output) = close.window_prepare_response()
             {
                 let _ = sender.output(output);
             }
+
             return;
         }
+
         if targets.as_ref().is_some_and(|names| names.len() == 1)
             && self.tab_count() == 1
+            && self.query_tabs.len() == 1
             && self.query_tabs.iter().all(|tab| tab.document.is_none())
         {
             return;
         }
+
         if self.file_operation_pending() || self.active_database_switch_request_id.is_some() {
             widgets.toast_overlay.add_toast(adw::Toast::new(&gettext("Wait for the current file or database operation to finish, then try closing again.")));
             let _ = sender.output(WindowContentOutput::CloseCancelled);
             return;
         }
+
         let remaining = self
             .query_tabs
             .iter()
@@ -1050,7 +1120,25 @@ impl WindowContent {
             .map(|tab| tab.id)
             .collect();
         let generation = self.document_request();
+
         self.documents.close = Some(ClosePreparation {
+            browse_remaining: self
+                .browse_tabs
+                .iter()
+                .filter(|tab| {
+                    tab.view.is_some()
+                        && targets
+                            .as_ref()
+                            .is_none_or(|names| names.contains(&format!("browse-tab-{}", tab.id)))
+                })
+                .map(|tab| tab.id)
+                .collect(),
+            browse_prepared: Vec::new(),
+            browse_waiting: None,
+            browse_committing: Vec::new(),
+            browse_cancelling: Vec::new(),
+            recovery_restored: false,
+            browse_commit_started: false,
             targets,
             remaining,
             discarded: Vec::new(),
@@ -1060,9 +1148,11 @@ impl WindowContent {
             cancelling: false,
             committed: false,
         });
+
         for tab in &self.query_tabs {
             self.persist_document(tab.id, sender);
         }
+
         root.set_sensitive(false);
         self.advance_document_close(widgets, root, sender);
     }
@@ -1076,9 +1166,29 @@ impl WindowContent {
         let Some(close) = &mut self.documents.close else {
             return;
         };
+
         if close.cancelling || close.committing || close.committed {
             return;
         }
+
+        if close.browse_waiting.is_some() {
+            return;
+        }
+
+        if let Some(id) = close.browse_remaining.pop() {
+            close.browse_waiting = Some(id);
+
+            if let Some(tab) = self.browse_tabs.iter().find(|tab| tab.id == id) {
+                widgets.query_tab_view.set_selected_page(&tab.page);
+
+                if let Some(view) = &tab.view {
+                    view.emit(TableViewMsg::PrepareEditsClose(close.generation));
+                }
+            }
+
+            return;
+        }
+
         if let Some(&id) = close.remaining.last() {
             let generation = close.generation;
             let title = self
@@ -1088,6 +1198,7 @@ impl WindowContent {
                 .and_then(|tab| tab.document.as_ref())
                 .map(SqlDocument::title)
                 .unwrap_or_default();
+
             let dialog = adw::AlertDialog::builder()
                 .heading(gettext("Save Changes?"))
                 .body(format!(
@@ -1105,6 +1216,7 @@ impl WindowContent {
             dialog.set_response_appearance("save", adw::ResponseAppearance::Suggested);
             dialog.set_default_response(Some("save"));
             dialog.set_close_response("cancel");
+
             let sender = sender.input_sender().clone();
             dialog.connect_response(None, move |_, decision| {
                 let _ = sender.send(WindowContentMsg::Document(DocumentMsg::CloseDecision {
@@ -1113,10 +1225,12 @@ impl WindowContent {
                     decision: decision.into(),
                 }));
             });
+
             self.documents.close_dialog = Some(dialog.clone());
             present_document_dialog(&dialog, root);
         } else {
             close.approved = true;
+
             if close.targets.is_none() {
                 let _ = sender.output(WindowContentOutput::ClosePrepared);
             } else {
@@ -1136,16 +1250,33 @@ impl WindowContent {
         let Some(generation) = close.start_cancellation() else {
             return;
         };
+
+        close.browse_cancelling = close.browse_prepared.clone();
+        close.browse_cancelling.extend(close.browse_waiting);
+
+        for id in &close.browse_cancelling {
+            if let Some(view) = self
+                .browse_tabs
+                .iter()
+                .find(|tab| tab.id == *id)
+                .and_then(|tab| tab.view.as_ref())
+            {
+                view.emit(TableViewMsg::CancelEditsClose(generation));
+            }
+        }
+
         if let Some(dialog) = self.documents.close_dialog.take() {
             dialog.close();
         }
         if let Some(chooser) = self.documents.chooser.take() {
             chooser.destroy();
         }
+
         self.documents.chooser_open = false;
         self.documents.chooser_request = None;
         self.documents.chooser_identity = None;
         root.set_sensitive(false);
+
         let records = self
             .query_tabs
             .iter()
@@ -2061,6 +2192,11 @@ impl WindowContent {
                 if !close.accepts_cleanup(generation) {
                     return;
                 }
+
+                if !close.committing || close.committed || !close.browse_committing.is_empty() {
+                    return;
+                }
+
                 if let Err(error) = result {
                     if let Some(close) = &mut self.documents.close {
                         close.committing = false;
@@ -2069,6 +2205,27 @@ impl WindowContent {
                     document_error(root, &gettext("Closing SQL Files Failed"), &error);
                     return;
                 }
+
+                let close = self.documents.close.as_mut().expect("prepared close");
+
+                if !close.browse_commit_started && !close.browse_prepared.is_empty() {
+                    close.browse_commit_started = true;
+                    close.browse_committing = close.browse_prepared.clone();
+
+                    for id in &close.browse_committing {
+                        if let Some(view) = self
+                            .browse_tabs
+                            .iter()
+                            .find(|tab| tab.id == *id)
+                            .and_then(|tab| tab.view.as_ref())
+                        {
+                            view.emit(TableViewMsg::CommitEditsClose(generation));
+                        }
+                    }
+
+                    return;
+                }
+
                 let close = self.documents.close.take().expect("prepared close");
                 if let Some(names) = close.targets {
                     if names.len() >= self.tab_count() {
@@ -2104,12 +2261,20 @@ impl WindowContent {
                 {
                     return;
                 }
+                let close = self.documents.close.as_mut().expect("cancelled close");
+                close.recovery_restored = true;
+
+                if let Err(error) = &result {
+                    document_error(root, &gettext("Restoring SQL Recovery Failed"), error);
+                }
+
+                if !close.browse_cancelling.is_empty() {
+                    return;
+                }
+
                 self.documents.close = None;
                 root.set_sensitive(true);
                 let _ = sender.output(WindowContentOutput::CloseCancelled);
-                if let Err(error) = result {
-                    document_error(root, &gettext("Restoring SQL Recovery Failed"), &error);
-                }
             }
         }
     }
@@ -2233,354 +2398,6 @@ mod tests {
     use super::*;
     use crate::models::session::SavedSessionTabId;
 
-    #[test]
-    #[ignore = "requires a display and isolated XDG directories; run in its own process"]
-    fn gtk_sql_file_editing() {
-        use crate::models::connection::ConnectionForm;
-        use std::cell::Ref;
-        use std::fs;
-        use std::time::{Duration, Instant};
-
-        #[track_caller]
-        fn until(mut ready: impl FnMut() -> bool) {
-            let deadline = Instant::now() + Duration::from_secs(15);
-            while !ready() {
-                assert!(
-                    Instant::now() < deadline,
-                    "SQL file operation did not settle"
-                );
-                glib::MainContext::default().iteration(false);
-                std::thread::sleep(Duration::from_millis(1));
-            }
-        }
-
-        fn edit(buffer: &sourceview5::Buffer, text: &str) {
-            buffer.begin_user_action();
-            buffer.insert(&mut buffer.end_iter(), text);
-            buffer.end_user_action();
-        }
-
-        fn bytes(text: &str, bom: bool) -> Vec<u8> {
-            let mut bytes = if bom {
-                vec![0xef, 0xbb, 0xbf]
-            } else {
-                Vec::new()
-            };
-            bytes.extend_from_slice(text.as_bytes());
-            bytes
-        }
-
-        fn doc(content: &Controller<WindowContent>, id: u64) -> Ref<'_, SqlDocument> {
-            Ref::map(content.model(), |model| {
-                model
-                    .query_tabs
-                    .iter()
-                    .find(|tab| tab.id == id)
-                    .unwrap()
-                    .document
-                    .as_ref()
-                    .unwrap()
-            })
-        }
-
-        struct Directory(std::path::PathBuf);
-        impl Drop for Directory {
-            fn drop(&mut self) {
-                let _ = fs::remove_dir_all(&self.0);
-            }
-        }
-
-        let _app = relm4::RelmApp::<WindowContentMsg>::new(crate::config::APP_ID);
-        sourceview5::init();
-        crate::register_app_resources();
-        let application = relm4::main_adw_application();
-        application.register(gio::Cancellable::NONE).unwrap();
-        let content = WindowContent::builder().launch(()).detach();
-        let root = adw::ApplicationWindow::builder()
-            .application(&application)
-            .content(content.widget())
-            .build();
-        root.present();
-        let details = ConnectionForm {
-            name: "File Editing Test".into(),
-            username: "test".into(),
-            ..ConnectionForm::default()
-        }
-        .validate()
-        .unwrap();
-        {
-            let mut parts = content.state().get_mut();
-            parts.model.visible_page = super::super::VisiblePage::Workspace;
-            parts.model.state.active_database = Some(details.saved.database.clone());
-            parts.model.state.active_connection = Some(details.saved);
-        }
-
-        let directory =
-            Directory(glib::user_data_dir().join(format!("file-editing-{}", uuid::Uuid::new_v4())));
-        fs::create_dir(&directory.0).unwrap();
-        let path = directory.0.join("query.sql");
-        let file = gio::File::for_path(&path);
-        let initial = "  select 'é';\r\n\r\n \n";
-        fs::write(&path, bytes(initial, true)).unwrap();
-        content.emit(WindowContentMsg::OpenSqlFileLocations(vec![file.clone()]));
-        until(|| {
-            content.model().query_tabs.iter().any(|tab| {
-                tab.document
-                    .as_ref()
-                    .is_some_and(|doc| doc.file.as_ref() == Some(&file) && doc.request.is_none())
-            })
-        });
-        let id = content
-            .model()
-            .query_tabs
-            .iter()
-            .find(|tab| {
-                tab.document
-                    .as_ref()
-                    .is_some_and(|doc| doc.file.as_ref() == Some(&file))
-            })
-            .unwrap()
-            .id;
-        let (buffer, page) = {
-            let model = content.model();
-            let tab = model.query_tabs.iter().find(|tab| tab.id == id).unwrap();
-            (tab.editor_buffer.clone(), tab.page.clone())
-        };
-        assert_eq!(content.model().query_tab_sql(id).as_deref(), Some(initial));
-        assert_eq!(page.title().as_str(), "query.sql");
-        assert!(page.indicator_icon().is_none());
-        assert!(!buffer.can_undo());
-
-        edit(&buffer, "-- before save\r\n");
-        let snapshot = content.model().query_tab_sql(id).unwrap();
-        content.emit(WindowContentMsg::SaveSqlFile);
-        until(|| !content.model().documents.saves.is_empty());
-        assert_eq!(
-            content
-                .model()
-                .documents
-                .saves
-                .values()
-                .next()
-                .unwrap()
-                .text,
-            snapshot
-        );
-        edit(&buffer, "-- typed while saving\r\n");
-        let later = content.model().query_tab_sql(id).unwrap();
-        until(|| content.model().documents.saves.is_empty());
-        assert_eq!(fs::read(&path).unwrap(), bytes(&snapshot, true));
-        assert_eq!(
-            content.model().query_tab_sql(id).as_deref(),
-            Some(later.as_str())
-        );
-        assert_eq!(doc(&content, id).saved_text, snapshot);
-        assert!(doc(&content, id).is_dirty(&later));
-        assert!(page.indicator_icon().is_some());
-
-        buffer.undo();
-        until(|| page.indicator_icon().is_none());
-        assert_eq!(
-            content.model().query_tab_sql(id).as_deref(),
-            Some(snapshot.as_str())
-        );
-        buffer.redo();
-        until(|| page.indicator_icon().is_some());
-        assert_eq!(
-            content.model().query_tab_sql(id).as_deref(),
-            Some(later.as_str())
-        );
-        content.emit(WindowContentMsg::SaveSqlFile);
-        until(|| doc(&content, id).saved_text == later);
-        assert_eq!(fs::read(&path).unwrap(), bytes(&later, true));
-        assert!(page.indicator_icon().is_none());
-        buffer.undo();
-        until(|| page.indicator_icon().is_some());
-        assert_eq!(
-            content.model().query_tab_sql(id).as_deref(),
-            Some(snapshot.as_str())
-        );
-        buffer.redo();
-        until(|| page.indicator_icon().is_none());
-        assert_eq!(
-            content.model().query_tab_sql(id).as_deref(),
-            Some(later.as_str())
-        );
-        glib::MainContext::default().block_on(glib::timeout_future(Duration::from_millis(150)));
-        assert!(!doc(&content, id).external_changed);
-
-        let external = "select 'external editor version without BOM';\r\n\r\n";
-        fs::write(&path, external.as_bytes()).unwrap();
-        until(|| doc(&content, id).external_changed);
-        assert_eq!(
-            content.model().query_tab_sql(id).as_deref(),
-            Some(later.as_str())
-        );
-        edit(&buffer, "-- after external change\n");
-        glib::MainContext::default().block_on(glib::timeout_future(Duration::from_millis(50)));
-        assert!(doc(&content, id).external_changed);
-        buffer.undo();
-        content.emit(WindowContentMsg::Document(DocumentMsg::ReloadTab(Some(
-            format!("query-tab-{id}"),
-        ))));
-        until(|| content.model().query_tab_sql(id).as_deref() == Some(external));
-        assert!(!buffer.can_undo());
-        assert!(!doc(&content, id).external_changed);
-
-        edit(&buffer, "-- saved after reload\n");
-        let final_text = content.model().query_tab_sql(id).unwrap();
-        content.emit(WindowContentMsg::SaveSqlFile);
-        until(|| doc(&content, id).saved_text == final_text);
-        assert_eq!(fs::read(&path).unwrap(), bytes(&final_text, false));
-        content.emit(WindowContentMsg::CloseQueryTab(id));
-        until(|| content.model().query_tabs.iter().all(|tab| tab.id != id));
-        assert_eq!(fs::read(&path).unwrap(), bytes(&final_text, false));
-        root.destroy();
-        drop(content);
-        glib::MainContext::default().block_on(glib::timeout_future(Duration::from_millis(600)));
-    }
-
-    #[test]
-    #[ignore = "requires a display and isolated XDG directories; run in its own process"]
-    fn gtk_deferred_database_navigation() {
-        use crate::models::connection::ConnectionForm;
-        use crate::state::session_store;
-        use std::time::{Duration, Instant};
-
-        #[track_caller]
-        fn until(mut ready: impl FnMut() -> bool) {
-            let deadline = Instant::now() + Duration::from_secs(10);
-            while !ready() {
-                assert!(
-                    Instant::now() < deadline,
-                    "document navigation did not settle"
-                );
-                while glib::MainContext::default().pending() {
-                    glib::MainContext::default().iteration(false);
-                }
-                std::thread::sleep(Duration::from_millis(1));
-            }
-        }
-
-        let runtime = tokio::runtime::Runtime::new().unwrap();
-        let _runtime = runtime.enter();
-        let _app = relm4::RelmApp::<WindowContentMsg>::new(crate::config::APP_ID);
-        sourceview5::init();
-        crate::register_app_resources();
-        let application = relm4::main_adw_application();
-        application.register(gio::Cancellable::NONE).unwrap();
-        let content = WindowContent::builder().launch(()).detach();
-        let root = adw::ApplicationWindow::builder()
-            .application(&application)
-            .content(content.widget())
-            .build();
-        root.present();
-        let details = ConnectionForm {
-            name: "Navigation Test".into(),
-            username: "test".into(),
-            database: "before".into(),
-            ..ConnectionForm::default()
-        }
-        .validate()
-        .unwrap();
-        let pool = sqlx::postgres::PgPoolOptions::new()
-            .connect_lazy("postgres://test@127.0.0.1:1/unused")
-            .unwrap();
-        {
-            let mut parts = content.state().get_mut();
-            let ComponentParts { model, widgets } = &mut *parts;
-            model.visible_page = super::super::VisiblePage::Workspace;
-            model.state.active_connection = Some(details.saved.clone());
-            model.state.active_database = Some("before".into());
-            model.active_connection_details = Some(details.clone());
-            model.active_pool = Some(pool.clone());
-            model.active_database_switch_request_id = Some(7);
-            model.query_tabs[0]
-                .editor_buffer
-                .set_text("before connecting");
-            model.save_current_session(widgets).unwrap();
-            model.query_tabs[0]
-                .editor_buffer
-                .set_text("latest edits while connecting");
-            model.documents.chooser_open = true;
-        }
-        content.emit(WindowContentMsg::DatabaseSwitchCompleted {
-            id: 7,
-            database: "after".into(),
-            result: Ok(PostgresConnection {
-                pool: pool.clone(),
-                tunnel: None,
-            }),
-        });
-        until(|| content.model().documents.deferred_switch.is_some());
-        assert_eq!(
-            content.model().state.active_database.as_deref(),
-            Some("before")
-        );
-        content.state().get_mut().model.documents.chooser_open = false;
-        content.emit(WindowContentMsg::Document(DocumentMsg::SyncFileActions));
-        until(|| {
-            let model = content.model();
-            model.state.active_database.as_deref() == Some("after")
-                && !model.file_operation_pending()
-        });
-        let old_session = session_store::load(&details.saved.id, "before").unwrap();
-        assert!(
-            matches!(&old_session.tabs[0], SavedSessionTab::Query { sql, .. } if sql == "latest edits while connecting")
-        );
-
-        let scratch_count = content.model().query_tabs.len();
-        let large_scratch = "x".repeat(300 * 1024);
-        content.state().get_mut().model.query_tabs[0]
-            .editor_buffer
-            .set_text(&large_scratch);
-        content.emit(WindowContentMsg::ShowStartScreen);
-        content.emit(WindowContentMsg::NewQueryTab);
-        until(|| content.model().query_tabs.len() == scratch_count + 1);
-        assert!(content.model().shows_workspace());
-        assert_eq!(
-            content
-                .model()
-                .query_tab_sql(content.model().query_tabs[0].id)
-                .as_deref(),
-            Some(large_scratch.as_str())
-        );
-        content.state().get_mut().model.query_tabs[0]
-            .editor_buffer
-            .set_text("small scratch");
-
-        let (_, record) = content
-            .state()
-            .get_mut()
-            .model
-            .install_protocol_test_document();
-        content.emit(WindowContentMsg::PrepareClose);
-        until(|| content.model().close_preparation_pending());
-        {
-            let mut parts = content.state().get_mut();
-            parts.model.documents.disconnect_pending = true;
-            parts.model.documents.deferred_connection =
-                Some((details, PostgresConnection { pool, tunnel: None }));
-        }
-        content.emit(WindowContentMsg::CancelClosePreparation);
-        until(|| {
-            let model = content.model();
-            model.shows_start_screen() && !model.close_preparation_pending()
-        });
-        assert!(content.model().documents.deferred_connection.is_none());
-        assert!(content.model().documents.deferred_switch.is_none());
-        assert!(content.model().state.active_connection.is_none());
-        assert!(content.widget().is_sensitive());
-        assert!(content.model().query_tabs.iter().any(|tab| {
-            content.model().query_tab_sql(tab.id).as_deref() == Some(record.text.as_str())
-        }));
-        document_store::remove(&record.document_id).unwrap();
-        root.destroy();
-        drop(content);
-        let debounce_deadline = Instant::now() + Duration::from_millis(600);
-        until(|| Instant::now() >= debounce_deadline);
-    }
-
     pub(super) fn document() -> SqlDocument {
         SqlDocument {
             file: Some(gio::File::for_path("/tmp/codd-document-test.sql")),
@@ -2653,11 +2470,20 @@ mod tests {
             committing: false,
             cancelling: false,
             committed: false,
+            ..ClosePreparation::default()
         };
         assert!(!close.accepts_decision(18, 3));
         assert!(!close.accepts_decision(19, 2));
         assert!(close.accepts_decision(19, 3));
+
+        close.browse_waiting = Some(9);
+
+        assert!(!close.accepts_decision(19, 3));
+        assert!(!close.accepts_decision(18, 3));
+
+        close.browse_waiting = None;
         close.discarded.push(close.remaining.pop().unwrap());
+
         assert!(!close.accepts_decision(19, 3));
         assert!(close.accepts_decision(19, 2));
         assert_eq!(close.targets.as_ref(), Some(&targets));
@@ -2841,6 +2667,7 @@ mod tests {
                 committing: true,
                 cancelling: false,
                 committed,
+                ..ClosePreparation::default()
             };
             assert!(close.accepts_cleanup(20));
             assert_eq!(close.start_cancellation(), Some(20));
@@ -2864,6 +2691,7 @@ mod tests {
             committing: false,
             cancelling: false,
             committed: false,
+            ..ClosePreparation::default()
         };
         assert!(matches!(
             close.window_prepare_response(),

@@ -172,6 +172,12 @@ impl WindowContent {
         widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        if self.relation_edits_pending(&request.target().table) {
+            self.table_navigation_blocked(widgets);
+
+            return;
+        }
+
         let request = match normalize_structure_action_request(request, widgets) {
             Some(request) => request,
             None => return,

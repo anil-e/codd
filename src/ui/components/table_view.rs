@@ -17,6 +17,8 @@ pub struct TableView {
     mode: TableViewMode,
     structure_loaded: bool,
     browser_busy: bool,
+    deferred_rename: Option<DatabaseObject>,
+    deferred_invalidation: Option<bool>,
     can_delete_selected_row: bool,
     can_duplicate_selected_row: bool,
     browser: Controller<TableBrowser>,
@@ -25,6 +27,9 @@ pub struct TableView {
 
 #[derive(Debug)]
 pub enum TableViewMsg {
+    PrepareEditsClose(u64),
+    CancelEditsClose(u64),
+    CommitEditsClose(u64),
     Open {
         pool: PgPool,
         object: DatabaseObject,
@@ -48,6 +53,10 @@ pub enum TableViewMsg {
 
 #[derive(Debug)]
 pub enum TableViewOutput {
+    PendingEditsChanged(bool),
+    EditsClosePrepared(u64),
+    EditsCloseCancelled(u64),
+    EditsCloseCommitted(u64),
     Copied(String),
     Exported(String),
     Inserted(String),
@@ -128,6 +137,8 @@ impl Component for TableView {
 
                 #[name = "mode_switcher"]
                 gtk::StackSwitcher {
+                    #[watch]
+                    set_sensitive: !model.has_pending_edits() && !model.browser.model().input_locked(),
                     set_valign: gtk::Align::Center,
                     set_margin_top: 6,
                     set_margin_bottom: 6,
@@ -143,7 +154,7 @@ impl Component for TableView {
                     #[watch]
                     set_visible: model.can_insert_rows(),
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy,
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && !model.has_pending_edits() && !model.browser.model().input_locked(),
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::InsertRow,
@@ -156,7 +167,7 @@ impl Component for TableView {
                     #[watch]
                     set_visible: model.can_insert_rows() && model.mode == TableViewMode::Content && model.can_duplicate_selected_row,
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && model.can_duplicate_selected_row,
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && model.can_duplicate_selected_row && !model.has_pending_edits() && !model.browser.model().input_locked(),
                     connect_clicked => TableViewMsg::DuplicateRow,
                 },
 
@@ -168,7 +179,7 @@ impl Component for TableView {
                     #[watch]
                     set_visible: model.can_insert_rows(),
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && model.can_delete_selected_row,
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && model.can_delete_selected_row && !model.has_pending_edits() && !model.browser.model().input_locked(),
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::DeleteRow,
@@ -179,7 +190,7 @@ impl Component for TableView {
                     set_icon_name: "filter-symbolic",
                     add_css_class: "flat",
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy,
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && !model.has_pending_edits() && !model.browser.model().input_locked(),
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::ToggleFilters,
@@ -190,7 +201,7 @@ impl Component for TableView {
                     set_icon_name: "document-save-symbolic",
                     add_css_class: "flat",
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy,
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && !model.has_pending_edits() && !model.browser.model().input_locked(),
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::ExportCsv,
@@ -201,7 +212,7 @@ impl Component for TableView {
                     set_tooltip_text: Some(&gettext("Refresh")),
                     add_css_class: "flat",
                     #[watch]
-                    set_sensitive: model.mode != TableViewMode::Content || !model.browser_busy,
+                    set_sensitive: !model.has_pending_edits() && !model.browser.model().input_locked() && (model.mode != TableViewMode::Content || !model.browser_busy),
                     connect_clicked => TableViewMsg::Refresh,
                 },
             },
@@ -233,6 +244,8 @@ impl Component for TableView {
             mode: TableViewMode::Content,
             structure_loaded: false,
             browser_busy: false,
+            deferred_rename: None,
+            deferred_invalidation: None,
             can_delete_selected_row: false,
             can_duplicate_selected_row: false,
             browser,
@@ -253,12 +266,16 @@ impl Component for TableView {
             .set_visible_child_name(model.mode.visible_child_name());
         widgets.mode_switcher.set_stack(Some(&widgets.mode_stack));
 
-        let s = sender.clone();
+        let input = sender.input_sender().clone();
         widgets
             .mode_stack
-            .connect_visible_child_name_notify(move |stack| match stack.visible_child_name() {
-                Some(name) if name.as_str() == "structure" => s.input(TableViewMsg::ShowStructure),
-                _ => s.input(TableViewMsg::ShowContent),
+            .connect_visible_child_name_notify(move |stack| {
+                let msg = match stack.visible_child_name() {
+                    Some(name) if name.as_str() == "structure" => TableViewMsg::ShowStructure,
+                    _ => TableViewMsg::ShowContent,
+                };
+
+                let _ = input.send(msg);
             });
 
         ComponentParts { model, widgets }
@@ -271,7 +288,84 @@ impl Component for TableView {
         sender: ComponentSender<Self>,
         _root: &Self::Root,
     ) {
+        if self.browser.model().authoritative_changes_blocked() {
+            match &msg {
+                TableViewMsg::ObjectRenamed(object) => {
+                    self.deferred_rename = Some(object.clone());
+                    self.browser
+                        .emit(TableBrowserMsg::ObjectRenamed(object.clone()));
+
+                    return;
+                }
+
+                TableViewMsg::StructureChanged {
+                    reset_browser_state,
+                } => {
+                    self.deferred_invalidation =
+                        Some(self.deferred_invalidation.unwrap_or(false) || *reset_browser_state);
+
+                    if *reset_browser_state {
+                        self.browser.emit(TableBrowserMsg::SchemaChanged);
+                    }
+
+                    return;
+                }
+                _ => {}
+            }
+        }
+
+        if (self.has_pending_edits() || self.browser.model().authoritative_changes_blocked())
+            && matches!(
+                &msg,
+                TableViewMsg::Open { .. }
+                    | TableViewMsg::ObjectRenamed(_)
+                    | TableViewMsg::Refresh
+                    | TableViewMsg::ReloadContent
+                    | TableViewMsg::StructureChanged { .. }
+                    | TableViewMsg::ShowStructure
+                    | TableViewMsg::StructureOutput(
+                        TableStructureOutput::RenameRequested(_)
+                            | TableStructureOutput::DropRequested(_)
+                    )
+            )
+        {
+            self.browser.emit(TableBrowserMsg::Refresh);
+            widgets
+                .mode_stack
+                .set_visible_child_name(self.mode.visible_child_name());
+
+            return;
+        }
+
         match msg {
+            TableViewMsg::PrepareEditsClose(id) => {
+                self.browser.emit(TableBrowserMsg::PrepareEditsClose(id))
+            }
+
+            TableViewMsg::CancelEditsClose(id) => {
+                self.browser.emit(TableBrowserMsg::CancelEditsClose(id))
+            }
+
+            TableViewMsg::CommitEditsClose(id) => {
+                self.browser.emit(TableBrowserMsg::CommitEditsClose(id))
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::PendingEditsChanged(dirty)) => {
+                let _ = sender.output(TableViewOutput::PendingEditsChanged(dirty));
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::EditsClosePrepared(id)) => {
+                let _ = sender.output(TableViewOutput::EditsClosePrepared(id));
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::EditsCloseCancelled(id)) => {
+                let _ = sender.output(TableViewOutput::EditsCloseCancelled(id));
+            }
+
+            TableViewMsg::BrowserOutput(TableBrowserOutput::EditsCloseCommitted(id)) => {
+                let _ = sender.output(TableViewOutput::EditsCloseCommitted(id));
+            }
+
             TableViewMsg::Open { pool, object } => {
                 self.pool = Some(pool.clone());
                 self.object = Some(object.clone());
@@ -417,11 +511,42 @@ impl Component for TableView {
             }
         }
 
+        if !self.browser.model().authoritative_changes_blocked() {
+            if let Some(object) = self.deferred_rename.take() {
+                self.object = Some(object.clone());
+                self.structure_loaded = false;
+
+                if self.mode == TableViewMode::Structure {
+                    self.open_structure();
+                }
+            }
+
+            if let Some(reset_browser_state) = self.deferred_invalidation.take() {
+                if reset_browser_state {
+                    if self.structure_loaded && self.can_show_structure() {
+                        self.structure.emit(TableStructureMsg::Refresh);
+                    }
+                } else {
+                    sender.input(TableViewMsg::StructureChanged {
+                        reset_browser_state: false,
+                    });
+                }
+            }
+        }
+
         self.update_view(widgets, sender);
     }
 }
 
 impl TableView {
+    pub fn has_pending_edits(&self) -> bool {
+        self.browser.model().has_pending_edits()
+    }
+
+    pub fn edits_saving(&self) -> bool {
+        self.browser.model().edits_saving()
+    }
+
     fn open_structure(&mut self) {
         if self.structure_loaded || !self.can_show_structure() {
             return;
