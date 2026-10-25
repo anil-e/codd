@@ -18,7 +18,8 @@ The app started as a personal-use SQL editor: lightweight, native, focused, and 
 - Open and save UTF-8 SQL files in query tabs, with conflict checks and recovery of unsaved edits
 - Reuse automatically saved query history per database
 - Browse table rows with pagination, filters, custom SQL filters, and editable cell values
-- Stage edits across table cells and rows, then save them together in one transaction or discard them
+- Stage edits across table cells and rows, then commit them together in one transaction or discard them
+- Automatically refresh table and view contents at a configurable interval
 - Insert, duplicate, and delete table rows from the table browser
 - Export results as CSV
 - Generate common table scripts from the object sidebar

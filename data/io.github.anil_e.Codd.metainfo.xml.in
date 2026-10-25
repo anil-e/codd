@@ -33,39 +33,39 @@
   </branding>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.15.0/images/flathub/screenshot-query.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.16.0/images/flathub/screenshot-query.png</image>
       <caption>Run SQL queries with syntax highlighting and result previews</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.15.0/images/flathub/screenshot-table-browser.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.16.0/images/flathub/screenshot-table-browser.png</image>
       <caption>Browse PostgreSQL table data with pagination and filters</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/main/images/flathub/screenshot-transactional-editing.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.16.0/images/flathub/screenshot-transactional-editing.png</image>
       <caption>Edit multiple cells and rows, then commit all changes in one transaction</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.15.0/images/flathub/screenshot-insert-row.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.16.0/images/flathub/screenshot-insert-row.png</image>
       <caption>Insert new table rows with defaults, NULL values and PostgreSQL type validation</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.15.0/images/flathub/screenshot-structure-columns.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.16.0/images/flathub/screenshot-structure-columns.png</image>
       <caption>Inspect table columns, data types, nullability, defaults and primary keys</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.15.0/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.16.0/images/flathub/screenshot-structure-constraints-keys-triggers.png</image>
       <caption>Review indexes, constraints, foreign keys and triggers in the structure view</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.15.0/images/flathub/screenshot-drop-constraint.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.16.0/images/flathub/screenshot-drop-constraint.png</image>
       <caption>Edit table structure from native context menus</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.15.0/images/flathub/screenshot-truncate.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.16.0/images/flathub/screenshot-truncate.png</image>
       <caption>Use table actions like rename, truncate and delete</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/anil-e/codd/v0.15.0/images/flathub/screenshot-start.png</image>
+      <image>https://raw.githubusercontent.com/anil-e/codd/v0.16.0/images/flathub/screenshot-start.png</image>
       <caption>Manage saved PostgreSQL connections</caption>
     </screenshot>
   </screenshots>
@@ -76,6 +76,18 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.16.0" date="2026-10-25">
+      <description translate="no">
+        <p>This release adds transactional table editing and automatic refresh.</p>
+
+        <ul>
+          <li>Stage edits across multiple cells and rows, then commit or discard them together, with conflict detection.</li>
+          <li>Tables and views can now refresh automatically at a configurable interval, pausing while edits are pending.</li>
+          <li>Refreshing keeps displayed rows, selection and scroll position instead of clearing the grid.</li>
+          <li>Translations were updated and a new table editing screenshot was added.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.15.0" date="2026-10-18">
       <description translate="no">
         <p>This release adds SQL file editing in query tabs.</p>
