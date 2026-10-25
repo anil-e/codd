@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 15:58+0100\n"
+"POT-Creation-Date: 2026-10-25 16:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,142 +62,142 @@ msgstr ""
 msgid "Lightweight PostgreSQL client"
 msgstr ""
 
-#: src/window_content.rs:302 src/window_content.rs:369
+#: src/window_content.rs:280 src/window_content.rs:347
 msgid "Main Menu"
 msgstr ""
 
-#: src/window_content.rs:335
+#: src/window_content.rs:313
 msgid "Objects"
 msgstr ""
 
-#: src/window_content.rs:339
+#: src/window_content.rs:317
 msgid "Back to connections"
 msgstr ""
 
-#: src/window_content.rs:346
+#: src/window_content.rs:324
 msgid "Refresh Objects"
 msgstr ""
 
-#: src/window_content.rs:376
+#: src/window_content.rs:354
 msgid "New Query Tab"
 msgstr ""
 
-#: src/window_content.rs:859 src/window_content.rs:1466
+#: src/window_content.rs:837 src/window_content.rs:1270
 #: src/window_content/database_switching.rs:74
 #: src/window_content/database_switching.rs:145
 msgid "Saving tabs failed"
 msgstr ""
 
-#: src/window_content.rs:957
+#: src/window_content.rs:935
 msgid "Updating the saved password failed"
 msgstr ""
 
-#: src/window_content.rs:1010 src/ui/components/table_browser.rs:1277
+#: src/window_content.rs:988 src/ui/components/table_browser.rs:1277
 msgid "CSV exported."
 msgstr ""
 
-#: src/window_content.rs:1219
+#: src/window_content.rs:1159
 msgid "Hide Objects"
 msgstr ""
 
-#: src/window_content.rs:1220
+#: src/window_content.rs:1160
 msgid "Show Objects"
 msgstr ""
 
-#: src/window_content.rs:1249
+#: src/window_content.rs:1189
 msgid "Commit or discard pending table edits first."
 msgstr ""
 
-#: src/window_content.rs:1456
+#: src/window_content.rs:1260
 msgid "Waiting for the file operation before disconnecting."
 msgstr ""
 
-#: src/window_content.rs:1505 src/ui/components/sidebar.rs:153
+#: src/window_content.rs:1309 src/ui/components/sidebar.rs:153
 #: src/ui/components/sidebar.rs:407 src/ui/components/sidebar.rs:421
 msgid "No connection"
 msgstr ""
 
-#: src/window_content.rs:1585
+#: src/window_content.rs:1389
 msgid "Connected to PostgreSQL."
 msgstr ""
 
-#: src/window_content.rs:1598
+#: src/window_content.rs:1402
 msgid "Connected, but saving the connection failed"
 msgstr ""
 
-#: src/window_content.rs:1687
+#: src/window_content.rs:1491
 msgid ""
 "Some scratch tabs exceed the session recovery limits. Save them as SQL files "
 "before leaving this workspace."
 msgstr ""
 
-#: src/window_content.rs:1749
+#: src/window_content.rs:1553
 msgid "Disabling saved password failed"
 msgstr ""
 
-#: src/window_content.rs:1764
+#: src/window_content.rs:1568
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr ""
 
-#: src/window_content.rs:1772
+#: src/window_content.rs:1576
 msgid "Enter SQL before exporting query results."
 msgstr ""
 
-#: src/window_content.rs:1816
+#: src/window_content.rs:1620
 msgid "The query did not return rows."
 msgstr ""
 
-#: src/window_content.rs:1847
+#: src/window_content.rs:1651
 msgid "Schema load failed"
 msgstr ""
 
-#: src/window_content.rs:1908
+#: src/window_content.rs:1712
 msgid "Connect to PostgreSQL before generating a script."
 msgstr ""
 
-#: src/window_content.rs:1948
+#: src/window_content.rs:1752
 msgid "Generating the table script failed"
 msgstr ""
 
-#: src/window_content.rs:1996 src/ui/components/table_browser.rs:1280
+#: src/window_content.rs:1800 src/ui/components/table_browser.rs:1280
 msgid "Export failed"
 msgstr ""
 
-#: src/window_content.rs:2001 src/window_content/documents.rs:1862
+#: src/window_content.rs:1805 src/window_content/documents/dialogs.rs:171
 #: src/window_content/structure_actions.rs:429 src/window_content/tabs.rs:94
 #: src/ui/components/connection_dialog.rs:966
 #: src/ui/components/table_browser.rs:1757
 msgid "Close"
 msgstr ""
 
-#: src/window_content.rs:2036
+#: src/window_content.rs:1840
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
 
-#: src/window_content.rs:2038
+#: src/window_content.rs:1842
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
 "be exported."
 msgstr ""
 
-#: src/window_content.rs:2048
+#: src/window_content.rs:1852
 msgid "CREATE script generated."
 msgstr ""
 
-#: src/window_content.rs:2049
+#: src/window_content.rs:1853
 msgid "SELECT script generated."
 msgstr ""
 
-#: src/window_content.rs:2050
+#: src/window_content.rs:1854
 msgid "INSERT script generated."
 msgstr ""
 
-#: src/window_content.rs:2051
+#: src/window_content.rs:1855
 msgid "UPDATE script generated."
 msgstr ""
 
-#: src/window_content.rs:2052
+#: src/window_content.rs:1856
 msgid "DELETE script generated."
 msgstr ""
 
@@ -215,10 +215,13 @@ msgstr ""
 msgid "Unsaved changes will be lost if you discard them."
 msgstr ""
 
-#: src/window_content/closing.rs:300 src/window_content/documents.rs:535
-#: src/window_content/documents.rs:671 src/window_content/documents.rs:1037
-#: src/window_content/documents.rs:1205 src/window_content/documents.rs:1322
-#: src/window_content/documents.rs:1346 src/window_content/object_actions.rs:93
+#: src/window_content/closing.rs:300 src/window_content/documents/dialogs.rs:30
+#: src/window_content/documents/dialogs.rs:88
+#: src/window_content/documents/dialogs.rs:224
+#: src/window_content/documents/dialogs.rs:255
+#: src/window_content/documents/dialogs.rs:288
+#: src/window_content/documents/dialogs.rs:315
+#: src/window_content/object_actions.rs:93
 #: src/window_content/object_actions.rs:149
 #: src/window_content/object_actions.rs:205
 #: src/window_content/structure_actions.rs:88
@@ -241,13 +244,13 @@ msgstr ""
 msgid "Discard"
 msgstr ""
 
-#: src/window_content/closing.rs:302 src/window_content/documents.rs:670
+#: src/window_content/closing.rs:302 src/window_content/documents/dialogs.rs:87
 #: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
 msgid "Save"
 msgstr ""
 
-#: src/window_content/closing.rs:384 src/window_content/documents.rs:1684
-#: src/window_content/documents.rs:1742
+#: src/window_content/closing.rs:384 src/window_content/documents.rs:1240
+#: src/window_content/documents.rs:1298
 msgid "Saving Tabs Failed"
 msgstr ""
 
@@ -287,113 +290,52 @@ msgstr ""
 msgid "Clearing query history failed"
 msgstr ""
 
-#: src/window_content/documents.rs:79
+#: src/window_content/documents.rs:85
 msgid "Recovered Script (Save As Required)"
 msgstr ""
 
-#: src/window_content/documents.rs:92
+#: src/window_content/documents.rs:98
 msgid "File changed on disk. Reload to read the latest version."
 msgstr ""
 
-#: src/window_content/documents.rs:531
-msgid "Open SQL Files"
-msgstr ""
-
-#: src/window_content/documents.rs:534
-msgid "Open"
-msgstr ""
-
-#: src/window_content/documents.rs:569
+#: src/window_content/documents.rs:429
 msgid "Connect to PostgreSQL to open the queued SQL files."
 msgstr ""
 
-#: src/window_content/documents.rs:667
-msgid "Save SQL File"
-msgstr ""
-
-#: src/window_content/documents.rs:1031
-msgid "Reload SQL File?"
-msgstr ""
-
-#: src/window_content/documents.rs:1033
-msgid "Reloading discards your unsaved changes and cannot be undone."
-msgstr ""
-
-#: src/window_content/documents.rs:1038 src/window_content/tabs.rs:103
-#: src/ui/components/editor.rs:422
-msgid "Reload"
-msgstr ""
-
-#: src/window_content/documents.rs:1201
-msgid "Opening SQL File Failed"
-msgstr ""
-
-#: src/window_content/documents.rs:1206 src/window_content/documents.rs:1755
-msgid "Retry"
-msgstr ""
-
-#: src/window_content/documents.rs:1315
-msgid "Saving SQL File Failed"
-msgstr ""
-
-#: src/window_content/documents.rs:1318
-msgid "Check the file permissions or use Save As to choose another location."
-msgstr ""
-
-#: src/window_content/documents.rs:1323 src/window_content/documents.rs:1347
-#: src/window_content/tabs.rs:102 src/ui/components/editor.rs:424
-msgid "Save As"
-msgstr ""
-
-#: src/window_content/documents.rs:1342
-msgid "File Changed on Disk"
-msgstr ""
-
-#: src/window_content/documents.rs:1343
-msgid ""
-"The file was changed, deleted, or cannot be verified. Save a copy, or "
-"explicitly replace the latest verified version."
-msgstr ""
-
-#: src/window_content/documents.rs:1352
-msgid "Overwrite"
-msgstr ""
-
-#: src/window_content/documents.rs:1357
-msgid "Recreate File"
-msgstr ""
-
-#: src/window_content/documents.rs:1693
+#: src/window_content/documents.rs:1249
 msgid "Restoring SQL Files Failed"
 msgstr ""
 
-#: src/window_content/documents.rs:1747 src/window_content/documents.rs:1777
+#: src/window_content/documents.rs:1305
+#: src/window_content/documents/dialogs.rs:361
 msgid "Saving SQL Recovery Failed"
 msgstr ""
 
-#: src/window_content/documents.rs:1750
-msgid ""
-"The file was saved, but newer edits cannot be recovered after a crash. Retry "
-"before removing the scratch-session backup."
+#: src/window_content/documents/dialogs.rs:26
+msgid "Open SQL Files"
 msgstr ""
 
-#: src/window_content/documents.rs:1754
-msgid "Keep Editing Without Recovery"
+#: src/window_content/documents/dialogs.rs:29
+msgid "Open"
 msgstr ""
 
-#: src/window_content/documents.rs:1842
+#: src/window_content/documents/dialogs.rs:84
+msgid "Save SQL File"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:142
 msgid "SQL Files"
 msgstr ""
 
-#: src/window_content/documents.rs:1847
+#: src/window_content/documents/dialogs.rs:148
 msgid "All Files"
 msgstr ""
 
-#: src/window_content/documents.rs:1873
+#: src/window_content/documents/dialogs.rs:182
 msgid "Some SQL Recovery Files Could Not Be Restored"
 msgstr ""
 
-#: src/window_content/documents.rs:1881
+#: src/window_content/documents/dialogs.rs:190
 #, rust-format
 msgid ""
 "One recovery file could not be restored. Valid recovery files were processed "
@@ -404,8 +346,72 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/window_content/documents.rs:1894
+#: src/window_content/documents/dialogs.rs:203
 msgid "See the application logs for the remaining recovery warnings."
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:218
+msgid "Reload SQL File?"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:220
+msgid "Reloading discards your unsaved changes and cannot be undone."
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:225 src/window_content/tabs.rs:103
+#: src/ui/components/editor.rs:422
+msgid "Reload"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:252
+msgid "Opening SQL File Failed"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:255
+#: src/window_content/documents/dialogs.rs:369
+msgid "Retry"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:281
+msgid "Saving SQL File Failed"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:284
+msgid "Check the file permissions or use Save As to choose another location."
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:289
+#: src/window_content/documents/dialogs.rs:316 src/window_content/tabs.rs:102
+#: src/ui/components/editor.rs:424
+msgid "Save As"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:311
+msgid "File Changed on Disk"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:312
+msgid ""
+"The file was changed, deleted, or cannot be verified. Save a copy, or "
+"explicitly replace the latest verified version."
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:321
+msgid "Overwrite"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:325
+msgid "Recreate File"
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:364
+msgid ""
+"The file was saved, but newer edits cannot be recovered after a crash. Retry "
+"before removing the scratch-session backup."
+msgstr ""
+
+#: src/window_content/documents/dialogs.rs:368
+msgid "Keep Editing Without Recovery"
 msgstr ""
 
 #: src/window_content/object_actions.rs:88

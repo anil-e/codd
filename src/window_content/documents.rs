@@ -1,12 +1,9 @@
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::sync::{Mutex, OnceLock, mpsc};
-use std::time::Duration;
 
-use gettextrs::{gettext, ngettext};
+use gettextrs::gettext;
 use libadwaita as adw;
 use libadwaita::prelude::*;
-use relm4::Sender;
 use relm4::gtk::{self, gio, glib};
 use relm4::prelude::*;
 use uuid::Uuid;
@@ -15,10 +12,19 @@ use super::{
     SqlEditorMsg, WindowContent, WindowContentMsg, WindowContentWidgets, tabs,
     with_window_content_subscribers,
 };
-use crate::models::session::{SavedSession, SavedSessionTab};
+use crate::models::session::SavedSession;
 use crate::sql_file::{self, FileError, LoadedSqlFile, SaveTarget};
-use crate::state::document_store::{self, RecoveryLoad, RecoveryRecord};
-use crate::state::session_store;
+use crate::state::document_store::{RecoveryLoad, RecoveryRecord};
+
+mod dialogs;
+mod recovery;
+
+use dialogs::{
+    confirm_document_reload, show_document_open_failure, show_document_save_conflict,
+    show_document_save_failure, show_promotion_recovery_failure, show_recovery_warnings,
+};
+pub(super) use dialogs::{document_error, present_document_dialog};
+use recovery::{promotion_sources, suppress_promoted_scratch_tabs};
 
 thread_local! {
     static OWNERS: RefCell<HashMap<String, (u64, u64)>> = RefCell::new(HashMap::new());
@@ -155,41 +161,6 @@ struct PendingSession {
     session: Option<SavedSession>,
 }
 
-fn promotion_sources(records: &[RecoveryRecord], scope: &(String, String)) -> HashSet<u64> {
-    records
-        .iter()
-        .filter(|record| record.connection_id == scope.0 && record.database == scope.1)
-        .filter_map(|record| record.source_tab_id)
-        .collect()
-}
-
-fn suppress_promoted_scratch_tabs(
-    session: &mut SavedSession,
-    scope: &(String, String),
-    records: &[RecoveryRecord],
-) {
-    if (&session.connection_id, &session.database) != (&scope.0, &scope.1) {
-        return;
-    }
-    session.tabs.retain(|tab| {
-        let SavedSessionTab::Query { id, sql, .. } = tab else {
-            return true;
-        };
-        !records.iter().any(|record| {
-            record.connection_id == scope.0
-                && record.database == scope.1
-                && record.source_tab_id == Some(*id)
-                && (sql.trim() == record.saved_text.trim() || sql.trim() == record.text.trim())
-        })
-    });
-    if session
-        .active_tab
-        .is_some_and(|id| !session.tabs.iter().any(|tab| tab.id() == id))
-    {
-        session.active_tab = None;
-    }
-}
-
 impl DocumentWorkspace {
     fn has_pending_operations(&self, pending_reads: bool) -> bool {
         self.chooser_open || !self.saves.is_empty() || self.recovery_pending != 0 || pending_reads
@@ -307,75 +278,6 @@ pub enum DocumentMsg {
     },
     SaveAsRequestedAfterConflict(u64),
     SaveCancelled(u64),
-}
-
-enum RecoveryJob {
-    Save(String, Sender<WindowContentMsg>),
-    Load((String, String), Sender<WindowContentMsg>),
-    Remove(Vec<String>, Option<(u64, Sender<WindowContentMsg>)>),
-    Restore(Vec<RecoveryRecord>, u64, Sender<WindowContentMsg>),
-}
-
-static PENDING_RECOVERY: OnceLock<Mutex<HashMap<String, RecoveryRecord>>> = OnceLock::new();
-
-fn pending_recovery() -> &'static Mutex<HashMap<String, RecoveryRecord>> {
-    PENDING_RECOVERY.get_or_init(|| Mutex::new(HashMap::new()))
-}
-
-fn recovery_worker() -> &'static mpsc::Sender<RecoveryJob> {
-    static WORKER: OnceLock<mpsc::Sender<RecoveryJob>> = OnceLock::new();
-    WORKER.get_or_init(|| {
-        let (tx, rx) = mpsc::channel();
-        std::thread::spawn(move || {
-            for job in rx {
-                match job {
-                    RecoveryJob::Save(id, sender) => {
-                        let record = pending_recovery()
-                            .lock()
-                            .expect("recovery queue")
-                            .remove(&id);
-                        if let Some(record) = record {
-                            let result = document_store::save(&record);
-                            let _ = sender.send(WindowContentMsg::Document(
-                                DocumentMsg::RecoveryStored {
-                                    document_id: id,
-                                    result,
-                                },
-                            ));
-                        }
-                    }
-                    RecoveryJob::Load(scope, sender) => {
-                        let result = document_store::load_for_database(&scope.0, &scope.1);
-                        let _ =
-                            sender.send(WindowContentMsg::Document(DocumentMsg::RecoveryLoaded {
-                                scope,
-                                result,
-                            }));
-                    }
-                    RecoveryJob::Remove(ids, completion) => {
-                        let result = ids.iter().try_for_each(|id| document_store::remove(id));
-                        if let Some((generation, sender)) = completion {
-                            let _ = sender.send(WindowContentMsg::Closing(
-                                super::closing::ClosingMsg::CleanupFinished { generation, result },
-                            ));
-                        }
-                    }
-                    RecoveryJob::Restore(records, generation, sender) => {
-                        let mut result = Ok(());
-                        for record in records {
-                            if let Err(error) = document_store::save(&record) {
-                                result = Err(error);
-                            }
-                        }
-                        let _ = sender.send(WindowContentMsg::Closing(
-                            super::closing::ClosingMsg::CancellationFinished { generation, result },
-                        ));
-                    }
-                }
-            }
-        });
-        tx
-    })
 }
 
 impl WindowContent {
@@ -515,48 +417,6 @@ impl WindowContent {
         }
     }
 
-    pub(super) fn choose_sql_files(
-        &mut self,
-        root: &adw::ToolbarView,
-        sender: &ComponentSender<Self>,
-    ) {
-        if self.file_operation_pending() || self.active_database_switch_request_id.is_some() {
-            return;
-        }
-        self.documents.chooser_open = true;
-        let request = self.document_request();
-        self.documents.chooser_request = Some(request);
-        let parent = root.root().and_downcast::<gtk::Window>();
-        let chooser = gtk::FileChooserNative::new(
-            Some(&gettext("Open SQL Files")),
-            parent.as_ref(),
-            gtk::FileChooserAction::Open,
-            Some(&gettext("Open")),
-            Some(&gettext("Cancel")),
-        );
-        chooser.set_select_multiple(true);
-        chooser.set_modal(true);
-        add_sql_filter(&chooser);
-        let sender = sender.input_sender().clone();
-        chooser.connect_response(move |chooser, response| {
-            let files = if response == gtk::ResponseType::Accept {
-                let model = chooser.files();
-                (0..model.n_items())
-                    .filter_map(|index| model.item(index).and_downcast::<gio::File>())
-                    .collect()
-            } else {
-                Vec::new()
-            };
-            let _ = sender.send(WindowContentMsg::Document(DocumentMsg::FilesChosen {
-                request,
-                files,
-            }));
-            chooser.destroy();
-        });
-        self.documents.chooser = Some(chooser.clone());
-        chooser.show();
-    }
-
     pub(super) fn open_sql_locations(
         &mut self,
         files: Vec<gio::File>,
@@ -661,56 +521,7 @@ impl WindowContent {
             if self.documents.chooser_open {
                 return;
             }
-            self.documents.chooser_open = true;
-            let parent = root.root().and_downcast::<gtk::Window>();
-            let chooser = gtk::FileChooserNative::new(
-                Some(&gettext("Save SQL File")),
-                parent.as_ref(),
-                gtk::FileChooserAction::Save,
-                Some(&gettext("Save")),
-                Some(&gettext("Cancel")),
-            );
-            let filename = tab
-                .document
-                .as_ref()
-                .and_then(|doc| doc.file.as_ref())
-                .and_then(|file| file.basename())
-                .map(|name| name.to_string_lossy().into_owned())
-                .unwrap_or_else(|| "query.sql".into());
-            chooser.set_current_name(&filename);
-            chooser.set_modal(true);
-            add_sql_filter(&chooser);
-            let request = self.document_request();
-            self.documents.chooser_request = Some(request);
-            self.documents.chooser_identity =
-                self.query_tabs
-                    .iter()
-                    .find(|tab| tab.id == id)
-                    .map(|tab| SaveChooserIdentity {
-                        tab: id,
-                        document_id: tab.document.as_ref().map(|doc| doc.id.clone()),
-                        scope: self.active_database_scope().unwrap_or_else(|| {
-                            tab.document
-                                .as_ref()
-                                .expect("document scope")
-                                .origin
-                                .clone()
-                        }),
-                    });
-            let sender = sender.input_sender().clone();
-            chooser.connect_response(move |chooser, response| {
-                let file = (response == gtk::ResponseType::Accept)
-                    .then(|| chooser.file())
-                    .flatten();
-                let _ = sender.send(WindowContentMsg::Document(DocumentMsg::SaveChosen {
-                    tab: id,
-                    request,
-                    file,
-                }));
-                chooser.destroy();
-            });
-            self.documents.chooser = Some(chooser.clone());
-            chooser.show();
+            self.choose_sql_save_target(id, root, sender);
         } else if let Some(document) = &tab.document
             && let Some(file) = document.file.clone()
         {
@@ -849,164 +660,6 @@ impl WindowContent {
         }
     }
 
-    pub(super) fn document_text_changed(&mut self, id: u64, sender: &ComponentSender<Self>) {
-        let Some(doc) = self.query_tab_mut(id).and_then(|tab| tab.document.as_mut()) else {
-            return;
-        };
-        if doc.request.is_some() {
-            return;
-        }
-        doc.revision += 1;
-        let document_id = doc.id.clone();
-        let revision = doc.revision;
-        let sender = sender.input_sender().clone();
-        glib::timeout_add_local_once(Duration::from_millis(400), move || {
-            let _ = sender.send(WindowContentMsg::Document(DocumentMsg::FlushRecovery {
-                tab: id,
-                document_id,
-                revision,
-            }));
-        });
-    }
-
-    pub(super) fn persist_document(&self, id: u64, sender: &ComponentSender<Self>) {
-        let Some(tab) = self.query_tabs.iter().find(|tab| tab.id == id) else {
-            return;
-        };
-        let Some(doc) = &tab.document else {
-            return;
-        };
-        let record = doc.recovery_record(self.query_tab_sql(id).unwrap_or_default());
-        let id = record.document_id.clone();
-        let already_queued = pending_recovery()
-            .lock()
-            .expect("recovery queue")
-            .insert(id.clone(), record)
-            .is_some();
-        if !already_queued {
-            let _ = recovery_worker().send(RecoveryJob::Save(id, sender.input_sender().clone()));
-        }
-    }
-
-    pub(super) fn restore_documents(
-        &mut self,
-        mut session: Option<SavedSession>,
-        widgets: &WindowContentWidgets,
-        sender: &ComponentSender<Self>,
-    ) {
-        let Some(scope) = self.active_database_scope() else {
-            return;
-        };
-        if self.documents.restored.insert(scope.clone()) {
-            self.documents.pending_session = Some(PendingSession {
-                scope: scope.clone(),
-                session,
-            });
-            widgets.content_stack.set_sensitive(false);
-            self.documents.recovery_pending += 1;
-            let _ = recovery_worker().send(RecoveryJob::Load(scope, sender.input_sender().clone()));
-        } else {
-            let records: Vec<_> = self
-                .query_tabs
-                .iter()
-                .filter_map(|tab| {
-                    let doc = tab.document.as_ref()?;
-                    (doc.origin == scope).then(|| {
-                        doc.recovery_record(self.query_tab_sql(tab.id).unwrap_or_default())
-                    })
-                })
-                .collect();
-            if let Some(session) = &mut session {
-                suppress_promoted_scratch_tabs(session, &scope, &records);
-            }
-            self.restore_session(session, widgets, sender);
-        }
-    }
-
-    pub(super) fn cancel_document_chooser(&mut self) {
-        if let Some(chooser) = self.documents.chooser.take() {
-            chooser.destroy();
-        }
-
-        self.documents.chooser_open = false;
-        self.documents.chooser_request = None;
-        self.documents.chooser_identity = None;
-    }
-
-    pub(super) fn restore_close_recovery(&self, generation: u64, sender: &ComponentSender<Self>) {
-        let records = self
-            .query_tabs
-            .iter()
-            .filter_map(|tab| {
-                tab.document
-                    .as_ref()
-                    .map(|doc| doc.recovery_record(self.query_tab_sql(tab.id).unwrap_or_default()))
-            })
-            .collect();
-        let _ = recovery_worker().send(RecoveryJob::Restore(
-            records,
-            generation,
-            sender.input_sender().clone(),
-        ));
-    }
-
-    pub(super) fn save_close_session(
-        &self,
-        targets: Option<&[String]>,
-        widgets: &WindowContentWidgets,
-    ) -> Result<(), String> {
-        let whole_window = targets.is_none();
-        let records: Vec<_> = self
-            .query_tabs
-            .iter()
-            .filter(|tab| {
-                targets.is_none_or(|targets| targets.contains(&format!("query-tab-{}", tab.id)))
-            })
-            .filter_map(|tab| {
-                let doc = tab.document.as_ref()?;
-                doc.source_tab_id
-                    .map(|_| doc.recovery_record(self.query_tab_sql(tab.id).unwrap_or_default()))
-            })
-            .collect();
-        if whole_window {
-            self.checkpoint_current_session(widgets)?;
-        } else {
-            self.save_current_session(widgets)?;
-        }
-        let scopes: HashSet<_> = records
-            .iter()
-            .map(|record| (record.connection_id.clone(), record.database.clone()))
-            .collect();
-        for scope in scopes {
-            if let Some(mut session) = session_store::load(&scope.0, &scope.1) {
-                suppress_promoted_scratch_tabs(&mut session, &scope, &records);
-                session_store::save(&session).map_err(|error| error.to_string())?;
-            }
-        }
-
-        Ok(())
-    }
-
-    pub(super) fn remove_close_recovery(
-        &self,
-        targets: Option<&[String]>,
-        generation: u64,
-        sender: &ComponentSender<Self>,
-    ) {
-        let ids = self
-            .query_tabs
-            .iter()
-            .filter(|tab| {
-                targets.is_none_or(|names| names.contains(&format!("query-tab-{}", tab.id)))
-            })
-            .filter_map(|tab| tab.document.as_ref().map(|doc| doc.id.clone()))
-            .collect();
-        let _ = recovery_worker().send(RecoveryJob::Remove(
-            ids,
-            Some((generation, sender.input_sender().clone())),
-        ));
-    }
-
     fn reload_document(
         &mut self,
         id: u64,
@@ -1027,31 +680,14 @@ impl WindowContent {
             return;
         }
         if !confirmed && self.query_tab_sql(id).as_deref() != Some(doc.saved_text.as_str()) {
-            let dialog = adw::AlertDialog::builder()
-                .heading(gettext("Reload SQL File?"))
-                .body(gettext(
-                    "Reloading discards your unsaved changes and cannot be undone.",
-                ))
-                .build();
-            dialog.add_responses(&[
-                ("cancel", &gettext("Cancel")),
-                ("reload", &gettext("Reload")),
-            ]);
-            dialog.set_close_response("cancel");
-            dialog.set_response_appearance("reload", adw::ResponseAppearance::Destructive);
-            let document_id = doc.id.clone();
-            let revision = doc.revision;
-            let uri = file.uri().to_string();
-            let sender = sender.input_sender().clone();
-            dialog.connect_response(Some("reload"), move |_, _| {
-                let _ = sender.send(WindowContentMsg::Document(DocumentMsg::ReloadConfirmed {
-                    tab: id,
-                    document_id: document_id.clone(),
-                    revision,
-                    uri: uri.clone(),
-                }));
-            });
-            present_document_dialog(&dialog, root);
+            confirm_document_reload(
+                id,
+                doc.id.clone(),
+                doc.revision,
+                file.uri().to_string(),
+                root,
+                sender,
+            );
             return;
         }
         let request = self.document_request();
@@ -1197,28 +833,7 @@ impl WindowContent {
                             }
                             self.close_query_tab(id, widgets);
                         }
-                        let dialog = adw::AlertDialog::builder()
-                            .heading(gettext("Opening SQL File Failed"))
-                            .body(error.to_string())
-                            .build();
-                        dialog.add_responses(&[
-                            ("cancel", &gettext("Cancel")),
-                            ("retry", &gettext("Retry")),
-                        ]);
-                        dialog.set_close_response("cancel");
-                        let sender = sender.input_sender().clone();
-                        dialog.connect_response(Some("retry"), move |_, _| {
-                            if reload {
-                                let _ = sender.send(WindowContentMsg::Document(
-                                    DocumentMsg::ReloadTab(Some(format!("query-tab-{id}"))),
-                                ));
-                            } else {
-                                let _ = sender.send(WindowContentMsg::OpenSqlFileLocations(vec![
-                                    file.clone().expect("loaded file"),
-                                ]));
-                            }
-                        });
-                        present_document_dialog(&dialog, root);
+                        show_document_open_failure(id, reload, file, error, root, sender);
                     }
                 }
             }
@@ -1311,26 +926,7 @@ impl WindowContent {
                         }
                         self.abort_document_save(request);
                         self.cancel_close(root, sender);
-                        let dialog = adw::AlertDialog::builder()
-                            .heading(gettext("Saving SQL File Failed"))
-                            .body(format!(
-                                "{error}\n{}",
-                                gettext("Check the file permissions or use Save As to choose another location.")
-                            ))
-                            .build();
-                        dialog.add_responses(&[
-                            ("cancel", &gettext("Cancel")),
-                            ("save-as", &gettext("Save As")),
-                        ]);
-                        dialog.set_close_response("cancel");
-                        let sender = sender.input_sender().clone();
-                        dialog.connect_response(Some("save-as"), move |_, _| {
-                            let _ = sender.send(WindowContentMsg::Document(DocumentMsg::SaveTab(
-                                Some(format!("query-tab-{id}")),
-                                true,
-                            )));
-                        });
-                        present_document_dialog(&dialog, root);
+                        show_document_save_failure(id, error, root, sender);
                     }
                 }
             }
@@ -1338,47 +934,7 @@ impl WindowContent {
                 if !self.documents.saves.contains_key(&request) {
                     return;
                 }
-                let dialog = adw::AlertDialog::builder()
-                    .heading(gettext("File Changed on Disk"))
-                    .body(gettext("The file was changed, deleted, or cannot be verified. Save a copy, or explicitly replace the latest verified version."))
-                    .build();
-                dialog.add_responses(&[
-                    ("cancel", &gettext("Cancel")),
-                    ("save-as", &gettext("Save As")),
-                ]);
-                let deleted = matches!(result, Err(FileError::Deleted));
-                let etag = result.ok().and_then(|loaded| loaded.etag);
-                if etag.is_some() {
-                    dialog.add_response("overwrite", &gettext("Overwrite"));
-                    dialog
-                        .set_response_appearance("overwrite", adw::ResponseAppearance::Destructive);
-                }
-                if deleted {
-                    dialog.add_response("recreate", &gettext("Recreate File"));
-                    dialog
-                        .set_response_appearance("recreate", adw::ResponseAppearance::Destructive);
-                }
-                dialog.set_close_response("cancel");
-                let sender = sender.input_sender().clone();
-                dialog.connect_response(None, move |_, response| {
-                    if response == "overwrite" || response == "recreate" {
-                        let _ = sender.send(WindowContentMsg::Document(
-                            DocumentMsg::OverwriteConfirmed {
-                                request,
-                                etag: etag.clone(),
-                            },
-                        ));
-                    } else if response == "save-as" {
-                        let _ = sender.send(WindowContentMsg::Document(
-                            DocumentMsg::SaveAsRequestedAfterConflict(request),
-                        ));
-                    } else {
-                        let _ = sender.send(WindowContentMsg::Document(
-                            DocumentMsg::SaveCancelled(request),
-                        ));
-                    }
-                });
-                present_document_dialog(&dialog, root);
+                show_document_save_conflict(request, result, root, sender);
             }
             DocumentMsg::OverwriteConfirmed { request, etag } => {
                 let Some(snapshot) = self.documents.saves.get(&request) else {
@@ -1743,35 +1299,7 @@ impl WindowContent {
                         }
                     }
                     (Some(id), Err(error)) => {
-                        let dialog = adw::AlertDialog::builder()
-                            .heading(gettext("Saving SQL Recovery Failed"))
-                            .body(format!(
-                                "{error}\n{}",
-                                gettext("The file was saved, but newer edits cannot be recovered after a crash. Retry before removing the scratch-session backup.")
-                            ))
-                            .build();
-                        dialog.add_responses(&[
-                            ("continue", &gettext("Keep Editing Without Recovery")),
-                            ("retry", &gettext("Retry")),
-                        ]);
-                        dialog.set_default_response(Some("retry"));
-                        dialog.set_close_response("continue");
-                        let sender = sender.input_sender().clone();
-                        dialog.connect_response(None, move |_, response| {
-                            let msg = if response == "retry" {
-                                DocumentMsg::RetryPromotionRecovery {
-                                    tab: id,
-                                    document_id: document_id.clone(),
-                                }
-                            } else {
-                                DocumentMsg::ContinueWithoutRecovery {
-                                    tab: id,
-                                    document_id: document_id.clone(),
-                                }
-                            };
-                            let _ = sender.send(WindowContentMsg::Document(msg));
-                        });
-                        present_document_dialog(&dialog, root);
+                        show_promotion_recovery_failure(id, document_id, error, root, sender);
                     }
                     (None, Err(error)) => {
                         document_error(root, &gettext("Saving SQL Recovery Failed"), &error)
@@ -1837,70 +1365,9 @@ pub(super) fn query_id(name: Option<&str>) -> Option<u64> {
     name?.strip_prefix("query-tab-")?.parse().ok()
 }
 
-fn add_sql_filter(chooser: &gtk::FileChooserNative) {
-    let filter = gtk::FileFilter::new();
-    filter.set_name(Some(&gettext("SQL Files")));
-    filter.add_pattern("*.sql");
-    filter.add_pattern("*.SQL");
-    chooser.add_filter(&filter);
-    let all = gtk::FileFilter::new();
-    all.set_name(Some(&gettext("All Files")));
-    all.add_pattern("*");
-    chooser.add_filter(&all);
-}
-
-pub(super) fn present_document_dialog(dialog: &adw::AlertDialog, root: &adw::ToolbarView) {
-    let parent = root.root().and_downcast::<gtk::Window>();
-    dialog.present(parent.as_ref());
-}
-
-pub(super) fn document_error(root: &adw::ToolbarView, heading: &str, body: &str) {
-    let dialog = adw::AlertDialog::builder()
-        .heading(heading)
-        .body(body)
-        .build();
-    dialog.add_response("close", &gettext("Close"));
-    dialog.set_close_response("close");
-    present_document_dialog(&dialog, root);
-}
-
-fn show_recovery_warnings(root: &adw::ToolbarView, warnings: &[String]) {
-    for warning in warnings {
-        glib::g_warning!("codd", "{warning}");
-    }
-    document_error(
-        root,
-        &gettext("Some SQL Recovery Files Could Not Be Restored"),
-        &recovery_warning_body(warnings),
-    );
-}
-
-fn recovery_warning_body(warnings: &[String]) -> String {
-    let count = u32::try_from(warnings.len()).unwrap_or(u32::MAX);
-    let summary = ngettext(
-        "One recovery file could not be restored. Valid recovery files were processed normally, and the unreadable file was left untouched.",
-        "{count} recovery files could not be restored. Valid recovery files were processed normally, and the unreadable files were left untouched.",
-        count,
-    ).replace("{count}", &count.to_string());
-    let mut details = warnings
-        .iter()
-        .take(8)
-        .cloned()
-        .collect::<Vec<_>>()
-        .join("\n");
-    if warnings.len() > 8 {
-        details.push_str(&format!(
-            "\n{}",
-            gettext("See the application logs for the remaining recovery warnings.")
-        ));
-    }
-    format!("{summary}\n\n{details}")
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::session::SavedSessionTabId;
 
     pub(super) fn document() -> SqlDocument {
         SqlDocument {
@@ -2138,36 +1605,6 @@ mod tests {
         assert!(!doc.is_busy());
     }
 
-    fn session_with_promoted_source() -> SavedSession {
-        use crate::models::session::{SavedSessionObject, SavedSessionObjectKind};
-
-        SavedSession {
-            connection_id: "original-connection".into(),
-            database: "original-database".into(),
-            active_tab: Some(SavedSessionTabId::Query(42)),
-            tabs: vec![
-                SavedSessionTab::Query {
-                    id: 42,
-                    sql: "same SQL".into(),
-                    row_limit: 1000,
-                },
-                SavedSessionTab::Query {
-                    id: 43,
-                    sql: "same SQL".into(),
-                    row_limit: 1000,
-                },
-                SavedSessionTab::Browse {
-                    id: 42,
-                    object: SavedSessionObject {
-                        schema: "public".into(),
-                        name: "items".into(),
-                        kind: SavedSessionObjectKind::Table,
-                    },
-                },
-            ],
-        }
-    }
-
     #[test]
     fn promotion_provenance_survives_recovery_and_save_as_without_using_runtime_ids() {
         let mut doc = document();
@@ -2238,109 +1675,5 @@ mod tests {
                 })
             })
             .unwrap();
-    }
-
-    #[test]
-    fn promotion_suppression_removes_only_the_original_query_in_its_original_scope() {
-        let mut doc = document();
-        doc.source_tab_id = Some(42);
-        doc.saved_text = "same SQL".into();
-        let record = doc.recovery_record("recovered text".into());
-        let scope = doc.origin.clone();
-        let records = [record];
-        let mut session = session_with_promoted_source();
-        suppress_promoted_scratch_tabs(&mut session, &scope, &records);
-        assert_eq!(
-            session
-                .tabs
-                .iter()
-                .map(SavedSessionTab::id)
-                .collect::<Vec<_>>(),
-            vec![SavedSessionTabId::Query(43), SavedSessionTabId::Browse(42)]
-        );
-        assert_eq!(session.active_tab, None);
-
-        for other_scope in [
-            ("other-connection".into(), scope.1.clone()),
-            (scope.0.clone(), "other-database".into()),
-        ] {
-            let mut session = session_with_promoted_source();
-            let original = session.clone();
-            suppress_promoted_scratch_tabs(&mut session, &other_scope, &records);
-            assert_eq!(session, original);
-        }
-    }
-
-    #[test]
-    fn recovery_report_warnings_do_not_block_healthy_promotion_or_suppress_unrelated_tabs() {
-        let mut doc = document();
-        doc.source_tab_id = Some(42);
-        doc.saved_text = "same SQL".into();
-        let healthy = doc.recovery_record("recovered text".into());
-        let mut other_scope = healthy.clone();
-        other_scope.database = "other-database".into();
-        other_scope.source_tab_id = Some(43);
-        let report = RecoveryLoad {
-            records: vec![healthy, other_scope],
-            warnings: vec![
-                "broken-a.json: invalid JSON".into(),
-                "broken-b.json: unreadable".into(),
-            ],
-        };
-        let sources = promotion_sources(&report.records, &doc.origin);
-        assert_eq!(sources, HashSet::from([42]));
-        let mut session = session_with_promoted_source();
-        session.active_tab = Some(SavedSessionTabId::Browse(42));
-        suppress_promoted_scratch_tabs(&mut session, &doc.origin, &report.records);
-        assert_eq!(session.active_tab, Some(SavedSessionTabId::Browse(42)));
-        assert!(
-            session
-                .tabs
-                .iter()
-                .any(|tab| tab.id() == SavedSessionTabId::Query(43))
-        );
-        let body = recovery_warning_body(&report.warnings);
-        assert!(body.contains("2 recovery files"));
-        assert!(body.contains("broken-a.json"));
-        assert!(body.contains("broken-b.json"));
-    }
-
-    #[test]
-    fn legacy_recovery_without_provenance_never_guesses_a_duplicate_from_sql_text() {
-        let doc = document();
-        let record = doc.recovery_record("same SQL".into());
-        let records = [record];
-        let mut session = session_with_promoted_source();
-        let original = session.clone();
-        suppress_promoted_scratch_tabs(&mut session, &doc.origin, &records);
-        assert_eq!(session, original);
-    }
-
-    #[test]
-    fn promotion_never_suppresses_newer_edits_from_another_window_with_the_same_source_id() {
-        let mut doc = document();
-        doc.source_tab_id = Some(42);
-        doc.saved_text = "same SQL".into();
-        let records = [doc.recovery_record("recovered file edits".into())];
-        let mut session = session_with_promoted_source();
-        if let SavedSessionTab::Query { sql, .. } = &mut session.tabs[0] {
-            *sql = "newer independent scratch edits".into();
-        }
-        let original = session.clone();
-        suppress_promoted_scratch_tabs(&mut session, &doc.origin, &records);
-        assert_eq!(session, original);
-    }
-
-    #[test]
-    fn many_recovery_warnings_keep_an_exact_count_without_an_unbounded_dialog_body() {
-        let warnings = (0..12)
-            .map(|index| format!("broken-{index}.json: invalid JSON"))
-            .collect::<Vec<_>>();
-        let body = recovery_warning_body(&warnings);
-        assert!(body.contains("12 recovery files"));
-        assert!(body.contains("broken-0.json"));
-        assert!(body.contains("broken-7.json"));
-        assert!(!body.contains("broken-8.json"));
-        assert!(body.contains("application logs"));
     }
 }
