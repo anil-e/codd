@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 13:25+0100\n"
+"POT-Creation-Date: 2026-10-25 15:58+0100\n"
 "PO-Revision-Date: 2026-07-21 10:37+0000\n"
 "Last-Translator: Anil Erdogan <a.erdogan@termitel.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/codd/ui/de/>\n"
@@ -63,71 +63,71 @@ msgstr "Anil Erdogan <anil.erdogan@mailbox.org>"
 msgid "Lightweight PostgreSQL client"
 msgstr "Leichtgewichtiger PostgreSQL-Client"
 
-#: src/window_content.rs:297 src/window_content.rs:364
+#: src/window_content.rs:302 src/window_content.rs:369
 msgid "Main Menu"
 msgstr "Hauptmenü"
 
-#: src/window_content.rs:330
+#: src/window_content.rs:335
 msgid "Objects"
 msgstr "Objekte"
 
-#: src/window_content.rs:334
+#: src/window_content.rs:339
 msgid "Back to connections"
 msgstr "Zurück zu Verbindungen"
 
-#: src/window_content.rs:341
+#: src/window_content.rs:346
 msgid "Refresh Objects"
 msgstr "Objekte aktualisieren"
 
-#: src/window_content.rs:371
+#: src/window_content.rs:376
 msgid "New Query Tab"
 msgstr "Neuer Query-Tab"
 
-#: src/window_content.rs:851 src/window_content.rs:1458
+#: src/window_content.rs:859 src/window_content.rs:1466
 #: src/window_content/database_switching.rs:74
 #: src/window_content/database_switching.rs:145
 msgid "Saving tabs failed"
 msgstr "Speichern der Tabs fehlgeschlagen"
 
-#: src/window_content.rs:949
+#: src/window_content.rs:957
 msgid "Updating the saved password failed"
 msgstr "Aktualisieren des gespeicherten Passworts fehlgeschlagen"
 
-#: src/window_content.rs:1002 src/ui/components/table_browser.rs:1275
+#: src/window_content.rs:1010 src/ui/components/table_browser.rs:1277
 msgid "CSV exported."
 msgstr "CSV exportiert."
 
-#: src/window_content.rs:1211
+#: src/window_content.rs:1219
 msgid "Hide Objects"
 msgstr "Objekte ausblenden"
 
-#: src/window_content.rs:1212
+#: src/window_content.rs:1220
 msgid "Show Objects"
 msgstr "Objekte anzeigen"
 
-#: src/window_content.rs:1241
+#: src/window_content.rs:1249
 msgid "Commit or discard pending table edits first."
 msgstr ""
 "Committen oder verwerfen Sie zuerst die ausstehenden Tabellenänderungen."
 
-#: src/window_content.rs:1448
+#: src/window_content.rs:1456
 msgid "Waiting for the file operation before disconnecting."
 msgstr "Vor dem Trennen wird auf den Abschluss des Dateivorgangs gewartet."
 
-#: src/window_content.rs:1497 src/ui/components/sidebar.rs:153
+#: src/window_content.rs:1505 src/ui/components/sidebar.rs:153
 #: src/ui/components/sidebar.rs:407 src/ui/components/sidebar.rs:421
 msgid "No connection"
 msgstr "Keine Verbindung"
 
-#: src/window_content.rs:1577
+#: src/window_content.rs:1585
 msgid "Connected to PostgreSQL."
 msgstr "Mit PostgreSQL verbunden."
 
-#: src/window_content.rs:1590
+#: src/window_content.rs:1598
 msgid "Connected, but saving the connection failed"
 msgstr "Verbunden, aber Speichern der Verbindung fehlgeschlagen"
 
-#: src/window_content.rs:1679
+#: src/window_content.rs:1687
 msgid ""
 "Some scratch tabs exceed the session recovery limits. Save them as SQL files "
 "before leaving this workspace."
@@ -136,52 +136,52 @@ msgstr ""
 "Speichern Sie diese als SQL-Dateien, bevor Sie diesen Arbeitsbereich "
 "verlassen."
 
-#: src/window_content.rs:1741
+#: src/window_content.rs:1749
 msgid "Disabling saved password failed"
 msgstr "Deaktivieren des gespeicherten Passworts fehlgeschlagen"
 
-#: src/window_content.rs:1756
+#: src/window_content.rs:1764
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr ""
 "Verbinden Sie sich mit PostgreSQL, bevor Sie Query-Ergebnisse exportieren."
 
-#: src/window_content.rs:1764
+#: src/window_content.rs:1772
 msgid "Enter SQL before exporting query results."
 msgstr "Geben Sie SQL ein, bevor Sie Query-Ergebnisse exportieren."
 
-#: src/window_content.rs:1808
+#: src/window_content.rs:1816
 msgid "The query did not return rows."
 msgstr "Die Query hat keine Zeilen zurückgegeben."
 
-#: src/window_content.rs:1839
+#: src/window_content.rs:1847
 msgid "Schema load failed"
 msgstr "Laden des Schema fehlgeschlagen"
 
-#: src/window_content.rs:1900
+#: src/window_content.rs:1908
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "Verbinden Sie sich mit PostgreSQL, bevor Sie ein Script generieren."
 
-#: src/window_content.rs:1940
+#: src/window_content.rs:1948
 msgid "Generating the table script failed"
 msgstr "Generieren des Table-Scripts fehlgeschlagen"
 
-#: src/window_content.rs:1988 src/ui/components/table_browser.rs:1278
+#: src/window_content.rs:1996 src/ui/components/table_browser.rs:1280
 msgid "Export failed"
 msgstr "Export fehlgeschlagen"
 
-#: src/window_content.rs:1993 src/window_content/documents.rs:2358
+#: src/window_content.rs:2001 src/window_content/documents.rs:1862
 #: src/window_content/structure_actions.rs:429 src/window_content/tabs.rs:94
 #: src/ui/components/connection_dialog.rs:966
-#: src/ui/components/table_browser.rs:1748
+#: src/ui/components/table_browser.rs:1757
 msgid "Close"
 msgstr "Schließen"
 
-#: src/window_content.rs:2028
+#: src/window_content.rs:2036
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
 "Der CSV-Export führt Queries in einer schreibgeschützten Transaktion aus."
 
-#: src/window_content.rs:2030
+#: src/window_content.rs:2038
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
@@ -191,25 +191,85 @@ msgstr ""
 "oder den Transaktionsstatus ändern, wie UPDATE, INSERT, DELETE, CREATE, "
 "COMMIT oder ROLLBACK, können nicht exportiert werden."
 
-#: src/window_content.rs:2040
+#: src/window_content.rs:2048
 msgid "CREATE script generated."
 msgstr "CREATE Script generiert."
 
-#: src/window_content.rs:2041
+#: src/window_content.rs:2049
 msgid "SELECT script generated."
 msgstr "SELECT Script generiert."
 
-#: src/window_content.rs:2042
+#: src/window_content.rs:2050
 msgid "INSERT script generated."
 msgstr "INSERT Script generiert."
 
-#: src/window_content.rs:2043
+#: src/window_content.rs:2051
 msgid "UPDATE script generated."
 msgstr "UPDATE Script generiert."
 
-#: src/window_content.rs:2044
+#: src/window_content.rs:2052
 msgid "DELETE script generated."
 msgstr "DELETE Script generiert."
+
+#: src/window_content/closing.rs:202
+msgid ""
+"Wait for the current file or database operation to finish, then try closing "
+"again."
+msgstr ""
+"Warten Sie, bis der aktuelle Datei- oder Datenbankvorgang abgeschlossen ist, "
+"und versuchen Sie dann erneut, das Fenster oder den Tab zu schließen."
+
+#: src/window_content/closing.rs:292
+msgid "Save Changes?"
+msgstr "Änderungen speichern?"
+
+#: src/window_content/closing.rs:296
+msgid "Unsaved changes will be lost if you discard them."
+msgstr "Ungespeicherte Änderungen gehen verloren, wenn Sie diese verwerfen."
+
+#: src/window_content/closing.rs:300 src/window_content/documents.rs:535
+#: src/window_content/documents.rs:671 src/window_content/documents.rs:1037
+#: src/window_content/documents.rs:1205 src/window_content/documents.rs:1322
+#: src/window_content/documents.rs:1346 src/window_content/object_actions.rs:93
+#: src/window_content/object_actions.rs:149
+#: src/window_content/object_actions.rs:205
+#: src/window_content/structure_actions.rs:88
+#: src/window_content/structure_actions.rs:145
+#: src/ui/components/connection_dialog.rs:882
+#: src/ui/components/connection_dialog.rs:917
+#: src/ui/components/csv_export_dialog.rs:55
+#: src/ui/components/csv_export_dialog.rs:91
+#: src/ui/components/start_screen.rs:333 src/ui/components/start_screen.rs:369
+#: src/ui/components/editor.rs:274
+#: src/ui/components/table_browser/cell_editor.rs:93
+#: src/ui/components/table_browser/delete_row.rs:31
+#: src/ui/components/table_browser/editing.rs:293
+#: src/ui/components/table_browser/insert_row.rs:272
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: src/window_content/closing.rs:301 src/ui/components/table_browser.rs:483
+#: src/ui/components/table_browser/editing.rs:294
+msgid "Discard"
+msgstr "Verwerfen"
+
+#: src/window_content/closing.rs:302 src/window_content/documents.rs:670
+#: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
+msgid "Save"
+msgstr "Speichern"
+
+#: src/window_content/closing.rs:384 src/window_content/documents.rs:1684
+#: src/window_content/documents.rs:1742
+msgid "Saving Tabs Failed"
+msgstr "Speichern der Tabs fehlgeschlagen"
+
+#: src/window_content/closing.rs:443
+msgid "Closing SQL Files Failed"
+msgstr "Schließen der SQL-Dateien fehlgeschlagen"
+
+#: src/window_content/closing.rs:507
+msgid "Restoring SQL Recovery Failed"
+msgstr "Laden der SQL-Wiederherstellungsdaten fehlgeschlagen"
 
 #: src/window_content/database_switching.rs:56
 msgid "Finish the file operation before switching databases."
@@ -239,125 +299,73 @@ msgstr "Speichern des Query-Verlaufs fehlgeschlagen"
 msgid "Clearing query history failed"
 msgstr "Leeren des Query-Verlaufs fehlgeschlagen"
 
-#: src/window_content/documents.rs:81
+#: src/window_content/documents.rs:79
 msgid "Recovered Script (Save As Required)"
 msgstr "Wiederhergestelltes Script (Speichern unter erforderlich)"
 
-#: src/window_content/documents.rs:94
+#: src/window_content/documents.rs:92
 msgid "File changed on disk. Reload to read the latest version."
 msgstr "Die Datei wurde extern geändert. Laden Sie die aktuelle Version neu."
 
-#: src/window_content/documents.rs:669
+#: src/window_content/documents.rs:531
 msgid "Open SQL Files"
 msgstr "SQL-Dateien öffnen"
 
-#: src/window_content/documents.rs:672
+#: src/window_content/documents.rs:534
 msgid "Open"
 msgstr "Öffnen"
 
-#: src/window_content/documents.rs:673 src/window_content/documents.rs:809
-#: src/window_content/documents.rs:1211 src/window_content/documents.rs:1399
-#: src/window_content/documents.rs:1567 src/window_content/documents.rs:1684
-#: src/window_content/documents.rs:1708 src/window_content/object_actions.rs:65
-#: src/window_content/object_actions.rs:119
-#: src/window_content/object_actions.rs:174
-#: src/window_content/structure_actions.rs:88
-#: src/window_content/structure_actions.rs:145
-#: src/ui/components/connection_dialog.rs:882
-#: src/ui/components/connection_dialog.rs:917
-#: src/ui/components/csv_export_dialog.rs:55
-#: src/ui/components/csv_export_dialog.rs:91
-#: src/ui/components/start_screen.rs:333 src/ui/components/start_screen.rs:369
-#: src/ui/components/editor.rs:274
-#: src/ui/components/table_browser/cell_editor.rs:93
-#: src/ui/components/table_browser/delete_row.rs:31
-#: src/ui/components/table_browser/editing.rs:298
-#: src/ui/components/table_browser/insert_row.rs:273
-msgid "Cancel"
-msgstr "Abbrechen"
-
-#: src/window_content/documents.rs:707
+#: src/window_content/documents.rs:569
 msgid "Connect to PostgreSQL to open the queued SQL files."
 msgstr ""
 "Verbinden Sie sich mit PostgreSQL, um die vorgemerkten SQL-Dateien zu öffnen."
 
-#: src/window_content/documents.rs:805
+#: src/window_content/documents.rs:667
 msgid "Save SQL File"
 msgstr "SQL-Datei speichern"
 
-#: src/window_content/documents.rs:808 src/window_content/documents.rs:1213
-#: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
-msgid "Save"
-msgstr "Speichern"
-
-#: src/window_content/documents.rs:1104
-msgid ""
-"Wait for the current file or database operation to finish, then try closing "
-"again."
-msgstr ""
-"Warten Sie, bis der aktuelle Datei- oder Datenbankvorgang abgeschlossen ist, "
-"und versuchen Sie dann erneut, das Fenster oder den Tab zu schließen."
-
-#: src/window_content/documents.rs:1203
-msgid "Save Changes?"
-msgstr "Änderungen speichern?"
-
-#: src/window_content/documents.rs:1207
-msgid "Unsaved changes will be lost if you discard them."
-msgstr "Ungespeicherte Änderungen gehen verloren, wenn Sie diese verwerfen."
-
-#: src/window_content/documents.rs:1212 src/ui/components/table_browser.rs:487
-#: src/ui/components/table_browser/editing.rs:299
-msgid "Discard"
-msgstr "Verwerfen"
-
-#: src/window_content/documents.rs:1350 src/window_content/documents.rs:2068
-#: src/window_content/documents.rs:2126
-msgid "Saving Tabs Failed"
-msgstr "Speichern der Tabs fehlgeschlagen"
-
-#: src/window_content/documents.rs:1393
+#: src/window_content/documents.rs:1031
 msgid "Reload SQL File?"
 msgstr "SQL-Datei neu laden?"
 
-#: src/window_content/documents.rs:1395
+#: src/window_content/documents.rs:1033
 msgid "Reloading discards your unsaved changes and cannot be undone."
 msgstr ""
 "Beim Neuladen gehen Ihre ungespeicherten Änderungen unwiderruflich verloren."
 
-#: src/window_content/documents.rs:1400 src/window_content/tabs.rs:103
+#: src/window_content/documents.rs:1038 src/window_content/tabs.rs:103
 #: src/ui/components/editor.rs:422
 msgid "Reload"
 msgstr "Neu laden"
 
-#: src/window_content/documents.rs:1563
+#: src/window_content/documents.rs:1201
 msgid "Opening SQL File Failed"
 msgstr "Öffnen der SQL-Datei fehlgeschlagen"
 
-#: src/window_content/documents.rs:1568 src/window_content/documents.rs:2139
+#: src/window_content/documents.rs:1206 src/window_content/documents.rs:1755
 msgid "Retry"
 msgstr "Erneut versuchen"
 
-#: src/window_content/documents.rs:1677
+#: src/window_content/documents.rs:1315
 msgid "Saving SQL File Failed"
 msgstr "Speichern der SQL-Datei fehlgeschlagen"
 
-#: src/window_content/documents.rs:1680
+#: src/window_content/documents.rs:1318
 msgid "Check the file permissions or use Save As to choose another location."
 msgstr ""
 "Prüfen Sie die Dateiberechtigungen oder wählen Sie mit »Speichern unter« "
 "einen anderen Speicherort."
 
-#: src/window_content/documents.rs:1685 src/window_content/documents.rs:1709
+#: src/window_content/documents.rs:1323 src/window_content/documents.rs:1347
 #: src/window_content/tabs.rs:102 src/ui/components/editor.rs:424
 msgid "Save As"
 msgstr "Speichern unter"
 
-#: src/window_content/documents.rs:1704
+#: src/window_content/documents.rs:1342
 msgid "File Changed on Disk"
 msgstr "Datei wurde extern geändert"
 
-#: src/window_content/documents.rs:1705
+#: src/window_content/documents.rs:1343
 msgid ""
 "The file was changed, deleted, or cannot be verified. Save a copy, or "
 "explicitly replace the latest verified version."
@@ -366,23 +374,23 @@ msgstr ""
 "Speichern Sie eine Kopie oder ersetzen Sie ausdrücklich die zuletzt "
 "überprüfte Version."
 
-#: src/window_content/documents.rs:1714
+#: src/window_content/documents.rs:1352
 msgid "Overwrite"
 msgstr "Überschreiben"
 
-#: src/window_content/documents.rs:1719
+#: src/window_content/documents.rs:1357
 msgid "Recreate File"
 msgstr "Datei erneut erstellen"
 
-#: src/window_content/documents.rs:2077
+#: src/window_content/documents.rs:1693
 msgid "Restoring SQL Files Failed"
 msgstr "Wiederherstellen der SQL-Dateien fehlgeschlagen"
 
-#: src/window_content/documents.rs:2131 src/window_content/documents.rs:2161
+#: src/window_content/documents.rs:1747 src/window_content/documents.rs:1777
 msgid "Saving SQL Recovery Failed"
 msgstr "Speichern der SQL-Wiederherstellungsdaten fehlgeschlagen"
 
-#: src/window_content/documents.rs:2134
+#: src/window_content/documents.rs:1750
 msgid ""
 "The file was saved, but newer edits cannot be recovered after a crash. Retry "
 "before removing the scratch-session backup."
@@ -391,31 +399,23 @@ msgstr ""
 "Absturz nicht wiederhergestellt werden. Versuchen Sie es erneut, bevor die "
 "Sitzungssicherung des Query-Tabs entfernt wird."
 
-#: src/window_content/documents.rs:2138
+#: src/window_content/documents.rs:1754
 msgid "Keep Editing Without Recovery"
 msgstr "Ohne Wiederherstellung weiterbearbeiten"
 
-#: src/window_content/documents.rs:2205
-msgid "Closing SQL Files Failed"
-msgstr "Schließen der SQL-Dateien fehlgeschlagen"
-
-#: src/window_content/documents.rs:2268
-msgid "Restoring SQL Recovery Failed"
-msgstr "Laden der SQL-Wiederherstellungsdaten fehlgeschlagen"
-
-#: src/window_content/documents.rs:2338
+#: src/window_content/documents.rs:1842
 msgid "SQL Files"
 msgstr "SQL-Dateien"
 
-#: src/window_content/documents.rs:2343
+#: src/window_content/documents.rs:1847
 msgid "All Files"
 msgstr "Alle Dateien"
 
-#: src/window_content/documents.rs:2369
+#: src/window_content/documents.rs:1873
 msgid "Some SQL Recovery Files Could Not Be Restored"
 msgstr "Einige SQL-Wiederherstellungsdateien konnten nicht geladen werden"
 
-#: src/window_content/documents.rs:2377
+#: src/window_content/documents.rs:1881
 #, rust-format
 msgid ""
 "One recovery file could not be restored. Valid recovery files were processed "
@@ -432,59 +432,59 @@ msgstr[1] ""
 "Wiederherstellungsdateien wurden normal verarbeitet und die unlesbaren "
 "Dateien wurden unverändert beibehalten."
 
-#: src/window_content/documents.rs:2390
+#: src/window_content/documents.rs:1894
 msgid "See the application logs for the remaining recovery warnings."
 msgstr ""
 "Weitere Warnungen zur Wiederherstellung finden Sie im Anwendungsprotokoll."
 
-#: src/window_content/object_actions.rs:60
+#: src/window_content/object_actions.rs:88
 msgid "Choose a new name for this database object."
 msgstr "Wählen Sie einen neuen Namen für dieses Datenbankobjekt."
 
-#: src/window_content/object_actions.rs:66
-#: src/window_content/object_actions.rs:353
+#: src/window_content/object_actions.rs:94
+#: src/window_content/object_actions.rs:412
 #: src/window_content/structure_actions.rs:89
 #: src/ui/components/start_screen.rs:334
 msgid "Rename"
 msgstr "Umbenennen"
 
-#: src/window_content/object_actions.rs:149
+#: src/window_content/object_actions.rs:180
 msgid "Restart identity"
 msgstr "RESTART IDENTITY"
 
-#: src/window_content/object_actions.rs:151
+#: src/window_content/object_actions.rs:182
 msgid "Reset sequences owned by columns of the truncated table."
 msgstr "Setzt Sequences zurück, die Columns der geleerten Table gehören."
 
-#: src/window_content/object_actions.rs:156
+#: src/window_content/object_actions.rs:187
 msgid "Cascade"
 msgstr "Cascade"
 
-#: src/window_content/object_actions.rs:158
+#: src/window_content/object_actions.rs:189
 msgid "Also truncate tables that have foreign-key references to this table."
 msgstr "Auch Tables leeren, die Foreign-Key-Referenzen auf diese Table haben."
 
-#: src/window_content/object_actions.rs:322
+#: src/window_content/object_actions.rs:381
 msgid "Rename Table"
 msgstr "Table umbenennen"
 
-#: src/window_content/object_actions.rs:323
+#: src/window_content/object_actions.rs:382
 msgid "Rename View"
 msgstr "View umbenennen"
 
-#: src/window_content/object_actions.rs:325
+#: src/window_content/object_actions.rs:384
 msgid "Truncate Table"
 msgstr "TRUNCATE TABLE"
 
-#: src/window_content/object_actions.rs:327
+#: src/window_content/object_actions.rs:386
 msgid "Delete Table"
 msgstr "DROP TABLE"
 
-#: src/window_content/object_actions.rs:328
+#: src/window_content/object_actions.rs:387
 msgid "Delete View"
 msgstr "DROP VIEW"
 
-#: src/window_content/object_actions.rs:336
+#: src/window_content/object_actions.rs:395
 #, rust-format
 msgid ""
 "Remove all rows from {table}?\n"
@@ -493,7 +493,7 @@ msgstr ""
 "Alle Zeilen aus {table} entfernen?\n"
 "Dies kann nicht rückgängig gemacht werden."
 
-#: src/window_content/object_actions.rs:341
+#: src/window_content/object_actions.rs:400
 #, rust-format
 msgid ""
 "Delete table {name}?\n"
@@ -502,7 +502,7 @@ msgstr ""
 "Table {name} löschen?\n"
 "Dies kann nicht rückgängig gemacht werden."
 
-#: src/window_content/object_actions.rs:343
+#: src/window_content/object_actions.rs:402
 #, rust-format
 msgid ""
 "Delete view {name}?\n"
@@ -511,42 +511,42 @@ msgstr ""
 "View {name} löschen?\n"
 "Dies kann nicht rückgängig gemacht werden."
 
-#: src/window_content/object_actions.rs:354
+#: src/window_content/object_actions.rs:413
 msgid "Truncate"
 msgstr "TRUNCATE"
 
-#: src/window_content/object_actions.rs:355
+#: src/window_content/object_actions.rs:414
 #: src/ui/components/table_browser/delete_row.rs:32
 msgid "Delete"
 msgstr "DROP"
 
-#: src/window_content/object_actions.rs:361
+#: src/window_content/object_actions.rs:420
 msgid "Database object renamed."
 msgstr "Datenbankobjekt umbenannt."
 
-#: src/window_content/object_actions.rs:363
+#: src/window_content/object_actions.rs:422
 #, rust-format
 msgid "Table truncated: {table}"
 msgstr "Table geleert: {table}"
 
-#: src/window_content/object_actions.rs:365
+#: src/window_content/object_actions.rs:424
 msgid "Database object deleted."
 msgstr "Datenbankobjekt gelöscht."
 
-#: src/window_content/object_actions.rs:371
+#: src/window_content/object_actions.rs:430
 #: src/window_content/structure_actions.rs:404
 msgid "Renaming failed"
 msgstr "Umbenennen fehlgeschlagen"
 
-#: src/window_content/object_actions.rs:372
+#: src/window_content/object_actions.rs:431
 msgid "Truncating failed"
 msgstr "Leeren fehlgeschlagen"
 
-#: src/window_content/object_actions.rs:373
+#: src/window_content/object_actions.rs:432
 msgid "Deleting failed"
 msgstr "Löschen fehlgeschlagen"
 
-#: src/window_content/object_actions.rs:388
+#: src/window_content/object_actions.rs:451
 #: src/window_content/structure_actions.rs:301
 msgid "Enter a valid object name."
 msgstr "Geben Sie einen gültigen Objektnamen ein."
@@ -752,8 +752,8 @@ msgstr ""
 "aktuelle Version neu."
 
 #: src/window_content/tabs.rs:753 src/models/completion.rs:423
-#: src/ui/components/table_browser.rs:1625 src/ui/components/table_view.rs:685
-#: src/ui/components/table_view.rs:706
+#: src/ui/components/table_browser.rs:1634 src/ui/components/table_view.rs:665
+#: src/ui/components/table_view.rs:686
 msgid "Table"
 msgstr "Table"
 
@@ -1057,7 +1057,7 @@ msgid "Row limit"
 msgstr "Zeilenlimit"
 
 #: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:217
-#: src/ui/components/table_browser.rs:373 src/ui/components/table_view.rs:207
+#: src/ui/components/table_browser.rs:369 src/ui/components/table_view.rs:204
 msgid "Export CSV"
 msgstr "CSV exportieren"
 
@@ -1068,7 +1068,7 @@ msgstr ""
 "verwendet wird."
 
 #: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:221
-#: src/ui/components/table_browser.rs:377
+#: src/ui/components/table_browser.rs:373
 msgid "Export"
 msgstr "Exportieren"
 
@@ -1107,7 +1107,7 @@ msgid "No databases match your search."
 msgstr "Keine Datenbanken entsprechen Ihrer Suche."
 
 #: src/ui/components/database_selector.rs:237
-#: src/ui/components/table_browser.rs:1642
+#: src/ui/components/table_browser.rs:1651
 msgid "Loading..."
 msgstr "Laden..."
 
@@ -1348,15 +1348,15 @@ msgstr "Query abgebrochen"
 msgid "The query was cancelled."
 msgstr "Die Query wurde abgebrochen."
 
-#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:1224
+#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:1226
 msgid "Cell copied."
 msgstr "Zelle kopiert."
 
-#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:1235
+#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:1237
 msgid "Row copied."
 msgstr "Zeile kopiert."
 
-#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:1246
+#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:1248
 msgid "Column copied."
 msgstr "Spalte kopiert."
 
@@ -1397,15 +1397,15 @@ msgid_plural "{rows}{limit_suffix} rows"
 msgstr[0] "{rows}{limit_suffix} Zeile"
 msgstr[1] "{rows}{limit_suffix} Zeilen"
 
-#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1838
+#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1847
 msgid "Copy Cell"
 msgstr "Zelle kopieren"
 
-#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1839
+#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1848
 msgid "Copy Row"
 msgstr "Zeile kopieren"
 
-#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1840
+#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1849
 msgid "Copy Column"
 msgstr "Spalte kopieren"
 
@@ -1413,59 +1413,61 @@ msgstr "Spalte kopieren"
 msgid "Copy Displayed Results"
 msgstr "Angezeigte Ergebnisse kopieren"
 
-#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1845
+#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1854
 msgid "Export CSV..."
 msgstr "CSV exportieren..."
 
-#: src/ui/components/table_browser.rs:363 src/ui/components/table_view.rs:196
+#: src/ui/components/table_browser.rs:359 src/ui/components/table_view.rs:193
 msgid "Show or edit filters"
 msgstr "Filter anzeigen oder bearbeiten"
 
-#: src/ui/components/table_browser.rs:405
-#: src/ui/components/table_browser/refresh.rs:68
+#: src/ui/components/table_browser.rs:401
+#: src/ui/components/table_browser/refresh.rs:77
 msgid "Refresh failed. Displayed rows may be stale."
-msgstr "Aktualisierung fehlgeschlagen. Die angezeigten Zeilen sind möglicherweise veraltet."
+msgstr ""
+"Aktualisierung fehlgeschlagen. Die angezeigten Zeilen sind möglicherweise "
+"veraltet."
 
-#: src/ui/components/table_browser.rs:494
-#: src/ui/components/table_browser/editing.rs:300
+#: src/ui/components/table_browser.rs:490
+#: src/ui/components/table_browser/editing.rs:295
 msgid "Commit"
 msgstr "Commit"
 
-#: src/ui/components/table_browser.rs:516
+#: src/ui/components/table_browser.rs:512
 msgid "First page"
 msgstr "Erste Seite"
 
-#: src/ui/components/table_browser.rs:526
+#: src/ui/components/table_browser.rs:522
 msgid "Previous page"
 msgstr "Vorherige Seite"
 
-#: src/ui/components/table_browser.rs:560
+#: src/ui/components/table_browser.rs:556
 msgid "Next page"
 msgstr "Nächste Seite"
 
-#: src/ui/components/table_browser.rs:570
+#: src/ui/components/table_browser.rs:566
 msgid "Last page"
 msgstr "Letzte Seite"
 
-#: src/ui/components/table_browser.rs:582
+#: src/ui/components/table_browser.rs:578
 msgid "Rows"
 msgstr "Zeilen"
 
-#: src/ui/components/table_browser.rs:590
+#: src/ui/components/table_browser.rs:586
 msgid "Rows per page"
 msgstr "Zeilen pro Seite"
 
-#: src/ui/components/table_browser.rs:696
+#: src/ui/components/table_browser.rs:686
 msgid "Select a table"
 msgstr "Table auswählen"
 
-#: src/ui/components/table_browser.rs:698
+#: src/ui/components/table_browser.rs:688
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr ""
 "Wählen Sie eine Table oder View in der Seitenleiste aus, um die Zeilen zu "
 "durchsuchen."
 
-#: src/ui/components/table_browser.rs:961
+#: src/ui/components/table_browser.rs:965
 #, rust-format
 msgid ""
 "Row {row} was changed or deleted by another transaction. No changes were "
@@ -1475,7 +1477,7 @@ msgstr ""
 "wurden keine Änderungen gespeichert. Verwerfen Sie die Änderungen und laden "
 "Sie die Tabelle neu, bevor Sie weiterbearbeiten."
 
-#: src/ui/components/table_browser.rs:966
+#: src/ui/components/table_browser.rs:970
 msgid ""
 "The connection was lost while confirming the transaction. The changes may "
 "already be saved. Do not retry; discard and reload to check the database."
@@ -1485,7 +1487,7 @@ msgstr ""
 "erneut. Verwerfen Sie die Änderungen und laden Sie die Tabelle neu, um den "
 "Datenbankstand zu prüfen."
 
-#: src/ui/components/table_browser.rs:970
+#: src/ui/components/table_browser.rs:974
 msgid ""
 "The changes could not be saved. All updates were rolled back. Correct the "
 "values and try again."
@@ -1493,85 +1495,85 @@ msgstr ""
 "Die Änderungen konnten nicht gespeichert werden. Alle Updates wurden "
 "zurückgerollt. Korrigieren Sie die Werte und versuchen Sie es erneut."
 
-#: src/ui/components/table_browser.rs:1158
+#: src/ui/components/table_browser.rs:1161
 msgid "Loading table failed"
 msgstr "Laden der Table fehlgeschlagen"
 
-#: src/ui/components/table_browser.rs:1189
+#: src/ui/components/table_browser.rs:1191
 msgid "Loading last page failed"
 msgstr "Laden der letzten Seite fehlgeschlagen"
 
-#: src/ui/components/table_browser.rs:1255
+#: src/ui/components/table_browser.rs:1257
 msgid "Page copied."
 msgstr "Seite kopiert."
 
-#: src/ui/components/table_browser.rs:1333
+#: src/ui/components/table_browser.rs:1335
 msgid "Row inserted."
 msgstr "Zeile eingefügt."
 
-#: src/ui/components/table_browser.rs:1334
+#: src/ui/components/table_browser.rs:1336
 msgid "Row duplicated."
 msgstr "Zeile dupliziert."
 
-#: src/ui/components/table_browser.rs:1374
+#: src/ui/components/table_browser.rs:1375
 msgid "Row deleted."
 msgstr "Zeile gelöscht."
 
-#: src/ui/components/table_browser.rs:1391
+#: src/ui/components/table_browser.rs:1387
 msgid "Deleting row failed"
 msgstr "Löschen der Zeile fehlgeschlagen"
 
-#: src/ui/components/table_browser.rs:1601
+#: src/ui/components/table_browser.rs:1610
 msgid "Filter cannot be applied"
 msgstr "Filter kann nicht angewendet werden"
 
-#: src/ui/components/table_browser.rs:1616
+#: src/ui/components/table_browser.rs:1625
 msgid "Table Browser"
 msgstr "Table Browser"
 
-#: src/ui/components/table_browser.rs:1626 src/ui/components/table_view.rs:707
+#: src/ui/components/table_browser.rs:1635 src/ui/components/table_view.rs:687
 msgid "View"
 msgstr "View"
 
-#: src/ui/components/table_browser.rs:1634
+#: src/ui/components/table_browser.rs:1643
 msgid "Filters"
 msgstr "Filter"
 
-#: src/ui/components/table_browser.rs:1636
+#: src/ui/components/table_browser.rs:1645
 #, rust-format
 msgid "Filters ({count})"
 msgstr "Filter ({count})"
 
-#: src/ui/components/table_browser.rs:1650
+#: src/ui/components/table_browser.rs:1659
 msgid "No rows"
 msgstr "Keine Zeilen"
 
-#: src/ui/components/table_browser.rs:1656
+#: src/ui/components/table_browser.rs:1665
 #, rust-format
 msgid "{first}-{last} rows"
 msgstr "Zeilen {first}-{last}"
 
-#: src/ui/components/table_browser.rs:1830
+#: src/ui/components/table_browser.rs:1839
 msgid "Edit Value"
 msgstr "Wert bearbeiten"
 
-#: src/ui/components/table_browser.rs:1832
-#: src/ui/components/table_browser/insert_row.rs:252
+#: src/ui/components/table_browser.rs:1841
+#: src/ui/components/table_browser/insert_row.rs:251
 msgid "Duplicate Row"
 msgstr "Zeile duplizieren"
 
-#: src/ui/components/table_browser.rs:1842
+#: src/ui/components/table_browser.rs:1851
 msgid "Copy Displayed Page"
 msgstr "Angezeigte Seite kopieren"
 
-#: src/ui/components/table_browser.rs:1849
+#: src/ui/components/table_browser.rs:1858
 msgid "Delete Row..."
 msgstr "Zeile löschen..."
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
-#: src/ui/components/table_browser/insert_row.rs:390
-#: src/ui/components/table_browser/insert_row.rs:631
+#: src/ui/components/table_browser/insert_row.rs:389
+#: src/ui/components/table_browser/insert_row.rs:630
 msgid "Value"
 msgstr "Wert"
 
@@ -1598,7 +1600,7 @@ msgstr "Zeile löschen?"
 msgid "This will permanently delete the selected row."
 msgstr "Die ausgewählte Zeile wird dauerhaft gelöscht."
 
-#: src/ui/components/table_browser/editing.rs:58
+#: src/ui/components/table_browser/editing.rs:59
 msgid ""
 "The database may have committed these changes. Do not retry. Discard and "
 "reload to check the database before editing again."
@@ -1608,46 +1610,46 @@ msgstr ""
 "die Tabelle neu, um den Datenbankstand vor der weiteren Bearbeitung zu "
 "prüfen."
 
-#: src/ui/components/table_browser/editing.rs:64
+#: src/ui/components/table_browser/editing.rs:65
 #, rust-format
 msgid "Changed cells: {cells}; affected rows: {rows}"
 msgstr "Geänderte Zellen: {cells}; betroffene Zeilen: {rows}"
 
-#: src/ui/components/table_browser/editing.rs:131
+#: src/ui/components/table_browser/editing.rs:132
 msgid "Commit or discard pending edits before continuing."
 msgstr ""
 "Committen oder verwerfen Sie die ausstehenden Änderungen, bevor Sie "
 "fortfahren."
 
-#: src/ui/components/table_browser/editing.rs:171
+#: src/ui/components/table_browser/editing.rs:167
 msgid "The table is no longer available. Discard and reload before editing."
 msgstr ""
 "Die Tabelle ist nicht mehr verfügbar. Verwerfen Sie die Änderungen und laden "
 "Sie die Tabelle vor der Bearbeitung neu."
 
-#: src/ui/components/table_browser/editing.rs:189
+#: src/ui/components/table_browser/editing.rs:185
 msgid ""
 "The original row version is unavailable. Discard and reload before editing."
 msgstr ""
 "Die ursprüngliche Zeilenversion ist nicht verfügbar. Verwerfen Sie die "
 "Änderungen und laden Sie die Tabelle vor der Bearbeitung neu."
 
-#: src/ui/components/table_browser/editing.rs:288
+#: src/ui/components/table_browser/editing.rs:283
 msgid "Commit the changes to the database, discard them, or cancel closing."
 msgstr ""
 "Committen Sie die Änderungen in der Datenbank, verwerfen Sie diese oder "
 "brechen Sie das Schließen ab."
 
-#: src/ui/components/table_browser/editing.rs:292
+#: src/ui/components/table_browser/editing.rs:287
 msgid "Commit pending edits?"
 msgstr "Ausstehende Änderungen committen?"
 
-#: src/ui/components/table_browser/editing.rs:375
-#: src/ui/components/table_browser/editing.rs:393
+#: src/ui/components/table_browser/editing.rs:360
+#: src/ui/components/table_browser/editing.rs:378
 msgid "Cell cannot be edited"
 msgstr "Zelle kann nicht bearbeitet werden"
 
-#: src/ui/components/table_browser/editing.rs:375
+#: src/ui/components/table_browser/editing.rs:360
 msgid ""
 "This row has no usable version for safe editing. Reload the table and check "
 "its permissions and row-level security policy."
@@ -1656,19 +1658,19 @@ msgstr ""
 "die Tabelle neu und prüfen Sie deren Berechtigungen und Row-Level-Security-"
 "Richtlinie."
 
-#: src/ui/components/table_browser/editing.rs:499
+#: src/ui/components/table_browser/editing.rs:484
 msgid "Only tables can be edited."
 msgstr "Nur Tables können bearbeitet werden."
 
-#: src/ui/components/table_browser/editing.rs:503
+#: src/ui/components/table_browser/editing.rs:488
 msgid "The selected cell is no longer available."
 msgstr "Die ausgewählte Zelle ist nicht mehr verfügbar."
 
-#: src/ui/components/table_browser/editing.rs:507
+#: src/ui/components/table_browser/editing.rs:492
 msgid "This column type is not editable yet."
 msgstr "Dieser Column-Typ kann noch nicht bearbeitet werden."
 
-#: src/ui/components/table_browser/editing.rs:511
+#: src/ui/components/table_browser/editing.rs:496
 msgid "Editing requires a primary key."
 msgstr "Bearbeiten erfordert einen Primary Key."
 
@@ -1725,22 +1727,22 @@ msgstr "Einfügen der Zeile fehlgeschlagen"
 msgid "The submitted row is no longer valid."
 msgstr "Die eingegebenen Zeilendaten sind nicht mehr gültig."
 
-#: src/ui/components/table_browser/insert_row.rs:247
+#: src/ui/components/table_browser/insert_row.rs:246
 #, rust-format
 msgid "Inserting row into {name} failed"
 msgstr "Einfügen einer Zeile in {name} fehlgeschlagen"
 
-#: src/ui/components/table_browser/insert_row.rs:249
+#: src/ui/components/table_browser/insert_row.rs:248
 #, rust-format
 msgid "Duplicating row into {name} failed"
 msgstr "Duplizieren einer Zeile in {name} fehlgeschlagen"
 
-#: src/ui/components/table_browser/insert_row.rs:251
-#: src/ui/components/table_view.rs:159
+#: src/ui/components/table_browser/insert_row.rs:250
+#: src/ui/components/table_view.rs:156
 msgid "Insert Row"
 msgstr "Zeile einfügen"
 
-#: src/ui/components/table_browser/insert_row.rs:256
+#: src/ui/components/table_browser/insert_row.rs:255
 msgid ""
 "Enter values for the new row. Columns can also use DEFAULT or NULL when "
 "available."
@@ -1748,87 +1750,87 @@ msgstr ""
 "Geben Sie Werte für die neue Zeile ein. Columns können auch DEFAULT oder "
 "NULL verwenden, wenn verfügbar."
 
-#: src/ui/components/table_browser/insert_row.rs:259
+#: src/ui/components/table_browser/insert_row.rs:258
 msgid "Review the copied values before inserting the duplicate row."
 msgstr ""
 "Prüfen Sie die kopierten Werte, bevor Sie die duplizierte Zeile einfügen."
 
-#: src/ui/components/table_browser/insert_row.rs:263
+#: src/ui/components/table_browser/insert_row.rs:262
 msgid "Insert"
 msgstr "Einfügen"
 
-#: src/ui/components/table_browser/insert_row.rs:264
+#: src/ui/components/table_browser/insert_row.rs:263
 msgid "Duplicate"
 msgstr "Duplizieren"
 
-#: src/ui/components/table_browser/insert_row.rs:393
+#: src/ui/components/table_browser/insert_row.rs:392
 msgid "NULL"
 msgstr "NULL"
 
-#: src/ui/components/table_browser/insert_row.rs:397
+#: src/ui/components/table_browser/insert_row.rs:396
 #: src/ui/components/table_structure/columns.rs:83
 msgid "Default"
 msgstr "Default"
 
-#: src/ui/components/table_browser/insert_row.rs:431
+#: src/ui/components/table_browser/insert_row.rs:430
 msgid "Skipped"
 msgstr "Übersprungen"
 
-#: src/ui/components/table_browser/insert_row.rs:598
+#: src/ui/components/table_browser/insert_row.rs:597
 msgid "Required"
 msgstr "Erforderlich"
 
-#: src/ui/components/table_browser/insert_row.rs:600
+#: src/ui/components/table_browser/insert_row.rs:599
 msgid "Default or NULL allowed"
 msgstr "Default oder NULL erlaubt"
 
-#: src/ui/components/table_browser/insert_row.rs:602
+#: src/ui/components/table_browser/insert_row.rs:601
 msgid "Default allowed"
 msgstr "Default erlaubt"
 
-#: src/ui/components/table_browser/insert_row.rs:604
+#: src/ui/components/table_browser/insert_row.rs:603
 msgid "NULL allowed"
 msgstr "NULL erlaubt"
 
-#: src/ui/components/table_browser/insert_row.rs:612
+#: src/ui/components/table_browser/insert_row.rs:611
 msgid "Required column with unsupported type"
 msgstr "Erforderliche Column mit nicht unterstütztem Typ"
 
-#: src/ui/components/table_browser/insert_row.rs:615
+#: src/ui/components/table_browser/insert_row.rs:614
 msgid "Generated column"
 msgstr "Generierte Column"
 
-#: src/ui/components/table_browser/insert_row.rs:618
+#: src/ui/components/table_browser/insert_row.rs:617
 msgid "Identity column"
 msgstr "Identity-Column"
 
-#: src/ui/components/table_browser/insert_row.rs:621
+#: src/ui/components/table_browser/insert_row.rs:620
 msgid "Unsupported column type"
 msgstr "Nicht unterstützter Column-Typ"
 
-#: src/ui/components/table_browser/insert_row.rs:624
+#: src/ui/components/table_browser/insert_row.rs:623
 msgid "Read-only column"
 msgstr "Schreibgeschützte Column"
 
-#: src/ui/components/table_browser/insert_row.rs:629
+#: src/ui/components/table_browser/insert_row.rs:628
 msgid "Required value"
 msgstr "Erforderlicher Wert"
 
-#: src/ui/components/table_browser/loading.rs:53
+#: src/ui/components/table_browser/loading.rs:52
 msgid "Loading rows"
 msgstr "Zeilen werden geladen"
 
-#: src/ui/components/table_browser/loading.rs:54
+#: src/ui/components/table_browser/loading.rs:53
 msgid "Fetching the selected page from PostgreSQL."
 msgstr "Ausgewählte Seite wird von PostgreSQL abgerufen."
 
-#: src/ui/components/table_browser/loading.rs:85
-#: src/ui/components/table_browser/loading.rs:131
+#: src/ui/components/table_browser/loading.rs:84
+#: src/ui/components/table_browser/loading.rs:129
 #: src/ui/components/table_structure.rs:321
 msgid "Loading cancelled"
 msgstr "Laden abgebrochen"
 
-#: src/ui/components/table_browser/loading.rs:155
+#: src/ui/components/table_browser/loading.rs:153
 #, rust-format
 msgid ""
 "The table {name} could not be found. It may have been renamed or dropped."
@@ -1836,7 +1838,7 @@ msgstr ""
 "Die Table {name} konnte nicht gefunden werden. Sie wurde möglicherweise "
 "umbenannt oder gedroppt."
 
-#: src/ui/components/table_browser/loading.rs:159
+#: src/ui/components/table_browser/loading.rs:157
 #, rust-format
 msgid ""
 "The view {name} could not be found. It may have been renamed or dropped."
@@ -1844,55 +1846,59 @@ msgstr ""
 "Die View {name} konnte nicht gefunden werden. Sie wurde möglicherweise "
 "umbenannt oder gedroppt."
 
-#: src/ui/components/table_browser/refresh.rs:31
+#: src/ui/components/table_browser/refresh.rs:40
 msgid "Automatic refresh paused: tab hidden or window minimized"
-msgstr "Automatische Aktualisierung pausiert: Tab ausgeblendet oder Fenster minimiert"
+msgstr ""
+"Automatische Aktualisierung pausiert: Tab ausgeblendet oder Fenster minimiert"
 
-#: src/ui/components/table_browser/refresh.rs:33
+#: src/ui/components/table_browser/refresh.rs:42
 msgid "Automatic refresh paused: disconnected"
 msgstr "Automatische Aktualisierung pausiert: keine Verbindung"
 
-#: src/ui/components/table_browser/refresh.rs:35
+#: src/ui/components/table_browser/refresh.rs:44
 msgid "Automatic refresh paused: commit or discard pending edits"
-msgstr "Automatische Aktualisierung pausiert: ausstehende Änderungen committen oder verwerfen"
+msgstr ""
+"Automatische Aktualisierung pausiert: ausstehende Änderungen committen oder "
+"verwerfen"
 
-#: src/ui/components/table_browser/refresh.rs:37
+#: src/ui/components/table_browser/refresh.rs:46
 msgid "Automatic refresh paused: tab is closing"
 msgstr "Automatische Aktualisierung pausiert: Tab wird geschlossen"
 
-#: src/ui/components/table_browser/refresh.rs:39
+#: src/ui/components/table_browser/refresh.rs:48
 msgid "Automatic refresh paused: close the editor, menu, or dialog"
-msgstr "Automatische Aktualisierung pausiert: Editor, Menü oder Dialog schließen"
+msgstr ""
+"Automatische Aktualisierung pausiert: Editor, Menü oder Dialog schließen"
 
-#: src/ui/components/table_browser/refresh.rs:41
+#: src/ui/components/table_browser/refresh.rs:50
 msgid "Automatic refresh paused: database operation in progress"
 msgstr "Automatische Aktualisierung pausiert: Datenbankvorgang läuft"
 
-#: src/ui/components/table_browser/refresh.rs:43
+#: src/ui/components/table_browser/refresh.rs:52
 msgid "Automatic refresh paused: no page loaded"
 msgstr "Automatische Aktualisierung pausiert: keine Seite geladen"
 
-#: src/ui/components/table_browser/refresh.rs:55
+#: src/ui/components/table_browser/refresh.rs:64
 msgid "Refreshing rows..."
 msgstr "Zeilen werden aktualisiert..."
 
-#: src/ui/components/table_browser/refresh.rs:58
+#: src/ui/components/table_browser/refresh.rs:67
 #, rust-format
 msgid "Refresh every {seconds} seconds"
 msgstr "Alle {seconds} Sekunden aktualisieren"
 
-#: src/ui/components/table_browser/refresh.rs:62
+#: src/ui/components/table_browser/refresh.rs:71
 msgid "Refresh rows (automatic refresh is off)"
 msgstr "Zeilen aktualisieren (automatische Aktualisierung ist aus)"
 
-#: src/ui/components/table_browser/refresh.rs:194
+#: src/ui/components/table_browser/refresh.rs:198
 msgid ""
 "The table structure changed. Clear filters or sorting and refresh again."
 msgstr ""
 "Die Tabellenstruktur wurde geändert. Entfernen Sie Filter oder Sortierung "
 "und aktualisieren Sie erneut."
 
-#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:337
+#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:331
 msgid "Structure"
 msgstr "Struktur"
 
@@ -2031,27 +2037,27 @@ msgstr "Deferred"
 msgid "Deferrable"
 msgstr "Deferrable"
 
-#: src/ui/components/table_view.rs:172
+#: src/ui/components/table_view.rs:169
 msgid "Duplicate selected row"
 msgstr "Ausgewählte Zeile duplizieren"
 
-#: src/ui/components/table_view.rs:183
+#: src/ui/components/table_view.rs:180
 msgid "Delete selected row"
 msgstr "Ausgewählte Zeile löschen"
 
-#: src/ui/components/table_view.rs:220 src/ui/components/table_view.rs:241
+#: src/ui/components/table_view.rs:217 src/ui/components/table_view.rs:238
 msgid "Automatic Refresh"
 msgstr "Automatische Aktualisierung"
 
-#: src/ui/components/table_view.rs:222
+#: src/ui/components/table_view.rs:219
 msgid "Refresh"
 msgstr "Aktualisieren"
 
-#: src/ui/components/table_view.rs:252
+#: src/ui/components/table_view.rs:249
 msgid "Interval (seconds)"
 msgstr "Intervall (Sekunden)"
 
-#: src/ui/components/table_view.rs:333
+#: src/ui/components/table_view.rs:327
 msgid "Content"
 msgstr "Inhalt"
 

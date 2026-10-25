@@ -42,8 +42,10 @@ use crate::ui::components::{
     table_view::{TableView, TableViewOutput},
 };
 
+mod closing;
 mod database_switching;
 mod documents;
+mod navigation;
 mod object_actions;
 mod query_execution;
 mod structure_actions;
@@ -92,6 +94,8 @@ pub struct WindowContent {
     session_save_scheduled: bool,
     tab_view_signals_blocked: Rc<Cell<bool>>,
     documents: documents::DocumentWorkspace,
+    closing: closing::ClosingWorkspace,
+    pending_navigation: navigation::PendingNavigation,
 }
 
 struct QueryTab {
@@ -142,6 +146,7 @@ pub enum WindowContentMsg {
     CommitClose,
     FocusSqlDocument(u64),
     Document(documents::DocumentMsg),
+    Closing(closing::ClosingMsg),
     OpenConnectionDialog,
     ShowStartScreen,
     NewQueryTab,
@@ -462,6 +467,8 @@ impl Component for WindowContent {
             session_save_scheduled: false,
             tab_view_signals_blocked: tab_view_signals_blocked.clone(),
             documents: documents::DocumentWorkspace::default(),
+            closing: closing::ClosingWorkspace::default(),
+            pending_navigation: navigation::PendingNavigation::default(),
         };
         let content_root = root.clone();
         let widgets = view_output!();
@@ -559,14 +566,15 @@ impl Component for WindowContent {
             WindowContentMsg::SaveSqlFileAs => {
                 self.save_selected_document(true, widgets, root, &sender)
             }
-            WindowContentMsg::PrepareClose => {
-                self.begin_document_close(None, widgets, root, &sender)
-            }
-            WindowContentMsg::CancelClosePreparation => self.cancel_document_close(root, &sender),
-            WindowContentMsg::CommitClose => self.commit_document_close(widgets, root, &sender),
+            WindowContentMsg::PrepareClose => self.begin_close(None, widgets, root, &sender),
+            WindowContentMsg::CancelClosePreparation => self.cancel_close(root, &sender),
+            WindowContentMsg::CommitClose => self.commit_close(widgets, root, &sender),
             WindowContentMsg::FocusSqlDocument(id) => self.focus_sql_document(id, widgets, root),
             WindowContentMsg::Document(msg) => {
                 self.handle_document_message(msg, widgets, root, &sender)
+            }
+            WindowContentMsg::Closing(msg) => {
+                self.handle_closing_message(msg, widgets, root, &sender)
             }
             WindowContentMsg::ShowStartScreen => self.show_start_screen(widgets),
             WindowContentMsg::NewQueryTab => {
@@ -594,7 +602,7 @@ impl Component for WindowContent {
                 }
             }
             WindowContentMsg::CloseQueryTab(tab_id) => {
-                self.begin_document_close(
+                self.begin_close(
                     Some(vec![format!("query-tab-{tab_id}")]),
                     widgets,
                     root,
@@ -602,7 +610,7 @@ impl Component for WindowContent {
                 );
             }
             WindowContentMsg::CloseBrowseTab(tab_id) => {
-                self.begin_document_close(
+                self.begin_close(
                     Some(vec![format!("browse-tab-{tab_id}")]),
                     widgets,
                     root,
@@ -619,12 +627,12 @@ impl Component for WindowContent {
                 if widget_name.is_none() {
                     return;
                 }
-                let names = self.document_close_targets(widget_name.as_deref());
-                self.begin_document_close(Some(names), widgets, root, &sender);
+                let names = self.close_targets(widget_name.as_deref());
+                self.begin_close(Some(names), widgets, root, &sender);
             }
             WindowContentMsg::CloseAllTabs => {
-                let names = self.document_close_targets(None);
-                self.begin_document_close(Some(names), widgets, root, &sender);
+                let names = self.close_targets(None);
+                self.begin_close(Some(names), widgets, root, &sender);
             }
             WindowContentMsg::OpenBrowseTabFromMenu(widget_name) => {
                 self.add_browse_tab_from_widget_name(widget_name.as_deref(), widgets, &sender);
@@ -954,7 +962,7 @@ impl Component for WindowContent {
             }
         }
 
-        self.resume_document_navigation(widgets, root, &sender);
+        self.resume_pending_navigation(widgets, root, &sender);
         self.sync_file_actions(root, widgets);
         self.update_view(widgets, sender);
     }
@@ -1037,7 +1045,7 @@ impl Component for WindowContent {
             }
         }
 
-        self.resume_document_navigation(widgets, root, &sender);
+        self.resume_pending_navigation(widgets, root, &sender);
         self.sync_file_actions(root, widgets);
         self.update_view(widgets, sender);
     }
@@ -1437,21 +1445,21 @@ impl WindowContent {
 
     fn show_start_screen(&mut self, widgets: &mut WindowContentWidgets) {
         if self.table_navigation_blocked(widgets) {
-            self.documents.disconnect_pending = false;
+            self.pending_navigation.disconnect_pending = false;
 
             return;
         }
 
         if self.file_operation_pending() || self.close_preparation_pending() {
-            self.documents.disconnect_pending = true;
+            self.pending_navigation.disconnect_pending = true;
             widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
                 "Waiting for the file operation before disconnecting.",
             )));
             return;
         }
-        self.documents.disconnect_pending = false;
-        self.documents.deferred_switch = None;
-        self.documents.deferred_connection = None;
+        self.pending_navigation.disconnect_pending = false;
+        self.pending_navigation.deferred_switch = None;
+        self.pending_navigation.deferred_connection = None;
         if let Err(error) = self.checkpoint_current_session(widgets) {
             widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
                 "{}: {error}",
@@ -1533,12 +1541,12 @@ impl WindowContent {
         }
 
         if self.file_operation_pending() || self.close_preparation_pending() {
-            self.documents.deferred_connection = Some((details, postgres));
+            self.pending_navigation.deferred_connection = Some((details, postgres));
             return;
         }
         self.active_database_switch_request_id = None;
         self.active_database_list_request_id = None;
-        self.documents.deferred_switch = None;
+        self.pending_navigation.deferred_switch = None;
         self.cancel_all_queries();
         self.advance_table_script_generation();
 

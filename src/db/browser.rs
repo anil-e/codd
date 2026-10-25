@@ -203,8 +203,9 @@ mod tests {
             insert_row_sql, validate_delete_input, validate_insert_input, validate_update_input,
         },
         page_sql::{
-            TableFilterError, order_by_clause, table_count_sql_with_filters,
-            table_export_sql_with_filters, table_page_sql, table_page_sql_with_filters,
+            TableFilterError, order_by_clause, primary_key_columns, primary_key_predicate,
+            table_count_sql_with_filters, table_export_sql_with_filters, table_page_sql,
+            table_page_sql_with_filters,
         },
     };
     use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
@@ -212,6 +213,29 @@ mod tests {
         ColumnTypeGroup, FilterOperator, SortDirection, TableCell, TableColumn, TableFilter,
         TableInsertValue, TableSort,
     };
+
+    #[test]
+    fn primary_key_predicate_quotes_composite_keys_and_offsets_binds() {
+        let columns = vec![
+            uuid_column("tenant \" id", true),
+            column("value", false),
+            numeric_column("key", true),
+        ];
+        let keys = primary_key_columns(&columns);
+
+        assert_eq!(
+            keys.iter().map(|(index, _)| *index).collect::<Vec<_>>(),
+            vec![0, 2]
+        );
+        assert_eq!(
+            primary_key_predicate(&keys, 1),
+            "\"tenant \"\" id\" IS NOT DISTINCT FROM $1::uuid AND \"key\" IS NOT DISTINCT FROM $2::numeric(14,4)"
+        );
+        assert_eq!(
+            primary_key_predicate(&keys, 4),
+            "\"tenant \"\" id\" IS NOT DISTINCT FROM $4::uuid AND \"key\" IS NOT DISTINCT FROM $5::numeric(14,4)"
+        );
+    }
 
     #[test]
     fn builds_quoted_page_query() {
@@ -844,7 +868,7 @@ mod tests {
         ));
     }
 
-    fn column(name: &str, is_primary_key: bool) -> TableColumn {
+    pub(super) fn column(name: &str, is_primary_key: bool) -> TableColumn {
         TableColumn {
             name: name.to_string(),
             display_type: "text".to_string(),

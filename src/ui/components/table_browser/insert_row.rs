@@ -9,7 +9,7 @@ use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::table_browser::{ColumnTypeGroup, TableCell, TableColumn, TableInsertValue};
 use crate::ui::components::table_browser::{
     InsertRowKind, InsertRowRequest, InsertRowResult, TableBrowser, TableBrowserCommandOutput,
-    TableBrowserMsg, TableBrowserOutput,
+    TableBrowserMsg,
 };
 
 const COLUMN_LABEL_WIDTH: i32 = 210;
@@ -143,7 +143,6 @@ impl TableBrowser {
 
         self.is_loading = true;
         self.context_busy.set(true);
-        let _ = sender.output(TableBrowserOutput::BusyChanged(true));
 
         let id = self.allocate_request_id();
         self.active_insert_request_id = Some(id);

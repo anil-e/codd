@@ -5,7 +5,7 @@ use relm4::prelude::*;
 use crate::db;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::ui::components::table_browser::{
-    TableBrowser, TableBrowserCommandOutput, TableBrowserOutput, TableBrowserWidgets,
+    TableBrowser, TableBrowserCommandOutput, TableBrowserWidgets,
 };
 
 use super::{close_popover, set_stack_child};
@@ -25,7 +25,7 @@ impl TableBrowser {
         sender: &ComponentSender<Self>,
         refresh: bool,
     ) {
-        if self.has_pending_edits() || self.edits_saving() || self.close_request.is_some() {
+        if self.has_pending_edits() || self.edits_saving() || self.close_session.is_some() {
             return;
         }
 
@@ -47,7 +47,6 @@ impl TableBrowser {
             self.deferred_reload = false;
             self.refresh_error = None;
             self.context_busy.set(true);
-            let _ = sender.output(TableBrowserOutput::BusyChanged(true));
 
             self.is_error = false;
             self.status_title = gettext("Loading rows");
@@ -109,7 +108,6 @@ impl TableBrowser {
 
         self.is_loading = true;
         self.context_busy.set(true);
-        let _ = sender.output(TableBrowserOutput::BusyChanged(true));
 
         let id = self.allocate_request_id();
         let page_size = self.page_size;

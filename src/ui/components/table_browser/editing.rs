@@ -14,6 +14,7 @@ use crate::ui::components::table_browser::{
 };
 
 use super::cell_editor::show_edit_cell_popover;
+use super::closing::CloseSession;
 
 impl TableBrowser {
     pub fn has_pending_edits(&self) -> bool {
@@ -27,14 +28,14 @@ impl TableBrowser {
     pub fn input_locked(&self) -> bool {
         self.is_loading
             || self.edits_saving()
-            || self.close_request.is_some()
+            || self.close_session.is_some()
             || self.commit_unknown
     }
 
     pub fn authoritative_changes_blocked(&self) -> bool {
         self.has_pending_edits()
             || self.edits_saving()
-            || self.close_request.is_some()
+            || self.close_session.is_some()
             || self.commit_unknown
             || self.active_insert_request_id.is_some()
             || self.active_delete_request_id.is_some()
@@ -142,19 +143,14 @@ impl TableBrowser {
         editing && self.input_locked()
     }
 
-    pub(super) fn discard_edits(&mut self, sender: &ComponentSender<Self>) {
+    pub(super) fn discard_edits(&mut self) {
         self.page_generation = self.page_generation.wrapping_add(1);
-        let was_dirty = self.has_pending_edits();
 
         self.pending_edits.clear();
         self.context_dirty.set(false);
         self.edits_error = None;
         self.commit_unknown = false;
         close_popover(&mut self.edit_popover);
-
-        if was_dirty {
-            let _ = sender.output(TableBrowserOutput::PendingEditsChanged(false));
-        }
     }
 
     pub(super) fn save_edits(&mut self, sender: &ComponentSender<Self>) {
@@ -171,7 +167,7 @@ impl TableBrowser {
                 "The table is no longer available. Discard and reload before editing.",
             ));
 
-            if let Some(id) = self.close_request {
+            if let Some(id) = self.close_session.as_ref().map(|close| close.id) {
                 self.cancel_edits_close(id, sender);
             }
 
@@ -189,7 +185,7 @@ impl TableBrowser {
                         "The original row version is unavailable. Discard and reload before editing.",
                     ));
 
-                    if let Some(id) = self.close_request {
+                    if let Some(id) = self.close_session.as_ref().map(|close| close.id) {
                         self.cancel_edits_close(id, sender);
                     }
 
@@ -218,11 +214,13 @@ impl TableBrowser {
         let id = self.allocate_request_id();
 
         self.save_request = Some((id, generation));
+        if let Some(close) = self.close_session.as_mut() {
+            close.saving();
+        }
         self.is_loading = true;
         self.context_busy.set(true);
         self.close_context_menu();
         close_popover(&mut self.edit_popover);
-        let _ = sender.output(TableBrowserOutput::BusyChanged(true));
 
         sender.oneshot_command(async move {
             let result = db::browser::apply_table_edits(&pool, &object, &columns, &edits).await;
@@ -242,7 +240,7 @@ impl TableBrowser {
         sender: &ComponentSender<Self>,
     ) {
         if self.edits_saving()
-            || self.close_request.is_some()
+            || self.close_session.is_some()
             || self.active_insert_request_id.is_some()
             || self.active_delete_request_id.is_some()
         {
@@ -250,8 +248,11 @@ impl TableBrowser {
             return;
         }
 
-        self.close_request = Some(id);
-        self.close_interrupted_read = self.is_loading;
+        self.close_session = Some(CloseSession::new(
+            id,
+            self.is_loading,
+            self.has_pending_edits(),
+        ));
 
         if let Some(abort) = self.active_abort_handle.take() {
             abort.abort();
@@ -260,19 +261,13 @@ impl TableBrowser {
         self.active_request_id = None;
         self.active_last_page_request_id = None;
         self.is_loading = false;
-        let _ = sender.output(TableBrowserOutput::BusyChanged(false));
 
         self.page_generation = self.page_generation.wrapping_add(1);
-        self.close_discard = false;
-        self.close_prepared = false;
-        self.close_saved = false;
-        self.close_committed = false;
         self.context_busy.set(true);
         self.close_context_menu();
         close_popover(&mut self.edit_popover);
 
         if !self.has_pending_edits() {
-            self.close_prepared = true;
             let _ = sender.output(TableBrowserOutput::EditsClosePrepared(id));
             return;
         }
@@ -318,27 +313,16 @@ impl TableBrowser {
         self.close_dialog = Some(dialog);
     }
 
-    pub(super) fn cancel_edits_close(&mut self, id: u64, sender: &ComponentSender<Self>) {
-        if self.close_request == Some(id) {
-            if let Some(backup) = self.close_backup.take() {
-                let was_dirty = self.has_pending_edits();
-
-                self.pending_edits = backup.pending_edits;
-                self.edits_error = backup.error;
-                self.commit_unknown = backup.commit_unknown;
-                self.context_dirty.set(self.has_pending_edits());
-
-                if was_dirty != self.has_pending_edits() {
-                    let _ = sender.output(TableBrowserOutput::PendingEditsChanged(
-                        self.has_pending_edits(),
-                    ));
-                }
-            }
-
-            self.close_request = None;
-            self.close_discard = false;
-            self.close_prepared = false;
-            self.close_committed = false;
+    pub(super) fn cancel_edits_close(&mut self, id: u64, sender: &ComponentSender<Self>) -> bool {
+        let cancelled = CloseSession::cancel(&mut self.close_session, id);
+        let reload = cancelled.as_ref().is_some_and(|close| close.reload);
+        if let Some(cancelled) = cancelled {
+            cancelled.restore(
+                &mut self.pending_edits,
+                &mut self.edits_error,
+                &mut self.commit_unknown,
+            );
+            self.context_dirty.set(self.has_pending_edits());
 
             if let Some(dialog) = self.close_dialog.take() {
                 dialog.close();
@@ -346,10 +330,11 @@ impl TableBrowser {
 
             self.context_busy
                 .set(self.is_loading || self.commit_unknown);
-            self.close_saved = false;
         }
 
         let _ = sender.output(TableBrowserOutput::EditsCloseCancelled(id));
+
+        reload
     }
 
     pub(super) fn open_edit_popover(
@@ -419,7 +404,6 @@ impl TableBrowser {
         row_index: usize,
         column_index: usize,
         value: Option<String>,
-        sender: &ComponentSender<Self>,
     ) {
         if page_generation != self.page_generation || self.input_locked() {
             return;
@@ -450,7 +434,6 @@ impl TableBrowser {
             return;
         };
 
-        let was_dirty = self.has_pending_edits();
         let cell = submitted_cell(value, &page.columns[column_index]);
         stage_value(
             &mut self.pending_edits,
@@ -463,13 +446,15 @@ impl TableBrowser {
         if !self.has_pending_edits() {
             self.edits_error = None;
         }
-
-        if was_dirty != self.has_pending_edits() {
-            let _ = sender.output(TableBrowserOutput::PendingEditsChanged(
-                self.has_pending_edits(),
-            ));
-        }
     }
+}
+
+pub(super) fn current_save_completion(
+    request: Option<(u64, u64)>,
+    completion: (u64, u64),
+    page_generation: u64,
+) -> bool {
+    request == Some(completion) && completion.1 == page_generation
 }
 
 fn submitted_cell(value: Option<String>, column: &TableColumn) -> TableCell {
@@ -543,6 +528,25 @@ fn pending_counts(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn save_completion_requires_matching_request_and_page_generation() {
+        assert!(current_save_completion(Some((8, 4)), (8, 4), 4));
+        assert!(!current_save_completion(Some((8, 4)), (7, 4), 4));
+        assert!(!current_save_completion(Some((8, 4)), (8, 3), 4));
+        assert!(!current_save_completion(Some((8, 4)), (8, 4), 5));
+        assert!(!current_save_completion(None, (8, 4), 4));
+    }
+
+    #[test]
+    fn cancelling_close_does_not_invalidate_in_flight_save() {
+        let request = Some((8, 4));
+        let mut close = Some(CloseSession::new(2, false, true));
+        close.as_mut().unwrap().saving();
+        assert!(!CloseSession::cancel(&mut close, 2).unwrap().reload);
+        assert!(close.is_none());
+        assert!(current_save_completion(request, (8, 4), 4));
+    }
 
     fn column(type_name: &str) -> TableColumn {
         TableColumn {

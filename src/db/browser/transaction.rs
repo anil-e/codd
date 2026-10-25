@@ -2,8 +2,8 @@ use std::collections::HashSet;
 
 use sqlx::{PgPool, Postgres, Transaction};
 
-use super::editing::{delete_row_sql, validate_update_input};
-use super::page_sql::{ROW_VERSION_SQL, primary_key_columns};
+use super::editing::validate_update_input;
+use super::page_sql::{ROW_VERSION_SQL, primary_key_columns, primary_key_predicate};
 use crate::models::database_object::{DatabaseObject, quote_identifier};
 use crate::models::table_browser::{TableColumn, TableRowEdit};
 
@@ -85,6 +85,7 @@ fn validate_edits(
 
     let mut identities = HashSet::new();
     let mut row_indices = HashSet::new();
+    let primary_key_columns = primary_key_columns(columns);
 
     for edit in edits {
         if edit.version.is_empty() || edit.changes.is_empty() || edit.changes.len() > columns.len()
@@ -105,7 +106,7 @@ fn validate_edits(
             }
         }
 
-        let identity = primary_key_columns(columns)
+        let identity = primary_key_columns
             .iter()
             .map(|(index, _)| &edit.original_row[*index])
             .map(|cell| (!cell.is_null).then_some(cell.value.as_str()))
@@ -185,11 +186,8 @@ async fn apply_locked_edits(
         ));
     }
 
-    let delete_sql = delete_row_sql(object, columns)
-        .map_err(|error| TableEditError::Failed(error.to_string()))?;
-    let predicate = delete_sql
-        .strip_prefix(&format!("DELETE FROM {} WHERE ", object.qualified_name()))
-        .ok_or_else(|| TableEditError::Failed("Invalid row predicate.".to_string()))?;
+    let primary_key_columns = primary_key_columns(columns);
+    let predicate = primary_key_predicate(&primary_key_columns, 1);
     let lock_sql = format!(
         "SELECT {ROW_VERSION_SQL} FROM {} WHERE {predicate} LIMIT 2 FOR UPDATE",
         object.qualified_name()
@@ -199,8 +197,8 @@ async fn apply_locked_edits(
     for edit in edits {
         let mut query = sqlx::query_scalar::<_, String>(&lock_sql);
 
-        for (index, _) in primary_key_columns(columns) {
-            query = query.bind(&edit.original_row[index].value);
+        for (index, _) in &primary_key_columns {
+            query = query.bind(&edit.original_row[*index].value);
         }
 
         let versions = query.fetch_all(&mut **transaction).await?;
@@ -235,23 +233,11 @@ async fn apply_locked_edits(
             })
             .collect::<Vec<_>>()
             .join(", ");
-        let key_predicate = primary_key_columns(columns)
-            .iter()
-            .enumerate()
-            .map(|(index, (_, column))| {
-                format!(
-                    "{} IS NOT DISTINCT FROM ${}::{}",
-                    quote_identifier(&column.name),
-                    edit.changes.len() + index + 1,
-                    column.display_type
-                )
-            })
-            .collect::<Vec<_>>()
-            .join(" AND ");
+        let key_predicate = primary_key_predicate(&primary_key_columns, edit.changes.len() + 1);
         let sql = format!(
             "UPDATE {} SET {assignments} WHERE {key_predicate} AND {ROW_VERSION_SQL} = ${}::text",
             object.qualified_name(),
-            edit.changes.len() + primary_key_columns(columns).len() + 1
+            edit.changes.len() + primary_key_columns.len() + 1
         );
         let mut query = sqlx::query(&sql);
 
@@ -259,8 +245,8 @@ async fn apply_locked_edits(
             query = query.bind((!change.value.is_null).then_some(change.value.value.as_str()));
         }
 
-        for (index, _) in primary_key_columns(columns) {
-            query = query.bind(&edit.original_row[index].value);
+        for (index, _) in &primary_key_columns {
+            query = query.bind(&edit.original_row[*index].value);
         }
 
         let result = query
@@ -298,6 +284,58 @@ mod tests {
                 })
                 .collect(),
         }
+    }
+
+    #[test]
+    fn staged_edit_validation_rejects_invalid_edits() {
+        let object = DatabaseObject {
+            schema: "public".to_string(),
+            name: "rows".to_string(),
+            kind: DatabaseObjectKind::Table,
+        };
+        let columns = vec![
+            super::super::tests::column("id", true),
+            super::super::tests::column("value", false),
+        ];
+        let valid = TableRowEdit {
+            row_index: 0,
+            original_row: vec![
+                TableCell::new("1".to_string()),
+                TableCell::new("old".to_string()),
+            ],
+            version: "version".to_string(),
+            changes: vec![TableCellChange {
+                column_index: 1,
+                value: TableCell::new("new".to_string()),
+            }],
+        };
+
+        assert!(validate_edits(&object, &columns, std::slice::from_ref(&valid)).is_ok());
+        assert!(validate_edits(&object, &columns, &[valid.clone(), valid.clone()]).is_err());
+
+        let mut duplicate_cell = valid.clone();
+        duplicate_cell
+            .changes
+            .push(duplicate_cell.changes[0].clone());
+
+        assert!(validate_edits(&object, &columns, &[duplicate_cell]).is_err());
+
+        let mut primary_key = valid.clone();
+        primary_key.changes[0].column_index = 0;
+
+        assert!(validate_edits(&object, &columns, &[primary_key]).is_err());
+
+        let mut generated_columns = columns.clone();
+        generated_columns[1].is_generated = true;
+
+        assert!(validate_edits(&object, &generated_columns, std::slice::from_ref(&valid)).is_err());
+
+        generated_columns[1].is_generated = false;
+        generated_columns[1].is_identity = true;
+
+        assert!(validate_edits(&object, &generated_columns, std::slice::from_ref(&valid)).is_err());
+        assert!(validate_edits(&object, &columns, &vec![valid.clone(); 501]).is_err());
+        assert!(validate_edits(&object, &vec![columns[0].clone(); 1601], &[valid]).is_err());
     }
 
     #[test]
@@ -543,29 +581,6 @@ mod tests {
             .await
             .is_err()
         );
-
-        let mut duplicate_cell = valid.clone();
-        duplicate_cell
-            .changes
-            .push(duplicate_cell.changes[0].clone());
-
-        assert!(validate_edits(&object, &page.columns, &[duplicate_cell]).is_err());
-
-        let mut primary_key = valid.clone();
-        primary_key.changes[0].column_index = 0;
-
-        assert!(validate_edits(&object, &page.columns, &[primary_key]).is_err());
-
-        let mut generated_columns = page.columns.clone();
-        generated_columns[2].is_generated = true;
-
-        assert!(validate_edits(&object, &generated_columns, std::slice::from_ref(&valid)).is_err());
-
-        generated_columns[2].is_generated = false;
-        generated_columns[2].is_identity = true;
-
-        assert!(validate_edits(&object, &generated_columns, std::slice::from_ref(&valid)).is_err());
-        assert!(validate_edits(&object, &page.columns, &vec![valid.clone(); 501]).is_err());
 
         apply_table_edits(&pool, &object, &page.columns, std::slice::from_ref(&valid))
             .await

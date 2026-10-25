@@ -2,6 +2,7 @@ src/main.rs
 src/menus.rs
 src/window.rs
 src/window_content.rs
+src/window_content/closing.rs
 src/window_content/database_switching.rs
 src/window_content/documents.rs
 src/window_content/object_actions.rs

@@ -2,7 +2,7 @@ use crate::models::database_object::{DatabaseObject, DatabaseObjectKind, quote_i
 use crate::models::table_browser::{TableCell, TableColumn, TableInsertValue};
 use sqlx::PgPool;
 
-use super::page_sql::primary_key_columns;
+use super::page_sql::{primary_key_columns, primary_key_predicate};
 
 pub async fn insert_table_row(
     pool: &PgPool,
@@ -208,19 +208,7 @@ pub(super) fn delete_row_sql(
         return Err(TableRowDeleteError::UnsupportedPrimaryKeyType);
     }
 
-    let where_clause = primary_key_columns
-        .iter()
-        .enumerate()
-        .map(|(bind_index, (_, column))| {
-            format!(
-                "{} IS NOT DISTINCT FROM ${}::{}",
-                quote_identifier(&column.name),
-                bind_index + 1,
-                column.display_type
-            )
-        })
-        .collect::<Vec<_>>()
-        .join(" AND ");
+    let where_clause = primary_key_predicate(&primary_key_columns, 1);
 
     Ok(format!(
         "DELETE FROM {} WHERE {where_clause}",

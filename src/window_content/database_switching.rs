@@ -106,7 +106,7 @@ impl WindowContent {
         }
 
         if self.file_operation_pending() || self.close_preparation_pending() {
-            self.documents.deferred_switch =
+            self.pending_navigation.deferred_switch =
                 Some(super::WindowContentMsg::DatabaseSwitchCompleted {
                     id,
                     database,

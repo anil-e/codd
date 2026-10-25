@@ -90,7 +90,7 @@ impl TableBrowser {
             hidden: !self.refresh_active,
             disconnected: self.pool.as_ref().is_none_or(PgPool::is_closed),
             pending: self.has_pending_edits() || self.commit_unknown,
-            closing: self.close_request.is_some(),
+            closing: self.close_session.is_some(),
             popover: self.context_popover.is_visible()
                 || self.refresh_dialog_open.get()
                 || self
@@ -149,16 +149,11 @@ impl TableBrowser {
             ));
         }
 
-        let state = (
-            self.refresh_seconds,
-            self.refresh_tooltip(),
-            self.is_refreshing,
-        );
+        let state = (self.refresh_seconds, self.refresh_tooltip());
         if self.refresh_last_state.as_ref() != Some(&state) {
             let _ = sender.output(TableBrowserOutput::RefreshStateChanged {
                 seconds: state.0,
                 status: state.1.clone(),
-                refreshing: state.2,
             });
             self.refresh_last_state = Some(state);
         }

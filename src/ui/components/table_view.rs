@@ -7,7 +7,7 @@ use sqlx::PgPool;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::models::structure_action::StructureActionTarget;
 use crate::ui::components::{
-    table_browser::{TableBrowser, TableBrowserMsg, TableBrowserOutput},
+    table_browser::{BrowserUiState, TableBrowser, TableBrowserMsg, TableBrowserOutput},
     table_structure::{TableStructureMsg, TableStructureOutput, TableStructureView},
 };
 
@@ -16,16 +16,13 @@ pub struct TableView {
     object: Option<DatabaseObject>,
     mode: TableViewMode,
     structure_loaded: bool,
-    browser_busy: bool,
+    browser_state: BrowserUiState,
     auto_refresh_enabled: bool,
     refresh_seconds: u32,
     refresh_status: String,
-    refreshing: bool,
     refresh_action: gio::SimpleAction,
     deferred_rename: Option<DatabaseObject>,
     deferred_invalidation: Option<bool>,
-    can_delete_selected_row: bool,
-    can_duplicate_selected_row: bool,
     browser: Controller<TableBrowser>,
     structure: Controller<TableStructureView>,
 }
@@ -145,7 +142,7 @@ impl Component for TableView {
                 #[name = "mode_switcher"]
                 gtk::StackSwitcher {
                     #[watch]
-                    set_sensitive: !model.has_pending_edits() && !model.browser.model().input_locked(),
+                    set_sensitive: !model.browser_state.pending && !model.browser_state.input_locked,
                     set_valign: gtk::Align::Center,
                     set_margin_top: 6,
                     set_margin_bottom: 6,
@@ -161,7 +158,7 @@ impl Component for TableView {
                     #[watch]
                     set_visible: model.can_insert_rows(),
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && !model.has_pending_edits() && !model.browser.model().input_locked(),
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_state.foreground_busy && !model.browser_state.pending && !model.browser_state.input_locked,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::InsertRow,
@@ -172,9 +169,9 @@ impl Component for TableView {
                     set_tooltip_text: Some(&gettext("Duplicate selected row")),
                     add_css_class: "flat",
                     #[watch]
-                    set_visible: model.can_insert_rows() && model.mode == TableViewMode::Content && model.can_duplicate_selected_row,
+                    set_visible: model.can_insert_rows() && model.mode == TableViewMode::Content && model.browser_state.can_duplicate,
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && model.can_duplicate_selected_row && !model.has_pending_edits() && !model.browser.model().input_locked(),
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_state.foreground_busy && model.browser_state.can_duplicate && !model.browser_state.pending && !model.browser_state.input_locked,
                     connect_clicked => TableViewMsg::DuplicateRow,
                 },
 
@@ -186,7 +183,7 @@ impl Component for TableView {
                     #[watch]
                     set_visible: model.can_insert_rows(),
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && model.can_delete_selected_row && !model.has_pending_edits() && !model.browser.model().input_locked(),
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_state.foreground_busy && model.browser_state.can_delete && !model.browser_state.pending && !model.browser_state.input_locked,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::DeleteRow,
@@ -197,7 +194,7 @@ impl Component for TableView {
                     set_icon_name: "filter-symbolic",
                     add_css_class: "flat",
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && !model.has_pending_edits() && !model.browser.model().input_locked(),
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_state.foreground_busy && !model.browser_state.pending && !model.browser_state.input_locked,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::ToggleFilters,
@@ -208,7 +205,7 @@ impl Component for TableView {
                     set_icon_name: "document-save-symbolic",
                     add_css_class: "flat",
                     #[watch]
-                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_busy && !model.has_pending_edits() && !model.browser.model().input_locked(),
+                    set_sensitive: model.mode == TableViewMode::Content && !model.browser_state.foreground_busy && !model.browser_state.pending && !model.browser_state.input_locked,
                     #[watch]
                     set_opacity: if model.mode == TableViewMode::Content { 1.0 } else { 0.0 },
                     connect_clicked => TableViewMsg::ExportCsv,
@@ -313,16 +310,13 @@ impl Component for TableView {
             object: None,
             mode: TableViewMode::Content,
             structure_loaded: false,
-            browser_busy: false,
+            browser_state: BrowserUiState::default(),
             auto_refresh_enabled: false,
             refresh_seconds: 5,
             refresh_status: String::new(),
-            refreshing: false,
             refresh_action,
             deferred_rename: None,
             deferred_invalidation: None,
-            can_delete_selected_row: false,
-            can_duplicate_selected_row: false,
             browser,
             structure,
         };
@@ -424,8 +418,12 @@ impl Component for TableView {
                 self.browser.emit(TableBrowserMsg::CommitEditsClose(id))
             }
 
-            TableViewMsg::BrowserOutput(TableBrowserOutput::PendingEditsChanged(dirty)) => {
-                let _ = sender.output(TableViewOutput::PendingEditsChanged(dirty));
+            TableViewMsg::BrowserOutput(TableBrowserOutput::UiStateChanged(state)) => {
+                let pending_changed = self.browser_state.pending != state.pending;
+                self.browser_state = state;
+                if pending_changed {
+                    let _ = sender.output(TableViewOutput::PendingEditsChanged(state.pending));
+                }
             }
 
             TableViewMsg::BrowserOutput(TableBrowserOutput::EditsClosePrepared(id)) => {
@@ -444,13 +442,9 @@ impl Component for TableView {
                 self.pool = Some(pool.clone());
                 self.object = Some(object.clone());
                 self.mode = TableViewMode::Content;
-                self.browser_busy = false;
                 self.auto_refresh_enabled = false;
                 self.refresh_seconds = 5;
                 self.refresh_status.clear();
-                self.refreshing = false;
-                self.can_delete_selected_row = false;
-                self.can_duplicate_selected_row = false;
                 self.structure_loaded = false;
                 widgets.mode_stack.set_visible_child_name("content");
                 self.browser.emit(TableBrowserMsg::Open { pool, object });
@@ -495,14 +489,12 @@ impl Component for TableView {
             TableViewMsg::BrowserOutput(TableBrowserOutput::RefreshStateChanged {
                 seconds,
                 status,
-                refreshing,
             }) => {
                 self.auto_refresh_enabled = seconds.is_some();
                 if let Some(seconds) = seconds {
                     self.refresh_seconds = seconds.clamp(5, 3600);
                 }
                 self.refresh_status = status;
-                self.refreshing = refreshing;
             }
 
             TableViewMsg::ReloadContent => {
@@ -536,14 +528,14 @@ impl Component for TableView {
             }
 
             TableViewMsg::DuplicateRow => {
-                if self.mode == TableViewMode::Content && self.can_duplicate_selected_row {
+                if self.mode == TableViewMode::Content && self.browser_state.can_duplicate {
                     self.browser
                         .emit(TableBrowserMsg::DuplicateSelectedRowRequested);
                 }
             }
 
             TableViewMsg::DeleteRow => {
-                if self.mode == TableViewMode::Content && self.can_delete_selected_row {
+                if self.mode == TableViewMode::Content && self.browser_state.can_delete {
                     self.browser
                         .emit(TableBrowserMsg::DeleteSelectedRowRequested);
                 }
@@ -587,18 +579,6 @@ impl Component for TableView {
             TableViewMsg::BrowserOutput(TableBrowserOutput::Deleted(message)) => {
                 let _ = sender.output(TableViewOutput::Deleted(message));
                 return;
-            }
-
-            TableViewMsg::BrowserOutput(TableBrowserOutput::BusyChanged(busy)) => {
-                self.browser_busy = busy;
-            }
-
-            TableViewMsg::BrowserOutput(TableBrowserOutput::SelectionChanged {
-                can_delete,
-                can_duplicate,
-            }) => {
-                self.can_delete_selected_row = can_delete;
-                self.can_duplicate_selected_row = can_duplicate;
             }
 
             TableViewMsg::StructureOutput(TableStructureOutput::Copied { text, message }) => {
@@ -646,10 +626,10 @@ impl Component for TableView {
         }
 
         self.refresh_action.set_enabled(
-            !self.has_pending_edits()
-                && !self.browser.model().input_locked()
+            !self.browser_state.pending
+                && !self.browser_state.input_locked
                 && (self.mode != TableViewMode::Content
-                    || (!self.browser_busy && !self.refreshing)),
+                    || (!self.browser_state.foreground_busy && !self.browser_state.is_refreshing)),
         );
         self.update_view(widgets, sender);
     }

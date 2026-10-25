@@ -22,11 +22,13 @@ use crate::models::{csv_export, csv_export::CsvExportOptions};
 use crate::ui::components::csv_export_dialog::{
     show_csv_export_options_dialog, show_csv_save_dialog,
 };
+use closing::{CloseSession, DiscardedEdits};
 use filters::{FilterEvent, FilterPanel, initial_filter, validate_filter_values};
 use grid::render_table;
 use sorting::{connect_sort_handlers, next_sort_for_header_click, sync_sort_indicator};
 
 mod cell_editor;
+mod closing;
 mod delete_row;
 mod editing;
 mod filters;
@@ -41,17 +43,11 @@ pub struct TableBrowser {
     edits_error: Option<String>,
     commit_unknown: bool,
     save_request: Option<(u64, u64)>,
-    close_request: Option<u64>,
-    close_discard: bool,
-    close_prepared: bool,
-    close_saved: bool,
-    close_committed: bool,
-    close_backup: Option<DiscardedEdits>,
+    close_session: Option<CloseSession>,
     close_dialog: Option<adw::AlertDialog>,
     deferred_rename: Option<DatabaseObject>,
     deferred_schema_change: bool,
     deferred_reload: bool,
-    close_interrupted_read: bool,
     pool: Option<PgPool>,
     object: Option<DatabaseObject>,
     page: Option<TablePage>,
@@ -63,7 +59,7 @@ pub struct TableBrowser {
     refresh_timer_generation: u64,
     refresh_active: bool,
     refresh_error: Option<String>,
-    refresh_last_state: Option<(Option<u32>, String, bool)>,
+    refresh_last_state: Option<(Option<u32>, String)>,
     refresh_dialog_open: Rc<Cell<bool>>,
     refresh_toplevel: Option<(gtk::gdk::Toplevel, glib::SignalHandlerId)>,
     is_error: bool,
@@ -77,6 +73,7 @@ pub struct TableBrowser {
     sort: Option<TableSort>,
     filters_expanded: bool,
     show_header: bool,
+    last_ui_state: Option<BrowserUiState>,
     page_generation: u64,
     request_id: u64,
     active_request_id: Option<u64>,
@@ -102,10 +99,15 @@ pub struct TableBrowser {
     dark_notify_handler: Option<glib::SignalHandlerId>,
 }
 
-struct DiscardedEdits {
-    pending_edits: BTreeMap<(usize, usize), TableCell>,
-    error: Option<String>,
-    commit_unknown: bool,
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct BrowserUiState {
+    pub input_locked: bool,
+    pub authoritative_changes_blocked: bool,
+    pub foreground_busy: bool,
+    pub pending: bool,
+    pub can_delete: bool,
+    pub can_duplicate: bool,
+    pub is_refreshing: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -238,9 +240,8 @@ pub enum TableBrowserOutput {
     RefreshStateChanged {
         seconds: Option<u32>,
         status: String,
-        refreshing: bool,
     },
-    PendingEditsChanged(bool),
+    UiStateChanged(BrowserUiState),
     EditsClosePrepared(u64),
     EditsCloseCancelled(u64),
     EditsCloseCommitted(u64),
@@ -248,11 +249,6 @@ pub enum TableBrowserOutput {
     Exported(String),
     Inserted(String),
     Deleted(String),
-    BusyChanged(bool),
-    SelectionChanged {
-        can_delete: bool,
-        can_duplicate: bool,
-    },
 }
 
 #[derive(Debug)]
@@ -486,7 +482,7 @@ impl Component for TableBrowser {
                     gtk::Button {
                         set_label: &gettext("Discard"),
                         #[watch]
-                        set_sensitive: !model.is_loading && !model.edits_saving() && model.close_request.is_none(),
+                        set_sensitive: !model.is_loading && !model.edits_saving() && model.close_session.is_none(),
                         connect_clicked => TableBrowserMsg::DiscardEdits,
                     },
 
@@ -662,22 +658,16 @@ impl Component for TableBrowser {
             })
         };
 
-        let model = TableBrowser {
+        let mut model = TableBrowser {
             pending_edits: BTreeMap::new(),
             edits_error: None,
             commit_unknown: false,
             save_request: None,
-            close_request: None,
-            close_discard: false,
-            close_prepared: false,
-            close_saved: false,
-            close_committed: false,
-            close_backup: None,
+            close_session: None,
             close_dialog: None,
             deferred_rename: None,
             deferred_schema_change: false,
             deferred_reload: false,
-            close_interrupted_read: false,
             pool: None,
             object: None,
             page: None,
@@ -705,6 +695,7 @@ impl Component for TableBrowser {
             sort: None,
             filters_expanded: false,
             show_header: true,
+            last_ui_state: None,
             page_generation: 0,
             request_id: 0,
             active_request_id: None,
@@ -742,6 +733,7 @@ impl Component for TableBrowser {
         );
         set_stack_child(&widgets, false);
         root.set_spacing(0);
+        model.publish_ui_state(&sender);
 
         ComponentParts { model, widgets }
     }
@@ -845,16 +837,16 @@ impl Component for TableBrowser {
                     }
                 }
                 TableBrowserMsg::SaveEdits => {
-                    if self.close_request.is_none() {
+                    if self.close_session.is_none() {
                         self.save_edits(&sender);
                     }
                 }
 
                 TableBrowserMsg::DiscardEdits => {
-                    if !self.is_loading && !self.edits_saving() && self.close_request.is_none() {
+                    if !self.is_loading && !self.edits_saving() && self.close_session.is_none() {
                         let reload = self.commit_unknown;
 
-                        self.discard_edits(&sender);
+                        self.discard_edits();
                         render_table(self, &sender);
 
                         if reload {
@@ -868,14 +860,11 @@ impl Component for TableBrowser {
                 }
 
                 TableBrowserMsg::CancelEditsClose(id) => {
-                    let matching = self.close_request == Some(id);
-                    let reload = matching && (self.close_saved || self.close_interrupted_read);
-
-                    self.cancel_edits_close(id, &sender);
-
-                    if matching {
-                        self.close_interrupted_read = false;
-                    }
+                    let matching = self
+                        .close_session
+                        .as_ref()
+                        .is_some_and(|close| close.id == id);
+                    let reload = self.cancel_edits_close(id, &sender);
 
                     if matching {
                         render_table(self, &sender);
@@ -887,19 +876,30 @@ impl Component for TableBrowser {
                 }
 
                 TableBrowserMsg::CommitEditsClose(id) => {
-                    if self.close_request == Some(id) && self.close_prepared && !self.edits_saving()
+                    if self
+                        .close_session
+                        .as_ref()
+                        .is_some_and(|close| close.prepared(id))
+                        && !self.edits_saving()
                     {
-                        if self.close_discard && !self.close_committed {
-                            self.close_backup = Some(DiscardedEdits {
+                        let backup = if self
+                            .close_session
+                            .as_ref()
+                            .is_some_and(CloseSession::needs_discard)
+                        {
+                            let backup = DiscardedEdits {
                                 pending_edits: self.pending_edits.clone(),
                                 error: self.edits_error.clone(),
                                 commit_unknown: self.commit_unknown,
-                            });
-                            self.discard_edits(&sender);
+                            };
+                            self.discard_edits();
                             render_table(self, &sender);
-                        }
+                            Some(backup)
+                        } else {
+                            None
+                        };
 
-                        self.close_committed = true;
+                        self.close_session.as_mut().unwrap().commit(id, backup);
                         let _ = sender.output(TableBrowserOutput::EditsCloseCommitted(id));
                     } else {
                         let _ = sender.output(TableBrowserOutput::EditsCloseCancelled(id));
@@ -907,20 +907,23 @@ impl Component for TableBrowser {
                 }
 
                 TableBrowserMsg::EditsCloseResponse { id, response } => {
-                    if self.close_request == Some(id)
-                        && !self.close_prepared
+                    if self
+                        .close_session
+                        .as_ref()
+                        .is_some_and(|close| close.accepts_response(id))
                         && !self.edits_saving()
                     {
                         self.close_dialog = None;
 
                         match response.as_str() {
                             "discard" => {
-                                self.close_discard = true;
-                                self.close_prepared = true;
+                                self.close_session.as_mut().unwrap().prepare_discard(id);
                                 let _ = sender.output(TableBrowserOutput::EditsClosePrepared(id));
                             }
                             "save" if !self.commit_unknown => self.save_edits(&sender),
-                            _ => self.cancel_edits_close(id, &sender),
+                            _ => {
+                                self.cancel_edits_close(id, &sender);
+                            }
                         }
                     }
                 }
@@ -930,24 +933,25 @@ impl Component for TableBrowser {
                     generation,
                     result,
                 } => {
-                    if self.save_request != Some((id, generation))
-                        || generation != self.page_generation
-                    {
+                    if !editing::current_save_completion(
+                        self.save_request,
+                        (id, generation),
+                        self.page_generation,
+                    ) {
                         return;
                     }
 
                     self.save_request = None;
                     self.is_loading = false;
-                    self.context_busy.set(self.close_request.is_some());
-                    let _ = sender.output(TableBrowserOutput::BusyChanged(false));
+                    self.context_busy.set(self.close_session.is_some());
 
                     match result {
                         Ok(()) => {
-                            self.discard_edits(&sender);
+                            self.discard_edits();
 
-                            if let Some(id) = self.close_request {
-                                self.close_saved = true;
-                                self.close_prepared = true;
+                            if let Some(close) = self.close_session.as_mut() {
+                                close.saved();
+                                let id = close.id;
                                 let _ = sender.output(TableBrowserOutput::EditsClosePrepared(id));
                             } else {
                                 self.load_page(widgets, &sender);
@@ -971,7 +975,7 @@ impl Component for TableBrowser {
                             ),
                         });
 
-                            if let Some(id) = self.close_request {
+                            if let Some(id) = self.close_session.as_ref().map(|close| close.id) {
                                 self.cancel_edits_close(id, &sender);
                             }
                         }
@@ -1128,7 +1132,6 @@ impl Component for TableBrowser {
                     self.is_loading = self.active_insert_request_id.is_some()
                         || self.active_delete_request_id.is_some();
                     self.context_busy.set(self.is_loading);
-                    let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
 
                     match result {
                         Ok(page) => {
@@ -1184,7 +1187,6 @@ impl Component for TableBrowser {
 
                         Err(error) => {
                             self.context_busy.set(false);
-                            let _ = sender.output(TableBrowserOutput::BusyChanged(false));
 
                             self.show_warning(root, &gettext("Loading last page failed"), &error);
                         }
@@ -1209,7 +1211,7 @@ impl Component for TableBrowser {
                     column_index,
                     value,
                 } => {
-                    self.stage_cell(page_generation, row_index, column_index, value, &sender);
+                    self.stage_cell(page_generation, row_index, column_index, value);
                     render_table(self, &sender);
                 }
 
@@ -1340,7 +1342,6 @@ impl Component for TableBrowser {
                         }
                         InsertRowResult::InsertFailed { error, request } => {
                             self.context_busy.set(self.is_loading);
-                            let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
 
                             self.reopen_insert_row_dialog(root, request, &error, &sender);
                         }
@@ -1382,11 +1383,6 @@ impl Component for TableBrowser {
                         }
                         DeleteRowResult::DeleteFailed(error) => {
                             self.context_busy.set(self.is_loading);
-                            let _ = sender.output(TableBrowserOutput::BusyChanged(self.is_loading));
-                            let _ = sender.output(TableBrowserOutput::SelectionChanged {
-                                can_delete: self.can_delete_selected_row(),
-                                can_duplicate: self.can_duplicate_selected_row(),
-                            });
 
                             self.show_warning(root, &gettext("Deleting row failed"), &error);
                         }
@@ -1394,10 +1390,6 @@ impl Component for TableBrowser {
                 }
 
                 TableBrowserMsg::SelectionChanged => {
-                    let _ = sender.output(TableBrowserOutput::SelectionChanged {
-                        can_delete: self.can_delete_selected_row(),
-                        can_duplicate: self.can_duplicate_selected_row(),
-                    });
                     return;
                 }
 
@@ -1463,6 +1455,7 @@ impl Component for TableBrowser {
         self.table_view.set_sensitive(!self.input_locked());
 
         self.sync_refresh(&sender);
+        self.publish_ui_state(&sender);
         self.update_view(widgets, sender);
     }
 
@@ -1521,6 +1514,22 @@ impl Component for TableBrowser {
 }
 
 impl TableBrowser {
+    fn publish_ui_state(&mut self, sender: &ComponentSender<Self>) {
+        let state = BrowserUiState {
+            input_locked: self.input_locked(),
+            authoritative_changes_blocked: self.authoritative_changes_blocked(),
+            foreground_busy: self.is_loading,
+            pending: self.has_pending_edits(),
+            can_delete: self.can_delete_selected_row(),
+            can_duplicate: self.can_duplicate_selected_row(),
+            is_refreshing: self.is_refreshing,
+        };
+        if self.last_ui_state != Some(state) {
+            self.last_ui_state = Some(state);
+            let _ = sender.output(TableBrowserOutput::UiStateChanged(state));
+        }
+    }
+
     fn rebuild_filters(&self, _widgets: &TableBrowserWidgets, sender: &ComponentSender<Self>) {
         FilterPanel::rebuild(
             &self.filter_panel,

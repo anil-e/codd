@@ -7,7 +7,7 @@ use relm4::prelude::*;
 use crate::db;
 use crate::models::database_object::DatabaseObjectKind;
 use crate::ui::components::table_browser::{
-    DeleteRowResult, TableBrowser, TableBrowserCommandOutput, TableBrowserMsg, TableBrowserOutput,
+    DeleteRowResult, TableBrowser, TableBrowserCommandOutput, TableBrowserMsg,
 };
 
 impl TableBrowser {
@@ -83,11 +83,6 @@ impl TableBrowser {
         self.close_context_menu();
         self.is_loading = true;
         self.context_busy.set(true);
-        let _ = sender.output(TableBrowserOutput::BusyChanged(true));
-        let _ = sender.output(TableBrowserOutput::SelectionChanged {
-            can_delete: false,
-            can_duplicate: false,
-        });
         let id = self.allocate_request_id();
         self.active_delete_request_id = Some(id);
         let previous_page = page.rows.len() == 1;

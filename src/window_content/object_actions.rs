@@ -3,30 +3,57 @@ use libadwaita as adw;
 use libadwaita::prelude::*;
 use relm4::gtk;
 use relm4::prelude::*;
+use sqlx::PgPool;
 
 use crate::db;
 use crate::db::object_actions::TruncateOptions;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind};
 use crate::ui::components::sidebar::ObjectAction;
 
-use super::{WindowContent, WindowContentCommandOutput, WindowContentMsg, WindowContentWidgets};
+use super::{
+    StructureActionScope, WindowContent, WindowContentCommandOutput, WindowContentEvent,
+    WindowContentMsg, WindowContentWidgets, broadcast_window_content_event,
+};
+
+#[derive(Debug)]
+pub(crate) struct ObjectActionContext {
+    scope: StructureActionScope,
+    pool: PgPool,
+}
+
+impl ObjectActionContext {
+    fn matches_scope(&self, scope: &StructureActionScope) -> bool {
+        self.scope.connection_id == scope.connection_id && self.scope.database == scope.database
+    }
+}
 
 #[derive(Debug)]
 pub(crate) enum ObjectActionRequest {
     Rename {
+        context: ObjectActionContext,
         object: DatabaseObject,
         new_name: String,
     },
     Truncate {
+        context: ObjectActionContext,
         object: DatabaseObject,
         options: TruncateOptions,
     },
     Delete {
+        context: ObjectActionContext,
         object: DatabaseObject,
     },
 }
 
 impl ObjectActionRequest {
+    fn context(&self) -> &ObjectActionContext {
+        match self {
+            Self::Rename { context, .. }
+            | Self::Truncate { context, .. }
+            | Self::Delete { context, .. } => context,
+        }
+    }
+
     fn action(&self) -> ObjectAction {
         match self {
             Self::Rename { .. } => ObjectAction::Rename,
@@ -39,7 +66,7 @@ impl ObjectActionRequest {
         match self {
             Self::Rename { object, .. }
             | Self::Truncate { object, .. }
-            | Self::Delete { object } => object,
+            | Self::Delete { object, .. } => object,
         }
     }
 }
@@ -48,6 +75,7 @@ pub(super) fn show_rename_object_dialog(
     root: &adw::ToastOverlay,
     sender: &ComponentSender<WindowContent>,
     object: DatabaseObject,
+    context: ObjectActionContext,
 ) {
     let entry = gtk::Entry::builder()
         .text(&object.name)
@@ -96,6 +124,7 @@ pub(super) fn show_rename_object_dialog(
             if response == "rename" {
                 let _ = sender.send(WindowContentMsg::ObjectActionConfirmed(
                     ObjectActionRequest::Rename {
+                        context,
                         object,
                         new_name: entry.text().to_string(),
                     },
@@ -109,6 +138,7 @@ pub(super) fn show_delete_object_dialog(
     root: &adw::ToastOverlay,
     sender: &ComponentSender<WindowContent>,
     object: DatabaseObject,
+    context: ObjectActionContext,
 ) {
     let dialog = adw::AlertDialog::builder()
         .heading(object_action_heading(ObjectAction::Delete, &object))
@@ -133,7 +163,7 @@ pub(super) fn show_delete_object_dialog(
         move |response| {
             if response == "confirm" {
                 let _ = sender.send(WindowContentMsg::ObjectActionConfirmed(
-                    ObjectActionRequest::Delete { object },
+                    ObjectActionRequest::Delete { object, context },
                 ));
             }
         },
@@ -144,6 +174,7 @@ pub(super) fn show_truncate_object_dialog(
     root: &adw::ToastOverlay,
     sender: &ComponentSender<WindowContent>,
     object: DatabaseObject,
+    context: ObjectActionContext,
 ) {
     let restart_identity_row = adw::SwitchRow::builder()
         .title(gettext("Restart identity"))
@@ -197,6 +228,7 @@ pub(super) fn show_truncate_object_dialog(
 
             let _ = sender.send(WindowContentMsg::ObjectActionConfirmed(
                 ObjectActionRequest::Truncate {
+                    context,
                     object,
                     options: truncate_options,
                 },
@@ -215,23 +247,33 @@ impl WindowContent {
     ) {
         let action = request.action();
         let object = request.object().clone();
+        let scope = request.context().scope.clone();
 
         match result {
             Ok(()) => {
-                match request {
-                    ObjectActionRequest::Rename { new_name, .. } => {
-                        self.apply_renamed_object(&object, &new_name, widgets);
+                if self.matches_active_database(&scope.connection_id, &scope.database) {
+                    match request {
+                        ObjectActionRequest::Rename { new_name, .. } => {
+                            self.apply_renamed_object(&object, &new_name, widgets);
+                        }
+                        ObjectActionRequest::Truncate { .. } => {
+                            self.reload_browse_tab(&object);
+                        }
+                        ObjectActionRequest::Delete { .. } => {
+                            self.remove_deleted_object(&object, widgets);
+                        }
                     }
-                    ObjectActionRequest::Truncate { .. } => {
-                        self.reload_browse_tab(&object);
-                    }
-                    ObjectActionRequest::Delete { .. } => {
-                        self.remove_deleted_object(&object, widgets);
-                    }
+
+                    self.reload_schema(sender);
                 }
 
-                self.reload_schema(sender);
-                self.broadcast_schema_changed();
+                broadcast_window_content_event(
+                    WindowContentEvent::Schema {
+                        connection_id: scope.connection_id,
+                        database: scope.database,
+                    },
+                    Some(self.sync_subscription_id),
+                );
 
                 widgets
                     .toast_overlay
@@ -255,15 +297,29 @@ impl WindowContent {
         widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        let Some(pool) = self.active_pool.clone() else {
+            return;
+        };
+        let Some((connection_id, database)) = self.active_database_scope() else {
+            return;
+        };
+        let context = ObjectActionContext {
+            scope: StructureActionScope {
+                connection_id,
+                database,
+            },
+            pool,
+        };
+
         match action {
             ObjectAction::Rename => {
-                show_rename_object_dialog(&widgets.toast_overlay, sender, object)
+                show_rename_object_dialog(&widgets.toast_overlay, sender, object, context)
             }
             ObjectAction::Truncate => {
-                show_truncate_object_dialog(&widgets.toast_overlay, sender, object);
+                show_truncate_object_dialog(&widgets.toast_overlay, sender, object, context);
             }
             ObjectAction::Delete => {
-                show_delete_object_dialog(&widgets.toast_overlay, sender, object);
+                show_delete_object_dialog(&widgets.toast_overlay, sender, object, context);
             }
         }
     }
@@ -274,18 +330,20 @@ impl WindowContent {
         widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
-        if self.relation_edits_pending(request.object())
-            || (matches!(&request, ObjectActionRequest::Truncate { options, .. } if options.cascade)
-                && self.has_pending_table_edits())
-        {
+        let cascade =
+            matches!(&request, ObjectActionRequest::Truncate { options, .. } if options.cascade);
+        if self.browse_tabs.iter().any(|tab| {
+            request.context().matches_scope(&tab.scope)
+                && (tab.pending_edits
+                    || tab.view.as_ref().is_some_and(|view| {
+                        view.model().has_pending_edits() || view.model().edits_saving()
+                    }))
+                && (cascade || tab.object == *request.object())
+        }) {
             self.table_navigation_blocked(widgets);
 
             return;
         }
-
-        let Some(pool) = self.active_pool.clone() else {
-            return;
-        };
 
         let request = match normalize_object_action_request(request, widgets) {
             Some(request) => request,
@@ -293,19 +351,20 @@ impl WindowContent {
         };
 
         sender.oneshot_command(async move {
+            let pool = &request.context().pool;
             let result = match &request {
-                ObjectActionRequest::Rename { object, new_name } => {
-                    db::object_actions::rename_object(&pool, object, new_name)
-                        .await
-                        .map_err(|error| error.to_string())
-                }
-                ObjectActionRequest::Truncate { object, options } => {
-                    db::object_actions::truncate_table(&pool, object, *options)
-                        .await
-                        .map_err(|error| error.to_string())
-                }
-                ObjectActionRequest::Delete { object } => {
-                    db::object_actions::drop_object(&pool, object)
+                ObjectActionRequest::Rename {
+                    object, new_name, ..
+                } => db::object_actions::rename_object(pool, object, new_name)
+                    .await
+                    .map_err(|error| error.to_string()),
+                ObjectActionRequest::Truncate {
+                    object, options, ..
+                } => db::object_actions::truncate_table(pool, object, *options)
+                    .await
+                    .map_err(|error| error.to_string()),
+                ObjectActionRequest::Delete { object, .. } => {
+                    db::object_actions::drop_object(pool, object)
                         .await
                         .map_err(|error| error.to_string())
                 }
@@ -379,7 +438,11 @@ fn normalize_object_action_request(
     widgets: &WindowContentWidgets,
 ) -> Option<ObjectActionRequest> {
     match request {
-        ObjectActionRequest::Rename { object, new_name } => {
+        ObjectActionRequest::Rename {
+            context,
+            object,
+            new_name,
+        } => {
             let new_name = match db::object_actions::normalize_new_object_name(&new_name) {
                 Some(name) => name,
                 None => {
@@ -394,8 +457,58 @@ fn normalize_object_action_request(
                 return None;
             }
 
-            Some(ObjectActionRequest::Rename { object, new_name })
+            Some(ObjectActionRequest::Rename {
+                context,
+                object,
+                new_name,
+            })
         }
         ObjectActionRequest::Truncate { .. } | ObjectActionRequest::Delete { .. } => Some(request),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sqlx::postgres::PgPoolOptions;
+
+    #[tokio::test]
+    async fn dialog_context_keeps_originating_scope_and_pool() {
+        let pool = PgPoolOptions::new()
+            .connect_lazy("postgres://localhost/origin")
+            .unwrap();
+
+        let context = ObjectActionContext {
+            scope: StructureActionScope {
+                connection_id: "origin".into(),
+                database: "database".into(),
+            },
+            pool: pool.clone(),
+        };
+
+        assert!(context.matches_scope(&StructureActionScope {
+            connection_id: "origin".into(),
+            database: "database".into(),
+        }));
+        assert!(!context.matches_scope(&StructureActionScope {
+            connection_id: "other".into(),
+            database: "database".into(),
+        }));
+        assert!(!context.matches_scope(&StructureActionScope {
+            connection_id: "origin".into(),
+            database: "other".into(),
+        }));
+
+        let replacement = PgPoolOptions::new()
+            .connect_lazy("postgres://localhost/replacement")
+            .unwrap();
+
+        replacement.close().await;
+
+        assert!(!context.pool.is_closed());
+
+        pool.close().await;
+
+        assert!(context.pool.is_closed());
     }
 }

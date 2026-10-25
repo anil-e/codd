@@ -257,6 +257,25 @@ pub(super) fn primary_key_columns(columns: &[TableColumn]) -> Vec<(usize, &Table
         .collect()
 }
 
+pub(super) fn primary_key_predicate(
+    columns: &[(usize, &TableColumn)],
+    first_bind: usize,
+) -> String {
+    columns
+        .iter()
+        .enumerate()
+        .map(|(index, (_, column))| {
+            format!(
+                "{} IS NOT DISTINCT FROM ${}::{}",
+                quote_identifier(&column.name),
+                first_bind + index,
+                column.display_type
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" AND ")
+}
+
 fn select_columns_clause(columns: &[TableColumn]) -> String {
     if columns.is_empty() {
         return "*".to_string();
