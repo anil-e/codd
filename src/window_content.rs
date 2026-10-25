@@ -24,7 +24,7 @@ use crate::models::csv_export::{self, CsvExportOptions};
 use crate::models::database_object::DatabaseObject;
 use crate::models::query_history::QueryHistoryEntry;
 use crate::models::query_result::QueryExecutionResult;
-use crate::models::session::SavedSession;
+use crate::models::session::{SavedSession, SavedSessionTab};
 use crate::models::structure_action::StructureActionTarget;
 use crate::models::table_script::TableScriptKind;
 use crate::settings;
@@ -43,6 +43,7 @@ use crate::ui::components::{
 };
 
 mod database_switching;
+mod documents;
 mod object_actions;
 mod query_execution;
 mod structure_actions;
@@ -90,10 +91,12 @@ pub struct WindowContent {
     sync_subscription_id: u64,
     session_save_scheduled: bool,
     tab_view_signals_blocked: Rc<Cell<bool>>,
+    documents: documents::DocumentWorkspace,
 }
 
 struct QueryTab {
     id: u64,
+    session_id: u64,
     page: adw::TabPage,
     editor: Controller<SqlEditor>,
     results: Controller<QueryResults>,
@@ -101,6 +104,7 @@ struct QueryTab {
     row_limit: usize,
     query_state: QueryState,
     active_query: Option<RunningQuery>,
+    document: Option<documents::SqlDocument>,
 }
 
 struct BrowseTab {
@@ -112,6 +116,7 @@ struct BrowseTab {
     stack: gtk::Stack,
     view: Option<Controller<TableView>>,
     loaded: bool,
+    pending_edits: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -128,6 +133,15 @@ enum WorkspaceNavigation {
 
 #[derive(Debug)]
 pub enum WindowContentMsg {
+    OpenSqlFiles,
+    OpenSqlFileLocations(Vec<gio::File>),
+    SaveSqlFile,
+    SaveSqlFileAs,
+    PrepareClose,
+    CancelClosePreparation,
+    CommitClose,
+    FocusSqlDocument(u64),
+    Document(documents::DocumentMsg),
     OpenConnectionDialog,
     ShowStartScreen,
     NewQueryTab,
@@ -189,6 +203,14 @@ pub enum WindowContentMsg {
     },
     WindowEvent(WindowContentEvent),
     SaveSession,
+}
+
+#[derive(Debug)]
+#[allow(clippy::enum_variant_names)]
+pub enum WindowContentOutput {
+    ClosePrepared,
+    CloseCancelled,
+    CloseCommitted,
 }
 
 #[derive(Debug, Clone)]
@@ -259,7 +281,7 @@ pub struct SchemaLoadResult {
 impl Component for WindowContent {
     type Init = ();
     type Input = WindowContentMsg;
-    type Output = ();
+    type Output = WindowContentOutput;
     type CommandOutput = WindowContentCommandOutput;
 
     view! {
@@ -439,6 +461,7 @@ impl Component for WindowContent {
             sync_subscription_id: subscribe_window_content(sender.input_sender().clone()),
             session_save_scheduled: false,
             tab_view_signals_blocked: tab_view_signals_blocked.clone(),
+            documents: documents::DocumentWorkspace::default(),
         };
         let content_root = root.clone();
         let widgets = view_output!();
@@ -457,14 +480,14 @@ impl Component for WindowContent {
         widgets.content_stack.set_visible_child_name("start");
         setup_workspace_breakpoint(&widgets);
 
-        let s = sender.clone();
+        let s = sender.input_sender().clone();
         workspace_split_view(&widgets).connect_show_sidebar_notify(move |split_view| {
-            s.input(WindowContentMsg::SidebarVisibilityChanged(
+            let _ = s.send(WindowContentMsg::SidebarVisibilityChanged(
                 split_view.shows_sidebar(),
             ));
         });
 
-        let s = sender.clone();
+        let s = sender.input_sender().clone();
         let selected_page_signals_blocked = tab_view_signals_blocked.clone();
         widgets
             .query_tab_view
@@ -478,25 +501,35 @@ impl Component for WindowContent {
                 };
 
                 if let Some(tab_id) = query_tab_id_from_widget(&page.child()) {
-                    s.input(WindowContentMsg::SelectQueryTab(tab_id));
+                    let _ = s.send(WindowContentMsg::SelectQueryTab(tab_id));
                 } else if let Some(tab_id) = browse_tab_id_from_widget(&page.child()) {
-                    s.input(WindowContentMsg::SelectBrowseTab(tab_id));
+                    let _ = s.send(WindowContentMsg::SelectBrowseTab(tab_id));
                 }
             });
 
-        let s = sender.clone();
+        let s = sender.input_sender().clone();
         let close_page_signals_blocked = tab_view_signals_blocked.clone();
-        widgets.query_tab_view.connect_close_page(move |_, page| {
-            if close_page_signals_blocked.get() {
-                return glib::Propagation::Proceed;
-            }
+        widgets
+            .query_tab_view
+            .connect_close_page(move |view, page| {
+                if close_page_signals_blocked.get() {
+                    return glib::Propagation::Proceed;
+                }
 
-            if let Some(tab_id) = query_tab_id_from_widget(&page.child()) {
-                s.input(WindowContentMsg::CloseQueryTab(tab_id));
-            } else if let Some(tab_id) = browse_tab_id_from_widget(&page.child()) {
-                s.input(WindowContentMsg::CloseBrowseTab(tab_id));
-            }
-            glib::Propagation::Stop
+                view.close_page_finish(page, false);
+                if let Some(tab_id) = query_tab_id_from_widget(&page.child()) {
+                    let _ = s.send(WindowContentMsg::CloseQueryTab(tab_id));
+                } else if let Some(tab_id) = browse_tab_id_from_widget(&page.child()) {
+                    let _ = s.send(WindowContentMsg::CloseBrowseTab(tab_id));
+                }
+                glib::Propagation::Stop
+            });
+
+        let s = sender.input_sender().clone();
+        content_root.connect_root_notify(move |_| {
+            let _ = s.send(WindowContentMsg::Document(
+                documents::DocumentMsg::SyncFileActions,
+            ));
         });
 
         ComponentParts { model, widgets }
@@ -509,7 +542,32 @@ impl Component for WindowContent {
         sender: ComponentSender<Self>,
         root: &Self::Root,
     ) {
+        if self.document_input_blocked(&msg) {
+            if let WindowContentMsg::OpenSqlFileLocations(files) = msg {
+                self.documents.queued_files.extend(files);
+            }
+            return;
+        }
         match msg {
+            WindowContentMsg::OpenSqlFiles => self.choose_sql_files(root, &sender),
+            WindowContentMsg::OpenSqlFileLocations(files) => {
+                self.open_sql_locations(files, widgets, &sender)
+            }
+            WindowContentMsg::SaveSqlFile => {
+                self.save_selected_document(false, widgets, root, &sender)
+            }
+            WindowContentMsg::SaveSqlFileAs => {
+                self.save_selected_document(true, widgets, root, &sender)
+            }
+            WindowContentMsg::PrepareClose => {
+                self.begin_document_close(None, widgets, root, &sender)
+            }
+            WindowContentMsg::CancelClosePreparation => self.cancel_document_close(root, &sender),
+            WindowContentMsg::CommitClose => self.commit_document_close(widgets, root, &sender),
+            WindowContentMsg::FocusSqlDocument(id) => self.focus_sql_document(id, widgets, root),
+            WindowContentMsg::Document(msg) => {
+                self.handle_document_message(msg, widgets, root, &sender)
+            }
             WindowContentMsg::ShowStartScreen => self.show_start_screen(widgets),
             WindowContentMsg::NewQueryTab => {
                 self.add_query_tab_if_workspace_visible(widgets, &sender);
@@ -536,12 +594,20 @@ impl Component for WindowContent {
                 }
             }
             WindowContentMsg::CloseQueryTab(tab_id) => {
-                self.close_query_tab(tab_id, widgets);
-                self.schedule_session_save(&sender);
+                self.begin_document_close(
+                    Some(vec![format!("query-tab-{tab_id}")]),
+                    widgets,
+                    root,
+                    &sender,
+                );
             }
             WindowContentMsg::CloseBrowseTab(tab_id) => {
-                self.close_browse_tab(tab_id, widgets);
-                self.schedule_session_save(&sender);
+                self.begin_document_close(
+                    Some(vec![format!("browse-tab-{tab_id}")]),
+                    widgets,
+                    root,
+                    &sender,
+                );
             }
             WindowContentMsg::CloseActiveTab => {
                 self.close_active_tab(widgets);
@@ -550,17 +616,22 @@ impl Component for WindowContent {
                 self.close_tab_from_widget_name(widget_name.as_deref(), widgets);
             }
             WindowContentMsg::CloseOtherTabsFromMenu(widget_name) => {
-                self.close_other_tabs_from_widget_name(widget_name.as_deref(), widgets);
+                if widget_name.is_none() {
+                    return;
+                }
+                let names = self.document_close_targets(widget_name.as_deref());
+                self.begin_document_close(Some(names), widgets, root, &sender);
             }
             WindowContentMsg::CloseAllTabs => {
-                self.close_all_tabs(widgets, &sender);
-                self.schedule_session_save(&sender);
+                let names = self.document_close_targets(None);
+                self.begin_document_close(Some(names), widgets, root, &sender);
             }
             WindowContentMsg::OpenBrowseTabFromMenu(widget_name) => {
                 self.add_browse_tab_from_widget_name(widget_name.as_deref(), widgets, &sender);
                 self.schedule_session_save(&sender);
             }
             WindowContentMsg::QueryTabTitleChanged(tab_id) => {
+                self.document_text_changed(tab_id, &sender);
                 self.update_query_tab_title(tab_id);
                 self.schedule_session_save(&sender);
             }
@@ -595,6 +666,19 @@ impl Component for WindowContent {
             }
             WindowContentMsg::EditorOutput {
                 tab_id,
+                output: SqlEditorOutput::ReloadRequested,
+            } => sender.input(WindowContentMsg::Document(
+                documents::DocumentMsg::ReloadTab(Some(format!("query-tab-{tab_id}"))),
+            )),
+            WindowContentMsg::EditorOutput {
+                tab_id,
+                output: SqlEditorOutput::SaveAsRequested,
+            } => sender.input(WindowContentMsg::Document(documents::DocumentMsg::SaveTab(
+                Some(format!("query-tab-{tab_id}")),
+                true,
+            ))),
+            WindowContentMsg::EditorOutput {
+                tab_id,
                 output: SqlEditorOutput::RunRequested,
             } => {
                 self.run_query_for_tab(tab_id, widgets, &sender);
@@ -609,7 +693,13 @@ impl Component for WindowContent {
                 tab_id,
                 output: SqlEditorOutput::HistorySelected(sql),
             } => {
-                if let Some(tab) = self.query_tab_mut(tab_id) {
+                if self
+                    .query_tabs
+                    .iter()
+                    .any(|tab| tab.id == tab_id && tab.document.is_some())
+                {
+                    self.add_query_tab_with_sql(sql, widgets, &sender);
+                } else if let Some(tab) = self.query_tab_mut(tab_id) {
                     tab.editor_buffer.set_text(&sql);
                     tab.editor.emit(SqlEditorMsg::Focus);
                 }
@@ -649,6 +739,25 @@ impl Component for WindowContent {
             } => {
                 self.export_query_csv(pool, sql, options, path, &sender);
             }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
+                output: TableViewOutput::PendingEditsChanged(pending),
+            } => {
+                if let Some(tab) = self.browse_tabs.iter_mut().find(|tab| tab.id == tab_id) {
+                    tab.pending_edits = pending;
+
+                    let icon = gio::ThemedIcon::new("edit-symbolic");
+                    tab.page.set_indicator_icon(pending.then_some(&icon));
+                    tab.page.set_needs_attention(pending);
+                }
+            }
+            WindowContentMsg::BrowseTabOutput {
+                tab_id,
+                output:
+                    output @ (TableViewOutput::EditsClosePrepared(_)
+                    | TableViewOutput::EditsCloseCancelled(_)
+                    | TableViewOutput::EditsCloseCommitted(_)),
+            } => self.table_close_output(tab_id, output, widgets, root, &sender),
             WindowContentMsg::BrowseTabOutput {
                 tab_id,
                 output: TableViewOutput::Copied(message),
@@ -733,7 +842,10 @@ impl Component for WindowContent {
             }
             WindowContentMsg::SaveSession => {
                 self.session_save_scheduled = false;
-                if let Err(error) = self.save_current_session(widgets) {
+                if self.has_pending_document_promotion() || self.document_session_restore_pending()
+                {
+                    self.schedule_session_save(&sender);
+                } else if let Err(error) = self.save_current_session(widgets) {
                     widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
                         "{}: {error}",
                         gettext("Saving tabs failed")
@@ -842,6 +954,8 @@ impl Component for WindowContent {
             }
         }
 
+        self.resume_document_navigation(widgets, root, &sender);
+        self.sync_file_actions(root, widgets);
         self.update_view(widgets, sender);
     }
 
@@ -850,7 +964,7 @@ impl Component for WindowContent {
         widgets: &mut Self::Widgets,
         msg: Self::CommandOutput,
         sender: ComponentSender<Self>,
-        _root: &Self::Root,
+        root: &Self::Root,
     ) {
         match msg {
             WindowContentCommandOutput::SchemaLoaded { id, result } => {
@@ -923,11 +1037,14 @@ impl Component for WindowContent {
             }
         }
 
+        self.resume_document_navigation(widgets, root, &sender);
+        self.sync_file_actions(root, widgets);
         self.update_view(widgets, sender);
     }
 
     fn shutdown(&mut self, widgets: &mut Self::Widgets, _output: Sender<Self::Output>) {
         let _ = self.save_current_session(widgets);
+        self.release_document_ownership();
         unsubscribe_window_content(self.sync_subscription_id);
     }
 }
@@ -1098,6 +1215,46 @@ impl WorkspaceNavigation {
 }
 
 impl WindowContent {
+    pub fn has_pending_table_edits(&self) -> bool {
+        self.browse_tabs.iter().any(|tab| {
+            tab.pending_edits
+                || tab
+                    .view
+                    .as_ref()
+                    .is_some_and(|view| view.model().has_pending_edits())
+        })
+    }
+
+    pub fn table_edits_saving(&self) -> bool {
+        self.browse_tabs.iter().any(|tab| {
+            tab.view
+                .as_ref()
+                .is_some_and(|view| view.model().edits_saving())
+        })
+    }
+
+    fn table_navigation_blocked(&self, widgets: &WindowContentWidgets) -> bool {
+        let blocked = self.has_pending_table_edits() || self.table_edits_saving();
+
+        if blocked {
+            widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                "Commit or discard pending table edits first.",
+            )));
+        }
+
+        blocked
+    }
+
+    fn relation_edits_pending(&self, object: &DatabaseObject) -> bool {
+        self.browse_tabs.iter().any(|tab| {
+            tab.object == *object
+                && (tab.pending_edits
+                    || tab.view.as_ref().is_some_and(|view| {
+                        view.model().has_pending_edits() || view.model().edits_saving()
+                    }))
+        })
+    }
+
     fn handle_window_event(
         &mut self,
         event: WindowContentEvent,
@@ -1279,11 +1436,28 @@ impl WindowContent {
     }
 
     fn show_start_screen(&mut self, widgets: &mut WindowContentWidgets) {
-        if let Err(error) = self.save_current_session(widgets) {
+        if self.table_navigation_blocked(widgets) {
+            self.documents.disconnect_pending = false;
+
+            return;
+        }
+
+        if self.file_operation_pending() || self.close_preparation_pending() {
+            self.documents.disconnect_pending = true;
+            widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                "Waiting for the file operation before disconnecting.",
+            )));
+            return;
+        }
+        self.documents.disconnect_pending = false;
+        self.documents.deferred_switch = None;
+        self.documents.deferred_connection = None;
+        if let Err(error) = self.checkpoint_current_session(widgets) {
             widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
                 "{}: {error}",
                 gettext("Saving tabs failed")
             )));
+            return;
         }
 
         self.visible_page = VisiblePage::Start;
@@ -1312,7 +1486,9 @@ impl WindowContent {
         self.clear_browse_tabs(widgets);
 
         for tab in &self.query_tabs {
-            tab.editor_buffer.set_text("");
+            if tab.document.is_none() {
+                tab.editor_buffer.set_text("");
+            }
             tab.editor.emit(SqlEditorMsg::SetHistory(Vec::new()));
             tab.results.emit(QueryResultsMsg::Clear);
         }
@@ -1350,6 +1526,19 @@ impl WindowContent {
         sender: &ComponentSender<Self>,
         root: &adw::ToolbarView,
     ) {
+        if self.table_navigation_blocked(widgets) {
+            self.connection_dialog = None;
+
+            return;
+        }
+
+        if self.file_operation_pending() || self.close_preparation_pending() {
+            self.documents.deferred_connection = Some((details, postgres));
+            return;
+        }
+        self.active_database_switch_request_id = None;
+        self.active_database_list_request_id = None;
+        self.documents.deferred_switch = None;
         self.cancel_all_queries();
         self.advance_table_script_generation();
 
@@ -1460,11 +1649,39 @@ impl WindowContent {
     }
 
     fn save_current_session(&self, widgets: &WindowContentWidgets) -> Result<(), String> {
+        if self.document_session_restore_pending() {
+            return Ok(());
+        }
         let Some(session) = self.saved_session(widgets) else {
             return Ok(());
         };
 
         session_store::save(&session).map_err(|error| error.to_string())
+    }
+
+    fn checkpoint_current_session(&self, widgets: &WindowContentWidgets) -> Result<(), String> {
+        self.save_current_session(widgets)?;
+        let Some(current) = self.saved_session(widgets) else {
+            return Ok(());
+        };
+        let saved = session_store::load(&current.connection_id, &current.database);
+        for tab in &current.tabs {
+            if let SavedSessionTab::Query { id, sql, .. } = tab
+                && !sql.trim().is_empty()
+                && !saved.as_ref().is_some_and(|saved| {
+                    saved.tabs.iter().any(|tab| {
+                        matches!(tab, SavedSessionTab::Query { id: saved_id, sql: saved_sql, .. }
+                        if saved_id == id && saved_sql == sql.trim())
+                    })
+                })
+            {
+                return Err(gettext(
+                    "Some scratch tabs exceed the session recovery limits. Save them as SQL files before leaving this workspace.",
+                ));
+            }
+        }
+
+        Ok(())
     }
 
     fn saved_session(&self, widgets: &WindowContentWidgets) -> Option<SavedSession> {
@@ -1486,7 +1703,11 @@ impl WindowContent {
             .zip(self.state.active_database.as_ref())
             .and_then(|(connection, database)| session_store::load(&connection.id, database));
 
-        self.restore_session(session, widgets, sender);
+        self.restore_documents(session, widgets, sender);
+        let queued = std::mem::take(&mut self.documents.queued_files);
+        if !queued.is_empty() {
+            sender.input(WindowContentMsg::OpenSqlFileLocations(queued));
+        }
     }
 
     fn disable_saved_password(&mut self, connection_id: &str, widgets: &WindowContentWidgets) {
@@ -1546,7 +1767,7 @@ impl WindowContent {
         }
 
         let parent = root.root().and_downcast::<gtk::Window>();
-        let sender = sender.clone();
+        let sender = sender.input_sender().clone();
 
         show_csv_export_options_dialog(parent.clone().as_ref(), move |options| {
             let parent = parent.clone();
@@ -1558,7 +1779,7 @@ impl WindowContent {
                 parent.as_ref(),
                 "query-results.csv".to_string(),
                 move |path| {
-                    sender.input(WindowContentMsg::QueryCsvExportConfirmed {
+                    let _ = sender.send(WindowContentMsg::QueryCsvExportConfirmed {
                         pool,
                         sql,
                         options,

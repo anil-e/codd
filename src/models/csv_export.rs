@@ -35,6 +35,7 @@ impl Default for CsvExportOptions {
 
 pub fn query_result(result: &QueryResult, options: CsvExportOptions) -> String {
     let mut rows = Vec::with_capacity(result.rows.len() + 1);
+
     rows.push(format_row(
         result.columns.iter().map(String::as_str),
         options.delimiter,
@@ -52,6 +53,7 @@ pub fn query_result(result: &QueryResult, options: CsvExportOptions) -> String {
 
 pub fn table_page(page: &TablePage, options: CsvExportOptions) -> String {
     let mut rows = Vec::with_capacity(page.rows.len() + 1);
+
     rows.push(format_row(
         page.columns.iter().map(|column| column.name.as_str()),
         options.delimiter,
@@ -161,6 +163,7 @@ mod tests {
                 kind: DatabaseObjectKind::Table,
             },
             columns: vec![column("id"), column("name")],
+            row_versions: Vec::new(),
             rows: vec![vec![
                 TableCell::new("1".to_string()),
                 TableCell::new("Ada".to_string()),

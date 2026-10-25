@@ -96,7 +96,7 @@ pub(super) fn show_edit_cell_popover(
     null_button.add_css_class("flat");
     null_button.set_visible(column.is_nullable);
 
-    let save_button = gtk::Button::with_label(&gettext("Save"));
+    let save_button = gtk::Button::with_label(&gettext("Apply"));
 
     save_button.add_css_class("suggested-action");
 
@@ -181,10 +181,10 @@ fn submit_cell_edit(
     popover.set_sensitive(false);
     popover.popdown();
 
-    let sender = sender.clone();
+    let input = sender.input_sender().clone();
 
     glib::idle_add_local_once(move || {
-        sender.input(TableBrowserMsg::CellEditSubmitted {
+        let _ = input.send(TableBrowserMsg::CellEditSubmitted {
             page_generation,
             row_index,
             column_index,
@@ -201,7 +201,7 @@ struct CellEditor {
 
 impl CellEditor {
     fn new(column: &TableColumn, cell: &TableCell) -> Self {
-        if column.type_group == ColumnTypeGroup::Boolean {
+        if column.type_group == ColumnTypeGroup::Boolean && !column.is_array {
             return Self::choice(
                 vec!["FALSE".to_string(), "TRUE".to_string()],
                 boolean_selection(&cell.value),

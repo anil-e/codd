@@ -36,6 +36,7 @@ fn truncated(value: &str, limit: usize) -> Cow<'_, str> {
 pub(super) struct TableBrowserRow {
     pub(super) index: usize,
     pub(super) cells: Vec<TableCell>,
+    pending_columns: Vec<usize>,
 }
 
 #[derive(Clone)]
@@ -49,6 +50,7 @@ struct CellFactoryContext {
     delete_action: gio::SimpleAction,
     selection: gtk::SingleSelection,
     busy: Rc<Cell<bool>>,
+    dirty: Rc<Cell<bool>>,
 }
 
 pub(super) fn clear_columns(view: &gtk::ColumnView) {
@@ -138,10 +140,10 @@ fn cell_factory(
                         .set_enabled(!context.busy.get() && can_edit);
                     context
                         .duplicate_action
-                        .set_enabled(!context.busy.get() && can_duplicate);
+                        .set_enabled(!context.busy.get() && !context.dirty.get() && can_duplicate);
                     context
                         .delete_action
-                        .set_enabled(!context.busy.get() && can_delete);
+                        .set_enabled(!context.busy.get() && !context.dirty.get() && can_delete);
                     show_context_menu(&label, &context.context_popover, x, y);
                 }
             });
@@ -163,11 +165,13 @@ fn cell_factory(
                     let row = row.borrow::<TableBrowserRow>();
 
                     if gesture.current_button() == gtk::gdk::BUTTON_PRIMARY {
-                        context.sender.input(TableBrowserMsg::EditCellRequested {
-                            anchor: label.clone(),
-                            row_index: row.index,
-                            column_index,
-                        });
+                        let _ = context.sender.input_sender().send(
+                            TableBrowserMsg::EditCellRequested {
+                                anchor: label.clone(),
+                                row_index: row.index,
+                                column_index,
+                            },
+                        );
                     } else if let Some(cell) = row.cells.get(column_index) {
                         show_cell_value_dialog(&label, &cell.value);
                     }
@@ -195,6 +199,13 @@ fn cell_factory(
         };
 
         let row = row.borrow::<TableBrowserRow>();
+
+        if row.pending_columns.contains(&column_index) {
+            label.add_css_class("table-cell-pending");
+        } else {
+            label.remove_css_class("table-cell-pending");
+        }
+
         let value = row
             .cells
             .get(column_index)
@@ -232,11 +243,24 @@ pub(super) fn render_table(
     table_browser.table_rows.remove_all();
 
     for (index, row) in page.rows.iter().enumerate() {
+        let mut cells = row.clone();
+        let mut pending_columns = Vec::new();
+
+        for (&(row_index, column_index), value) in &table_browser.pending_edits {
+            if row_index == index
+                && let Some(cell) = cells.get_mut(column_index)
+            {
+                *cell = value.clone();
+                pending_columns.push(column_index);
+            }
+        }
+
         table_browser
             .table_rows
             .append(&glib::BoxedAnyObject::new(TableBrowserRow {
                 index,
-                cells: row.clone(),
+                cells,
+                pending_columns,
             }));
     }
 }
@@ -290,11 +314,12 @@ fn sync_columns(
         delete_action: table_browser.delete_action.clone(),
         selection: table_browser.selection.clone(),
         busy: table_browser.context_busy.clone(),
+        dirty: table_browser.context_dirty.clone(),
     };
     let can_delete = table_browser.can_delete_rows();
 
     for (index, column) in columns.iter().enumerate() {
-        let can_edit = can_edit && !column.is_primary_key && column.is_editable_value_type();
+        let can_edit = can_edit && column.is_editable();
         let factory = cell_factory(
             index,
             column.type_group,

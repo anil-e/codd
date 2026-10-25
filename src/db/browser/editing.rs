@@ -1,48 +1,8 @@
-use crate::db::query;
 use crate::models::database_object::{DatabaseObject, DatabaseObjectKind, quote_identifier};
 use crate::models::table_browser::{TableCell, TableColumn, TableInsertValue};
-use sqlx::{Column, PgPool, Row, TypeInfo};
+use sqlx::PgPool;
 
-use super::page_sql::{primary_key_columns, returning_column_expression};
-
-pub async fn update_table_cell(
-    pool: &PgPool,
-    object: &DatabaseObject,
-    columns: &[TableColumn],
-    row: &[TableCell],
-    column_index: usize,
-    value: Option<String>,
-) -> Result<TableCell, TableCellUpdateError> {
-    validate_update_input(object, columns, row, column_index)?;
-
-    let target_column = &columns[column_index];
-    if value.is_none() && !target_column.is_nullable {
-        return Err(TableCellUpdateError::NotNullable);
-    }
-
-    let sql = update_cell_sql(object, columns, column_index)?;
-    let mut query = sqlx::query(&sql).bind(value);
-
-    for (index, _) in primary_key_columns(columns) {
-        let cell = &row[index];
-        let value = (!cell.is_null).then(|| cell.value.clone());
-        query = query.bind(value);
-    }
-
-    let row = query
-        .fetch_one(pool)
-        .await
-        .map_err(TableCellUpdateError::Sqlx)?;
-
-    Ok(query::value_to_cell(
-        &row,
-        0,
-        row.columns()
-            .first()
-            .map(|column| column.type_info().name())
-            .unwrap_or(target_column.type_name.as_str()),
-    ))
-}
+use super::page_sql::primary_key_columns;
 
 pub async fn insert_table_row(
     pool: &PgPool,
@@ -89,6 +49,7 @@ pub async fn delete_table_row(
     for (index, _) in primary_key_columns(columns) {
         let cell = &row[index];
         let value = (!cell.is_null).then(|| cell.value.clone());
+
         query = query.bind(value);
     }
 
@@ -111,9 +72,7 @@ pub enum TableCellUpdateError {
     PrimaryKeyEditingUnsupported,
     UnsupportedPrimaryKeyType,
     UnsupportedColumnType,
-    NotNullable,
     InvalidCell,
-    Sqlx(sqlx::Error),
 }
 
 #[derive(Debug)]
@@ -151,9 +110,7 @@ impl std::fmt::Display for TableCellUpdateError {
             Self::UnsupportedColumnType => {
                 write!(formatter, "This column type is not editable yet.")
             }
-            Self::NotNullable => write!(formatter, "This column cannot be set to NULL."),
             Self::InvalidCell => write!(formatter, "The selected cell is no longer available."),
-            Self::Sqlx(error) => write!(formatter, "{error}"),
         }
     }
 }
@@ -192,45 +149,6 @@ impl std::fmt::Display for TableRowDeleteError {
             Self::Sqlx(error) => write!(formatter, "{error}"),
         }
     }
-}
-
-pub(super) fn update_cell_sql(
-    object: &DatabaseObject,
-    columns: &[TableColumn],
-    column_index: usize,
-) -> Result<String, TableCellUpdateError> {
-    let target_column = columns
-        .get(column_index)
-        .ok_or(TableCellUpdateError::InvalidCell)?;
-    let primary_key_columns = primary_key_columns(columns);
-    if primary_key_columns.is_empty() {
-        return Err(TableCellUpdateError::MissingPrimaryKey);
-    }
-
-    let assignments = format!(
-        "{} = $1::{}",
-        quote_identifier(&target_column.name),
-        target_column.display_type
-    );
-    let where_clause = primary_key_columns
-        .iter()
-        .enumerate()
-        .map(|(index, (_, column))| {
-            format!(
-                "{} IS NOT DISTINCT FROM ${}::{}",
-                quote_identifier(&column.name),
-                index + 2,
-                column.display_type
-            )
-        })
-        .collect::<Vec<_>>()
-        .join(" AND ");
-
-    Ok(format!(
-        "UPDATE {} SET {assignments} WHERE {where_clause} RETURNING {}",
-        object.qualified_name(),
-        returning_column_expression(target_column)
-    ))
 }
 
 pub(super) fn insert_row_sql(
@@ -278,6 +196,7 @@ pub(super) fn delete_row_sql(
     }
 
     let primary_key_columns = primary_key_columns(columns);
+
     if primary_key_columns.is_empty() {
         return Err(TableRowDeleteError::MissingPrimaryKey);
     }
@@ -331,11 +250,12 @@ pub(super) fn validate_update_input(
         return Err(TableCellUpdateError::PrimaryKeyEditingUnsupported);
     }
 
-    if !column.is_editable_value_type() {
+    if !column.is_editable() {
         return Err(TableCellUpdateError::UnsupportedColumnType);
     }
 
     let primary_key_columns = primary_key_columns(columns);
+
     if primary_key_columns.is_empty() {
         return Err(TableCellUpdateError::MissingPrimaryKey);
     }

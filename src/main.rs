@@ -4,6 +4,7 @@ mod db;
 mod menus;
 mod models;
 mod settings;
+mod sql_file;
 mod state;
 mod ui;
 mod window;
@@ -25,8 +26,15 @@ fn main() {
     setup_icon_theme();
 
     let app = RelmApp::new(APP_ID);
+    let application = relm4::main_adw_application();
+    setup_file_open(&application);
     ui::style::load();
     app.run::<AppWindow>(());
+}
+
+fn setup_file_open(application: &libadwaita::Application) {
+    application.set_flags(application.flags() | gio::ApplicationFlags::HANDLES_OPEN);
+    application.connect_open(|_, files, _| window::open_sql_files(files.to_vec()));
 }
 
 fn setup_gettext() {

@@ -225,9 +225,9 @@ fn filter_row(
                     }
                 }
 
-                sender.input(TableBrowserMsg::FilterEvent(FilterEvent::DraftChanged(
-                    updated,
-                )));
+                let _ = sender.input_sender().send(TableBrowserMsg::FilterEvent(
+                    FilterEvent::DraftChanged(updated),
+                ));
             }
         });
     }
@@ -261,9 +261,9 @@ fn filter_row(
                 }
             }
 
-            sender.input(TableBrowserMsg::FilterEvent(FilterEvent::DraftChanged(
-                updated,
-            )));
+            let _ = sender.input_sender().send(TableBrowserMsg::FilterEvent(
+                FilterEvent::DraftChanged(updated),
+            ));
         }
     });
 
@@ -277,9 +277,9 @@ fn filter_row(
                 updated.remove(index);
             }
 
-            sender.input(TableBrowserMsg::FilterEvent(FilterEvent::DraftChanged(
-                updated,
-            )));
+            let _ = sender.input_sender().send(TableBrowserMsg::FilterEvent(
+                FilterEvent::DraftChanged(updated),
+            ));
         }
     });
 
@@ -322,7 +322,7 @@ fn value_editor(
         move |entry| {
             let updated = update_state_value(&state, index, Some(entry.text().to_string()));
 
-            sender.input(TableBrowserMsg::FilterEvent(
+            let _ = sender.input_sender().send(TableBrowserMsg::FilterEvent(
                 FilterEvent::DraftValuesChanged(updated),
             ));
         }
@@ -352,7 +352,7 @@ fn custom_sql_editor(
         move |entry| {
             let updated = update_state_value(&state, index, Some(entry.text().to_string()));
 
-            sender.input(TableBrowserMsg::FilterEvent(
+            let _ = sender.input_sender().send(TableBrowserMsg::FilterEvent(
                 FilterEvent::DraftValuesChanged(updated),
             ));
         }
@@ -373,9 +373,11 @@ fn connect_apply_on_activate(
         let state = state.clone();
 
         move |_| {
-            sender.input(TableBrowserMsg::FilterEvent(FilterEvent::Apply(
-                state.borrow().clone(),
-            )));
+            let _ = sender
+                .input_sender()
+                .send(TableBrowserMsg::FilterEvent(FilterEvent::Apply(
+                    state.borrow().clone(),
+                )));
         }
     });
 }
@@ -406,7 +408,7 @@ fn choice_editor(
             let value = values.get(dropdown.selected() as usize).cloned();
             let updated = update_state_value(&state, index, value);
 
-            sender.input(TableBrowserMsg::FilterEvent(
+            let _ = sender.input_sender().send(TableBrowserMsg::FilterEvent(
                 FilterEvent::DraftValuesChanged(updated),
             ));
         }
@@ -458,9 +460,9 @@ fn actions_row(
                 updated.push(filter);
             }
 
-            sender.input(TableBrowserMsg::FilterEvent(FilterEvent::DraftChanged(
-                updated,
-            )));
+            let _ = sender.input_sender().send(TableBrowserMsg::FilterEvent(
+                FilterEvent::DraftChanged(updated),
+            ));
         }
     });
 
@@ -468,7 +470,9 @@ fn actions_row(
         let sender = sender.clone();
 
         move |_| {
-            sender.input(TableBrowserMsg::FilterEvent(FilterEvent::Clear));
+            let _ = sender
+                .input_sender()
+                .send(TableBrowserMsg::FilterEvent(FilterEvent::Clear));
         }
     });
 
@@ -477,9 +481,11 @@ fn actions_row(
         let state = state.clone();
 
         move |_| {
-            sender.input(TableBrowserMsg::FilterEvent(FilterEvent::Apply(
-                state.borrow().clone(),
-            )));
+            let _ = sender
+                .input_sender()
+                .send(TableBrowserMsg::FilterEvent(FilterEvent::Apply(
+                    state.borrow().clone(),
+                )));
         }
     });
 

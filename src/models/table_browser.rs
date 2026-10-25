@@ -48,6 +48,13 @@ pub struct TableColumn {
 }
 
 impl TableColumn {
+    pub fn is_editable(&self) -> bool {
+        !self.is_primary_key
+            && !self.is_identity
+            && !self.is_generated
+            && self.is_editable_value_type()
+    }
+
     pub fn is_editable_value_type(&self) -> bool {
         self.type_group != ColumnTypeGroup::Binary
     }
@@ -107,9 +114,24 @@ pub struct TablePage {
     pub object: DatabaseObject,
     pub columns: Vec<TableColumn>,
     pub rows: Vec<Vec<TableCell>>,
+    pub row_versions: Vec<String>,
     pub offset: u32,
     pub page_size: u32,
     pub has_next_page: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableCellChange {
+    pub column_index: usize,
+    pub value: TableCell,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableRowEdit {
+    pub row_index: usize,
+    pub original_row: Vec<TableCell>,
+    pub version: String,
+    pub changes: Vec<TableCellChange>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -248,6 +270,28 @@ impl FilterOperator {
 #[cfg(test)]
 mod tests {
     use super::{ColumnTypeGroup, TableColumn};
+
+    #[test]
+    fn generated_identity_and_primary_key_columns_are_read_only() {
+        let mut value = column("text");
+
+        assert!(value.is_editable());
+
+        value.is_generated = true;
+
+        assert!(!value.is_editable());
+
+        value.is_generated = false;
+        value.is_identity = true;
+
+        assert!(!value.is_editable());
+
+        value.is_identity = false;
+        value.is_primary_key = true;
+
+        assert!(!value.is_editable());
+        assert!(value.is_insertable());
+    }
 
     #[test]
     fn groups_common_postgres_types() {

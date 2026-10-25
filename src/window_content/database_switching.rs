@@ -47,6 +47,16 @@ impl WindowContent {
         widgets: &WindowContentWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        if self.table_navigation_blocked(widgets) {
+            return;
+        }
+
+        if self.file_operation_pending() || self.close_preparation_pending() {
+            widgets.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                "Finish the file operation before switching databases.",
+            )));
+            return;
+        }
         if self.state.active_database.as_deref() == Some(database.as_str()) {
             return;
         }
@@ -58,11 +68,12 @@ impl WindowContent {
             return;
         };
 
-        if let Err(error) = self.save_current_session(widgets) {
+        if let Err(error) = self.checkpoint_current_session(widgets) {
             widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
                 "{}: {error}",
                 gettext("Saving tabs failed")
             )));
+            return;
         }
 
         let request_id = self.allocate_database_switch_request_id();
@@ -94,7 +105,24 @@ impl WindowContent {
             return;
         }
 
+        if self.file_operation_pending() || self.close_preparation_pending() {
+            self.documents.deferred_switch =
+                Some(super::WindowContentMsg::DatabaseSwitchCompleted {
+                    id,
+                    database,
+                    result,
+                });
+            return;
+        }
+
         self.active_database_switch_request_id = None;
+
+        if self.table_navigation_blocked(widgets) {
+            self.database_selector
+                .emit(DatabaseSelectorMsg::SetLoading(false));
+
+            return;
+        }
 
         let postgres = match result {
             Ok(postgres) => postgres,
@@ -108,6 +136,16 @@ impl WindowContent {
                 return;
             }
         };
+
+        if let Err(error) = self.checkpoint_current_session(widgets) {
+            self.database_selector
+                .emit(DatabaseSelectorMsg::SetLoading(false));
+            widgets.toast_overlay.add_toast(adw::Toast::new(&format!(
+                "{}: {error}",
+                gettext("Saving tabs failed")
+            )));
+            return;
+        }
 
         self.cancel_all_queries();
         self.clear_browse_tabs(widgets);

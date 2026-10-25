@@ -80,6 +80,24 @@
         <property name="title" translatable="yes" context="shortcut window">Query</property>
         <child>
           <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Open SQL Files</property>
+            <property name="accelerator">&lt;Control&gt;o</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Save SQL File</property>
+            <property name="accelerator">&lt;Control&gt;s</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes" context="shortcut window">Save SQL File As</property>
+            <property name="accelerator">&lt;Control&gt;&lt;Shift&gt;s</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwShortcutsItem">
             <property name="title" translatable="yes" context="shortcut window">Execute</property>
             <property name="accelerator">&lt;Control&gt;Return</property>
           </object>

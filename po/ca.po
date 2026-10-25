@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-23 15:23+0200\n"
+"POT-Creation-Date: 2026-10-25 12:36+0100\n"
 "PO-Revision-Date: 2026-07-23 20:01+0000\n"
 "Last-Translator: Guillem Servera <guillem@gservera.com>\n"
 "Language-Team: Catalan <https://hosted.weblate.org/projects/codd/ui/ca/>\n"
@@ -22,133 +22,161 @@ msgstr ""
 msgid "_New Connection"
 msgstr "_Nova connexió"
 
-#: src/menus.rs:32
+#: src/menus.rs:26
+msgid "_Open SQL Files..."
+msgstr ""
+
+#: src/menus.rs:29
+msgid "_Save"
+msgstr ""
+
+#: src/menus.rs:30
+msgid "Save _As..."
+msgstr ""
+
+#: src/menus.rs:41
 msgid "_New Window"
 msgstr "_Nova finestra"
 
-#: src/menus.rs:38
+#: src/menus.rs:47
 msgid "Compact Mode"
 msgstr "Mode compacte"
 
-#: src/menus.rs:39
+#: src/menus.rs:48
 msgid "_Keyboard Shortcuts"
 msgstr "_Dreceres de teclat"
 
-#: src/menus.rs:40
+#: src/menus.rs:49
 msgid "_About Codd"
 msgstr "_Quant al Codd"
 
-#: src/menus.rs:41
+#: src/menus.rs:50
 msgid "_Quit"
 msgstr "_Surt"
 
-#: src/window.rs:248
+#: src/window.rs:543
 msgid "translator-credits"
 msgstr "Guillem Servera <guillem@gservera.com>"
 
-#: src/window.rs:250 data/io.github.anil_e.Codd.desktop.in:4
+#: src/window.rs:545 data/io.github.anil_e.Codd.desktop.in:4
 #: data/io.github.anil_e.Codd.metainfo.xml.in:8
 msgid "Lightweight PostgreSQL client"
 msgstr "Un client lleuger de PostgreSQL"
 
-#: src/window_content.rs:275 src/window_content.rs:342
+#: src/window_content.rs:297 src/window_content.rs:364
 msgid "Main Menu"
 msgstr "Menú principal"
 
-#: src/window_content.rs:308
+#: src/window_content.rs:330
 msgid "Objects"
 msgstr "Objectes"
 
-#: src/window_content.rs:312
+#: src/window_content.rs:334
 msgid "Back to connections"
 msgstr "Torna a connexions"
 
-#: src/window_content.rs:319
+#: src/window_content.rs:341
 msgid "Refresh Objects"
 msgstr "Refresca els objectes"
 
-#: src/window_content.rs:349
+#: src/window_content.rs:371
 msgid "New Query Tab"
 msgstr "Nova pestanya de consulta"
 
-#: src/window_content.rs:739 src/window_content.rs:1285
-#: src/window_content/database_switching.rs:64
+#: src/window_content.rs:850 src/window_content.rs:1452
+#: src/window_content/database_switching.rs:73
+#: src/window_content/database_switching.rs:143
 msgid "Saving tabs failed"
 msgstr "No s'han pogut desar les pestanyes"
 
-#: src/window_content.rs:837
+#: src/window_content.rs:948
 msgid "Updating the saved password failed"
 msgstr "No s'ha pogut actualitzar la contrasenya desada"
 
-#: src/window_content.rs:888 src/ui/components/table_browser.rs:867
+#: src/window_content.rs:1001 src/ui/components/table_browser.rs:1081
 msgid "CSV exported."
 msgstr "CSV exportat."
 
-#: src/window_content.rs:1094
+#: src/window_content.rs:1210
 msgid "Hide Objects"
 msgstr "Oculta els objectes"
 
-#: src/window_content.rs:1095
+#: src/window_content.rs:1211
 msgid "Show Objects"
 msgstr "Mostra els objectes"
 
-#: src/window_content.rs:1321 src/ui/components/sidebar.rs:153
+#: src/window_content.rs:1239
+msgid "Commit or discard pending table edits first."
+msgstr ""
+
+#: src/window_content.rs:1442
+msgid "Waiting for the file operation before disconnecting."
+msgstr ""
+
+#: src/window_content.rs:1491 src/ui/components/sidebar.rs:153
 #: src/ui/components/sidebar.rs:407 src/ui/components/sidebar.rs:421
 msgid "No connection"
 msgstr "Sense connexió"
 
-#: src/window_content.rs:1388
+#: src/window_content.rs:1569
 msgid "Connected to PostgreSQL."
 msgstr "Connectat a PostgreSQL."
 
-#: src/window_content.rs:1401
+#: src/window_content.rs:1582
 msgid "Connected, but saving the connection failed"
 msgstr "Connectat, però no s'ha pogut desar la connexió"
 
-#: src/window_content.rs:1520
+#: src/window_content.rs:1671
+msgid ""
+"Some scratch tabs exceed the session recovery limits. Save them as SQL files "
+"before leaving this workspace."
+msgstr ""
+
+#: src/window_content.rs:1733
 msgid "Disabling saved password failed"
 msgstr "No s'ha pogut deshabilitar la contrasenya desada"
 
-#: src/window_content.rs:1535
+#: src/window_content.rs:1748
 msgid "Connect to PostgreSQL before exporting query results."
 msgstr "Connecteu al PostgreSQL abans d'exportar els resultats de la consulta."
 
-#: src/window_content.rs:1543
+#: src/window_content.rs:1756
 msgid "Enter SQL before exporting query results."
 msgstr "Introdueix SQL abans d'exportar els resultats d'una consulta."
 
-#: src/window_content.rs:1587
+#: src/window_content.rs:1800
 msgid "The query did not return rows."
 msgstr "La consulta no ha retornat cap fila."
 
-#: src/window_content.rs:1618
+#: src/window_content.rs:1831
 msgid "Schema load failed"
 msgstr "No s'ha pogut carregar l'esquema"
 
-#: src/window_content.rs:1679
+#: src/window_content.rs:1892
 msgid "Connect to PostgreSQL before generating a script."
 msgstr "Connecteu al PostgreSQL abans de generar un script."
 
-#: src/window_content.rs:1719
+#: src/window_content.rs:1932
 msgid "Generating the table script failed"
 msgstr "No s'ha pogut generar l'script de la taula"
 
-#: src/window_content.rs:1767 src/ui/components/table_browser.rs:870
+#: src/window_content.rs:1980 src/ui/components/table_browser.rs:1084
 msgid "Export failed"
 msgstr "L'exportació ha fallat"
 
-#: src/window_content.rs:1772 src/window_content/structure_actions.rs:423
-#: src/window_content/tabs.rs:63 src/ui/components/connection_dialog.rs:966
-#: src/ui/components/table_browser.rs:1289
+#: src/window_content.rs:1985 src/window_content/documents.rs:2335
+#: src/window_content/structure_actions.rs:427 src/window_content/tabs.rs:94
+#: src/ui/components/connection_dialog.rs:966
+#: src/ui/components/table_browser.rs:1533
 msgid "Close"
 msgstr "Tanca"
 
-#: src/window_content.rs:1807
+#: src/window_content.rs:2020
 msgid "CSV export runs queries in a read-only transaction."
 msgstr ""
 "L'exportació a CSV executa les consultes en una transacció de només lectura."
 
-#: src/window_content.rs:1809
+#: src/window_content.rs:2022
 msgid ""
 "Use a SELECT query for export. Statements that write or change transaction "
 "state, such as UPDATE, INSERT, DELETE, CREATE, COMMIT, or ROLLBACK, cannot "
@@ -158,55 +186,74 @@ msgstr ""
 "modifiquen l'estat d'una transacció com ara UPDATE, INSERT, DELETE, CREATE, "
 "COMMIT o ROLLBACK, no es poden exportar."
 
-#: src/window_content.rs:1819
+#: src/window_content.rs:2032
 msgid "CREATE script generated."
 msgstr "Script CREATE generat."
 
-#: src/window_content.rs:1820
+#: src/window_content.rs:2033
 msgid "SELECT script generated."
 msgstr "S'ha generat l'script SELECT."
 
-#: src/window_content.rs:1821
+#: src/window_content.rs:2034
 msgid "INSERT script generated."
 msgstr "S'ha generat l'script INSERT."
 
-#: src/window_content.rs:1822
+#: src/window_content.rs:2035
 msgid "UPDATE script generated."
 msgstr "S'ha generat l'script UPDATE."
 
-#: src/window_content.rs:1823
+#: src/window_content.rs:2036
 msgid "DELETE script generated."
 msgstr "S'ha generat l'script DELETE."
 
-#: src/window_content/database_switching.rs:56
+#: src/window_content/database_switching.rs:55
+msgid "Finish the file operation before switching databases."
+msgstr ""
+
+#: src/window_content/database_switching.rs:65
 msgid "Connect to PostgreSQL before switching databases."
 msgstr "Connecteu al PostgreSQL abans de canviar de base de dades."
 
-#: src/window_content/database_switching.rs:106
+#: src/window_content/database_switching.rs:132
 msgid "Database switch failed"
 msgstr "No s'ha pogut canviar de base de dades"
 
-#: src/window_content/database_switching.rs:154
+#: src/window_content/database_switching.rs:190
 msgid "Saving the selected database failed"
 msgstr "No s'ha pogut desar la base de dades seleccionada"
 
-#: src/window_content/database_switching.rs:195
+#: src/window_content/database_switching.rs:231
 msgid "Migrating query history failed"
 msgstr "No s'ha pogut migrar l'històric de consultes"
 
-#: src/window_content/database_switching.rs:224
+#: src/window_content/database_switching.rs:260
 msgid "Saving query history failed"
 msgstr "No s'ha pogut desar l'històric de consultes"
 
-#: src/window_content/database_switching.rs:247
+#: src/window_content/database_switching.rs:283
 msgid "Clearing query history failed"
 msgstr "No s'ha pogut esborrar l'històric de consultes"
 
-#: src/window_content/object_actions.rs:60
-msgid "Choose a new name for this database object."
-msgstr "Tria un nom nou per aquest objecte de base de dades."
+#: src/window_content/documents.rs:81
+msgid "Recovered Script (Save As Required)"
+msgstr ""
 
-#: src/window_content/object_actions.rs:65
+#: src/window_content/documents.rs:94
+msgid "File changed on disk. Reload to read the latest version."
+msgstr ""
+
+#: src/window_content/documents.rs:680
+msgid "Open SQL Files"
+msgstr ""
+
+#: src/window_content/documents.rs:683
+msgid "Open"
+msgstr ""
+
+#: src/window_content/documents.rs:684 src/window_content/documents.rs:820
+#: src/window_content/documents.rs:1206 src/window_content/documents.rs:1386
+#: src/window_content/documents.rs:1554 src/window_content/documents.rs:1671
+#: src/window_content/documents.rs:1695 src/window_content/object_actions.rs:65
 #: src/window_content/object_actions.rs:119
 #: src/window_content/object_actions.rs:174
 #: src/window_content/structure_actions.rs:88
@@ -216,15 +263,162 @@ msgstr "Tria un nom nou per aquest objecte de base de dades."
 #: src/ui/components/csv_export_dialog.rs:55
 #: src/ui/components/csv_export_dialog.rs:91
 #: src/ui/components/start_screen.rs:333 src/ui/components/start_screen.rs:369
-#: src/ui/components/editor.rs:254
+#: src/ui/components/editor.rs:274
 #: src/ui/components/table_browser/cell_editor.rs:93
 #: src/ui/components/table_browser/delete_row.rs:31
-#: src/ui/components/table_browser/insert_row.rs:246
+#: src/ui/components/table_browser/editing.rs:264
+#: src/ui/components/table_browser/insert_row.rs:273
 msgid "Cancel"
 msgstr "Cancel·la"
 
+#: src/window_content/documents.rs:718
+msgid "Connect to PostgreSQL to open the queued SQL files."
+msgstr ""
+
+#: src/window_content/documents.rs:816
+msgid "Save SQL File"
+msgstr ""
+
+#: src/window_content/documents.rs:819 src/window_content/documents.rs:1208
+#: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
+msgid "Save"
+msgstr "Desa"
+
+#: src/window_content/documents.rs:1111
+msgid ""
+"Wait for the current file or database operation to finish, then try closing "
+"again."
+msgstr ""
+
+#: src/window_content/documents.rs:1198
+msgid "Save Changes?"
+msgstr ""
+
+#: src/window_content/documents.rs:1202
+msgid "Unsaved changes will be lost if you discard them."
+msgstr ""
+
+#: src/window_content/documents.rs:1207 src/ui/components/table_browser.rs:441
+#: src/ui/components/table_browser/editing.rs:265
+msgid "Discard"
+msgstr ""
+
+#: src/window_content/documents.rs:1337 src/window_content/documents.rs:2055
+#: src/window_content/documents.rs:2113
+msgid "Saving Tabs Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:1380
+msgid "Reload SQL File?"
+msgstr ""
+
+#: src/window_content/documents.rs:1382
+msgid "Reloading discards your unsaved changes and cannot be undone."
+msgstr ""
+
+#: src/window_content/documents.rs:1387 src/window_content/tabs.rs:103
+#: src/ui/components/editor.rs:422
+msgid "Reload"
+msgstr ""
+
+#: src/window_content/documents.rs:1550
+msgid "Opening SQL File Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:1555 src/window_content/documents.rs:2126
+msgid "Retry"
+msgstr ""
+
+#: src/window_content/documents.rs:1664
+msgid "Saving SQL File Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:1667
+msgid "Check the file permissions or use Save As to choose another location."
+msgstr ""
+
+#: src/window_content/documents.rs:1672 src/window_content/documents.rs:1696
+#: src/window_content/tabs.rs:102 src/ui/components/editor.rs:424
+msgid "Save As"
+msgstr ""
+
+#: src/window_content/documents.rs:1691
+msgid "File Changed on Disk"
+msgstr ""
+
+#: src/window_content/documents.rs:1692
+msgid ""
+"The file was changed, deleted, or cannot be verified. Save a copy, or "
+"explicitly replace the latest verified version."
+msgstr ""
+
+#: src/window_content/documents.rs:1701
+msgid "Overwrite"
+msgstr ""
+
+#: src/window_content/documents.rs:1706
+msgid "Recreate File"
+msgstr ""
+
+#: src/window_content/documents.rs:2064
+msgid "Restoring SQL Files Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2118 src/window_content/documents.rs:2148
+msgid "Saving SQL Recovery Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2121
+msgid ""
+"The file was saved, but newer edits cannot be recovered after a crash. Retry "
+"before removing the scratch-session backup."
+msgstr ""
+
+#: src/window_content/documents.rs:2125
+msgid "Keep Editing Without Recovery"
+msgstr ""
+
+#: src/window_content/documents.rs:2190
+msgid "Closing SQL Files Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2247
+msgid "Restoring SQL Recovery Failed"
+msgstr ""
+
+#: src/window_content/documents.rs:2315
+msgid "SQL Files"
+msgstr ""
+
+#: src/window_content/documents.rs:2320
+msgid "All Files"
+msgstr ""
+
+#: src/window_content/documents.rs:2346
+msgid "Some SQL Recovery Files Could Not Be Restored"
+msgstr ""
+
+#: src/window_content/documents.rs:2354
+#, rust-format
+msgid ""
+"One recovery file could not be restored. Valid recovery files were processed "
+"normally, and the unreadable file was left untouched."
+msgid_plural ""
+"{count} recovery files could not be restored. Valid recovery files were "
+"processed normally, and the unreadable files were left untouched."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/window_content/documents.rs:2367
+msgid "See the application logs for the remaining recovery warnings."
+msgstr ""
+
+#: src/window_content/object_actions.rs:60
+msgid "Choose a new name for this database object."
+msgstr "Tria un nom nou per aquest objecte de base de dades."
+
 #: src/window_content/object_actions.rs:66
-#: src/window_content/object_actions.rs:344
+#: src/window_content/object_actions.rs:351
 #: src/window_content/structure_actions.rs:89
 #: src/ui/components/start_screen.rs:334
 msgid "Rename"
@@ -248,27 +442,27 @@ msgid "Also truncate tables that have foreign-key references to this table."
 msgstr ""
 "Buida també les taules amb claus foranes que referencien aquesta taula."
 
-#: src/window_content/object_actions.rs:313
+#: src/window_content/object_actions.rs:320
 msgid "Rename Table"
 msgstr "Canvia el nom de la taula"
 
-#: src/window_content/object_actions.rs:314
+#: src/window_content/object_actions.rs:321
 msgid "Rename View"
 msgstr "Canvia el nom de la vista"
 
-#: src/window_content/object_actions.rs:316
+#: src/window_content/object_actions.rs:323
 msgid "Truncate Table"
 msgstr "Buida la taula"
 
-#: src/window_content/object_actions.rs:318
+#: src/window_content/object_actions.rs:325
 msgid "Delete Table"
 msgstr "Esborra la taula"
 
-#: src/window_content/object_actions.rs:319
+#: src/window_content/object_actions.rs:326
 msgid "Delete View"
 msgstr "Esborra la vista"
 
-#: src/window_content/object_actions.rs:327
+#: src/window_content/object_actions.rs:334
 #, rust-format
 msgid ""
 "Remove all rows from {table}?\n"
@@ -277,7 +471,7 @@ msgstr ""
 "Esborra totes les files de {table}?\n"
 "Aquesta acció no es pot desfer."
 
-#: src/window_content/object_actions.rs:332
+#: src/window_content/object_actions.rs:339
 #, rust-format
 msgid ""
 "Delete table {name}?\n"
@@ -286,7 +480,7 @@ msgstr ""
 "Esborra la taula {name}?\n"
 "Aquesta acció no es pot desfer."
 
-#: src/window_content/object_actions.rs:334
+#: src/window_content/object_actions.rs:341
 #, rust-format
 msgid ""
 "Delete view {name}?\n"
@@ -295,43 +489,43 @@ msgstr ""
 "Elimina la vista {name}?\n"
 "Aquesta acció no es pot desfer."
 
-#: src/window_content/object_actions.rs:345
+#: src/window_content/object_actions.rs:352
 msgid "Truncate"
 msgstr "Buida"
 
-#: src/window_content/object_actions.rs:346
+#: src/window_content/object_actions.rs:353
 #: src/ui/components/table_browser/delete_row.rs:32
 msgid "Delete"
 msgstr "Esborra"
 
-#: src/window_content/object_actions.rs:352
+#: src/window_content/object_actions.rs:359
 msgid "Database object renamed."
 msgstr "S'ha canviat el nom de l'objecte de base de dades."
 
-#: src/window_content/object_actions.rs:354
+#: src/window_content/object_actions.rs:361
 #, rust-format
 msgid "Table truncated: {table}"
 msgstr "S'ha buidat la taula: {table}"
 
-#: src/window_content/object_actions.rs:356
+#: src/window_content/object_actions.rs:363
 msgid "Database object deleted."
 msgstr "S'ha esborrat l'objecte de base de dades."
 
-#: src/window_content/object_actions.rs:362
-#: src/window_content/structure_actions.rs:398
+#: src/window_content/object_actions.rs:369
+#: src/window_content/structure_actions.rs:402
 msgid "Renaming failed"
 msgstr "El canvi de nom ha fallat"
 
-#: src/window_content/object_actions.rs:363
+#: src/window_content/object_actions.rs:370
 msgid "Truncating failed"
 msgstr "No s'ha pogut buidar"
 
-#: src/window_content/object_actions.rs:364
+#: src/window_content/object_actions.rs:371
 msgid "Deleting failed"
 msgstr "No s'ha pogut esborrar"
 
-#: src/window_content/object_actions.rs:379
-#: src/window_content/structure_actions.rs:295
+#: src/window_content/object_actions.rs:386
+#: src/window_content/structure_actions.rs:299
 msgid "Enter a valid object name."
 msgstr "Introdueix un nom vàlid per a l'objecte."
 
@@ -363,144 +557,144 @@ msgstr "Tria un nom nou per a aquest element."
 msgid "Drop"
 msgstr "Esborra"
 
-#: src/window_content/structure_actions.rs:333
+#: src/window_content/structure_actions.rs:337
 msgid "Rename column"
 msgstr "Canvia el nom de la columna"
 
-#: src/window_content/structure_actions.rs:334
+#: src/window_content/structure_actions.rs:338
 msgid "Rename index"
 msgstr "Canvia el nom de l'índex"
 
-#: src/window_content/structure_actions.rs:335
+#: src/window_content/structure_actions.rs:339
 msgid "Rename constraint"
 msgstr "Canvia el nom de la restricció"
 
-#: src/window_content/structure_actions.rs:336
+#: src/window_content/structure_actions.rs:340
 msgid "Rename foreign key"
 msgstr "Canvia el nom de la clau forana"
 
-#: src/window_content/structure_actions.rs:337
+#: src/window_content/structure_actions.rs:341
 msgid "Rename trigger"
 msgstr "Canvia el nom del disparador"
 
-#: src/window_content/structure_actions.rs:343
+#: src/window_content/structure_actions.rs:347
 msgid "Drop column"
 msgstr "Esborra la columna"
 
-#: src/window_content/structure_actions.rs:344
+#: src/window_content/structure_actions.rs:348
 msgid "Drop index"
 msgstr "Destrueix l'índex"
 
-#: src/window_content/structure_actions.rs:345
+#: src/window_content/structure_actions.rs:349
 msgid "Drop constraint"
 msgstr "Esborra la restricció"
 
-#: src/window_content/structure_actions.rs:346
+#: src/window_content/structure_actions.rs:350
 msgid "Drop foreign key"
 msgstr "Destrueix la clau forana"
 
-#: src/window_content/structure_actions.rs:347
+#: src/window_content/structure_actions.rs:351
 msgid "Drop trigger"
 msgstr "Destrueix el disparador"
 
-#: src/window_content/structure_actions.rs:353
+#: src/window_content/structure_actions.rs:357
 #, rust-format
 msgid "Drop column {name} from table {table}?"
 msgstr "Esborrar la columna {name} de la taula {table}?"
 
-#: src/window_content/structure_actions.rs:354
+#: src/window_content/structure_actions.rs:358
 #, rust-format
 msgid "Drop index {name} from table {table}?"
 msgstr "¿Voleu esborrar l'índex {name} de la taula {table}?"
 
-#: src/window_content/structure_actions.rs:355
+#: src/window_content/structure_actions.rs:359
 #, rust-format
 msgid "Drop constraint {name} from table {table}?"
 msgstr "Voleu esborrar la restricció {name} de la taula {table}?"
 
-#: src/window_content/structure_actions.rs:356
+#: src/window_content/structure_actions.rs:360
 #, rust-format
 msgid "Drop foreign key {name} from table {table}?"
 msgstr "Voleu esborrar la clau forana {name} de la taula {table}?"
 
-#: src/window_content/structure_actions.rs:357
+#: src/window_content/structure_actions.rs:361
 #, rust-format
 msgid "Drop trigger {name} from table {table}?"
 msgstr "Voleu esborrar el disparador {name} de la taula {table}?"
 
-#: src/window_content/structure_actions.rs:368
+#: src/window_content/structure_actions.rs:372
 msgid "Column renamed."
 msgstr "S'ha canviat el nom de la columna."
 
-#: src/window_content/structure_actions.rs:369
+#: src/window_content/structure_actions.rs:373
 msgid "Index renamed."
 msgstr "S'ha canviat el nom de l'índex."
 
-#: src/window_content/structure_actions.rs:370
+#: src/window_content/structure_actions.rs:374
 msgid "Constraint renamed."
 msgstr "S'ha canviat el nom de la restricció."
 
-#: src/window_content/structure_actions.rs:371
+#: src/window_content/structure_actions.rs:375
 msgid "Foreign key renamed."
 msgstr "S'ha canviat el nom de la clau forana."
 
-#: src/window_content/structure_actions.rs:372
+#: src/window_content/structure_actions.rs:376
 msgid "Trigger renamed."
 msgstr "S'ha canviat el nom del disparador."
 
-#: src/window_content/structure_actions.rs:377
+#: src/window_content/structure_actions.rs:381
 msgid "Column dropped with CASCADE."
 msgstr "S'ha esborrat la columna amb CASCADE."
 
-#: src/window_content/structure_actions.rs:378
+#: src/window_content/structure_actions.rs:382
 msgid "Index dropped with CASCADE."
 msgstr "S'ha esborrat l'índex amb CASCADE."
 
-#: src/window_content/structure_actions.rs:379
+#: src/window_content/structure_actions.rs:383
 msgid "Constraint dropped with CASCADE."
 msgstr "S'ha esborrat la restricció amb CASCADE."
 
-#: src/window_content/structure_actions.rs:380
+#: src/window_content/structure_actions.rs:384
 msgid "Foreign key dropped with CASCADE."
 msgstr "S'ha esborrat la clau forana amb CASCADE."
 
-#: src/window_content/structure_actions.rs:381
+#: src/window_content/structure_actions.rs:385
 msgid "Trigger dropped with CASCADE."
 msgstr "S'ha esborrat el disparador amb CASCADE."
 
-#: src/window_content/structure_actions.rs:386
+#: src/window_content/structure_actions.rs:390
 msgid "Column dropped."
 msgstr "S'ha esborrat la columna."
 
-#: src/window_content/structure_actions.rs:387
+#: src/window_content/structure_actions.rs:391
 msgid "Index dropped."
 msgstr "S'ha esborrat l'índex."
 
-#: src/window_content/structure_actions.rs:388
+#: src/window_content/structure_actions.rs:392
 msgid "Constraint dropped."
 msgstr "S'ha esborrat la restricció."
 
-#: src/window_content/structure_actions.rs:389
+#: src/window_content/structure_actions.rs:393
 msgid "Foreign key dropped."
 msgstr "S'ha esborrat la clau forana."
 
-#: src/window_content/structure_actions.rs:390
+#: src/window_content/structure_actions.rs:394
 msgid "Trigger dropped."
 msgstr "S'ha esborrat el disparador."
 
-#: src/window_content/structure_actions.rs:401
+#: src/window_content/structure_actions.rs:405
 msgid "Dropping with CASCADE failed"
 msgstr "No s'ha pogut esborrar amb CASCADE"
 
-#: src/window_content/structure_actions.rs:403
+#: src/window_content/structure_actions.rs:407
 msgid "Dropping failed"
 msgstr "No s'ha pogut esborrar"
 
-#: src/window_content/structure_actions.rs:426
+#: src/window_content/structure_actions.rs:430
 msgid "Drop with CASCADE"
 msgstr "Esborra amb CASCADE"
 
-#: src/window_content/structure_actions.rs:465
+#: src/window_content/structure_actions.rs:469
 msgid ""
 "This may also drop dependent views, constraints, indexes, or other database "
 "objects. This cannot be undone."
@@ -508,29 +702,40 @@ msgstr ""
 "Això també podria esborrar les vistes, restriccions, índexs i d'altres "
 "objectes de base de dades dependents. Aquesta acció no es pot desfer."
 
-#: src/window_content/tabs.rs:59 src/ui/components/sidebar.rs:535
+#: src/window_content/tabs.rs:90 src/ui/components/sidebar.rs:535
 msgid "Open in New Tab"
 msgstr ""
 
-#: src/window_content/tabs.rs:65
+#: src/window_content/tabs.rs:96
 msgid "Close Other Tabs"
 msgstr "Tanca les altres pestanyes"
 
-#: src/window_content/tabs.rs:69
+#: src/window_content/tabs.rs:100
 msgid "Close All"
 msgstr "Tanca tot"
 
-#: src/window_content/tabs.rs:740 src/models/completion.rs:423
-#: src/ui/components/table_browser.rs:1172 src/ui/components/table_view.rs:443
-#: src/ui/components/table_view.rs:464
+#: src/window_content/tabs.rs:549
+msgid ""
+"This recovered script has no writable file target. Use Save As to keep it."
+msgstr ""
+
+#: src/window_content/tabs.rs:553
+msgid ""
+"The file changed on disk or is unavailable. Reload to read the latest "
+"version."
+msgstr ""
+
+#: src/window_content/tabs.rs:753 src/models/completion.rs:423
+#: src/ui/components/table_browser.rs:1410 src/ui/components/table_view.rs:723
+#: src/ui/components/table_view.rs:744
 msgid "Table"
 msgstr "Taula"
 
-#: src/window_content/tabs.rs:741
+#: src/window_content/tabs.rs:754
 msgid "Select the tab to load this table."
 msgstr "Selecciona la pestanya per carregar aquesta taula."
 
-#: src/window_content/tabs.rs:1034
+#: src/window_content/tabs.rs:1076
 msgid "Query"
 msgstr "Consulta"
 
@@ -823,7 +1028,7 @@ msgid "Row limit"
 msgstr "Límit de files"
 
 #: src/ui/components/csv_export_dialog.rs:47 src/ui/components/results.rs:217
-#: src/ui/components/table_browser.rs:312 src/ui/components/table_view.rs:189
+#: src/ui/components/table_browser.rs:348 src/ui/components/table_view.rs:373
 msgid "Export CSV"
 msgstr "Exporta com CSV"
 
@@ -832,18 +1037,13 @@ msgid "Choose how many rows to export and which delimiter to use."
 msgstr "Tria el nombre de files i el delimitador que vols fer servir."
 
 #: src/ui/components/csv_export_dialog.rs:56 src/ui/components/results.rs:221
-#: src/ui/components/table_browser.rs:316
+#: src/ui/components/table_browser.rs:352
 msgid "Export"
 msgstr "Exporta"
 
 #: src/ui/components/csv_export_dialog.rs:87
 msgid "Save CSV"
 msgstr "Desa com CSV"
-
-#: src/ui/components/csv_export_dialog.rs:90
-#: src/ui/components/table_browser/cell_editor.rs:99
-msgid "Save"
-msgstr "Desa"
 
 #: src/ui/components/csv_export_dialog.rs:98
 msgid "CSV Files"
@@ -876,7 +1076,7 @@ msgid "No databases match your search."
 msgstr "Cap base de dates coincident amb la cerca."
 
 #: src/ui/components/database_selector.rs:237
-#: src/ui/components/table_browser.rs:1189
+#: src/ui/components/table_browser.rs:1427
 msgid "Loading..."
 msgstr "Carregant..."
 
@@ -1045,41 +1245,42 @@ msgstr "Nom de la vista copiat."
 msgid "Qualified view name copied."
 msgstr "S'ha copiat el nom qualificat de la vista."
 
-#: src/ui/components/editor.rs:116
+#: src/ui/components/editor.rs:136
 msgid "Query History"
 msgstr "Històric de consultes"
 
-#: src/ui/components/editor.rs:120
+#: src/ui/components/editor.rs:140
 msgid "History"
 msgstr "Històric"
 
-#: src/ui/components/editor.rs:200
-#: src/ui/components/table_browser/filters.rs:438
+#: src/ui/components/editor.rs:220
+#: src/ui/components/table_browser/filters.rs:440
 msgid "Clear"
 msgstr "Neteja"
 
-#: src/ui/components/editor.rs:213
-#: src/ui/components/table_browser/filters.rs:442
+#: src/ui/components/editor.rs:233
+#: src/ui/components/table_browser/cell_editor.rs:99
+#: src/ui/components/table_browser/filters.rs:444
 msgid "Apply"
 msgstr "Aplica"
 
-#: src/ui/components/editor.rs:229
+#: src/ui/components/editor.rs:249
 msgid "Selection will be executed"
 msgstr "S'executarà la selecció"
 
-#: src/ui/components/editor.rs:239
+#: src/ui/components/editor.rs:259
 msgid "Execute selection or statement"
 msgstr "Executa la selecció o expressió"
 
-#: src/ui/components/editor.rs:243
+#: src/ui/components/editor.rs:263
 msgid "Execute"
 msgstr "Executa"
 
-#: src/ui/components/editor.rs:394
+#: src/ui/components/editor.rs:437
 msgid "No query history yet."
 msgstr "Històric de consultes buit."
 
-#: src/ui/components/editor.rs:499
+#: src/ui/components/editor.rs:542
 msgid "Unknown time"
 msgstr "Temps desconegut"
 
@@ -1115,15 +1316,15 @@ msgstr "Consulta cancel·lada"
 msgid "The query was cancelled."
 msgstr "La consulta ha estat cancel·lada."
 
-#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:816
+#: src/ui/components/results.rs:340 src/ui/components/table_browser.rs:1030
 msgid "Cell copied."
 msgstr "S'ha copiat la cel·la."
 
-#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:827
+#: src/ui/components/results.rs:351 src/ui/components/table_browser.rs:1041
 msgid "Row copied."
 msgstr "Fila copiada."
 
-#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:838
+#: src/ui/components/results.rs:362 src/ui/components/table_browser.rs:1052
 msgid "Column copied."
 msgstr "Columna copiada."
 
@@ -1162,15 +1363,15 @@ msgid_plural "{rows}{limit_suffix} rows"
 msgstr[0] "{rows}{limit_suffix} fila"
 msgstr[1] "{rows}{limit_suffix} files"
 
-#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1377
+#: src/ui/components/results.rs:674 src/ui/components/table_browser.rs:1623
 msgid "Copy Cell"
 msgstr "Copia la cel·la"
 
-#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1378
+#: src/ui/components/results.rs:675 src/ui/components/table_browser.rs:1624
 msgid "Copy Row"
 msgstr "Copia la fila"
 
-#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1379
+#: src/ui/components/results.rs:676 src/ui/components/table_browser.rs:1625
 msgid "Copy Column"
 msgstr "Copia la columna"
 
@@ -1178,134 +1379,154 @@ msgstr "Copia la columna"
 msgid "Copy Displayed Results"
 msgstr "Copia els resultats mostrats"
 
-#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1384
+#: src/ui/components/results.rs:681 src/ui/components/table_browser.rs:1630
 msgid "Export CSV..."
 msgstr "Exporta com CSV..."
 
-#: src/ui/components/table_browser.rs:304 src/ui/components/table_view.rs:178
+#: src/ui/components/table_browser.rs:338 src/ui/components/table_view.rs:362
 msgid "Show or edit filters"
 msgstr "Mostra o edita els filtres"
 
-#: src/ui/components/table_browser.rs:322 src/ui/components/table_view.rs:201
+#: src/ui/components/table_browser.rs:358 src/ui/components/table_view.rs:385
 msgid "Refresh"
 msgstr "Refresca"
 
-#: src/ui/components/table_browser.rs:382
+#: src/ui/components/table_browser.rs:448
+#: src/ui/components/table_browser/editing.rs:266
+msgid "Commit"
+msgstr ""
+
+#: src/ui/components/table_browser.rs:470
 msgid "First page"
 msgstr "Primera pàgina"
 
-#: src/ui/components/table_browser.rs:392
+#: src/ui/components/table_browser.rs:480
 msgid "Previous page"
 msgstr "Pàgina anterior"
 
-#: src/ui/components/table_browser.rs:426
+#: src/ui/components/table_browser.rs:514
 msgid "Next page"
 msgstr "Pàgina següent"
 
-#: src/ui/components/table_browser.rs:436
+#: src/ui/components/table_browser.rs:524
 msgid "Last page"
 msgstr "Darrera pàgina"
 
-#: src/ui/components/table_browser.rs:448
+#: src/ui/components/table_browser.rs:536
 msgid "Rows"
 msgstr "Files"
 
-#: src/ui/components/table_browser.rs:454
+#: src/ui/components/table_browser.rs:544
 msgid "Rows per page"
 msgstr "Files per pàgina"
 
-#: src/ui/components/table_browser.rs:523
+#: src/ui/components/table_browser.rs:633
 msgid "Select a table"
 msgstr "Selecciona una taula"
 
-#: src/ui/components/table_browser.rs:525
+#: src/ui/components/table_browser.rs:635
 msgid "Choose a table or view from the sidebar to browse its rows."
 msgstr ""
 "Tria una taula o vista des de la barra lateral per explorar-ne les files."
 
-#: src/ui/components/table_browser.rs:736
+#: src/ui/components/table_browser.rs:790
+#, rust-format
+msgid ""
+"Row {row} was changed or deleted by another transaction. No changes were "
+"saved. Discard and reload before editing again."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:795
+msgid ""
+"The connection was lost while confirming the transaction. The changes may "
+"already be saved. Do not retry; discard and reload to check the database."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:799
+msgid ""
+"The changes could not be saved. All updates were rolled back. Correct the "
+"values and try again."
+msgstr ""
+
+#: src/ui/components/table_browser.rs:964
 msgid "Loading table failed"
 msgstr "La càrrega de la taula ha fallat"
 
-#: src/ui/components/table_browser.rs:767
+#: src/ui/components/table_browser.rs:995
 msgid "Loading last page failed"
 msgstr "No s'ha pogut carregar la darrera pàgina"
 
-#: src/ui/components/table_browser.rs:802
-msgid "Saving cell failed"
-msgstr "No s'ha pogut desar la cel·la"
-
-#: src/ui/components/table_browser.rs:847
+#: src/ui/components/table_browser.rs:1061
 msgid "Page copied."
 msgstr "S'ha copiat la pàgina."
 
-#: src/ui/components/table_browser.rs:925
+#: src/ui/components/table_browser.rs:1139
 msgid "Row inserted."
 msgstr "S'ha inserit la fila."
 
-#: src/ui/components/table_browser.rs:926
+#: src/ui/components/table_browser.rs:1140
 msgid "Row duplicated."
 msgstr ""
 
-#: src/ui/components/table_browser.rs:965
+#: src/ui/components/table_browser.rs:1179
 msgid "Row deleted."
 msgstr "Fila esborrada."
 
-#: src/ui/components/table_browser.rs:982
+#: src/ui/components/table_browser.rs:1196
 msgid "Deleting row failed"
 msgstr "No s'ha pogut esborrar la fila"
 
-#: src/ui/components/table_browser.rs:1148
+#: src/ui/components/table_browser.rs:1386
 msgid "Filter cannot be applied"
 msgstr "No es pot aplicar el filtre"
 
-#: src/ui/components/table_browser.rs:1163
+#: src/ui/components/table_browser.rs:1401
 msgid "Table Browser"
 msgstr "Navegador de taules"
 
-#: src/ui/components/table_browser.rs:1173 src/ui/components/table_view.rs:465
+#: src/ui/components/table_browser.rs:1411 src/ui/components/table_view.rs:745
 msgid "View"
 msgstr "Vista"
 
-#: src/ui/components/table_browser.rs:1181
+#: src/ui/components/table_browser.rs:1419
 msgid "Filters"
 msgstr "Filtres"
 
-#: src/ui/components/table_browser.rs:1183
+#: src/ui/components/table_browser.rs:1421
 #, rust-format
 msgid "Filters ({count})"
 msgstr "Filtres ({count})"
 
-#: src/ui/components/table_browser.rs:1197
+#: src/ui/components/table_browser.rs:1435
 msgid "No rows"
 msgstr "Sense files"
 
-#: src/ui/components/table_browser.rs:1203
+#: src/ui/components/table_browser.rs:1441
 #, rust-format
 msgid "{first}-{last} rows"
 msgstr "{first}-{last} files"
 
-#: src/ui/components/table_browser.rs:1369
+#: src/ui/components/table_browser.rs:1615
 msgid "Edit Value"
 msgstr "Edita el valor"
 
-#: src/ui/components/table_browser.rs:1371
-#: src/ui/components/table_browser/insert_row.rs:225
+#: src/ui/components/table_browser.rs:1617
+#: src/ui/components/table_browser/insert_row.rs:252
 msgid "Duplicate Row"
 msgstr ""
 
-#: src/ui/components/table_browser.rs:1381
+#: src/ui/components/table_browser.rs:1627
 msgid "Copy Displayed Page"
 msgstr "Copia la pàgina mostrada"
 
-#: src/ui/components/table_browser.rs:1388
+#: src/ui/components/table_browser.rs:1634
 msgid "Delete Row..."
 msgstr "Esborra la fila..."
 
 #: src/ui/components/table_browser/cell_editor.rs:40
 #: src/ui/components/table_browser/filters.rs:314
-#: src/ui/components/table_browser/insert_row.rs:355
-#: src/ui/components/table_browser/insert_row.rs:596
+#: src/ui/components/table_browser/insert_row.rs:384
+#: src/ui/components/table_browser/insert_row.rs:625
 msgid "Value"
 msgstr "Valor"
 
@@ -1331,27 +1552,62 @@ msgstr "Esborrar fila?"
 msgid "This will permanently delete the selected row."
 msgstr "Aquesta acció esborrarà la fila seleccionada de forma permanent."
 
-#: src/ui/components/table_browser/editing.rs:38
+#: src/ui/components/table_browser/editing.rs:56
+msgid ""
+"The database may have committed these changes. Do not retry. Discard and "
+"reload to check the database before editing again."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:60
+#, rust-format
+msgid "Changed cells: {cells}; affected rows: {rows}"
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:122
+msgid "Commit or discard pending edits before continuing."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:156
+msgid "The table is no longer available. Discard and reload before editing."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:170
+msgid ""
+"The original row version is unavailable. Discard and reload before editing."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:255
+msgid "Commit the changes to the database, discard them, or cancel closing."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:258
+msgid "Commit pending edits?"
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:331
+#: src/ui/components/table_browser/editing.rs:347
 msgid "Cell cannot be edited"
 msgstr "La cel·la no pot ser editada"
 
-#: src/ui/components/table_browser/editing.rs:134
+#: src/ui/components/table_browser/editing.rs:331
+msgid ""
+"This row has no usable version for safe editing. Reload the table and check "
+"its permissions and row-level security policy."
+msgstr ""
+
+#: src/ui/components/table_browser/editing.rs:440
 msgid "Only tables can be edited."
 msgstr "Només les taules es poden editar."
 
-#: src/ui/components/table_browser/editing.rs:138
+#: src/ui/components/table_browser/editing.rs:444
 msgid "The selected cell is no longer available."
 msgstr "La cel·la seleccionada ja no es troba disponible."
 
-#: src/ui/components/table_browser/editing.rs:142
-msgid "Primary key columns are read-only for now."
-msgstr "Les columnes de clau primària són de només lectura per ara."
-
-#: src/ui/components/table_browser/editing.rs:146
+#: src/ui/components/table_browser/editing.rs:448
 msgid "This column type is not editable yet."
 msgstr "Aquest tipus de columna no es pot editar encara."
 
-#: src/ui/components/table_browser/editing.rs:150
+#: src/ui/components/table_browser/editing.rs:452
 msgid "Editing requires a primary key."
 msgstr "L'edició requereix una clau primària."
 
@@ -1383,11 +1639,11 @@ msgstr "Elimina el filtre"
 msgid "SQL expression"
 msgstr "Expressió SQL"
 
-#: src/ui/components/table_browser/filters.rs:435
+#: src/ui/components/table_browser/filters.rs:437
 msgid "Add Filter"
 msgstr "Afegeix filtre"
 
-#: src/ui/components/table_browser/filters.rs:601
+#: src/ui/components/table_browser/filters.rs:607
 msgid "Custom SQL"
 msgstr "SQL personalitzat"
 
@@ -1408,22 +1664,22 @@ msgstr "No s'ha pogut inserir la fila"
 msgid "The submitted row is no longer valid."
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:220
+#: src/ui/components/table_browser/insert_row.rs:247
 #, rust-format
 msgid "Inserting row into {name} failed"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:222
+#: src/ui/components/table_browser/insert_row.rs:249
 #, rust-format
 msgid "Duplicating row into {name} failed"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:224
-#: src/ui/components/table_view.rs:141
+#: src/ui/components/table_browser/insert_row.rs:251
+#: src/ui/components/table_view.rs:325
 msgid "Insert Row"
 msgstr "Insereix una fila"
 
-#: src/ui/components/table_browser/insert_row.rs:229
+#: src/ui/components/table_browser/insert_row.rs:256
 msgid ""
 "Enter values for the new row. Columns can also use DEFAULT or NULL when "
 "available."
@@ -1431,100 +1687,100 @@ msgstr ""
 "Introdueix valors per a la nova fila. Les columnes també poden emprar "
 "DEFAULT o NULL quan estan disponibles."
 
-#: src/ui/components/table_browser/insert_row.rs:232
+#: src/ui/components/table_browser/insert_row.rs:259
 msgid "Review the copied values before inserting the duplicate row."
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:236
+#: src/ui/components/table_browser/insert_row.rs:263
 msgid "Insert"
 msgstr "Insereix"
 
-#: src/ui/components/table_browser/insert_row.rs:237
+#: src/ui/components/table_browser/insert_row.rs:264
 msgid "Duplicate"
 msgstr ""
 
-#: src/ui/components/table_browser/insert_row.rs:358
+#: src/ui/components/table_browser/insert_row.rs:387
 msgid "NULL"
 msgstr "NULL"
 
-#: src/ui/components/table_browser/insert_row.rs:362
+#: src/ui/components/table_browser/insert_row.rs:391
 #: src/ui/components/table_structure/columns.rs:83
 msgid "Default"
 msgstr "Per defecte"
 
-#: src/ui/components/table_browser/insert_row.rs:396
+#: src/ui/components/table_browser/insert_row.rs:425
 msgid "Skipped"
 msgstr "Omès"
 
-#: src/ui/components/table_browser/insert_row.rs:563
+#: src/ui/components/table_browser/insert_row.rs:592
 msgid "Required"
 msgstr "Requerit"
 
-#: src/ui/components/table_browser/insert_row.rs:565
+#: src/ui/components/table_browser/insert_row.rs:594
 msgid "Default or NULL allowed"
 msgstr "Per defecte o NULL permesos"
 
-#: src/ui/components/table_browser/insert_row.rs:567
+#: src/ui/components/table_browser/insert_row.rs:596
 msgid "Default allowed"
 msgstr "Es permet Per defecte"
 
-#: src/ui/components/table_browser/insert_row.rs:569
+#: src/ui/components/table_browser/insert_row.rs:598
 msgid "NULL allowed"
 msgstr "NULL permès"
 
-#: src/ui/components/table_browser/insert_row.rs:577
+#: src/ui/components/table_browser/insert_row.rs:606
 msgid "Required column with unsupported type"
 msgstr "Columna requerida amb tipus no compatible"
 
-#: src/ui/components/table_browser/insert_row.rs:580
+#: src/ui/components/table_browser/insert_row.rs:609
 msgid "Generated column"
 msgstr "Columna generada"
 
-#: src/ui/components/table_browser/insert_row.rs:583
+#: src/ui/components/table_browser/insert_row.rs:612
 msgid "Identity column"
 msgstr "Columna identitat"
 
-#: src/ui/components/table_browser/insert_row.rs:586
+#: src/ui/components/table_browser/insert_row.rs:615
 msgid "Unsupported column type"
 msgstr "Tipus de columna incompatible"
 
-#: src/ui/components/table_browser/insert_row.rs:589
+#: src/ui/components/table_browser/insert_row.rs:618
 msgid "Read-only column"
 msgstr "Columna de només lectura"
 
-#: src/ui/components/table_browser/insert_row.rs:594
+#: src/ui/components/table_browser/insert_row.rs:623
 msgid "Required value"
 msgstr "Valor requerit"
 
-#: src/ui/components/table_browser/loading.rs:36
+#: src/ui/components/table_browser/loading.rs:39
 msgid "Loading rows"
 msgstr "Carregant files"
 
-#: src/ui/components/table_browser/loading.rs:37
+#: src/ui/components/table_browser/loading.rs:40
 msgid "Fetching the selected page from PostgreSQL."
 msgstr "Obtenint la pàgina seleccionada del PostgreSQL."
 
-#: src/ui/components/table_browser/loading.rs:67
-#: src/ui/components/table_browser/loading.rs:106
+#: src/ui/components/table_browser/loading.rs:70
+#: src/ui/components/table_browser/loading.rs:112
 #: src/ui/components/table_structure.rs:321
 msgid "Loading cancelled"
 msgstr "S'ha cancel·lat la càrrega"
 
-#: src/ui/components/table_browser/loading.rs:126
+#: src/ui/components/table_browser/loading.rs:132
 #, rust-format
 msgid ""
 "The table {name} could not be found. It may have been renamed or dropped."
 msgstr ""
 "No s'ha pogut trobar la taula {name}. Potser s'ha esborrat o canviat de nom."
 
-#: src/ui/components/table_browser/loading.rs:130
+#: src/ui/components/table_browser/loading.rs:136
 #, rust-format
 msgid ""
 "The view {name} could not be found. It may have been renamed or dropped."
 msgstr ""
 "No s'ha pogut trobar la vista {name}. Potser s'ha esborrat o canviat de nom."
 
-#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:249
+#: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:435
 msgid "Structure"
 msgstr "Estructura"
 
@@ -1663,19 +1919,19 @@ msgstr "Diferida"
 msgid "Deferrable"
 msgstr "Diferible"
 
-#: src/ui/components/table_view.rs:154
+#: src/ui/components/table_view.rs:338
 msgid "Duplicate selected row"
 msgstr ""
 
-#: src/ui/components/table_view.rs:165
+#: src/ui/components/table_view.rs:349
 msgid "Delete selected row"
 msgstr "Esborra la fila seleccionada"
 
-#: src/ui/components/table_view.rs:245
+#: src/ui/components/table_view.rs:431
 msgid "Content"
 msgstr "Continguts"
 
-#: data/io.github.anil_e.Codd.desktop.in:10
+#: data/io.github.anil_e.Codd.desktop.in:11
 msgid "PostgreSQL;SQL;Database;Query;GNOME;"
 msgstr "PostgreSQL;SQL;Base de dades;Consulta;GNOME;"
 
@@ -1712,35 +1968,40 @@ msgstr "Explora taules PostgreSQL amb paginació i filtres"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:45
 msgid ""
+"Edit multiple cells and rows, then commit all changes in one transaction"
+msgstr ""
+
+#: data/io.github.anil_e.Codd.metainfo.xml.in:49
+msgid ""
 "Insert new table rows with defaults, NULL values and PostgreSQL type "
 "validation"
 msgstr ""
 "Insereix nous registres amb valors per defecte, valors NULL i validació de "
 "tipus PostgreSQL"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:49
+#: data/io.github.anil_e.Codd.metainfo.xml.in:53
 msgid ""
 "Inspect table columns, data types, nullability, defaults and primary keys"
 msgstr ""
 "Inspecciona columnes, tipus de dades, admissió de NULL, valors per defecte i "
 "claus primàries de la taula"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:53
+#: data/io.github.anil_e.Codd.metainfo.xml.in:57
 msgid ""
 "Review indexes, constraints, foreign keys and triggers in the structure view"
 msgstr ""
 "Revisa índexs, restriccions, claus foranes i disparadors a la vista "
 "d'estructura"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:57
+#: data/io.github.anil_e.Codd.metainfo.xml.in:61
 msgid "Edit table structure from native context menus"
 msgstr "Edita l'estructura de la taula amb menús contextuals natius"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:61
+#: data/io.github.anil_e.Codd.metainfo.xml.in:65
 msgid "Use table actions like rename, truncate and delete"
 msgstr "Fes servir accions de taula com canviar de nom, buidar o esborrar"
 
-#: data/io.github.anil_e.Codd.metainfo.xml.in:65
+#: data/io.github.anil_e.Codd.metainfo.xml.in:69
 msgid "Manage saved PostgreSQL connections"
 msgstr "Administra les connexions PostgreSQL desades"
 
@@ -1816,23 +2077,44 @@ msgstr "Consulta"
 
 #: data/ui/shortcuts-dialog.ui:83
 msgctxt "shortcut window"
+msgid "Open SQL Files"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:89
+msgctxt "shortcut window"
+msgid "Save SQL File"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:95
+msgctxt "shortcut window"
+msgid "Save SQL File As"
+msgstr ""
+
+#: data/ui/shortcuts-dialog.ui:101
+msgctxt "shortcut window"
 msgid "Execute"
 msgstr "Executa"
 
-#: data/ui/shortcuts-dialog.ui:89
+#: data/ui/shortcuts-dialog.ui:107
 msgctxt "shortcut window"
 msgid "Cancel Running Query"
 msgstr "Cancel·la la consulta en curs"
 
-#: data/ui/shortcuts-dialog.ui:95
+#: data/ui/shortcuts-dialog.ui:113
 msgctxt "shortcut window"
 msgid "Focus SQL Editor"
 msgstr "Enfocar l'editor SQL"
 
-#: data/ui/shortcuts-dialog.ui:101
+#: data/ui/shortcuts-dialog.ui:119
 msgctxt "shortcut window"
 msgid "Show Suggestions"
 msgstr "Mostra suggeriments"
+
+#~ msgid "Saving cell failed"
+#~ msgstr "No s'ha pogut desar la cel·la"
+
+#~ msgid "Primary key columns are read-only for now."
+#~ msgstr "Les columnes de clau primària són de només lectura per ara."
 
 #~ msgid "Reloading table failed"
 #~ msgstr "No s'ha pogut recarregar la taula"

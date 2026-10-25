@@ -19,6 +19,10 @@ pub(super) fn next_sort_for_header_click(
 }
 
 pub(super) fn sync_sort_indicator(view: &gtk::ColumnView, sort: Option<&TableSort>) {
+    if view.sorter().as_ref().and_then(sort_from_sorter).as_ref() == sort {
+        return;
+    }
+
     let Some(sort) = sort else {
         view.sort_by_column(None, gtk::SortType::Ascending);
         return;
@@ -51,7 +55,9 @@ pub(super) fn connect_sort_handlers(
 
         move |sorter, _| {
             if let Some(sort) = sort_from_sorter(sorter) {
-                sender.input(TableBrowserMsg::SortChanged(sort));
+                let _ = sender
+                    .input_sender()
+                    .send(TableBrowserMsg::SortChanged(sort));
             }
         }
     });

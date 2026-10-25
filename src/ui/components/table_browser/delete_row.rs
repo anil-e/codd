@@ -40,10 +40,12 @@ impl TableBrowser {
             None::<&gtk::gio::Cancellable>,
             move |response| {
                 if response == "delete" {
-                    sender.input(TableBrowserMsg::DeleteRowConfirmed {
-                        page_generation,
-                        row_index,
-                    });
+                    let _ = sender
+                        .input_sender()
+                        .send(TableBrowserMsg::DeleteRowConfirmed {
+                            page_generation,
+                            row_index,
+                        });
                 }
             },
         );

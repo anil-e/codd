@@ -17,6 +17,10 @@ impl TableBrowser {
         widgets: &TableBrowserWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        if self.has_pending_edits() || self.edits_saving() || self.close_request.is_some() {
+            return;
+        }
+
         let (Some(pool), Some(object)) = (self.pool.clone(), self.object.clone()) else {
             return;
         };
@@ -72,6 +76,10 @@ impl TableBrowser {
     }
 
     pub(super) fn load_last_page_offset(&mut self, sender: &ComponentSender<Self>) {
+        if self.has_pending_edits() || self.input_locked() {
+            return;
+        }
+
         let (Some(pool), Some(object)) = (self.pool.clone(), self.object.clone()) else {
             return;
         };
