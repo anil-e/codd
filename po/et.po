@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-25 16:18+0100\n"
-"PO-Revision-Date: 2026-08-24 14:51+0000\n"
+"PO-Revision-Date: 2026-10-28 21:51+0000\n"
 "Last-Translator: Priit Jõerüüt <jrthwlate@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/codd/ui/et/>\n"
 "Language: et\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.9.dev0\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -24,15 +24,15 @@ msgstr "Uus ühe_ndus"
 
 #: src/menus.rs:26
 msgid "_Open SQL Files..."
-msgstr ""
+msgstr "_Ava SQL-i failid…"
 
 #: src/menus.rs:29
 msgid "_Save"
-msgstr ""
+msgstr "_Salvesta"
 
 #: src/menus.rs:30
 msgid "Save _As..."
-msgstr ""
+msgstr "Salvest_a kui..."
 
 #: src/menus.rs:41
 msgid "_New Window"
@@ -107,11 +107,11 @@ msgstr "Näita objekte"
 
 #: src/window_content.rs:1189
 msgid "Commit or discard pending table edits first."
-msgstr ""
+msgstr "Tee ootel tabelimuudatuste sissekanded ära või loobu neist."
 
 #: src/window_content.rs:1260
 msgid "Waiting for the file operation before disconnecting."
-msgstr ""
+msgstr "Enne katkestamist ootan failitoimingu lõppemist."
 
 #: src/window_content.rs:1309 src/ui/components/sidebar.rs:153
 #: src/ui/components/sidebar.rs:407 src/ui/components/sidebar.rs:421
@@ -215,11 +215,11 @@ msgstr ""
 
 #: src/window_content/closing.rs:292
 msgid "Save Changes?"
-msgstr ""
+msgstr "Kas salvestad muudatused?"
 
 #: src/window_content/closing.rs:296
 msgid "Unsaved changes will be lost if you discard them."
-msgstr ""
+msgstr "Loobumisel lähevad salvestamata muudatused kaotsi."
 
 #: src/window_content/closing.rs:300 src/window_content/documents/dialogs.rs:30
 #: src/window_content/documents/dialogs.rs:88
@@ -248,7 +248,7 @@ msgstr "Katkesta"
 #: src/window_content/closing.rs:301 src/ui/components/table_browser.rs:483
 #: src/ui/components/table_browser/editing.rs:294
 msgid "Discard"
-msgstr ""
+msgstr "Loobu"
 
 #: src/window_content/closing.rs:302 src/window_content/documents/dialogs.rs:87
 #: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
@@ -258,11 +258,11 @@ msgstr "Salvesta"
 #: src/window_content/closing.rs:384 src/window_content/documents.rs:1240
 #: src/window_content/documents.rs:1298
 msgid "Saving Tabs Failed"
-msgstr ""
+msgstr "Vahekaartide salvestamine ei õnnestunud"
 
 #: src/window_content/closing.rs:443
 msgid "Closing SQL Files Failed"
-msgstr ""
+msgstr "SQL-failide sulgemine ei õnnestunud"
 
 #: src/window_content/closing.rs:507
 msgid "Restoring SQL Recovery Failed"
@@ -298,11 +298,12 @@ msgstr "Päringute ajaloo kustutamine ei õnnestunud"
 
 #: src/window_content/documents.rs:85
 msgid "Recovered Script (Save As Required)"
-msgstr ""
+msgstr "Taastatud skript (kui vaja salvesta)"
 
 #: src/window_content/documents.rs:98
 msgid "File changed on disk. Reload to read the latest version."
 msgstr ""
+"Fail on andmekandjal muutunud. Viimase versiooni lugemiseks laadi uuesti."
 
 #: src/window_content/documents.rs:429
 msgid "Connect to PostgreSQL to open the queued SQL files."
@@ -310,7 +311,7 @@ msgstr ""
 
 #: src/window_content/documents.rs:1249
 msgid "Restoring SQL Files Failed"
-msgstr ""
+msgstr "SQL-failide taastamine ei õnnestunud"
 
 #: src/window_content/documents.rs:1305
 #: src/window_content/documents/dialogs.rs:361
@@ -319,23 +320,23 @@ msgstr ""
 
 #: src/window_content/documents/dialogs.rs:26
 msgid "Open SQL Files"
-msgstr ""
+msgstr "Ava SQL-failid"
 
 #: src/window_content/documents/dialogs.rs:29
 msgid "Open"
-msgstr ""
+msgstr "Ava"
 
 #: src/window_content/documents/dialogs.rs:84
 msgid "Save SQL File"
-msgstr ""
+msgstr "Salvesta SQL-fail"
 
 #: src/window_content/documents/dialogs.rs:142
 msgid "SQL Files"
-msgstr ""
+msgstr "SQL-failid"
 
 #: src/window_content/documents/dialogs.rs:148
 msgid "All Files"
-msgstr ""
+msgstr "Kõik failid"
 
 #: src/window_content/documents/dialogs.rs:182
 msgid "Some SQL Recovery Files Could Not Be Restored"
@@ -358,29 +359,31 @@ msgstr ""
 
 #: src/window_content/documents/dialogs.rs:218
 msgid "Reload SQL File?"
-msgstr ""
+msgstr "Kas laadid SQL-faili uuesti?"
 
 #: src/window_content/documents/dialogs.rs:220
 msgid "Reloading discards your unsaved changes and cannot be undone."
 msgstr ""
+"Uuesti laadimisel lähevad salvestamata muudatused kaotsi ja seda tegevust ei "
+"saa tagasi pöörata."
 
 #: src/window_content/documents/dialogs.rs:225 src/window_content/tabs.rs:103
 #: src/ui/components/editor.rs:422
 msgid "Reload"
-msgstr ""
+msgstr "Laadi uuesti"
 
 #: src/window_content/documents/dialogs.rs:252
 msgid "Opening SQL File Failed"
-msgstr ""
+msgstr "SQL-faili avamine ei õnnestunud"
 
 #: src/window_content/documents/dialogs.rs:255
 #: src/window_content/documents/dialogs.rs:369
 msgid "Retry"
-msgstr ""
+msgstr "Proovi uuesti"
 
 #: src/window_content/documents/dialogs.rs:281
 msgid "Saving SQL File Failed"
-msgstr ""
+msgstr "SQL-faili salvestamine ei õnenstunud"
 
 #: src/window_content/documents/dialogs.rs:284
 msgid "Check the file permissions or use Save As to choose another location."
@@ -390,25 +393,27 @@ msgstr ""
 #: src/window_content/documents/dialogs.rs:316 src/window_content/tabs.rs:102
 #: src/ui/components/editor.rs:424
 msgid "Save As"
-msgstr ""
+msgstr "Salvesta kui"
 
 #: src/window_content/documents/dialogs.rs:311
 msgid "File Changed on Disk"
-msgstr ""
+msgstr "Fail on andmekandjal muutunud"
 
 #: src/window_content/documents/dialogs.rs:312
 msgid ""
 "The file was changed, deleted, or cannot be verified. Save a copy, or "
 "explicitly replace the latest verified version."
 msgstr ""
+"See fail on muutunud, kustutatud või tema oleku kontrollimine ei õnnestu. "
+"Salvesta koopia või üheselt asenda viimase kontrollitud versiooniga."
 
 #: src/window_content/documents/dialogs.rs:321
 msgid "Overwrite"
-msgstr ""
+msgstr "Kirjuta üle"
 
 #: src/window_content/documents/dialogs.rs:325
 msgid "Recreate File"
-msgstr ""
+msgstr "Loo fail uuesti"
 
 #: src/window_content/documents/dialogs.rs:364
 msgid ""
@@ -418,7 +423,7 @@ msgstr ""
 
 #: src/window_content/documents/dialogs.rs:368
 msgid "Keep Editing Without Recovery"
-msgstr ""
+msgstr "Jätka muutmist ilma taastamiseta"
 
 #: src/window_content/object_actions.rs:88
 msgid "Choose a new name for this database object."
@@ -1454,6 +1459,8 @@ msgid ""
 "Row {row} was changed or deleted by another transaction. No changes were "
 "saved. Discard and reload before editing again."
 msgstr ""
+"{row}. rida on muu transaktsiooni poolt muudetud või kustutatud. Muudatused "
+"on salvestamata. Enne uuesti muutmist loobu ja laadi uuesti."
 
 #: src/ui/components/table_browser.rs:970
 msgid ""
@@ -1581,7 +1588,7 @@ msgstr ""
 #: src/ui/components/table_browser/editing.rs:65
 #, rust-format
 msgid "Changed cells: {cells}; affected rows: {rows}"
-msgstr ""
+msgstr "Muudetud väljad: {cells}; mõjutatud read: {rows}"
 
 #: src/ui/components/table_browser/editing.rs:132
 msgid "Commit or discard pending edits before continuing."
@@ -1594,7 +1601,7 @@ msgstr ""
 #: src/ui/components/table_browser/editing.rs:185
 msgid ""
 "The original row version is unavailable. Discard and reload before editing."
-msgstr ""
+msgstr "Rea algne versioon pole saadaval. Enne muutmist loobu ja laadi uuesti."
 
 #: src/ui/components/table_browser/editing.rs:283
 msgid "Commit the changes to the database, discard them, or cancel closing."
@@ -1833,21 +1840,23 @@ msgstr ""
 
 #: src/ui/components/table_browser/refresh.rs:64
 msgid "Refreshing rows..."
-msgstr ""
+msgstr "Uuendan ridu…"
 
 #: src/ui/components/table_browser/refresh.rs:67
 #, rust-format
 msgid "Refresh every {seconds} seconds"
-msgstr ""
+msgstr "Uuenda iga {seconds} sekundi järel"
 
 #: src/ui/components/table_browser/refresh.rs:71
 msgid "Refresh rows (automatic refresh is off)"
-msgstr ""
+msgstr "Uuenda read (automaatne uuendus on lülitatud välja)"
 
 #: src/ui/components/table_browser/refresh.rs:198
 msgid ""
 "The table structure changed. Clear filters or sorting and refresh again."
 msgstr ""
+"Tabelistruktuur on muutunud. Eemalda filtrid või järjestus ja laadi andmed "
+"uuesti."
 
 #: src/ui/components/table_structure.rs:146 src/ui/components/table_view.rs:331
 msgid "Structure"
@@ -1998,15 +2007,15 @@ msgstr "Kustuta valitud rida"
 
 #: src/ui/components/table_view.rs:217 src/ui/components/table_view.rs:238
 msgid "Automatic Refresh"
-msgstr ""
+msgstr "Automaatne uuendus"
 
 #: src/ui/components/table_view.rs:219
 msgid "Refresh"
-msgstr "Laadi uuesti"
+msgstr "Uuenda andmeid"
 
 #: src/ui/components/table_view.rs:249
 msgid "Interval (seconds)"
-msgstr ""
+msgstr "Välp (sekundites)"
 
 #: src/ui/components/table_view.rs:327
 msgid "Content"
@@ -2053,6 +2062,8 @@ msgstr ""
 msgid ""
 "Edit multiple cells and rows, then commit all changes in one transaction"
 msgstr ""
+"Muuta mitut välja ja rida ning siis tee sissekanne andmebaasi ühe "
+"transaktsioonina"
 
 #: data/io.github.anil_e.Codd.metainfo.xml.in:49
 msgid ""
@@ -2161,17 +2172,17 @@ msgstr "Päring"
 #: data/ui/shortcuts-dialog.ui:83
 msgctxt "shortcut window"
 msgid "Open SQL Files"
-msgstr ""
+msgstr "Ava SQL-failid"
 
 #: data/ui/shortcuts-dialog.ui:89
 msgctxt "shortcut window"
 msgid "Save SQL File"
-msgstr ""
+msgstr "Salvesta SQL-fail"
 
 #: data/ui/shortcuts-dialog.ui:95
 msgctxt "shortcut window"
 msgid "Save SQL File As"
-msgstr ""
+msgstr "Salvesta SQL-fail kui"
 
 #: data/ui/shortcuts-dialog.ui:101
 msgctxt "shortcut window"
