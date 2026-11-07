@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-25 16:18+0100\n"
-"PO-Revision-Date: 2026-10-07 20:51+0000\n"
-"Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
+"PO-Revision-Date: 2026-10-31 14:51+0000\n"
+"Last-Translator: Jiri Grönroos <artnay@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/codd/ui/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.10.1.dev0\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -24,15 +24,15 @@ msgstr "_Uusi yhteys"
 
 #: src/menus.rs:26
 msgid "_Open SQL Files..."
-msgstr ""
+msgstr "_Avaa SQL-tiedostoja..."
 
 #: src/menus.rs:29
 msgid "_Save"
-msgstr ""
+msgstr "_Tallenna"
 
 #: src/menus.rs:30
 msgid "Save _As..."
-msgstr ""
+msgstr "Tallenna _nimellä..."
 
 #: src/menus.rs:41
 msgid "_New Window"
@@ -210,7 +210,7 @@ msgstr ""
 
 #: src/window_content/closing.rs:292
 msgid "Save Changes?"
-msgstr ""
+msgstr "Tallennetaanko muutokset?"
 
 #: src/window_content/closing.rs:296
 msgid "Unsaved changes will be lost if you discard them."
@@ -243,7 +243,7 @@ msgstr "Peru"
 #: src/window_content/closing.rs:301 src/ui/components/table_browser.rs:483
 #: src/ui/components/table_browser/editing.rs:294
 msgid "Discard"
-msgstr ""
+msgstr "Hylkää"
 
 #: src/window_content/closing.rs:302 src/window_content/documents/dialogs.rs:87
 #: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
@@ -314,23 +314,23 @@ msgstr ""
 
 #: src/window_content/documents/dialogs.rs:26
 msgid "Open SQL Files"
-msgstr ""
+msgstr "Avaa SQL-tiedostoja"
 
 #: src/window_content/documents/dialogs.rs:29
 msgid "Open"
-msgstr ""
+msgstr "Avaa"
 
 #: src/window_content/documents/dialogs.rs:84
 msgid "Save SQL File"
-msgstr ""
+msgstr "Tallenna SQL-tiedosto"
 
 #: src/window_content/documents/dialogs.rs:142
 msgid "SQL Files"
-msgstr ""
+msgstr "SQL-tiedostot"
 
 #: src/window_content/documents/dialogs.rs:148
 msgid "All Files"
-msgstr ""
+msgstr "Kaikki tiedostot"
 
 #: src/window_content/documents/dialogs.rs:182
 msgid "Some SQL Recovery Files Could Not Be Restored"
@@ -353,7 +353,7 @@ msgstr ""
 
 #: src/window_content/documents/dialogs.rs:218
 msgid "Reload SQL File?"
-msgstr ""
+msgstr "Ladataanko SQL-tiedosto uudelleen?"
 
 #: src/window_content/documents/dialogs.rs:220
 msgid "Reloading discards your unsaved changes and cannot be undone."
@@ -362,7 +362,7 @@ msgstr ""
 #: src/window_content/documents/dialogs.rs:225 src/window_content/tabs.rs:103
 #: src/ui/components/editor.rs:422
 msgid "Reload"
-msgstr ""
+msgstr "Lataa uudelleen"
 
 #: src/window_content/documents/dialogs.rs:252
 msgid "Opening SQL File Failed"
@@ -371,7 +371,7 @@ msgstr ""
 #: src/window_content/documents/dialogs.rs:255
 #: src/window_content/documents/dialogs.rs:369
 msgid "Retry"
-msgstr ""
+msgstr "Yritä uudelleen"
 
 #: src/window_content/documents/dialogs.rs:281
 msgid "Saving SQL File Failed"
@@ -385,11 +385,11 @@ msgstr ""
 #: src/window_content/documents/dialogs.rs:316 src/window_content/tabs.rs:102
 #: src/ui/components/editor.rs:424
 msgid "Save As"
-msgstr ""
+msgstr "Tallenna nimellä"
 
 #: src/window_content/documents/dialogs.rs:311
 msgid "File Changed on Disk"
-msgstr ""
+msgstr "Tiedosto muuttui levyllä"
 
 #: src/window_content/documents/dialogs.rs:312
 msgid ""
@@ -2125,17 +2125,17 @@ msgstr "Kysely"
 #: data/ui/shortcuts-dialog.ui:83
 msgctxt "shortcut window"
 msgid "Open SQL Files"
-msgstr ""
+msgstr "Avaa SQL-tiedostoja"
 
 #: data/ui/shortcuts-dialog.ui:89
 msgctxt "shortcut window"
 msgid "Save SQL File"
-msgstr ""
+msgstr "Tallenna SQL-tiedosto"
 
 #: data/ui/shortcuts-dialog.ui:95
 msgctxt "shortcut window"
 msgid "Save SQL File As"
-msgstr ""
+msgstr "Tallenna SQL-tiedosto nimellä"
 
 #: data/ui/shortcuts-dialog.ui:101
 msgctxt "shortcut window"
