@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: codd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-25 16:18+0100\n"
-"PO-Revision-Date: 2026-07-23 20:01+0000\n"
-"Last-Translator: Guillem Servera <guillem@gservera.com>\n"
+"PO-Revision-Date: 2026-11-25 20:51+0000\n"
+"Last-Translator: fserrador <fserrador@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/codd/ui/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.12.dev0\n"
 
 #: src/menus.rs:11
 msgid "_New Connection"
@@ -25,15 +25,15 @@ msgstr "_Nueva conexión"
 
 #: src/menus.rs:26
 msgid "_Open SQL Files..."
-msgstr ""
+msgstr "_Abrir archivos SQL..."
 
 #: src/menus.rs:29
 msgid "_Save"
-msgstr ""
+msgstr "_Guardar"
 
 #: src/menus.rs:30
 msgid "Save _As..."
-msgstr ""
+msgstr "Guardar _como..."
 
 #: src/menus.rs:41
 msgid "_New Window"
@@ -112,7 +112,7 @@ msgstr ""
 
 #: src/window_content.rs:1260
 msgid "Waiting for the file operation before disconnecting."
-msgstr ""
+msgstr "Esperando la operación del archivo antes de desconectar."
 
 #: src/window_content.rs:1309 src/ui/components/sidebar.rs:153
 #: src/ui/components/sidebar.rs:407 src/ui/components/sidebar.rs:421
@@ -132,6 +132,8 @@ msgid ""
 "Some scratch tabs exceed the session recovery limits. Save them as SQL files "
 "before leaving this workspace."
 msgstr ""
+"Algunas pestañas temporales superan los límites de recuperación de sesión. "
+"Guárdelas como archivos SQL antes de abandonar este espacio de trabajo."
 
 #: src/window_content.rs:1553
 msgid "Disabling saved password failed"
@@ -216,14 +218,16 @@ msgid ""
 "Wait for the current file or database operation to finish, then try closing "
 "again."
 msgstr ""
+"Espere hasta que finalice el archivo o base de datos actual, después intente "
+"cerrar de nuevo."
 
 #: src/window_content/closing.rs:292
 msgid "Save Changes?"
-msgstr ""
+msgstr "¿Guardar los cambios?"
 
 #: src/window_content/closing.rs:296
 msgid "Unsaved changes will be lost if you discard them."
-msgstr ""
+msgstr "Los cambios no guardados se perderán si los descarta."
 
 #: src/window_content/closing.rs:300 src/window_content/documents/dialogs.rs:30
 #: src/window_content/documents/dialogs.rs:88
@@ -252,7 +256,7 @@ msgstr "Cancelar"
 #: src/window_content/closing.rs:301 src/ui/components/table_browser.rs:483
 #: src/ui/components/table_browser/editing.rs:294
 msgid "Discard"
-msgstr ""
+msgstr "Descartar"
 
 #: src/window_content/closing.rs:302 src/window_content/documents/dialogs.rs:87
 #: src/window_content/tabs.rs:101 src/ui/components/csv_export_dialog.rs:90
@@ -262,19 +266,19 @@ msgstr "Guardar"
 #: src/window_content/closing.rs:384 src/window_content/documents.rs:1240
 #: src/window_content/documents.rs:1298
 msgid "Saving Tabs Failed"
-msgstr ""
+msgstr "Error al guardar las pestañas"
 
 #: src/window_content/closing.rs:443
 msgid "Closing SQL Files Failed"
-msgstr ""
+msgstr "No fue posible cerrar los archivos SQL"
 
 #: src/window_content/closing.rs:507
 msgid "Restoring SQL Recovery Failed"
-msgstr ""
+msgstr "No fue posible restaurar la recuperación de SQL"
 
 #: src/window_content/database_switching.rs:56
 msgid "Finish the file operation before switching databases."
-msgstr ""
+msgstr "Finalice la operación de archivo antes de cambiar de base de datos."
 
 #: src/window_content/database_switching.rs:66
 msgid "Connect to PostgreSQL before switching databases."
@@ -302,48 +306,50 @@ msgstr "No se pudo limpiar el historial de consultas"
 
 #: src/window_content/documents.rs:85
 msgid "Recovered Script (Save As Required)"
-msgstr ""
+msgstr "Guion recuperado (Guardar como sea necesario)"
 
 #: src/window_content/documents.rs:98
 msgid "File changed on disk. Reload to read the latest version."
 msgstr ""
+"El archivo se ha modificado en el disco. Recargue para leer la última "
+"versión."
 
 #: src/window_content/documents.rs:429
 msgid "Connect to PostgreSQL to open the queued SQL files."
-msgstr ""
+msgstr "Conéctese a PostgreSQL para abrir los archivos SQL en cola."
 
 #: src/window_content/documents.rs:1249
 msgid "Restoring SQL Files Failed"
-msgstr ""
+msgstr "No fue posible restaurar los archivos SQL"
 
 #: src/window_content/documents.rs:1305
 #: src/window_content/documents/dialogs.rs:361
 msgid "Saving SQL Recovery Failed"
-msgstr ""
+msgstr "No fue posible guardar la recuperación de SQL"
 
 #: src/window_content/documents/dialogs.rs:26
 msgid "Open SQL Files"
-msgstr ""
+msgstr "Abrir archivos SQL"
 
 #: src/window_content/documents/dialogs.rs:29
 msgid "Open"
-msgstr ""
+msgstr "Abrir"
 
 #: src/window_content/documents/dialogs.rs:84
 msgid "Save SQL File"
-msgstr ""
+msgstr "Guardar archivo SQL"
 
 #: src/window_content/documents/dialogs.rs:142
 msgid "SQL Files"
-msgstr ""
+msgstr "Archivos SQL"
 
 #: src/window_content/documents/dialogs.rs:148
 msgid "All Files"
-msgstr ""
+msgstr "Todos los archivos"
 
 #: src/window_content/documents/dialogs.rs:182
 msgid "Some SQL Recovery Files Could Not Be Restored"
-msgstr ""
+msgstr "Algunos archivos de recuperación SQL no pudieron ser restaurados"
 
 #: src/window_content/documents/dialogs.rs:190
 #, rust-format
