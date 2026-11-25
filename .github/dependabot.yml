@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      compatible-lockfile-updates:
+        update-types: [minor, patch]
+    versioning-strategy: lockfile-only
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

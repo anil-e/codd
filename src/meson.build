@@ -26,7 +26,7 @@ custom_target(
   command: [
     sh,
     '-c',
-    'cargo build --release --manifest-path "$1" && install -Dm755 "$2/release/codd" "$3"',
+    'cargo build --locked --release --manifest-path "$1" && install -Dm755 "$2/release/codd" "$3"',
     'sh',
     meson.project_source_root() / 'Cargo.toml',
     cargo_target_dir,

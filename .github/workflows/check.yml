@@ -19,24 +19,35 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Install system dependencies
         run: |
           dnf install -y \
             appstream \
+            cmake \
             gcc \
             desktop-file-utils \
+            diffutils \
             gettext \
             gettext-devel \
+            git \
             glib2-devel \
             gtk4-devel \
             gtksourceview5-devel \
             libadwaita-devel \
             meson \
             ninja-build \
-            pkgconf-pkg-config
+            pkgconf-pkg-config \
+            python3-aiohttp \
+            python3-tomlkit
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Flatpak Cargo sources
+        run: |
+          cp cargo-sources.json "$RUNNER_TEMP/cargo-sources.before.json"
+          scripts/update-cargo-sources.sh
+          diff -u "$RUNNER_TEMP/cargo-sources.before.json" cargo-sources.json
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
