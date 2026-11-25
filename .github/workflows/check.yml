@@ -35,7 +35,17 @@ jobs:
             libadwaita-devel \
             meson \
             ninja-build \
-            pkgconf-pkg-config
+            pkgconf-pkg-config \
+            python3-aiohttp \
+            python3-tomlkit
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Flatpak Cargo sources
+        run: |
+          scripts/update-cargo-sources.sh
+          git diff --exit-code -- cargo-sources.json
 
       - name: Checkout
         uses: actions/checkout@v7
