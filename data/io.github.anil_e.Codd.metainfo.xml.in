@@ -76,6 +76,17 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.16.1" date="2026-11-25">
+      <description translate="no">
+        <p>This maintenance release updates the Flatpak runtime and improves error reporting when saving SQL files.</p>
+
+        <ul>
+          <li>Saving a new SQL file to a missing folder now reports a save error instead of saying the file changed on disk.</li>
+          <li>The Flatpak now uses GNOME 51. The libraries used for TLS connections and SSH tunnels were updated.</li>
+          <li>An Indonesian translation was added, and the Estonian and Finnish translations were updated.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.16.0" date="2026-10-25">
       <description translate="no">
         <p>This release adds transactional table editing and automatic refresh.</p>
