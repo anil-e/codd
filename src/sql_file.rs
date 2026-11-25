@@ -62,11 +62,17 @@ impl From<glib::Error> for FileError {
     fn from(error: glib::Error) -> Self {
         if error.matches(gio::IOErrorEnum::WrongEtag) || error.matches(gio::IOErrorEnum::Exists) {
             Self::Conflict
-        } else if error.matches(gio::IOErrorEnum::NotFound) {
-            Self::Deleted
         } else {
             Self::Io(error)
         }
+    }
+}
+
+fn existing_file_error(error: glib::Error) -> FileError {
+    if error.matches(gio::IOErrorEnum::NotFound) {
+        FileError::Deleted
+    } else {
+        error.into()
     }
 }
 
@@ -80,7 +86,8 @@ async fn file_info(file: &gio::File) -> Result<gio::FileInfo, FileError> {
             gio::FileQueryInfoFlags::NOFOLLOW_SYMLINKS,
             glib::Priority::DEFAULT,
         )
-        .await?;
+        .await
+        .map_err(existing_file_error)?;
     if info.is_symlink() || info.file_type() != gio::FileType::Regular {
         return Err(FileError::Unsupported);
     }
@@ -111,7 +118,10 @@ fn snapshot_etag(infos: &[&gio::FileInfo]) -> Result<Option<String>, FileError> 
 
 pub async fn load(file: &gio::File) -> Result<LoadedSqlFile, FileError> {
     let path_info = file_info(file).await?;
-    let stream = file.read_future(glib::Priority::DEFAULT).await?;
+    let stream = file
+        .read_future(glib::Priority::DEFAULT)
+        .await
+        .map_err(existing_file_error)?;
     let result = async {
         let before = stream
             .query_info_future(ATTRIBUTES, glib::Priority::DEFAULT)
@@ -336,6 +346,11 @@ mod tests {
                 context.block_on(async {
                     let directory = Directory::new();
                     let file = directory.file();
+                    let missing_parent = gio::File::for_path(directory.0.join("missing/query.sql"));
+                    assert!(matches!(
+                        save(&missing_parent, String::new(), false, SaveTarget::New).await,
+                        Err(FileError::Io(error)) if error.matches(gio::IOErrorEnum::NotFound)
+                    ));
                     let text = "  select 'é';\r\n\r\n \n";
                     let etag = save(&file, text.into(), true, SaveTarget::New)
                         .await
