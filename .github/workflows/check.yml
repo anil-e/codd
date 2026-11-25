@@ -41,7 +41,7 @@ jobs:
             python3-tomlkit
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Check Flatpak Cargo sources
         run: |
