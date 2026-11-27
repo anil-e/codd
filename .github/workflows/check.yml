@@ -26,6 +26,7 @@ jobs:
             cmake \
             gcc \
             desktop-file-utils \
+            diffutils \
             gettext \
             gettext-devel \
             git \
@@ -40,12 +41,13 @@ jobs:
             python3-tomlkit
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Check Flatpak Cargo sources
         run: |
+          cp cargo-sources.json "$RUNNER_TEMP/cargo-sources.before.json"
           scripts/update-cargo-sources.sh
-          git diff --exit-code -- cargo-sources.json
+          diff -u "$RUNNER_TEMP/cargo-sources.before.json" cargo-sources.json
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
