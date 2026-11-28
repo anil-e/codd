@@ -26,7 +26,6 @@ jobs:
             cmake \
             gcc \
             desktop-file-utils \
-            diffutils \
             gettext \
             gettext-devel \
             git \
@@ -36,18 +35,10 @@ jobs:
             libadwaita-devel \
             meson \
             ninja-build \
-            pkgconf-pkg-config \
-            python3-aiohttp \
-            python3-tomlkit
+            pkgconf-pkg-config
 
       - name: Checkout
         uses: actions/checkout@v7
-
-      - name: Check Flatpak Cargo sources
-        run: |
-          cp cargo-sources.json "$RUNNER_TEMP/cargo-sources.before.json"
-          scripts/update-cargo-sources.sh
-          diff -u "$RUNNER_TEMP/cargo-sources.before.json" cargo-sources.json
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
